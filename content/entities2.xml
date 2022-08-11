@@ -1,0 +1,113 @@
+<entities anm2root="gfx/" version="5" deathanm2="gfx/death_enemies.anm2">
+	<!-- Projectiles -->
+	<entity anm2path="feather_projectile.anm2" baseHP="0" collisionDamage="0" collisionMass="8" collisionRadius="10" friction="1" subtype="0" id="9" name="Angelic Feather Projectile" numGridCollisionPoints="8" shadowSize="10" variant="400"/>
+	<entity anm2path="cocoon_projectile.anm2"  baseHP="0" collisionDamage="0" collisionMass="8" collisionRadius="10" friction="1" subtype="0" id="9" name="Spider Cocoon Projectile"   numGridCollisionPoints="8" shadowSize="10" variant="401"/>
+
+
+	<!-- Enemies -->
+    <entity anm2path="010.002_FlamingGaper.anm2" baseHP="10" boss="0" champion="1" collisionDamage="1" collisionMass="5" collisionRadius="13" friction="1" id="10" name="#FLAMING_GAPER" numGridCollisionPoints="12" portrait="135" reroll="true" shadowSize="14" stageHP="0" variant="1" subtype="442">
+        <bestiary parent="10.2"/>
+        <gibs amount="6" blood="1" bone="1" eye="1" gut="1" large="0"/>
+    </entity>
+
+	<entity anm2path="Bubble.anm2" baseHP="10" boss="0" champion="0" collisionDamage="0" collisionMass="4" collisionRadius="18" friction="1" gridCollision="walls" id="13" name="Bubble" numGridCollisionPoints="4" portrait="5" reroll="true" shadowSize="11" stageHP="0" tags="fly" variant="440">
+        <bestiary anim="Fly" transform="0,0,1"/>
+        <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
+    </entity>
+	<entity anm2path="025.002_Drowned Boom Fly.anm2" baseHP="8" boss="0" champion="1" collisionDamage="1" collisionMass="7" collisionRadius="13" friction="1" gridCollision="walls" id="25" name="#DROWNED_BOOM_FLY" numGridCollisionPoints="12" portrait="138" reroll="true" shadowSize="20" stageHP="3" tags="fly explosive_soul" variant="0" subtype="442">
+        <bestiary parent="25.2"/>
+        <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
+    </entity>
+
+	<entity anm2path="043.001_Gish.anm2" baseHP="630" boss="1" bossID="19" champion="0" collisionDamage="1" collisionMass="50" collisionRadius="35" friction="1" id="200" name="#GISH" numGridCollisionPoints="12" portrait="8" shadowSize="50" stageHP="0" variant="4043">
+        <bestiary parent="43.1"/>
+        <gibs amount="18" blood="1" bone="0" eye="0" gut="1" large="1"/>
+    </entity>
+
+	<entity anm2path="055.002_Holy Leech.anm2" baseHP="24" boss="0" champion="1" collisionDamage="2" collisionMass="10" collisionRadius="13" friction="1" gridCollision="walls" id="55" name="#HOLY_LEECH" numGridCollisionPoints="12" portrait="44" reroll="true" shadowSize="17" stageHP="0" tags="explosive_soul" variant="0" subtype="442">
+        <bestiary parent="55.2"/>
+        <gibs amount="6" blood="1" bone="0" eye="1" gut="1" large="0"/>
+    </entity>
+
+	<entity anm2path="065.011_Conquest without horse.anm2" baseHP="500" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" id="65" name="Conquest without horse" numGridCollisionPoints="0" portrait="30" shadowSize="19" stageHP="0" variant="11">
+        <bestiary parent="65.1"/>
+		<gibs amount="12" blood="1" bone="1" eye="0" gut="1" large="1"/>
+    </entity>
+	<entity anm2path="065.020_Conquest Horse.anm2" baseHP="120" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" id="65" name="Conquest Horse" numGridCollisionPoints="0" portrait="31" shadowSize="19" stageHP="0" tags="nodelirium" variant="20">
+        <gibs amount="6" blood="1" bone="1" eye="0" gut="0" large="0"/>
+    </entity>
+
+    <entity anm2path="079.012_The Blighted Ovum Baby.anm2" baseHP="65" boss="1" bossID="32" champion="0" collisionDamage="1" collisionMass="20" collisionRadius="13" friction="1" gridCollision="walls" id="200" name="#THE_BLIGHTED_OVUM_BABY" numGridCollisionPoints="12" portrait="51" shadowSize="14" stageHP="0" tags="ghost" variant="4079" subtype="1">
+        <bestiary parent="79.12"/>
+        <gibs amount="6" blood="1" bone="1" eye="1" gut="1" large="0"/>
+    </entity>
+	
+	<entity anm2path="086.001_Coffer.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="86" name="Coffer" numGridCollisionPoints="12" portrait="25" reroll="true" shadowSize="14" stageHP="1" variant="450">
+        <bestiary anim="JumpDown" transform="0,0,1"/>
+        <gibs amount="6" blood="1" bone="0" dust="1" eye="0" gut="0" large="0"/>
+    </entity>
+
+	<entity anm2path="097.000_Mask of Infamy.anm2" baseHP="150" boss="1" bossID="35" champion="0" collisionDamage="1" collisionMass="30" collisionRadius="20" friction="1" id="200" name="#MASK_OF_INFAMY" numGridCollisionPoints="12" portrait="56" shadowSize="26" stageHP="0" variant="4097">
+        <bestiary parent="97.0"/>
+        <gibs amount="14" blood="1" bone="1" eye="0" gut="1" large="1"/>
+    </entity>
+    <entity anm2path="098.000_Heart of Infamy.anm2" baseHP="500" boss="1" bossID="35" champion="0" collisionDamage="1" collisionMass="30" collisionRadius="30" friction="1" id="200" name="#HEART_OF_INFAMY" numGridCollisionPoints="12" portrait="56" shadowSize="23" stageHP="0" variant="4098">
+        <bestiary parent="98.0"/>
+        <gibs amount="20" blood="1" bone="0" eye="0" gut="0" large="1"/>
+    </entity>
+
+    <entity anm2path="226.000_Skinny.anm2" baseHP="10" boss="0" champion="1" collisionDamage="1" collisionMass="14" collisionRadius="13" friction="1" id="200" name="#SKINNY" numGridCollisionPoints="12" portrait="103" reroll="true" shadowSize="14" stageHP="4" variant="4226">
+        <bestiary parent="226.0"/>
+        <gibs amount="6" blood="1" bone="1" eye="0" gut="0" large="0"/>
+    </entity>
+    <entity anm2path="226.001_Rotty.anm2" baseHP="16" boss="0" champion="1" collisionDamage="1" collisionMass="14" collisionRadius="13" friction="1" id="200" name="#ROTTY" numGridCollisionPoints="12" portrait="103" reroll="true" shadowSize="14" stageHP="5" variant="4226" subtype="1">
+        <bestiary parent="226.1"/>
+        <gibs amount="6" blood="1" bone="1" eye="0" gut="0" large="0"/>
+    </entity>
+
+    <entity anm2path="230.000_CamilloJr.anm2" baseHP="32" boss="0" champion="1" collisionDamage="1" collisionMass="22" collisionRadius="16" friction="1" gridCollision="walls" id="212" name="#CAMILLO_JR" numGridCollisionPoints="12" portrait="107" reroll="true" shadowSize="26" stageHP="0" variant="1" subtype="4230">
+        <bestiary parent="230.0"/>
+        <gibs amount="5" blood="1" bone="0" eye="1" gut="0" large="0"/>
+    </entity>
+    <entity anm2path="039.022_CamilloJr Projectile.anm2" baseHP="1000" boss="0" champion="1" collisionDamage="2" collisionInterval="1" collisionMass="10" collisionRadius="13" friction="1" gridCollision="none" id="39" name="Camillo Jr. Projectile" numGridCollisionPoints="12" portrait="35" shadowSize="15" stageHP="0" variant="22" subtype="230">
+        <bestiary parent="230.0"/>
+		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
+    </entity>
+    <entity anm2path="865.010_CamilloJr Cord.anm2" baseHP="0" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="15" friction="1" id="865" name="Camillo Jr. Cord" numGridCollisionPoints="1" shadowSize="5" shutdoors="false" stageHP="0" tags="noreroll" variant="10" subtype="230">
+        <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
+    </entity>
+
+    <entity anm2path="246.000_Ragling Rags.anm2" baseHP="13" boss="0" champion="1" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="200" name="Ragling Rags" numGridCollisionPoints="12" portrait="178" shadowSize="28" shutdoors="false" stageHP="0" tags="spider homing_soul noreroll" variant="4246">
+        <bestiary parent="246.0"/>
+        <gibs amount="1" blood="0" bone="0" dust="1" eye="0" gut="0" large="0"/>
+    </entity>
+
+	<entity anm2path="278.000_Black Globin.anm2" baseHP="33" boss="0" champion="1" collisionDamage="2" collisionMass="10" collisionRadius="13" friction="1" id="200" name="#BLACK_GLOBIN" numGridCollisionPoints="12" portrait="142" reroll="true" shadowSize="14" stageHP="0" variant="4278">
+        <bestiary parent="278.0"/>
+        <gibs amount="6" blood="1" bone="1" eye="0" gut="1" large="0" worm="1"/>
+    </entity>
+    <entity anm2path="279.000_Black Globins Head.anm2" baseHP="20" boss="0" champion="1" collisionDamage="2" collisionMass="10" collisionRadius="13" friction="1" id="200" name="#BLACK_GLOBINS_HEAD" numGridCollisionPoints="12" portrait="125" reroll="true" shadowSize="25" stageHP="0" variant="4279">
+        <bestiary parent="279.0"/>
+        <gibs amount="6" blood="1" bone="0" eye="0" gut="0" large="0"/>
+    </entity>
+
+	<entity anm2path="286.000_FleshDeathsHead.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="20" collisionRadius="13" friction="1" gridCollision="walls" id="212" name="#FLESH_DEATHS_HEAD" numGridCollisionPoints="12" portrait="132" shadowSize="17" stageHP="0" variant="1" subtype="4286">
+        <bestiary parent="286.0"/>
+        <gibs amount="8" blood="0" bone="1" eye="0" gut="0" large="0"/>
+    </entity>
+
+    <entity anm2path="303.000_Blister.anm2" baseHP="16" boss="0" champion="1" collisionDamage="1" collisionMass="5" collisionRadius="13" friction="1" id="29" name="#BLISTER" numGridCollisionPoints="12" portrait="157" shadowSize="14" stageHP="8" tags="spider" variant="1" subtype="303">
+        <bestiary parent="303.0"/>
+        <gibs amount="6" blood="1" bone="1" eye="1" gut="1" large="0"/>
+    </entity>
+
+    <entity anm2path="403.000_TheForsaken.anm2" baseHP="400" boss="1" bossID="59" champion="0" collisionDamage="1" collisionMass="50" collisionRadius="26" friction="1" id="200" name="#THE_FORSAKEN" numGridCollisionPoints="12" portrait="81" shadowSize="28" stageHP="0" tags="ghost" variant="4403">
+        <bestiary parent="403.0"/>
+        <gibs amount="10" blood="0" bone="1" dust="1" eye="0" gut="0" large="1" sound_bone="1"/>
+    </entity>
+
+
+	<!-- Effects -->
+	<entity anm2path="1000.147_fire ring.anm2" collisionDamage="10" collisionMass="8" collisionRadius="0" friction="1" subtype="40" id="1000" name="Fire Ring"    numGridCollisionPoints="0" shadowSize="0" variant="147"/>
+	<entity anm2path="healing_aura.anm2" 	   collisionDamage="0"  collisionMass="0" collisionRadius="0" friction="1" subtype="0"  id="1000" name="Healing Aura" numGridCollisionPoints="0" shadowSize="0" variant="868"/>
+</entities>
