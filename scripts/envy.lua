@@ -82,3 +82,12 @@ function mod:envyDeath(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.envyDeath, EntityType.ENTITY_ENVY)
+
+
+
+function mod:championEnvyReward(entity)
+	if entity.SpawnerType == EntityType.ENTITY_ENVY and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= Isaac.GetItemIdByName("Doctor's Remote") then
+		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, Isaac.GetItemIdByName("Doctor's Remote"), false, true, false)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championEnvyReward, PickupVariant.PICKUP_COLLECTIBLE)

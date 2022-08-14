@@ -7,10 +7,10 @@ local Settings = {
 	MoveSpeed = 5,
 	StompShotSpeed = 9,
 
-	HeadSmashSpeed = 8,
+	HeadSmashSpeed = 7,
 	HeadSmashTimer = 24,
 	HeadSmashScreenShake = 14,
-	HeadSmashShotSpeed = 13
+	HeadSmashShotSpeed = 12
 }
 
 

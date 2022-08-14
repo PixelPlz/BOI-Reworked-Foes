@@ -1,6 +1,8 @@
 local mod = BetterMonsters
 local game = Game()
 
+local featherVariant = Isaac.GetEntityVariantByName("Angelic Feather Projectile")
+
 local Settings = {
 	FeatherShotSpeed = 10,
 	PushBackSpeed = 20,
@@ -29,7 +31,7 @@ function mod:angelicBabyUpdate(entity)
 
 			-- Helix feather shots
 			local params = ProjectileParams()
-			params.Variant = 400
+			params.Variant = featherVariant
 			params.FallingAccelModifier = -0.15
 			params.ChangeTimeout = 21
 			params.CurvingStrength = 0.0075
@@ -75,5 +77,19 @@ function mod:angelFeatherUpdate(projectile)
 		sprite:Play("Move", true)
 	end
 	sprite.Rotation = projectile.Velocity:GetAngleDegrees()
+	
+	if projectile:IsDead() then
+		local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BULLET_POOF, 0, projectile.Position, Vector.Zero, projectile):GetSprite()
+		effect.Scale = Vector(0.75, 0.75)
+		effect.Color = Color(1,1,1, 1, 1,1,1)
+	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.angelFeatherUpdate, 400)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.angelFeatherUpdate, featherVariant)
+
+function mod:smallAngelicBabyProjectileUpdate(projectile)
+	if projectile.SpawnerType == EntityType.ENTITY_BABY and projectile.SpawnerVariant == 1 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 then
+		projectile.Variant = featherVariant
+		projectile:GetSprite():Load("gfx/feather_projectile.anm2", true)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.smallAngelicBabyProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)

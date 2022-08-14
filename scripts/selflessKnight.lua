@@ -2,9 +2,9 @@ local mod = BetterMonsters
 local game = Game()
 
 local Settings = {
-	SpeedMultiplier = 0.95,
-	Cooldown = 30,
-	ShotSpeed = 10
+	SpeedMultiplier = 0.925,
+	Cooldown = 50,
+	ShotSpeed = 9
 }
 
 
@@ -21,7 +21,7 @@ function mod:selflessKnightUpdate(entity)
 
 				entity:FireProjectiles(entity.Position, -entity.Velocity:Normalized() * Settings.ShotSpeed, 0, params)
 				entity.ProjectileCooldown = Settings.Cooldown
-				SFXManager():Play(SoundEffect.SOUND_TEARS_FIRE, 0.5)
+				SFXManager():Play(SoundEffect.SOUND_TEARS_FIRE, 0.75)
 			end
 
 		else

@@ -1,8 +1,11 @@
 BetterMonsters = RegisterMod("Better Vanilla Monsters", 1)
 local mod = BetterMonsters
 local game = Game()
+local json = require("json")
 
+-- Useful colors & values --
 sunBeamColor = Color(1,1,1, 1, 0.3,0.3,0)
+ghostGibs = Color(1,1,1, 0.25, 1,1,1)
 
 tarBulletColor = Color(0.5,0.5,0.5, 1, 0,0,0)
 tarBulletColor:SetColorize(1, 1, 1, 1)
@@ -15,10 +18,70 @@ greenBulletColor:SetColorize(0, 1, 0, 1)
 
 
 
+-- Mod config menu --
+IRFconfig = {
+	-- General
+	breakableHosts = true,
+
+	-- Compatibility
+	honeyVeeSprites = false
+}
+
+-- Load settings
+function mod:postGameStarted()
+    if mod:HasData() then
+        local data = json.decode(mod:LoadData())
+        for k, v in pairs(data) do
+            if IRFconfig[k] ~= nil then IRFconfig[k] = v end
+        end
+    end
+end
+mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.postGameStarted)
+
+-- Save settings
+function mod:preGameExit() mod:SaveData(json.encode(IRFconfig)) end
+mod:AddCallback(ModCallbacks.MC_PRE_GAME_EXIT, mod.preGameExit)
+
+-- Menu options
+if ModConfigMenu then
+  	local category = "Reworked Foes"
+	ModConfigMenu.RemoveCategory(category);
+  	ModConfigMenu.UpdateCategory(category, {
+		Name = category,
+		Info = "Change settings for Improved & Reworked Foes"
+	})
+	
+	-- General settings
+	ModConfigMenu.AddSetting(category, "General", {
+    	Type = ModConfigMenu.OptionType.BOOLEAN,
+	    CurrentSetting = function() return IRFconfig.breakableHosts end,
+	    Display = function() return "Breakable hosts: " .. (IRFconfig.breakableHosts and "True" or "False") end,
+	    OnChange = function(bool)
+	    	IRFconfig.breakableHosts = bool
+	    end,
+	    Info = {"Enable/Disable breakable hosts. (default = true)"}
+  	})
+	
+	-- Compatibility settings
+	ModConfigMenu.AddSetting(category, "Compatibility", {
+    	Type = ModConfigMenu.OptionType.BOOLEAN,
+	    CurrentSetting = function() return IRFconfig.honeyVeeSprites end,
+	    Display = function() return "HoneyVee's sprite mod compatibility: " .. (IRFconfig.honeyVeeSprites and "True" or "False") end,
+	    OnChange = function(bool)
+	    	IRFconfig.honeyVeeSprites = bool
+	    end,
+	    Info = {"Enable/Disable for compatibility with HoneyVee's sprite mod (until they add proper support for the mod). (default = false)"}
+  	})
+end
+
+
+
+-- External scripts --
 include("scripts.flamingGaper")
 include("scripts.clotty")
 include("scripts.drownedHive")
 include("scripts.drownedCharger")
+include("scripts.host")
 --include("scripts.dankGlobin")
 include("scripts.drownedBoomFly")
 include("scripts.hopper")
@@ -37,6 +100,7 @@ include("scripts.greed")
 include("scripts.envy")
 include("scripts.pride")
 include("scripts.holyLeech")
+include("scripts.lump")
 include("scripts.membrain")
 include("scripts.scarredParaBite")
 include("scripts.eye")
@@ -49,13 +113,13 @@ include("scripts.blightedOvum")
 include("scripts.fallen")
 include("scripts.headlessHorseman")
 include("scripts.satan")
+include("scripts.spiders")
 include("scripts.maskInfamy")
 --include("scripts.wretched")
 --include("scripts.blueBaby")
 include("scripts.daddyLongLegs")
 include("scripts.flamingFatty")
 include("scripts.dankDeathsHead")
-include("scripts.dankSquirt")
 include("scripts.skinny")
 include("scripts.nerveEnding2")
 include("scripts.camilloJr")
@@ -75,22 +139,37 @@ include("scripts.forsaken")
 
 
 --[[ Planned:
-	-- Low priority:
-		-- selfless knight
-		-- teratoma
-		-- blue baby
-		-- psy tumor
-		-- floating knight
-		-- better boss champions
-		-- better holy leech?
-		-- better super greed?
-		-- better blighted ovum?
-	
-	-- High priority:
-		-- dank globin
-		-- monstro 2
-		-- lokii
-		-- wretched
-		-- rag mega
-		-- fix some slowed enemies doing their attack multiple times
+	-- psy tumor
+	-- better boss champions
+	-- better super greed?
+	-- cyclopia
+	-- pale fatty + parts
+	-- walking boils
+	-- black globins body?
+	-- stain
+	-- suicide pooper
+	-- knight variants
+	-- code rewrites
+	-- dank globin
+	-- monstro 2
+	-- wretched
+	-- fix some slowed enemies doing their attack multiple times
+	-- better poofer
+	-- lot of shit AAAAA
+	-- more config optionsfnafjfsFNBklsjnfdSÉLAOJoé
+	-- make gurglings resistant to knockback
+	-- greed gapers
+	-- Tainted Faceless (feels like it should be more challenging than just a buffier normal Faceless)
+	-- Scarred Guts (could do something cooler than just leaving trail of creep)
+	-- Bone Knight? (unsure about this one but it also feels slightly boring)
+	-- Cod Worm (make it not wait 5 minutes to open up or smth pls i beg)
+	-- C.H.A.D. (minor rework)
+	-- Lokii (major rework)
+	-- Red Mega Maw (slight adjustments)
+	-- Teratoma (minor rework)
+	-- Loki (minor rework)
+	-- Rag Mega (major rework)
+	-- Sisters Vis (minor/major rework (?))
+	-- Blue Baby (major rework)
+	-- Mama guts?
 ]]--

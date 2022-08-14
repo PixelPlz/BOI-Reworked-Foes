@@ -25,16 +25,6 @@ function mod:prideUpdate(entity)
 				SFXManager():Play(SoundEffect.SOUND_BLOOD_LASER, 1.25, 0, false, 1)
 				--SFXManager():Play(SoundEffect.SOUND_BLOOD_LASER_SMALL, 1.1, 0, false, 1) -- For flash brimstone sound
 
-				-- Projectiles
-				local params = ProjectileParams()
-				if entity.Variant == 0 then
-					params.Color = prideBulletColor
-				elseif entity.Variant == 1 then
-					params.Color = superPrideBulletColor
-					params.Scale = 1.25
-				end
-				entity:FireProjectiles(entity.Position, Vector(14, 0), 6 + entity.I2, params)
-			
 			elseif entity.SubType == 1 then
 				entity.I2 = 1
 			end
@@ -72,22 +62,21 @@ function mod:prideUpdate(entity)
 	elseif entity.State == NpcState.STATE_ATTACK4 then
 		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
 
-		if sprite:IsEventTriggered("Beam") or sprite:IsEventTriggered("Shoot") then
+		if sprite:IsEventTriggered("Beam") then
 			local room = game:GetRoom()
 			local vector = room:GetGridPosition(room:GetGridIndex(room:FindFreeTilePosition(Isaac.GetRandomPosition(), 80)))
 			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACK_THE_SKY, 2, vector, Vector.Zero, entity):GetSprite().Color = sunBeamColor
-			
-			if sprite:IsEventTriggered("Shoot") then
-				SFXManager():Play(SoundEffect.SOUND_ANGEL_BEAM, 0.9)
-			end
+		
+		elseif sprite:IsEventTriggered("Shoot") then
+			SFXManager():Play(SoundEffect.SOUND_ANGEL_BEAM, 0.9)
 		end
 
 		if sprite:IsFinished("Attack02") then
 			entity.State = NpcState.STATE_MOVE
 		end
 	end
-	
-	
+
+
 	-- Better blood color
 	if entity:HasMortalDamage() then
 		if entity.Variant == 0 then
@@ -98,6 +87,15 @@ function mod:prideUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.prideUpdate, EntityType.ENTITY_PRIDE)
+
+
+
+function mod:championPrideReward(entity)
+	if entity.SpawnerType == EntityType.ENTITY_PRIDE and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= Isaac.GetItemIdByName("Crack the Sky") then
+		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, Isaac.GetItemIdByName("Crack the Sky"), false, true, false)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championPrideReward, PickupVariant.PICKUP_COLLECTIBLE)
 
 
 

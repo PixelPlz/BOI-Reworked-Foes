@@ -43,11 +43,11 @@ function mod:eyeUpdate(entity)
 			local pitch = 1.1
 			local offset = 16
 			if entity.Variant == 1 then
-				pitch = 0.9
+				pitch = 1
 				offset = 0
 				sprite.PlaybackSpeed = 0.9
 			end
-			SFXManager():Play(SoundEffect.SOUND_LASERRING_WEAK, 1.25, 0, false, pitch)
+			SFXManager():Play(SoundEffect.SOUND_LASERRING_WEAK, 1.15, 0, false, pitch)
 
 			local tracer = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.GENERIC_TRACER, 0, entity.Position + (Vector.FromAngle(entity.V1.X) * 20) + Vector(0, entity.SpriteScale.Y * offset), Vector.Zero, entity):ToEffect()
 			tracer.LifeSpan = 15

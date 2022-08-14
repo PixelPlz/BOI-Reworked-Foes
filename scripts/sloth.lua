@@ -77,6 +77,7 @@ function mod:slothUpdate(entity)
 						params.Color = skyBulletColor
 						params.FallingAccelModifier = 0.5
 						params.Scale = 1.1
+						params.VelocityMulti = 1.1
 						entity:FireBossProjectiles(8, target.Position, 4, params)
 					end
 				end
@@ -126,9 +127,23 @@ function mod:slothDMG(target, damageAmount, damageFlags, damageSource, damageCou
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.slothDMG, EntityType.ENTITY_SLOTH)
 
-function mod:slothProjectileUpdate(entity)
-	if entity.SpawnerType == EntityType.ENTITY_SLOTH and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity:IsDead() then
-		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_WHITE, 0, entity.Position, Vector.Zero, entity):ToEffect().Scale = 1.25
+function mod:slothProjectileUpdate(projectile)
+	if projectile.SpawnerType == EntityType.ENTITY_SLOTH and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 and projectile:IsDead() then
+		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_WHITE, 0, projectile.Position, Vector.Zero, projectile):ToEffect().Scale = 1.25
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.slothProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)
+
+
+
+function mod:championSlothReward(entity)
+	if entity.SpawnerType == EntityType.ENTITY_SLOTH and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
+		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= Isaac.GetItemIdByName("Spider Bite") then
+			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, Isaac.GetItemIdByName("Spider Bite"), false, true, false)
+		
+		elseif entity.Variant == PickupVariant.PICKUP_TAROTCARD then
+			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_PILL, 0, false, true, false)
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championSlothReward)

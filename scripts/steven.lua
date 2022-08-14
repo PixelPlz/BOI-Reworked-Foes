@@ -1,16 +1,6 @@
 local mod = BetterMonsters
 local game = Game()
 
-local stevenColors = {
-	Color(1,1,1, 1, 0,0,0),
-	Color(1,1,1, 1, 0.2,0,0),
-	Color(1,1,1, 1, 0,0.15,0),
-	Color(1,1,1, 1, 0,0,0.175),
-	Color(1,1,1, 1, 0.175,0.125,0),
-	Color(1,1,1, 1, 0.175,0,0.125),
-	Color(1,1,1, 1, 0,0.15,0.15)
-}
-
 
 
 function mod:stevenInit(entity)
@@ -43,7 +33,6 @@ function mod:stevenUpdate(entity)
 		-- Teleport
 		local function stevenTeleport()
 			entity.Position = Vector(room:GetBottomRightPos().X + (room:GetTopLeftPos().X - entity.Position.X), room:GetBottomRightPos().Y + (room:GetTopLeftPos().Y - entity.Position.Y))
-			data.color = stevenColors[math.random(1, #stevenColors)]
 			entity:SetColor(Color(1,1,1, 1, 1,1,1), 5, 1, true, false)
 
 			SFXManager():Play(SoundEffect.SOUND_STATIC)
@@ -52,9 +41,15 @@ function mod:stevenUpdate(entity)
 
 			if data.child then
 				data.child.Position = Vector(room:GetBottomRightPos().X + (room:GetTopLeftPos().X - data.child.Position.X), room:GetBottomRightPos().Y + (room:GetTopLeftPos().Y - data.child.Position.Y))
-				data.child:GetData().color = data.color
 				data.child:SetColor(Color(1,1,1, 1, 1,1,1), 5, 1, true, false)
 				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BIG_SPLASH, 2, data.child.Position, Vector.Zero, data.child).DepthOffset = data.child.DepthOffset + 10
+				
+				-- Prevent steven baby from shooting right after teleporting
+				data.child:ToNPC().ProjectileCooldown = 30
+				if data.child:ToNPC().State == NpcState.STATE_ATTACK then
+					data.child:ToNPC().State = NpcState.STATE_MOVE
+					data.child:GetSprite():Play("Walk01", true)
+				end
 			end
 		end
 
@@ -66,12 +61,6 @@ function mod:stevenUpdate(entity)
 			else
 				data.timer = data.timer - 1
 			end
-		end
-
-
-		-- Random color after teleporting
-		if data.color then
-			sprite.Color = data.color
 		end
 	end
 end

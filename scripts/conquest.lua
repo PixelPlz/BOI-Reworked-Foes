@@ -23,7 +23,7 @@ function mod:conquestUpdate(entity)
 		local sprite = entity:GetSprite()
 
 		-- Go to 2nd phase
-		if not entity.SpawnerEntity and entity.HitPoints <= entity.MaxHitPoints / 2 and entity.State ~= NpcState.STATE_ATTACK2 then
+		if not entity.SpawnerEntity and entity.HitPoints <= entity.MaxHitPoints / 2 and entity.State ~= NpcState.STATE_ATTACK2 and game:GetRoom():GetBossID() ~= 70 then
 			-- Conquest without horse
 			local conquest = Isaac.Spawn(EntityType.ENTITY_WAR, 11, entity.SubType, entity.Position, Vector.Zero, entity):ToNPC()
 			conquest.State = NpcState.STATE_APPEAR_CUSTOM
@@ -121,7 +121,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.conquestUpdate, EntityType.ENTIT
 
 function mod:conquestDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.Type == EntityType.ENTITY_WAR or damageSource.SpawnerType == EntityType.ENTITY_WAR or (target.Variant == 1 and (target.HitPoints <= target.MaxHitPoints / 2
-	or (target.SpawnerEntity and target.SpawnerType == EntityType.ENTITY_WAR and target.SpawnerVariant == 1 and target.SpawnerEntity.HitPoints <= target.SpawnerEntity.MaxHitPoints / 2))) then
+	or (target.Variant == 1 and target.SpawnerEntity and target.SpawnerType == EntityType.ENTITY_WAR and target.SpawnerVariant == 1 and target.SpawnerEntity.HitPoints <= target.SpawnerEntity.MaxHitPoints / 2))) then
 		return false
 	end
 	
@@ -281,7 +281,7 @@ function mod:conquestPreUpdate(entity)
 					entity.I1 = 1
 					entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS_Y
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-					entity.Mass = 0
+					--entity.Mass = 0 makes explosions not work??
 
 					if sprite.FlipX == false then
 						entity.V1 = Vector(1, 0)

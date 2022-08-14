@@ -7,7 +7,8 @@ local Settings = {
 
 	DeathShotSpeed = 12,
 	TransparencyTimer = 10,
-	Cooldown = {80, 120}
+	Cooldown = {80, 120},
+	Range = 440
 }
 
 local States = {
@@ -17,13 +18,11 @@ local States = {
 	Enrage = 3
 }
 
-local ghostGibs = Color(1,1,1, 0.25, 1,1,1)
-
 
 
 function mod:blightedOvumBabyInit(entity)
 	if entity.Variant == 12 then
-		entity:Morph(200, 4079, 1, entity:GetChampionColorIdx())
+		entity:Morph(200, 4079, 0, entity:GetChampionColorIdx())
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blightedOvumBabyInit, EntityType.ENTITY_GEMINI)
@@ -113,7 +112,9 @@ function mod:blightedOvumBabyUpdate(entity)
 			end
 
 			if entity.ProjectileCooldown <= 0 then
-				data.state = States.Attacking
+				if entity.Position:Distance(target.Position) <= Settings.Range then
+					data.state = States.Attacking
+				end
 			else
 				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 			end
@@ -178,7 +179,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.blightedOvumBabyUpdate, 200)
 
 function mod:blightedOvumBabyDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == 4079 then
-		if target.SubType == 1 and target:ToNPC().I1 == 0 then
+		if target:ToNPC().I1 == 0 then
 			target:GetData().transTimer = Settings.TransparencyTimer
 			return false
 		

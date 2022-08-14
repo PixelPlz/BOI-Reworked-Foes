@@ -2,12 +2,12 @@ local mod = BetterMonsters
 local game = Game()
 
 local Settings = {
-	MoveSpeed = 5,
-	RunSpeed = 8,
-	JumpSpeed = 14,
-	AirSpeed = 11,
+	MoveSpeed = 4.5,
+	RunSpeed = 7.5,
+	JumpSpeed = 13,
+	AirSpeed = 10,
 
-	MoveTime = 75,
+	MoveTime = 90,
 	RunTime = 45,
 	
 	ShotSpeed = 11,
@@ -52,7 +52,7 @@ function mod:gishUpdate(entity)
 			else
 				sprite.FlipX = false
 			end
-		end		
+		end
 
 
 		if not data.state then

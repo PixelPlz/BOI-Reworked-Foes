@@ -3,7 +3,7 @@ local game = Game()
 
 local Settings = {
 	TouchHeal = 10,
-	ItemCount = 3,
+	ItemCount = 4,
 	SpeedNerf = 0.985,
 
 	GrowAmount = 1.15,
@@ -365,7 +365,7 @@ function mod:lustDMG(target, damageAmount, damageFlags, damageSource, damageCoun
 		end
 	end
 
-	-- Use item at 75%, 50% and 25% health
+	-- Use item at 80%, 60%, 40% and 20% health
 	if target.HitPoints < target.MaxHitPoints - ((target.MaxHitPoints / (Settings.ItemCount + 1)) * (target:ToNPC().I1 + 1)) then
 		target:ToNPC().I1 = target:ToNPC().I1 + 1
 		target:ToNPC().State = NpcState.STATE_ATTACK
@@ -396,3 +396,17 @@ function mod:lustHit(target, damageAmount, damageFlags, damageSource, damageCoun
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.lustHit)
+
+
+
+function mod:championLustReward(entity)
+	if entity.SpawnerType == EntityType.ENTITY_LUST and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
+		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= Isaac.GetItemIdByName("Card Reading") then
+			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, Isaac.GetItemIdByName("Card Reading"), false, true, false)
+		
+		elseif entity.Variant == PickupVariant.PICKUP_PILL then
+			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_TAROTCARD, 0, false, true, false)
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championLustReward)

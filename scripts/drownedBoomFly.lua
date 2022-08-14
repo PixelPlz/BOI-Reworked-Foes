@@ -3,15 +3,18 @@ local game = Game()
 
 
 
-function mod:drownedBoomFlyInit(entity)
-	if entity.Variant == 2 then
-		entity:Morph(EntityType.ENTITY_BOOMFLY, 0, 442, entity:GetChampionColorIdx())
+function mod:drownedBoomFlyUpdate(entity)
+	if entity.Variant == 2 and entity:IsDead() then
+		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.drownedBoomFlyInit, EntityType.ENTITY_BOOMFLY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.drownedBoomFlyUpdate, EntityType.ENTITY_BOOMFLY)
 
 function mod:drownedBoomFlyDeath(entity)
-	if entity.Variant == 0 and entity.SubType == 442 then
+	if entity.Variant == 0 and entity.SubType == 442 or entity.Variant == 2 then
+		game:BombExplosionEffects(entity.Position, 100, TearFlags.TEAR_NORMAL, Color(1,1,1, 1, 0,0,0.1), entity, 1, true, true, DamageFlag.DAMAGE_EXPLOSION)
+		local impactCreep = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BIG_SPLASH, 0, entity.Position, Vector.Zero, entity)
+
 		local params = ProjectileParams()
 		params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
 		params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY

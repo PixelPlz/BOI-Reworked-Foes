@@ -1,6 +1,8 @@
 local mod = BetterMonsters
 local game = Game()
 
+local cofferVariant = Isaac.GetEntityVariantByName("Coffer")
+
 local Settings = {
 	CoinHealPercentage = 5,
 	CoinCollectRange = 20,
@@ -131,13 +133,22 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.greedHit)
 
 
 
+function mod:championGreedReward(entity)
+	if entity.SpawnerType == EntityType.ENTITY_GREED and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= Isaac.GetItemIdByName("Member Card") then
+		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, Isaac.GetItemIdByName("Member Card"), false, true, false)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championGreedReward, PickupVariant.PICKUP_COLLECTIBLE)
+
+
+
 -- Coffer / Keeper
 function mod:cofferReplace(entity)
 	if entity.Variant == 0 and entity.SubType == 0 and entity.SpawnerType == EntityType.ENTITY_GREED then
 		entity:Remove() -- Properly sets their stage HP
 
 		if entity.SpawnerEntity.SubType == 0 then
-			Isaac.Spawn(EntityType.ENTITY_KEEPER, 450, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):Update()
+			Isaac.Spawn(EntityType.ENTITY_KEEPER, cofferVariant, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):Update()
 
 		elseif entity.SpawnerEntity.SubType == 1 then
 			local coin = Isaac.Spawn(EntityType.ENTITY_ULTRA_COIN, 2, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
@@ -151,7 +162,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.cofferReplace, EntityType.ENT
 function mod:cofferUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	if entity.Variant == 450 then
+	if entity.Variant == cofferVariant then
 		-- Go towards coins
 		if not game:IsGreedMode() then
 			for _, pickup in pairs(Isaac.FindInRadius(entity.Position, 120, EntityPartition.PICKUP)) do
