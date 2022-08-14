@@ -1,8 +1,8 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2022-06-17 18:17:47" Version="111" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2022-08-13 13:51:43" Version="112" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="Monsters/Classic/Monster_000_Bodies01.png" Id="0"/>
+			<Spritesheet Path="monsters\afterbirth\gaper_body_burning.png" Id="0"/>
 			<Spritesheet Path="Monsters/Afterbirth/010.002_FlamingGaper.png" Id="1"/>
 			<Spritesheet Path="Monsters/Afterbirth/Enemy_Fire.png" Id="2"/>
 		</Spritesheets>
