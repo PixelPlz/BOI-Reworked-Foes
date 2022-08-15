@@ -91,8 +91,9 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.prideUpdate, EntityType.ENTITY_P
 
 
 function mod:championPrideReward(entity)
-	if entity.SpawnerType == EntityType.ENTITY_PRIDE and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= Isaac.GetItemIdByName("Crack the Sky") then
-		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, Isaac.GetItemIdByName("Crack the Sky"), false, true, false)
+	-- Crack the Sky
+	if entity.SpawnerType == EntityType.ENTITY_PRIDE and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= 160 then
+		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 160, false, true, false)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championPrideReward, PickupVariant.PICKUP_COLLECTIBLE)

@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2022-08-13 19:41:32" Version="105" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2022-08-14 21:23:16" Version="106" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="Monsters/Classic/Monster_198_Lump.png" Id="0"/>
@@ -200,7 +200,7 @@
 				</NullAnimation>
 			</NullAnimations>
 			<Triggers>
-				<Trigger EventId="1" AtFrame="17"/>
+				<Trigger EventId="1" AtFrame="16"/>
 			</Triggers>
 		</Animation>
 		<Animation Name="Hide" FrameNum="16" Loop="false">

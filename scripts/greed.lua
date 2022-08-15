@@ -134,8 +134,9 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.greedHit)
 
 
 function mod:championGreedReward(entity)
-	if entity.SpawnerType == EntityType.ENTITY_GREED and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= Isaac.GetItemIdByName("Member Card") then
-		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, Isaac.GetItemIdByName("Member Card"), false, true, false)
+	-- Midas' Touch
+	if entity.SpawnerType == EntityType.ENTITY_GREED and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= 202 then
+		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 202, false, true, false)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championGreedReward, PickupVariant.PICKUP_COLLECTIBLE)

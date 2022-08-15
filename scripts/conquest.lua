@@ -2,7 +2,7 @@ local mod = BetterMonsters
 local game = Game()
 
 local Settings = {
-	MoveSpeed = 5.5,
+	MoveSpeed = 5.75,
 	AttackCount = 3,
 
 	DashSpeed = 26,

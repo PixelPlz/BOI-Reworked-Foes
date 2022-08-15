@@ -22,6 +22,7 @@ greenBulletColor:SetColorize(0, 1, 0, 1)
 IRFconfig = {
 	-- General
 	breakableHosts = true,
+	blackBonyCostumes = true,
 
 	-- Compatibility
 	honeyVeeSprites = false
@@ -60,6 +61,15 @@ if ModConfigMenu then
 	    	IRFconfig.breakableHosts = bool
 	    end,
 	    Info = {"Enable/Disable breakable hosts. (default = true)"}
+  	})
+	ModConfigMenu.AddSetting(category, "General", {
+    	Type = ModConfigMenu.OptionType.BOOLEAN,
+	    CurrentSetting = function() return IRFconfig.blackBonyCostumes end,
+	    Display = function() return "Black Bony Indicator: " .. (IRFconfig.blackBonyCostumes and "Head Costume" or "Icon") end,
+	    OnChange = function(bool)
+	    	IRFconfig.blackBonyCostumes = bool
+	    end,
+	    Info = {"Blac Bony bomb type indicator. (default = Head Costume)"}
   	})
 	
 	-- Compatibility settings
@@ -172,4 +182,6 @@ include("scripts.forsaken")
 	-- Sisters Vis (minor/major rework (?))
 	-- Blue Baby (major rework)
 	-- Mama guts?
+	-- unique sins compat?
+	-- make conquest 2nd phase morph instead of remove the 1st phase
 ]]--

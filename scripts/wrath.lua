@@ -8,23 +8,42 @@ function mod:wrathUpdate(entity)
 	local target = entity:GetPlayerTarget()
 
 
+	if entity.State == NpcState.STATE_MOVE then
+		if entity.ProjectileCooldown > 0 then
+			entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+		end
+		entity:GetData().lastAnim = sprite:GetAnimation()
+
+
 	-- Custom attack
-	if entity.State == NpcState.STATE_ATTACK2 then
-		entity.State = NpcState.STATE_ATTACK3
+	elseif entity.State == NpcState.STATE_ATTACK2 then
+		-- Prevent them from spamming the bombs
+		if entity.ProjectileCooldown <= 0 then
+			entity.State = NpcState.STATE_ATTACK3
+		else
+			entity.State = NpcState.STATE_MOVE
+			sprite:Play(entity:GetData().lastAnim, true)
+		end
 
 	elseif entity.State == NpcState.STATE_ATTACK3 then
 		entity.Velocity = Vector.Zero
 
 		if sprite:GetFrame() == 4 then
+			entity.ProjectileCooldown = 30
+
 			-- Wrath bomber man bombs
-			if entity.Variant == 0 and entity.SubType == 0 then
+			if entity.Variant == 0 then
 				local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_NORMAL, 0, entity.Position, Vector.Zero, entity):ToBomb()
-				bomb:AddTearFlags(TearFlags.TEAR_CROSS_BOMB)
+				if entity.SubType == 0 then
+					bomb:AddTearFlags(TearFlags.TEAR_CROSS_BOMB)
+				elseif entity.SubType == 1 then
+					bomb:AddTearFlags(TearFlags.TEAR_BURN)
+				end
 				bomb.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 
 
 			-- Super Wrath
-			elseif entity.Variant == 1 or entity.SubType == 1 then
+			elseif entity.Variant == 1 then
 				local vector = (target.Position - entity.Position)
 				local speed = entity.Position:Distance(target.Position) / 15
 				if speed > 12 then
@@ -35,8 +54,8 @@ function mod:wrathUpdate(entity)
 				local type = BombVariant.BOMB_NORMAL
 				local flags = TearFlags.TEAR_NORMAL
 
-				-- Make the second bomb special for Super Wrath
-				if entity.Variant == 1 and entity.I2 == 1 then
+				-- Make the second bomb special
+				if entity.I2 == 1 then
 					local choose = math.random(1, 5)
 					if choose == 1 then
 						flags = TearFlags.TEAR_BURN
@@ -54,15 +73,11 @@ function mod:wrathUpdate(entity)
 					elseif choose == 5 then
 						flags = TearFlags.TEAR_CROSS_BOMB
 					end
-				
-				-- Champion Wrath
-				elseif entity.Variant == 0 and entity.SubType == 1 then
-					flags = TearFlags.TEAR_BURN
 				end
 
 
 				local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, type, 0, entity.Position + (vector:Normalized() * 20), vector:Normalized() * speed, entity):ToBomb()
-				bomb.PositionOffset = Vector(0, -28 - (entity.Variant * 10)) -- 28 is the minimum for it to go over rocks
+				bomb.PositionOffset = Vector(0, -38) -- 28 is the minimum for it to go over rocks
 				bomb:AddTearFlags(flags)
 				bomb.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 			end
@@ -83,11 +98,6 @@ function mod:wrathUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.wrathUpdate, EntityType.ENTITY_WRATH)
 
-function mod:wrathDeath(entity)
-	game:BombExplosionEffects(entity.Position, 100, TearFlags.TEAR_NORMAL, Color.Default, entity, 1 + (entity.Variant * 0.3), true, true, DamageFlag.DAMAGE_EXPLOSION)
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.wrathDeath, EntityType.ENTITY_WRATH)
-
 -- Don't take damage from non-player explosions
 function mod:wrathDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
@@ -99,8 +109,9 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.wrathDMG, EntityType.ENTITY
 
 
 function mod:championWrathReward(entity)
-	if entity.SpawnerType == EntityType.ENTITY_WRATH and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= Isaac.GetItemIdByName("Hot Bombs") then
-		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, Isaac.GetItemIdByName("Hot Bombs"), false, true, false)
+	-- Hot Bombs
+	if entity.SpawnerType == EntityType.ENTITY_WRATH and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= 256 then
+		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 256, false, true, false)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championWrathReward, PickupVariant.PICKUP_COLLECTIBLE)

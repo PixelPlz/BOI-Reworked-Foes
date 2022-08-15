@@ -64,9 +64,24 @@ function mod:blackBonyUpdate(entity)
 		elseif entity.SubType == 6 then
 			type = "Brimstone"
 		end
+
+		if IRFconfig.blackBonyCostumes == false then
+			if not sprite:IsOverlayPlaying("Bomb" .. type) then
+				entity:GetSprite():PlayOverlay("Bomb" .. type, true)
+			end
 		
-		if not sprite:IsOverlayPlaying("Bomb" .. type) then
-			entity:GetSprite():PlayOverlay("Bomb" .. type, true)
+		elseif entity.FrameCount <= 1 then
+			local suffix = ""
+			if entity:IsChampion() then
+				suffix = "_champion"
+			end
+			-- No spark for cross and brimstone variants
+			if entity.SubType == 1 or entity.SubType == 6 then
+				sprite:ReplaceSpritesheet(2, "")
+			end
+
+			sprite:ReplaceSpritesheet(1, "gfx/monsters/better/black boney/277.000_blackboney head_" .. entity.SubType .. suffix .. ".png")
+			sprite:LoadGraphics()
 		end
 	end
 

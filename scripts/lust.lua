@@ -401,9 +401,11 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.lustHit)
 
 function mod:championLustReward(entity)
 	if entity.SpawnerType == EntityType.ENTITY_LUST and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
-		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= Isaac.GetItemIdByName("Card Reading") then
-			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, Isaac.GetItemIdByName("Card Reading"), false, true, false)
+		-- Card Reading
+		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= 660 then
+			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 660, false, true, false)
 		
+		-- Cards
 		elseif entity.Variant == PickupVariant.PICKUP_PILL then
 			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_TAROTCARD, 0, false, true, false)
 		end
