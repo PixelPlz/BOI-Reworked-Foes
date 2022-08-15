@@ -31,6 +31,11 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.raglingInit, EntityType.ENTIT
 function mod:raglingUpdate(entity)
 	local sprite = entity:GetSprite()
 
+	if entity:GetChampionColorIdx() == 12 or entity:GetChampionColorIdx() == 20 then
+		entity:MakeChampion(1, 6, true)
+	end
+
+
 	-- Better jumping
 	entity.Velocity = entity.Velocity * Settings.SpeedMultiplier
 	if sprite:IsPlaying("Hop") and sprite:GetFrame() == 22 then
@@ -79,7 +84,7 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.raglingUpdate, EntityType.ENTITY_RAGLING)
 
 function mod:raglingDeath(entity)
-	if entity.Variant == 0 then
+	if entity.Variant == 0 and entity:GetChampionColorIdx() ~= 15 then
 		local rags = Isaac.Spawn(200, 4246, 0, entity.Position, Vector.Zero, nil)
 		if entity:IsChampion() then
 			rags:ToNPC():MakeChampion(1, entity:GetChampionColorIdx(), true)

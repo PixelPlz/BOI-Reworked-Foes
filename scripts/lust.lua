@@ -3,7 +3,7 @@ local game = Game()
 
 local Settings = {
 	TouchHeal = 10,
-	ItemCount = 4,
+	ItemCount = 3,
 	SpeedNerf = 0.985,
 
 	GrowAmount = 1.15,
@@ -271,7 +271,7 @@ function mod:lustUpdate(entity)
 			elseif entity.I2 == 7 then
 				if entity.SubType == 1 then
 					SFXManager():Play(SoundEffect.SOUND_SUMMONSOUND)
-					Isaac.Spawn(EntityType.ENTITY_KEEPER, 0, 0, entity.Position + Vector(0, 10), Vector.Zero, entity)
+					Isaac.Spawn(EntityType.ENTITY_GREED_GAPER, 0, 0, entity.Position + Vector(0, 10), Vector.Zero, entity)
 				
 				else
 					local type = EntityType.ENTITY_ATTACKFLY
@@ -365,7 +365,7 @@ function mod:lustDMG(target, damageAmount, damageFlags, damageSource, damageCoun
 		end
 	end
 
-	-- Use item at 80%, 60%, 40% and 20% health
+	-- Use item at 75%, 50% and 25% health
 	if target.HitPoints < target.MaxHitPoints - ((target.MaxHitPoints / (Settings.ItemCount + 1)) * (target:ToNPC().I1 + 1)) then
 		target:ToNPC().I1 = target:ToNPC().I1 + 1
 		target:ToNPC().State = NpcState.STATE_ATTACK
