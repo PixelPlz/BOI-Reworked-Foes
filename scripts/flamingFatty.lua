@@ -1,35 +1,35 @@
 local mod = BetterMonsters
 local game = Game()
 
+function IRFfireRing(entity)
+	local ring = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, 40, entity.Position, Vector.Zero, entity)
+	ring.DepthOffset = entity.DepthOffset - 10
+	ring.SpriteScale = Vector(1.25, 1.25)
+	SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END)
+
+	for i, e in pairs(Isaac.FindInRadius(entity.Position, 60, 40)) do
+		local dmg = 0
+		if e.Type == EntityType.ENTITY_PLAYER then
+			dmg = 1
+		end
+		e:TakeDamage(dmg, DamageFlag.DAMAGE_FIRE, EntityRef(entity), 0)
+	end
+end
+
 
 
 function mod:flamingFattyUpdate(entity)
-	if entity.Variant == 2 then
-		local sprite = entity:GetSprite()
-
-		-- Fire jet towards target
-		if sprite:IsEventTriggered("Shoot") then
-			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_WAVE, 0, entity.Position, Vector.Zero, entity):ToEffect().Rotation = (entity:GetPlayerTarget().Position - entity.Position):GetAngleDegrees()
-		end
+	-- Fire ring
+	if entity.Variant == 2 and entity:GetSprite():IsEventTriggered("Shoot") then
+		IRFfireRing(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingFattyUpdate, EntityType.ENTITY_FATTY)
 
 function mod:flamingFattyDeath(entity)
-	-- Fire ring on death
+	-- Fire ring
 	if entity.Variant == 2 then
-		local ring = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, 40, entity.Position, Vector.Zero, entity)
-		ring.DepthOffset = entity.DepthOffset - 10
-		ring.SpriteScale = Vector(1.2, 1.2)
-		SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END)
-
-		for i, e in pairs(Isaac.FindInRadius(entity.Position, 60, 40)) do
-			local dmg = 0
-			if e.Type == EntityType.ENTITY_PLAYER then
-				dmg = 1
-			end
-			e:TakeDamage(dmg, DamageFlag.DAMAGE_FIRE, EntityRef(entity), 0)
-		end
+		IRFfireRing(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.flamingFattyDeath, EntityType.ENTITY_FATTY)
