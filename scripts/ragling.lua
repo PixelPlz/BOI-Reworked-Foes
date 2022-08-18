@@ -119,6 +119,7 @@ function mod:raglingRagsUpdate(entity)
 		if entity.Child then
 			entity.Child.Position = entity.Position
 			entity.Child.Velocity = Vector.Zero
+			entity.Child:ToNPC().Scale = entity.Scale
 		end
 
 

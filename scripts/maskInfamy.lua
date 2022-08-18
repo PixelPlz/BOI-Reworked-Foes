@@ -301,7 +301,7 @@ function mod:maskInfamyUpdate(entity)
 				
 				elseif sprite:IsEventTriggered("Shoot") then
 					local params = ProjectileParams()
-					params.CircleAngle = 90
+					params.CircleAngle = 0.41
 					params.Scale = 1.5
 					entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed - 5, 8), 9, params)
 

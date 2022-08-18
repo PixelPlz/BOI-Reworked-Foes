@@ -281,7 +281,7 @@ function mod:conquestPreUpdate(entity)
 					entity.I1 = 1
 					entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS_Y
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-					--entity.Mass = 0 makes explosions not work??
+					entity.Mass = 0.1
 
 					if sprite.FlipX == false then
 						entity.V1 = Vector(1, 0)

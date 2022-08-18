@@ -3,42 +3,6 @@ local game = Game()
 
 
 
---[[
-function mod:lumpUpdate(entity)
-	local sprite = entity:GetSprite()
-
-	if entity.State == NpcState.STATE_MOVE then
-		if sprite:IsPlaying("Hide") and sprite:GetFrame() > 13 then
-			entity.Visible = false
-		end
-
-		entity.I2 = 1
-		entity.StateFrame = 0
-
-	elseif entity.State == NpcState.STATE_IDLE then
-		entity.I2 = 0
-
-
-	elseif entity.State == NpcState.STATE_JUMP then
-		entity.Visible = true
-		entity.StateFrame = sprite:GetFrame()
-
-
-	elseif entity.State == NpcState.STATE_ATTACK then
-		if entity.I2 == 1 then
-			entity.State = NpcState.STATE_JUMP
-			sprite:Play("Appear", true)
-			sprite:SetFrame(entity.StateFrame)
-			entity.I2 = 0
-			entity.ProjectileCooldown = entity.ProjectileCooldown - 30
-		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.lumpUpdate, EntityType.ENTITY_LUMP)
-]]--
-
-
-
 function mod:lumpInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	entity.CollisionDamage = 0

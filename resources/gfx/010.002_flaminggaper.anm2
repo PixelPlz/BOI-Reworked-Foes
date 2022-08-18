@@ -1,9 +1,9 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2022-08-13 13:51:43" Version="112" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2022-08-16 22:30:54" Version="114" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="monsters\afterbirth\gaper_body_burning.png" Id="0"/>
-			<Spritesheet Path="Monsters/Afterbirth/010.002_FlamingGaper.png" Id="1"/>
+			<Spritesheet Path="monsters\better\monster_000_flaming_bodies01.png" Id="0"/>
+			<Spritesheet Path="monsters\better\010.002_flaminggaper.png" Id="1"/>
 			<Spritesheet Path="Monsters/Afterbirth/Enemy_Fire.png" Id="2"/>
 		</Spritesheets>
 		<Layers>
@@ -77,7 +77,7 @@
 			</NullAnimations>
 			<Triggers/>
 		</Animation>
-		<Animation Name="Head" FrameNum="1" Loop="true">
+		<Animation Name="HeadNew" FrameNum="1" Loop="true">
 			<RootAnimation>
 				<Frame XPosition="0" YPosition="0" XScale="100" YScale="100" Delay="1" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="false"/>
 			</RootAnimation>

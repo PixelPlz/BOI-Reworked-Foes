@@ -30,7 +30,7 @@ function mod:satanUpdate(entity)
 				params.CircleAngle = 0
 				entity:FireProjectiles(Vector(entity.Position.X, game:GetRoom():GetBottomRightPos().Y - 1), Vector(Settings.LaserShotSpeed, 16), 9, params)
 				
-				params.CircleAngle = 90
+				params.CircleAngle = 0.41
 				params.Scale = 1.75
 				entity:FireProjectiles(Vector(entity.Position.X, game:GetRoom():GetBottomRightPos().Y - 1), Vector(Settings.LaserShotSpeed - 5, 8), 9, params)
 			end
@@ -39,10 +39,10 @@ function mod:satanUpdate(entity)
 		-- Custom hand laser attack
 		elseif entity.State == NpcState.STATE_ATTACK3 then
 			entity.State = NpcState.STATE_SUMMON
-			entity:SetColor(Color(1,1,1, 1, 0.65,0,0), 15, 1, true, false)
+			entity:SetColor(Color(1,1,1, 1, 0.7,0,0), 15, 1, true, false)
 
 		elseif entity.State == NpcState.STATE_SUMMON then
-			if sprite:GetFrame() == 8 then
+			if sprite:GetFrame() == 4 then
 				entity.V2 = entity:GetPlayerTarget().Position
 			end
 			if sprite:IsEventTriggered("Shoot") then

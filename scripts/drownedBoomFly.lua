@@ -34,3 +34,11 @@ function mod:drownedBoomFlyDeath(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.drownedBoomFlyDeath, EntityType.ENTITY_BOOMFLY)
+
+function mod:dronwedEnemyProjectileUpdate(projectile)
+	if ((projectile.SpawnerType == EntityType.ENTITY_CHARGER or projectile.SpawnerType == EntityType.ENTITY_HIVE) and projectile.SpawnerVariant == 1)
+	or (projectile.SpawnerType == EntityType.ENTITY_BOOMFLY and projectile.SpawnerVariant == 2) then
+		projectile.CollisionDamage = 1
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.dronwedEnemyProjectileUpdate, ProjectileVariant.PROJECTILE_TEAR)

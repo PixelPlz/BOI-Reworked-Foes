@@ -23,9 +23,6 @@ IRFconfig = {
 	-- General
 	breakableHosts = true,
 	blackBonyCostumes = true,
-
-	-- Compatibility
-	honeyVeeSprites = false
 }
 
 -- Load settings
@@ -69,18 +66,7 @@ if ModConfigMenu then
 	    OnChange = function(bool)
 	    	IRFconfig.blackBonyCostumes = bool
 	    end,
-	    Info = {"Blac Bony bomb type indicator. (default = Head Costume)"}
-  	})
-	
-	-- Compatibility settings
-	ModConfigMenu.AddSetting(category, "Compatibility", {
-    	Type = ModConfigMenu.OptionType.BOOLEAN,
-	    CurrentSetting = function() return IRFconfig.honeyVeeSprites end,
-	    Display = function() return "HoneyVee's sprite mod compatibility: " .. (IRFconfig.honeyVeeSprites and "True" or "False") end,
-	    OnChange = function(bool)
-	    	IRFconfig.honeyVeeSprites = bool
-	    end,
-	    Info = {"Enable/Disable for compatibility with HoneyVee's sprite mod (until they add proper support for the mod). (default = false)"}
+	    Info = {"Black Bony bomb type indicator. (default = Head Costume)"}
   	})
 end
 
@@ -116,7 +102,7 @@ include("scripts.scarredParaBite")
 include("scripts.eye")
 include("scripts.conquest")
 include("scripts.bloat")
---include("scripts.lokii")
+include("scripts.lokii")
 --include("scripts.teratoma")
 include("scripts.steven")
 include("scripts.blightedOvum")
@@ -131,8 +117,9 @@ include("scripts.daddyLongLegs")
 include("scripts.flamingFatty")
 include("scripts.dankDeathsHead")
 include("scripts.skinny")
-include("scripts.nerveEnding2")
 include("scripts.camilloJr")
+include("scripts.nerveEnding2")
+include("scripts.gurglings")
 --include("scripts.psyTumor")
 include("scripts.fatBat")
 include("scripts.ragling")
@@ -167,8 +154,6 @@ include("scripts.forsaken")
 	-- better poofer
 	-- lot of shit AAAAA
 	-- more config optionsfnafjfsFNBklsjnfdSÉLAOJoé
-	-- make gurglings resistant to knockback
-	-- greed gapers
 	-- Tainted Faceless (feels like it should be more challenging than just a buffier normal Faceless)
 	-- Scarred Guts (could do something cooler than just leaving trail of creep)
 	-- Bone Knight? (unsure about this one but it also feels slightly boring)
@@ -183,5 +168,5 @@ include("scripts.forsaken")
 	-- Blue Baby (major rework)
 	-- Mama guts?
 	-- unique sins compat?
-	-- make conquest 2nd phase morph instead of remove the 1st phase
+	-- nests should be spider mulligans
 ]]--

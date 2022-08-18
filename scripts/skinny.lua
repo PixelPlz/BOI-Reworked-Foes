@@ -123,3 +123,10 @@ function mod:skinnyUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.skinnyUpdate, EntityType.ENTITY_SKINNY)
+
+function mod:rottyProjectileUpdate(projectile)
+	if projectile.SpawnerType == EntityType.ENTITY_SKINNY and projectile.SpawnerVariant == 1 then
+		projectile.CollisionDamage = 1
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.rottyProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)

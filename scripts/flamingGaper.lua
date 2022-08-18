@@ -10,37 +10,20 @@ local Settings = {
 
 
 function mod:flamingGaperInit(entity)
-	if entity.Variant == 1 and entity.SubType == 442 or entity.Variant == 2 then
+	if entity.Variant == 2 then
 		entity.ProjectileCooldown = math.random(Settings.Cooldown / 2, Settings.Cooldown)
-		
-		if entity.Variant == 2 then
-			entity:Morph(EntityType.ENTITY_GAPER, 1, 442, entity:GetChampionColorIdx())
-		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.flamingGaperInit, EntityType.ENTITY_GAPER)
 
 function mod:flamingGaperUpdate(entity)
-	if entity.Variant == 1 and entity.SubType == 442 or entity.Variant == 2 then
+	if entity.Variant == 2 then
 		local sprite = entity:GetSprite()
-		
-		
-		if entity.FrameCount < 2 then
-			if IRFconfig.honeyVeeSprites == true then
-				local suffix = ""
-				if entity:IsChampion() then
-					suffix = "_champion"
-				end
-
-				sprite:ReplaceSpritesheet(1, "gfx/monsters/afterbirth/honeyVee/010.002_flaminggaper" .. suffix .. ".png")
-				sprite:LoadGraphics()
-			end
-		end
 
 
 		if entity.I1 == 0 then
-			if not sprite:IsOverlayPlaying("Head") and not sprite:IsOverlayPlaying("Ignite") then
-				sprite:PlayOverlay("Head", true)
+			if not sprite:IsOverlayPlaying("HeadNew") and not sprite:IsOverlayPlaying("Ignite") then
+				sprite:PlayOverlay("HeadNew", true)
 			end
 
 			if entity.ProjectileCooldown <= 0 then
@@ -81,12 +64,12 @@ function mod:flamingGaperUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.flamingGaperUpdate, EntityType.ENTITY_GAPER)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingGaperUpdate, EntityType.ENTITY_GAPER)
 
 -- Turn regular gapers into flaming ones when burnt
 function mod:gaperIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 1 and target.SubType ~= 442 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
-		target:ToNPC():Morph(EntityType.ENTITY_GAPER, 1, 442, target:ToNPC():GetChampionColorIdx())
+	if target.Variant == 1 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
+		target:ToNPC():Morph(EntityType.ENTITY_GAPER, 2, 0, target:ToNPC():GetChampionColorIdx())
 		target:Update()
 		SFXManager():Play(SoundEffect.SOUND_FIREDEATH_HISS)
 		return false

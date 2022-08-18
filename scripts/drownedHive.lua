@@ -26,7 +26,13 @@ function mod:bubbleUpdate(entity)
 		
 		if entity.I2 == 1 then
 			entity:Remove()
-			Isaac.Spawn(EntityType.ENTITY_ATTACKFLY, 0, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):ToNPC().State = NpcState.STATE_MOVE
+
+			if entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+				Isaac.Spawn(EntityType.ENTITY_FAMILIAR, FamiliarVariant.BLUE_FLY, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
+			else
+				Isaac.Spawn(EntityType.ENTITY_ATTACKFLY, 0, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):ToNPC().State = NpcState.STATE_MOVE
+			end
+
 			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TEAR_POOF_A, 0, entity.Position, Vector.Zero, entity):GetSprite().Offset = Vector(0, -16)
 			entity:PlaySound(SoundEffect.SOUND_PLOP, 1, 0, false, 1)
 
@@ -111,7 +117,13 @@ function mod:drownedHiveDeath(entity, target, bool)
 		for i, maggot in pairs(Isaac.FindByType(EntityType.ENTITY_CHARGER, 1, -1, false, false)) do
 			if maggot.SpawnerType == EntityType.ENTITY_HIVE then
 				maggot:Remove()
-				Isaac.Spawn(EntityType.ENTITY_FLY, bubbleVariant, 0, entity.Position, Vector.Zero, entity):ToNPC().State = NpcState.STATE_MOVE
+
+				local fly = Isaac.Spawn(EntityType.ENTITY_FLY, bubbleVariant, 0, entity.Position, Vector.Zero, entity):ToNPC()
+				fly.State = NpcState.STATE_MOVE
+				
+				if entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+					fly:AddEntityFlags(EntityFlag.FLAG_FRIENDLY)
+				end
 			end
 		end
 	end
