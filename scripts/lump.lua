@@ -36,7 +36,7 @@ function mod:lumpUpdate(entity)
 		end
 		
 		-- Shoot if target is close enough
-		if entity.Position:Distance(target.Position) <= 220 and room:CheckLine(entity.Position, target.Position, 3, 0, false, false) then
+		if entity.Position:Distance(game:GetNearestPlayer(entity.Position).Position) <= 220 and room:CheckLine(entity.Position, target.Position, 3, 0, false, false) then
 			entity.State = NpcState.STATE_ATTACK
 			sprite:Play("Spit", true)
 		end
@@ -108,6 +108,12 @@ function mod:lumpUpdate(entity)
 			entity.State = NpcState.STATE_STOMP
 			sprite:Play("Hide")
 		end
+	end
+
+	-- This is such a dumb variant why does it even exist
+	if (entity.SubType == 95 and entity.State == 0) then
+		entity.State = NpcState.STATE_IDLE
+		entity.StateFrame = 90
 	end
 	
 	if entity.FrameCount > 1 then

@@ -10,7 +10,7 @@ local Settings = {
 	BaseDiv = 0.05,
 	MaxStrength = 16,
 	BaseVolume = 2.2,
-	BaseShotSpeed = 8
+	BaseShotSpeed = 7.5
 }
 
 

@@ -237,6 +237,8 @@ function mod:lokiiUpdate(entity)
 						SFXManager():Play(SoundEffect.SOUND_HEARTOUT, 1.25)
 						local params = ProjectileParams()
 						params.Scale = 1.25
+						params.Variant = ProjectileVariant.PROJECTILE_HUSH
+						params.Color = brimstoneBulletColor
 						entity:FireProjectiles(entity.Position + Vector(entity.Position:Distance(pair.Position) / 2, 0), Vector(Settings.LaserBurstSpeed, 8), 8, params)
 					end
 				end

@@ -6,6 +6,7 @@ local json = require("json")
 -- Useful colors & values --
 sunBeamColor = Color(1,1,1, 1, 0.3,0.3,0)
 ghostGibs = Color(1,1,1, 0.25, 1,1,1)
+brimstoneBulletColor = Color(1,0.25,0.25, 1, 0.25,0,0)
 
 tarBulletColor = Color(0.5,0.5,0.5, 1, 0,0,0)
 tarBulletColor:SetColorize(1, 1, 1, 1)
@@ -138,35 +139,25 @@ include("scripts.forsaken")
 --[[ Planned:
 	-- psy tumor
 	-- better boss champions
-	-- better super greed?
 	-- cyclopia
-	-- pale fatty + parts
 	-- walking boils
-	-- black globins body?
 	-- stain
 	-- suicide pooper
 	-- knight variants
-	-- code rewrites
 	-- dank globin
 	-- monstro 2
 	-- wretched
 	-- fix some slowed enemies doing their attack multiple times
-	-- better poofer
-	-- lot of shit AAAAA
 	-- more config optionsfnafjfsFNBklsjnfdSÉLAOJoé
 	-- Tainted Faceless (feels like it should be more challenging than just a buffier normal Faceless)
 	-- Scarred Guts (could do something cooler than just leaving trail of creep)
-	-- Bone Knight? (unsure about this one but it also feels slightly boring)
 	-- Cod Worm (make it not wait 5 minutes to open up or smth pls i beg)
 	-- C.H.A.D. (minor rework)
-	-- Lokii (major rework)
 	-- Red Mega Maw (slight adjustments)
 	-- Teratoma (minor rework)
-	-- Loki (minor rework)
 	-- Rag Mega (major rework)
 	-- Sisters Vis (minor/major rework (?))
 	-- Blue Baby (major rework)
 	-- Mama guts?
-	-- unique sins compat?
 	-- nests should be spider mulligans
 ]]--

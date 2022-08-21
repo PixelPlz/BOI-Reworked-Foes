@@ -30,7 +30,12 @@ function mod:hostUpdate(entity)
 		if sprite:IsPlaying("Bombed") then
 			local variant = 1
 			subtype = 0
-			if entity.Variant == 3 then
+
+			if entity.Variant == 0 and entity.SubType == 250 then -- Stinky FF compat
+				variant = 0
+				subtype = 251
+				
+			elseif entity.Variant == 3 then
 				variant = 3
 				subtype = 40
 			end

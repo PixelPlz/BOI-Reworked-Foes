@@ -106,7 +106,7 @@ function mod:daddyLongLegsUpdate(entity)
 			-- Daddy Long Legs
 			if entity.Variant == 0 then
 				params.Scale = 1.5
-				params.CircleAngle = 90
+				params.CircleAngle = 0.41
 				entity:FireProjectiles(entity.Position, Vector(Settings.HeadSmashShotSpeed - 5, 8), 9, params)
 
 			-- Triachnid

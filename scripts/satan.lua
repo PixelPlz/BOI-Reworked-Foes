@@ -26,6 +26,9 @@ function mod:satanUpdate(entity)
 		if entity.State == NpcState.STATE_ATTACK2 then
 			if sprite:IsEventTriggered("Shoot") then
 				local params = ProjectileParams()
+				params.Variant = ProjectileVariant.PROJECTILE_HUSH
+				params.Color = brimstoneBulletColor
+
 				params.Scale = 1.25
 				params.CircleAngle = 0
 				entity:FireProjectiles(Vector(entity.Position.X, game:GetRoom():GetBottomRightPos().Y - 1), Vector(Settings.LaserShotSpeed, 16), 9, params)
@@ -134,6 +137,20 @@ function mod:satanUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.satanUpdate, EntityType.ENTITY_SATAN)
+
+function mod:brimstoneProjectileUpdate(projectile)
+	if (projectile.SpawnerType == EntityType.ENTITY_LOKI and projectile.SpawnerVariant == 1) or projectile.SpawnerType == EntityType.ENTITY_SATAN then
+		if projectile.FrameCount % 3 == 0 then
+			local trail = Isaac.Spawn(1000, 111, 0, projectile.Position + projectile.Velocity, -projectile.Velocity:Normalized() * 2, projectile):ToEffect()
+			local scaler = projectile.Scale * math.random(50, 70) / 100
+			trail.SpriteScale = Vector(scaler, scaler)   
+			trail.SpriteOffset = Vector(0, projectile.Height + 7)
+			trail.DepthOffset = -80
+			trail:Update()
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.brimstoneProjectileUpdate, ProjectileVariant.PROJECTILE_HUSH)
 
 function mod:kLeechInit(entity)
 	if entity.Variant == 1 and entity.SpawnerEntity and entity.SpawnerType == EntityType.ENTITY_SATAN then
