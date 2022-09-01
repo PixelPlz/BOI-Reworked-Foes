@@ -70,19 +70,17 @@ lemonBulletColor:SetColorize(1, 1, 0.25, 1)
 
 
 function mod:lustInit(entity)
-	if (entity.Variant == 0 and (entity.SubType == 0 or entity.SubType == 1)) or entity.Variant == 1 then
-		local data = entity:GetData()
+	local data = entity:GetData()
 
-		data.speedUp = false
-		data.crushRocks = false
-		data.hasCreep = false
+	data.speedUp = false
+	data.crushRocks = false
+	data.hasCreep = false
 
-		-- Champion specific
-		if entity.SubType == 1 then
-			data.sunBeams = false
-			data.towerBombs = false
-			data.foolPosition = entity.Position
-		end
+	-- Champion specific
+	if entity.SubType == 1 then
+		data.sunBeams = false
+		data.towerBombs = false
+		data.foolPosition = entity.Position
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.lustInit, EntityType.ENTITY_LUST)
@@ -169,7 +167,11 @@ function mod:lustUpdate(entity)
 
 		-- Use items
 		if entity.State == NpcState.STATE_ATTACK then
-			if sprite:GetFrame() == 0 then
+			if not sprite:IsPlaying("Use0" .. entity.I2) then
+				sprite:Play("Use0" .. entity.I2, true)
+			end
+
+			if sprite:GetFrame() == 2 then
 				local playSFX = false
 
 				-- One time use effects --
@@ -350,13 +352,27 @@ function mod:lustUpdate(entity)
 
 
 			entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
-			
-			if sprite:IsFinished(sprite:GetAnimation()) then
+			if sprite:GetFrame() == 21 then
 				entity.State = NpcState.STATE_MOVE
 			end
 
 			-- Disable AI when using items
 			return true
+
+
+		else
+			-- Use item at 75%, 50% and 25% health
+			if entity.HitPoints <= entity.MaxHitPoints - ((entity.MaxHitPoints / (Settings.ItemCount + 1)) * (entity.I1 + 1)) then
+				entity.I1 = entity.I1 + 1
+				entity.State = NpcState.STATE_ATTACK
+
+				-- Pick one use effects first
+				if entity.I2 == 0 then
+					entity.I2 = math.random(1, 3)
+				else
+					entity.I2 = math.random(4, 9)
+				end
+			end
 		end
 	end
 end
@@ -370,20 +386,6 @@ function mod:lustDMG(target, damageAmount, damageFlags, damageSource, damageCoun
 				target:TakeDamage(damageAmount / 10, damageFlags + DamageFlag.DAMAGE_NOKILL, damageSource, damageCountdownFrames)
 				return false
 			end
-		end
-
-		-- Use item at 75%, 50% and 25% health
-		if target.HitPoints < target.MaxHitPoints - ((target.MaxHitPoints / (Settings.ItemCount + 1)) * (target:ToNPC().I1 + 1)) then
-			target:ToNPC().I1 = target:ToNPC().I1 + 1
-			target:ToNPC().State = NpcState.STATE_ATTACK
-			
-			-- Pick one use effects first
-			if target:ToNPC().I2 == 0 then
-				target:ToNPC().I2 = math.random(1, 3)
-			else
-				target:ToNPC().I2 = math.random(4, 9)
-			end
-			target:GetSprite():Play("Use0" .. target:ToNPC().I2, true)
 		end
 	end
 end

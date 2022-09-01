@@ -17,9 +17,9 @@ function mod:dankDeathsHeadUpdate(entity)
 
 		else
 			if entity.FrameCount >= 30 then
-				entity.Velocity = entity.Velocity:Normalized() * 8.5
+				entity.Velocity = entity.Velocity:Normalized() * 9
 			else
-				entity.Velocity = entity.Velocity:Normalized() * ((entity.FrameCount - 20) * 0.85)
+				entity.Velocity = entity.Velocity:Normalized() * ((entity.FrameCount - 20) * 0.9)
 			end
 
 

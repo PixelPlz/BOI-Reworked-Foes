@@ -65,7 +65,6 @@ function mod:blackGlobinHeadUpdate(entity)
 		-- Creep
 		if entity:IsFrame(4, 0) then
 			local creep = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_RED, 0, entity.Position, Vector.Zero, entity):ToEffect()
-			creep.Scale = 1
 			creep:SetTimeout(Settings.CreepTime)
 			creep:Update()
 		end

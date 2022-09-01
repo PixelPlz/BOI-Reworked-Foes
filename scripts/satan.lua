@@ -141,9 +141,9 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.satanUpdate, EntityType.ENTITY_S
 function mod:brimstoneProjectileUpdate(projectile)
 	if (projectile.SpawnerType == EntityType.ENTITY_LOKI and projectile.SpawnerVariant == 1) or projectile.SpawnerType == EntityType.ENTITY_SATAN then
 		if projectile.FrameCount % 3 == 0 then
-			local trail = Isaac.Spawn(1000, 111, 0, projectile.Position + projectile.Velocity, -projectile.Velocity:Normalized() * 2, projectile):ToEffect()
+			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, projectile.Position + projectile.Velocity, -projectile.Velocity:Normalized() * 2, projectile):ToEffect()
 			local scaler = projectile.Scale * math.random(50, 70) / 100
-			trail.SpriteScale = Vector(scaler, scaler)   
+			trail.SpriteScale = Vector(scaler, scaler)
 			trail.SpriteOffset = Vector(0, projectile.Height + 7)
 			trail.DepthOffset = -80
 			trail:Update()

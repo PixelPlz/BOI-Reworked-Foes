@@ -32,14 +32,18 @@ local effectColor = Color(0.5,0.5,0.7, 1, 0.1,0.1,0.25)
 
 
 function mod:maskInfamyReplace(entity)
-	entity:Remove()
-	Isaac.Spawn(200, 4097, entity.SubType, entity.Position, Vector.Zero, entity.SpawnerEntity):GetSprite():Play("SadMaskAppear", true)
+	if entity.SubType < 2 then
+		entity:Remove()
+		Isaac.Spawn(200, 4097, entity.SubType, entity.Position, Vector.Zero, entity.SpawnerEntity):GetSprite():Play("SadMaskAppear", true)
+	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.maskInfamyReplace, EntityType.ENTITY_MASK_OF_INFAMY)
 
 function mod:heartInfamyReplace(entity)
-	entity:Remove()
-	Isaac.Spawn(200, 4098, entity.SubType, entity.Position, Vector.Zero, entity.SpawnerEntity)
+	if entity.SubType < 2 then
+		entity:Remove()
+		Isaac.Spawn(200, 4098, entity.SubType, entity.Position, Vector.Zero, entity.SpawnerEntity)
+	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.heartInfamyReplace, EntityType.ENTITY_HEART_OF_INFAMY)
 
@@ -140,6 +144,8 @@ function mod:maskInfamyUpdate(entity)
 							or (data.facing == "Down" and target.Position.Y < entity.Position.Y + Settings.SideRange)) then
 								data.state = States.Attack1
 								entity.Velocity = Vector.Zero
+								entity:PlaySound(SoundEffect.SOUND_BOSS_LITE_ROAR, 1, 0, false, 1)
+
 								angleDegrees = (target.Position - entity.Position):GetAngleDegrees()
 								if angleDegrees > -45 and angleDegrees < 45 then
 									data.facing = "Right"

@@ -2,7 +2,7 @@ local mod = BetterMonsters
 local game = Game()
 
 local Settings = {
-	MoveSpeed = 5.75,
+	MoveSpeed = 6,
 	AttackCount = 3,
 
 	DashSpeed = 26,
@@ -280,6 +280,7 @@ function mod:conquestPreUpdate(entity)
 					entity:PlaySound(SoundEffect.SOUND_MONSTER_YELL_A, 0.75, 0, false, 1)
 					entity.I1 = 1
 					entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS_Y
+					entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK)
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 					entity.Mass = 0.1
 

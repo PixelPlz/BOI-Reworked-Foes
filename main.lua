@@ -87,6 +87,7 @@ include("scripts.angelicBaby")
 include("scripts.chubber")
 include("scripts.scarredGuts")
 include("scripts.selflessKnight")
+include("scripts.pokies")
 --include("scripts.monstro2")
 include("scripts.gish")
 include("scripts.sloth")
@@ -120,7 +121,7 @@ include("scripts.dankDeathsHead")
 include("scripts.skinny")
 include("scripts.camilloJr")
 include("scripts.nerveEnding2")
-include("scripts.gurglings")
+include("scripts.noKnockback")
 --include("scripts.psyTumor")
 include("scripts.fatBat")
 include("scripts.ragling")
@@ -131,6 +132,7 @@ include("scripts.blackGlobin")
 include("scripts.megaClotty")
 include("scripts.fleshDeathHead")
 include("scripts.blister")
+include("scripts.portal")
 include("scripts.forsaken")
 --include("scripts.ragMega")
 
@@ -140,7 +142,6 @@ include("scripts.forsaken")
 	-- psy tumor
 	-- better boss champions
 	-- cyclopia
-	-- walking boils
 	-- stain
 	-- suicide pooper
 	-- knight variants
@@ -149,7 +150,6 @@ include("scripts.forsaken")
 	-- wretched
 	-- fix some slowed enemies doing their attack multiple times
 	-- more config optionsfnafjfsFNBklsjnfdSÉLAOJoé
-	-- Tainted Faceless (feels like it should be more challenging than just a buffier normal Faceless)
 	-- Scarred Guts (could do something cooler than just leaving trail of creep)
 	-- Cod Worm (make it not wait 5 minutes to open up or smth pls i beg)
 	-- C.H.A.D. (minor rework)
