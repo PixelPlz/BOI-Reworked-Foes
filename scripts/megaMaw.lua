@@ -17,10 +17,10 @@ function mod:megaMawUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.megaMawUpdate, EntityType.ENTITY_MEGAMAW)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.megaMawUpdate, EntityType.ENTITY_MEGA_MAW)
 
 function mod:megaMawProjectileUpdate(projectile)
-	if projectile.SpawnerEntity and projectile.SpawnerEntity.Type == 262 and projectile.SpawnerEntity.SubType == 1 then -- Using the enum doesn't work?????
+	if projectile.SpawnerEntity and projectile.SpawnerEntity.Type == EntityType.ENTITY_MEGA_MAW and projectile.SpawnerEntity.SubType == 1 then -- Using the enum doesn't work?????
 		projectile.CollisionDamage = 1
 		projectile.Variant = ProjectileVariant.PROJECTILE_HUSH
 
