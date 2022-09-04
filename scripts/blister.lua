@@ -68,7 +68,7 @@ function mod:cocoonUpdate(projectile)
 	if projectile:IsDead() then
 		SFXManager():Play(SoundEffect.SOUND_BOIL_HATCH)
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_WHITE, 0, projectile.Position, Vector.Zero, projectile)
-		Isaac.Spawn(EntityType.ENTITY_SWARM_SPIDER, 0, 0, projectile.Position, Vector.Zero, nil):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+		Isaac.Spawn(EntityType.ENTITY_SWARM_SPIDER, 0, 0, projectile.Position, Vector.Zero, projectile):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SPIDER_EXPLOSION, 0, projectile.Position, Vector.Zero, projectile):GetSprite().Color = Color(1,1,1, 1, 1,1,1)
 	end
 end

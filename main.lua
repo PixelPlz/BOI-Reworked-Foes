@@ -78,14 +78,15 @@ include("scripts.flamingGaper")
 include("scripts.clotty")
 include("scripts.drownedHive")
 include("scripts.drownedCharger")
-include("scripts.host")
---include("scripts.dankGlobin")
+include("scripts.dankGlobin")
 include("scripts.drownedBoomFly")
+include("scripts.host")
+--include("scripts.chad")
 include("scripts.hopper")
 include("scripts.redMaw")
 include("scripts.angelicBaby")
 include("scripts.chubber")
-include("scripts.scarredGuts")
+--include("scripts.scarredGuts")
 include("scripts.selflessKnight")
 include("scripts.pokies")
 --include("scripts.monstro2")
@@ -100,7 +101,7 @@ include("scripts.pride")
 include("scripts.holyLeech")
 include("scripts.lump")
 include("scripts.membrain")
-include("scripts.scarredParaBite")
+--include("scripts.scarredParaBite")
 include("scripts.eye")
 include("scripts.conquest")
 include("scripts.bloat")
@@ -118,46 +119,25 @@ include("scripts.maskInfamy")
 include("scripts.daddyLongLegs")
 include("scripts.flamingFatty")
 include("scripts.dankDeathsHead")
+include("scripts.codWorm")
 include("scripts.skinny")
 include("scripts.camilloJr")
 include("scripts.nerveEnding2")
 include("scripts.noKnockback")
 --include("scripts.psyTumor")
 include("scripts.fatBat")
+include("scripts.megaMaw")
 include("scripts.ragling")
 --include("scripts.floatingKnight")
 include("scripts.dartFly")
 include("scripts.blackBony")
 include("scripts.blackGlobin")
 include("scripts.megaClotty")
+--include("scripts.boneKnight")
 include("scripts.fleshDeathHead")
 include("scripts.blister")
 include("scripts.portal")
+--include("scripts.stain")
 include("scripts.forsaken")
 --include("scripts.ragMega")
-
-
-
---[[ Planned:
-	-- psy tumor
-	-- better boss champions
-	-- cyclopia
-	-- stain
-	-- suicide pooper
-	-- knight variants
-	-- dank globin
-	-- monstro 2
-	-- wretched
-	-- fix some slowed enemies doing their attack multiple times
-	-- more config optionsfnafjfsFNBklsjnfdSÉLAOJoé
-	-- Scarred Guts (could do something cooler than just leaving trail of creep)
-	-- Cod Worm (make it not wait 5 minutes to open up or smth pls i beg)
-	-- C.H.A.D. (minor rework)
-	-- Red Mega Maw (slight adjustments)
-	-- Teratoma (minor rework)
-	-- Rag Mega (major rework)
-	-- Sisters Vis (minor/major rework (?))
-	-- Blue Baby (major rework)
-	-- Mama guts?
-	-- nests should be spider mulligans
-]]--
+--include("scripts.sisterVis")

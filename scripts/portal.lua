@@ -9,7 +9,7 @@ local Settings = {
 
 portalBulletColor = Color(0.5,0.5,0.7, 1, 0.05,0.05,0.125)
 portalBulletTrail = Color(0.5,0.5,0.7, 1, 0,0.2,0.5)
-portalSpawnColor = Color(0.5,0.5,0.7, 1, 1,0.5,2)
+portalSpawnColor = Color(0.2,0.2,0.3, 0, 1.5,0.75,3)
 
 local portalSpawns = { -- Corresponds to the values from game:GetRoom():GetRoomConfigStage()
 	{ -- Basement
@@ -266,7 +266,8 @@ local portalSpawns = { -- Corresponds to the values from game:GetRoom():GetRoomC
 
 
 function mod:portalInit(entity)
-	if entity.Variant == 0 then
+	if entity.Variant == 0 or entity.Variant == 40 then
+		entity.Variant = 40 -- Unsurprisingly Fiend Folio fucks with this too, because they just can't stop being fucking annoying
 		entity.ProjectileCooldown = Settings.Cooldown / 2
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK)
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
@@ -275,13 +276,12 @@ end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.portalInit, EntityType.ENTITY_PORTAL)
 
 function mod:portalUpdate(entity)
-	if entity.Variant == 0 then
+	if entity.Variant == 40 then
 		local sprite = entity:GetSprite()
 
 		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
 		if not sprite:IsPlaying("Idle") then
 			sprite:Play("Idle", true)
-			entity.SpriteOffset = Vector(0, 18)
 		end
 
 
@@ -301,14 +301,14 @@ function mod:portalUpdate(entity)
 
 		-- Spawn / Attack
 		elseif entity.State == NpcState.STATE_SUMMON then
-			if sprite:GetOverlayFrame() == 11 then
+			if sprite:GetOverlayFrame() == 10 then
 				SFXManager():Play(SoundEffect.SOUND_PORTAL_SPAWN, 1.1)
+				local stage = game:GetRoom():GetRoomConfigStage()
 
-				if Isaac.CountEntities(entity, EntityType.ENTITY_NULL, -1, -1) < Settings.MaxSpawns then
-					local stage = game:GetRoom():GetRoomConfigStage()
+				if Isaac.CountEntities(entity, EntityType.ENTITY_NULL, -1, -1) < Settings.MaxSpawns and ((stage > 0 and stage < 18) or (stage > 26 and stage < 35)) then
 					local spawn = portalSpawns[stage][math.random(1, #portalSpawns[stage])]
 
-					local ent = Isaac.Spawn(spawn[1], spawn[2], 0, entity.Position + Vector(0, 20), Vector.Zero, entity)
+					local ent = Isaac.Spawn(spawn[1], spawn[2], 0, entity.Position + Vector(0, 10), Vector.Zero, entity)
 					ent:SetColor(portalSpawnColor, 15, 1, true, false)
 					ent.MaxHitPoints = ent.MaxHitPoints * 2
 					ent.HitPoints = ent.MaxHitPoints
@@ -346,14 +346,14 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.portalUpdate, EntityType.ENTITY_PORTAL)
 
 function mod:portalDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 0 and (damageSource.SpawnerType == EntityType.ENTITY_PORTAL or (damageSource.SpawnerEntity and damageSource.SpawnerEntity.SpawnerType == EntityType.ENTITY_PORTAL)) then
+	if target.Variant == 40 and (damageSource.SpawnerType == EntityType.ENTITY_PORTAL or (damageSource.SpawnerEntity and damageSource.SpawnerEntity.SpawnerType == EntityType.ENTITY_PORTAL)) then
 		return false
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.portalDMG, EntityType.ENTITY_PORTAL)
 
 function mod:portalProjectileUpdate(projectile)
-	if projectile.SpawnerType == EntityType.ENTITY_PORTAL and projectile.SpawnerVariant == 0 then
+	if projectile.SpawnerType == EntityType.ENTITY_PORTAL and projectile.SpawnerVariant == 40 then
 		if projectile.FrameCount % 3 == 0 then
 			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, projectile.Position + projectile.Velocity, -projectile.Velocity:Normalized() * 2, projectile):ToEffect()
 			local scaler = projectile.Scale * math.random(50, 70) / 100

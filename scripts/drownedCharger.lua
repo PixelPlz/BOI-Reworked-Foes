@@ -73,3 +73,10 @@ function mod:drownedChargerUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.drownedChargerUpdate, EntityType.ENTITY_CHARGER)
+
+function mod:drownedChargerPreUpdate(entity)
+	if entity.Variant == 1 and entity:IsDead() then
+		return true
+	end
+end
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.drownedChargerPreUpdate, EntityType.ENTITY_CHARGER)

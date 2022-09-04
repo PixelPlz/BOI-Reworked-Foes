@@ -9,7 +9,7 @@
         <bestiary anim="Fly" transform="0,0,1"/>
         <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
-	
+
 	<entity anm2path="027.003_soft host.anm2" baseHP="15" boss="0" champion="1" collisionDamage="1" collisionMass="15" collisionRadius="13" friction="1" id="27" name="Soft Host" numGridCollisionPoints="12" portrait="247" shadowSize="25" stageHP="0" variant="3" subtype="40">
         <gibs amount="9" blood="0" bone="0" dust="1" eye="0" gut="0" large="0" rock="1"/>
     </entity>
@@ -39,6 +39,11 @@
     <entity anm2path="098.000_Heart of Infamy.anm2" baseHP="500" boss="1" bossID="35" champion="0" collisionDamage="1" collisionMass="30" collisionRadius="30" friction="1" id="200" name="Heart of Infamy (New)" numGridCollisionPoints="12" portrait="56" shadowSize="23" stageHP="0" tags="nodelirium" variant="4098">
         <bestiary parent="98.0"/>
         <gibs amount="20" blood="1" bone="0" eye="0" gut="0" large="1"/>
+    </entity>
+
+	<entity anm2path="205.000_Nest.anm2" baseHP="13" boss="0" champion="1" collisionDamage="0" collisionMass="6" collisionRadius="13" friction="1" id="16" name="Nest (New)" numGridCollisionPoints="12" portrait="11" reroll="true" shadowSize="13" stageHP="0" variant="40">
+        <bestiary parent="205.0"/>
+        <gibs amount="6" blood="1" bone="1" eye="1" gut="1" large="0"/>
     </entity>
 
     <entity anm2path="230.000_CamilloJr.anm2" baseHP="32" boss="0" champion="1" collisionDamage="1" collisionMass="22" collisionRadius="16" friction="1" gridCollision="walls" id="212" name="Camillo Jr. (New)" numGridCollisionPoints="12" portrait="107" reroll="true" shadowSize="26" stageHP="0" variant="1" subtype="4230">

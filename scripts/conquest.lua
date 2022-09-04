@@ -126,7 +126,7 @@ function mod:conquestDMG(target, damageAmount, damageFlags, damageSource, damage
 	end
 	
 	-- Do attack if below 75%, 50% and 25% health
-	if target.Variant == 11 and target.HitPoints <= (target.MaxHitPoints / 2) - (((target.MaxHitPoints / 2) / (Settings.AttackCount + 1)) * (target:ToNPC().I1 + 1)) then
+	if target.Variant == 11 and target.HitPoints <= (target.MaxHitPoints / 2) - (((target.MaxHitPoints / 2) / (Settings.AttackCount + 1)) * (target:ToNPC().I1 + 1)) and target:ToNPC().State == NpcState.STATE_MOVE then
 		target:ToNPC().I1 = target:ToNPC().I1 + 1
 		target:ToNPC().State = NpcState.STATE_ATTACK
 		target:GetSprite():Play("Attack", true)

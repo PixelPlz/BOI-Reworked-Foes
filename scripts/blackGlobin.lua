@@ -3,11 +3,7 @@ local game = Game()
 
 local Settings = {
 	RegenTime = 90,
-	BodySpeed = 3.75,
-	SoundTimer = {90, 150},
 	NewHealth = 20,
-
-	HeadSpeed = 3.25,
 	SlideTime = 45,
 	SlideSpeed = 15,
 	CreepTime = 45
@@ -88,6 +84,7 @@ function mod:blackGlobinHeadUpdate(entity)
 				local impactCreep = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_RED, 0, entity.Position, Vector.Zero, entity):ToEffect()
 				impactCreep.Scale = 1.5
 				impactCreep:SetTimeout(Settings.CreepTime)
+				impactCreep:Update()
 			end
 
 
