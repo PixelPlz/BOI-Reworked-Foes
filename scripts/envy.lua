@@ -26,7 +26,7 @@ function mod:envyUpdate(entity)
 		entity.I2 = 0
 	else
 		-- Give initial speed
-		if entity.ProjectileCooldown == Settings.InitialTimer - 1 and entity.I1 == 0 then
+		if entity.ProjectileCooldown == Settings.InitialTimer - 1 and entity.I1 == 0 and entity.SpawnerEntity then
 			entity.Velocity = (entity.Position - entity.SpawnerEntity.Position):Normalized() * Settings.InitialSpeed
 			entity.I1 = 1
 		end

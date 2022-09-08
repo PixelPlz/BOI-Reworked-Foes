@@ -5,8 +5,7 @@ local game = Game()
 
 -- [[ Mom ]]--
 function mod:momInit(entity)
-	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK)
-	entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.momInit, EntityType.ENTITY_MOM)
 

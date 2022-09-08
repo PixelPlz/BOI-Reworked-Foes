@@ -158,9 +158,13 @@
 	<!-- Mask of Infamy -->
 	<boss id="97" variant="0">
 		<color suffix="_black" scale="1.15" hp="1.25" />
+		<!--FF-->
+		<color suffix="_yellow" />
 	</boss>
 	<boss id="98" variant="0">
 		<color suffix="_black" scale="1.15" hp="1.25" />
+		<!--FF-->
+		<color suffix="_yellow" />
 	</boss>
 	<!-- Gurdy Jr. -->
 	<boss id="99" variant="0">
@@ -255,11 +259,6 @@
     <boss id="403" variant="0">
 		<color suffix="_black"/>
 	</boss>
-	<!-- Baby Plum -->
-	<boss id="908" variant="0">
-		<!--FF-->
-		<color anm2path="bosses/champions/babyplum/golden_plum.anm2"/>
-	</boss>
 	
 	
 	
@@ -312,11 +311,6 @@
 		<color suffix="_red" />
 		<color suffix="_green" />
 	</boss> -->
-	<!-- Baby Plum -->
-    <boss id="908" variant="0">
-		<color suffix="_grey" hp="1.15"/>
-		<color suffix="_yellow" scale="0.85" />
-	</boss>
 	<!-- Min-Min -->
     <boss id="913" variant="0">
 		<color suffix="_purple" hp="0.8" />
@@ -355,7 +349,7 @@
 	<!-- Clutch -->
     <boss id="921" variant="0">
 		<color anm2path="clutch_orange.anm2"/>
-		<color anm2path="clutch_black.anm2"/>/>
+		<color anm2path="clutch_black.anm2"/>
 	</boss>
 	<boss id="889" variant="0">
 		<color suffix="_orange"/>
@@ -363,6 +357,11 @@
 	</boss>
 
 
+
+	<!-- Gish -->
+	<boss id="43" variant="1">
+		<color suffix="_white" scale="0.9"/>
+	</boss>
 
 	<!-- Sloth -->
     <boss id="46" variant="0">

@@ -9,25 +9,16 @@
         <bestiary anim="Fly" transform="0,0,1"/>
         <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
-	
-	<entity anm2path="096.000_Eternal Fly.anm2" baseHP="20" boss="0" champion="0" collisionDamage="1" collisionMass="3" collisionRadius="17" friction="1" gridCollision="walls" id="18" name="#ETERNAL_FLY" numGridCollisionPoints="4" portrait="176" reroll="true" shadowSize="11" stageHP="0" tags="fly" variant="4040">
-        <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
-    </entity>
 
 	<entity anm2path="027.003_soft host.anm2" baseHP="15" boss="0" champion="1" collisionDamage="1" collisionMass="15" collisionRadius="13" friction="1" id="27" name="Soft Host" numGridCollisionPoints="12" portrait="247" shadowSize="25" stageHP="0" variant="3" subtype="40">
         <gibs amount="9" blood="0" bone="0" dust="1" eye="0" gut="0" large="0" rock="1"/>
-    </entity>
-
-	<entity anm2path="043.001_Gish.anm2" baseHP="630" boss="1" bossID="19" champion="0" collisionDamage="1" collisionMass="50" collisionRadius="35" friction="1" id="200" name="Gish (New)" numGridCollisionPoints="12" portrait="8" shadowSize="50" stageHP="0" tags="nodelirium" variant="4043">
-        <bestiary parent="43.1"/>
-        <gibs amount="18" blood="1" bone="0" eye="0" gut="1" large="1"/>
     </entity>
 
 	<entity anm2path="065.011_Conquest without horse.anm2" baseHP="500" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" id="65" name="Conquest without horse" numGridCollisionPoints="0" portrait="30" shadowSize="19" stageHP="0" variant="11">
         <bestiary parent="65.1"/>
 		<gibs amount="12" blood="1" bone="1" eye="0" gut="1" large="1"/>
     </entity>
-	<entity anm2path="065.020_Conquest Horse.anm2" baseHP="120" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" id="65" name="Conquest Horse" numGridCollisionPoints="0" portrait="31" shadowSize="19" stageHP="0" tags="nodelirium" variant="20">
+	<entity anm2path="065.020_Conquest Horse.anm2" baseHP="150" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" id="65" name="Conquest Horse" numGridCollisionPoints="0" portrait="31" shadowSize="19" stageHP="0" tags="nodelirium" variant="20">
         <gibs amount="6" blood="1" bone="1" eye="0" gut="0" large="0"/>
     </entity>
 	
@@ -35,17 +26,12 @@
         <bestiary anim="JumpDown" transform="0,0,1"/>
         <gibs amount="6" blood="1" bone="0" dust="1" eye="0" gut="0" large="0"/>
     </entity>
-
-	<entity anm2path="097.000_Mask of Infamy.anm2" baseHP="150" boss="1" bossID="35" champion="0" collisionDamage="1" collisionMass="30" collisionRadius="20" friction="1" id="200" name="Mask of Infamy (New)" numGridCollisionPoints="12" portrait="56" shadowSize="26" stageHP="0" tags="nodelirium" variant="4097">
-        <bestiary parent="97.0"/>
-        <gibs amount="14" blood="1" bone="1" eye="0" gut="1" large="1"/>
-    </entity>
-    <entity anm2path="098.000_Heart of Infamy.anm2" baseHP="500" boss="1" bossID="35" champion="0" collisionDamage="1" collisionMass="30" collisionRadius="30" friction="1" id="200" name="Heart of Infamy (New)" numGridCollisionPoints="12" portrait="56" shadowSize="23" stageHP="0" tags="nodelirium" variant="4098">
-        <bestiary parent="98.0"/>
-        <gibs amount="20" blood="1" bone="0" eye="0" gut="0" large="1"/>
+	
+	<entity anm2path="096.000_Eternal Fly.anm2" baseHP="20" boss="0" champion="0" collisionDamage="1" collisionMass="3" collisionRadius="17" friction="1" gridCollision="walls" id="18" name="#ETERNAL_FLY" numGridCollisionPoints="4" portrait="176" reroll="true" shadowSize="11" stageHP="0" tags="fly" variant="4040">
+        <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
 
-	<entity anm2path="205.000_Nest.anm2" baseHP="13" boss="0" champion="1" collisionDamage="0" collisionMass="6" collisionRadius="13" friction="1" id="16" name="Nest (New)" numGridCollisionPoints="12" portrait="11" reroll="true" shadowSize="13" stageHP="0" variant="40">
+	<entity anm2path="205.000_Nest.anm2" baseHP="13" boss="0" champion="1" collisionDamage="0" collisionMass="7" collisionRadius="13" friction="1" id="16" name="Nest (New)" numGridCollisionPoints="12" portrait="73" reroll="true" shadowSize="14" stageHP="0" variant="40">
         <bestiary parent="205.0"/>
         <gibs amount="6" blood="1" bone="1" eye="1" gut="1" large="0"/>
     </entity>
@@ -75,6 +61,10 @@
     <entity anm2path="303.000_Blister.anm2" baseHP="16" boss="0" champion="1" collisionDamage="1" collisionMass="5" collisionRadius="13" friction="1" id="29" name="Blister (New)" numGridCollisionPoints="12" portrait="157" shadowSize="14" stageHP="8" tags="spider" variant="1" subtype="303">
         <bestiary parent="303.0"/>
         <gibs amount="6" blood="1" bone="1" eye="1" gut="1" large="0"/>
+    </entity>
+	
+	<entity anm2path="834.000_whipper_hera.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="834" name="Altar Scamp" numGridCollisionPoints="12" portrait="222" shadowSize="14" stageHP="0" variant="0" subtype="43">
+        <gibs amount="6" blood="0" bone="1" eye="0" gut="1" large="0" worm="1"/>
     </entity>
 	
 	<entity anm2path="859.001_flesh floating host.anm2" baseHP="21" boss="0" champion="1" collisionDamage="1" collisionMass="40" collisionRadius="13" friction="1" gridCollision="walls" id="859" name="Flesh Floast" numGridCollisionPoints="12" portrait="275" shadowSize="20" stageHP="0" variant="1">

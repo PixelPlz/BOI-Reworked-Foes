@@ -3,7 +3,7 @@ local game = Game()
 
 local Settings = {
 	NewHealth = 400,
-	Cooldown = 80,
+	Cooldown = 60,
 	TransparencyTimer = 10,
 	SpiderCount = 3,
 

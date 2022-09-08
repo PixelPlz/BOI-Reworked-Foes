@@ -33,6 +33,14 @@ function mod:nestInit(entity)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.nestInit, EntityType.ENTITY_NEST)
 
+function mod:nestUpdate(entity)
+	if entity.Variant == 40 then
+		entity.State = NpcState.STATE_MOVE
+		entity:GetSprite():SetOverlayFrame("HeadWalk", entity:GetSprite():GetFrame())
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.nestUpdate, EntityType.ENTITY_MULLIGAN)
+
 function mod:nestDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == 40 and damageSource.Type == EntityType.ENTITY_SPIDER then
 		return false

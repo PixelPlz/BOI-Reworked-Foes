@@ -231,6 +231,11 @@
 
 
 
+	<!-- Gish -->
+	<boss id="43" variant="1">
+		<color suffix="_white" scale="0.9"/>
+	</boss>
+
 	<!-- Sloth -->
     <boss id="46" variant="0">
 		<color anm2path="046.000_sloth_grey.anm2" scale="1.1"/>

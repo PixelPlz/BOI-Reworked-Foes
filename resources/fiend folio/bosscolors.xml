@@ -158,9 +158,13 @@
 	<!-- Mask of Infamy -->
 	<boss id="97" variant="0">
 		<color suffix="_black" scale="1.15" hp="1.25" />
+		<!--FF-->
+		<color suffix="_yellow" />
 	</boss>
 	<boss id="98" variant="0">
 		<color suffix="_black" scale="1.15" hp="1.25" />
+		<!--FF-->
+		<color suffix="_yellow" />
 	</boss>
 	<!-- Gurdy Jr. -->
 	<boss id="99" variant="0">
@@ -262,6 +266,11 @@
 	</boss>
 
 
+
+	<!-- Gish -->
+	<boss id="43" variant="1">
+		<color suffix="_white" scale="0.9"/>
+	</boss>
 
 	<!-- Sloth -->
     <boss id="46" variant="0">
