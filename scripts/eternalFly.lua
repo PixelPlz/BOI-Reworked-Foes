@@ -19,7 +19,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.eternalFlyInit)
 
 function mod:eternalFlyUpdate(npc)
 	local data = npc:GetData()
-	if data.isEternalFly and npc.SubType ~= 83 then
+	if data.isEternalFly and npc.SubType ~= 4040 then
 		npc:Morph(EntityType.ENTITY_ATTACKFLY, 4040, 0, npc:GetChampionColorIdx())
 	end
 end
