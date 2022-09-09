@@ -70,18 +70,18 @@ function mod:lokiiUpdate(entity)
 			if entity.StateFrame == 0 then
 				entity.TargetPosition = Vector(target.Position.X - Settings.PlayerDistance + ((entity.I1 - 1) * (Settings.PlayerDistance * 2)), target.Position.Y)
 				if entity.Position:Distance(entity.TargetPosition) > 8 then
-					entity.Velocity = (entity.Velocity + ((entity.TargetPosition - entity.Position):Normalized() * Settings.MoveSpeed - entity.Velocity) * 0.25)
+					entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Normalized() * Settings.MoveSpeed, 0.25)
 				end
 			
 			elseif entity.StateFrame == 1 then
-				entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+				entity.Velocity = mod:StopLerp(entity.Velocity)
 			
 			elseif entity.StateFrame == 2 then
-				entity.Velocity = (entity.Velocity + ((entity.V2 * Settings.HopSpeed) - entity.Velocity) * 0.25)
+				entity.Velocity = mod:Lerp(entity.Velocity, entity.V2 * Settings.HopSpeed, 0.25)
 			
 			elseif entity.StateFrame == 3 then
 				if entity.Position:Distance(pair.Position) > 100 then
-					entity.Velocity = (entity.Velocity + ((pair.Position - entity.Position):Normalized() * Settings.MoveSpeed - entity.Velocity) * 0.25)
+					entity.Velocity = mod:Lerp(entity.Velocity, (pair.Position - entity.Position):Normalized() * Settings.MoveSpeed, 0.25)
 				end
 			
 			elseif entity.StateFrame == 4 then
@@ -92,9 +92,7 @@ function mod:lokiiUpdate(entity)
 			-- Idle
 			if entity.State == NpcState.STATE_IDLE then
 				entity.StateFrame = 0
-				if not sprite:IsPlaying("Walk") then
-					sprite:Play("Walk", true)
-				end
+				mod:LoopingAnim(sprite, "Walk")
 
 				if entity.ProjectileCooldown <= 0 and pair.State == NpcState.STATE_IDLE then
 					local attack = math.random(0, 3)
@@ -358,7 +356,7 @@ function mod:lokiiUpdate(entity)
 
 
 			elseif entity.State == NpcState.STATE_ATTACK4 or entity.State == NpcState.STATE_ATTACK5 then
-				entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+				entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				if sprite:IsEventTriggered("Shoot") then
 					entity:PlaySound(SoundEffect.SOUND_CUTE_GRUNT, 1, 0, false, 1)

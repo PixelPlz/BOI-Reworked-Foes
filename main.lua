@@ -24,6 +24,7 @@ IRFconfig = {
 	-- General
 	breakableHosts = true,
 	blackBonyCostumes = true,
+	classicEternalFlies = true,
 }
 
 -- Load settings
@@ -54,11 +55,11 @@ if ModConfigMenu then
 	ModConfigMenu.AddSetting(category, "General", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function() return IRFconfig.breakableHosts end,
-	    Display = function() return "Breakable hosts: " .. (IRFconfig.breakableHosts and "True" or "False") end,
+	    Display = function() return "Breakable hosts: " .. (IRFconfig.breakableHosts and "On" or "Off") end,
 	    OnChange = function(bool)
 	    	IRFconfig.breakableHosts = bool
 	    end,
-	    Info = {"Enable/Disable breakable hosts. (default = true)"}
+	    Info = {"Toggle breakable hosts. (default = on)"}
   	})
 	ModConfigMenu.AddSetting(category, "General", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
@@ -68,6 +69,15 @@ if ModConfigMenu then
 	    	IRFconfig.blackBonyCostumes = bool
 	    end,
 	    Info = {"Black Bony bomb type indicator. (default = Head Costume)"}
+  	})
+	ModConfigMenu.AddSetting(category, "General", {
+    	Type = ModConfigMenu.OptionType.BOOLEAN,
+	    CurrentSetting = function() return IRFconfig.classicEternalFlies end,
+	    Display = function() return "Classic Eternal Flies: " .. (IRFconfig.classicEternalFlies and "On" or "Off") end,
+	    OnChange = function(bool)
+	    	IRFconfig.classicEternalFlies = bool
+	    end,
+	    Info = {"Toggle classic Eternal Flies. (default = on)"}
   	})
 end
 
@@ -145,3 +155,55 @@ include("scripts.forsaken")
 --include("scripts.ragMega")
 --include("scripts.sisterVis")
 include("scripts.bossHealthBars")
+
+
+
+-- Useful functions
+function mod:Lerp(first,second,percent)
+	return (first + (second - first) * percent)
+end
+
+function mod:StopLerp(vector)
+	return mod:Lerp(vector, Vector.Zero, 0.25)
+end
+
+
+function mod:LoopingAnim(sprite, anim)
+	if not sprite:IsPlaying(anim) then
+		sprite:Play(anim, true)
+	end
+end
+
+function mod:LoopingOverlay(sprite, anim)
+	if not sprite:IsOverlayPlaying(anim) then
+		sprite:PlayOverlay(anim, true)
+	end
+end
+
+
+function mod:QuickCreep(type, spawner, position, scale, timeout)
+	local creep = Isaac.Spawn(EntityType.ENTITY_EFFECT, type, 0, position, Vector.Zero, spawner):ToEffect()
+	if scale then
+		creep.SpriteScale = Vector(scale, scale)
+	end
+	if timeout then
+		creep:SetTimeout(timeout)
+	end
+	creep:Update()
+end
+
+
+function IRFfireRing(entity)
+	local ring = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, 40, entity.Position, Vector.Zero, entity)
+	ring.DepthOffset = entity.DepthOffset - 10
+	ring.SpriteScale = Vector(1.25, 1.25)
+	SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END)
+
+	for i, e in pairs(Isaac.FindInRadius(entity.Position, 60, 40)) do
+		local dmg = 0
+		if e.Type == EntityType.ENTITY_PLAYER then
+			dmg = 1
+		end
+		e:TakeDamage(dmg, DamageFlag.DAMAGE_FIRE, EntityRef(entity), 0)
+	end
+end

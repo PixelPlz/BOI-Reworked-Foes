@@ -135,9 +135,7 @@ function mod:raglingRagsUpdate(entity)
 		-- Attack
 		if entity.ProjectileCooldown <= 0 then
 			if entity.Position:Distance(target.Position) <= Settings.Range and game:GetRoom():CheckLine(entity.Position, target.Position, 3, 0, false, false) and entity.Child then
-				if not sprite:IsPlaying("Attack") then
-					sprite:Play("Attack", true)
-				end
+				mod:LoopingAnim(sprite, "Attack")
 			end
 			
 			if sprite:IsEventTriggered("Shoot") then

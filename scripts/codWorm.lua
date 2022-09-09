@@ -29,9 +29,8 @@ function mod:codWormUpdate(entity)
 
 	-- Idle
 	if entity.State == NpcState.STATE_IDLE then
-		if not sprite:IsPlaying("Pulse") then
-			sprite:Play("Pulse", true)
-		end
+		mod:LoopingAnim(sprite, "Pulse")
+
 		if entity.ProjectileCooldown <= 0 then
 			entity.State = NpcState.STATE_JUMP
 			sprite:Play("DigOut", true)
@@ -76,9 +75,8 @@ function mod:codWormUpdate(entity)
 	
 	-- Popped out
 	elseif entity.State == NpcState.STATE_MOVE then
-		if not sprite:IsPlaying("PulseOut") then
-			sprite:Play("PulseOut", true)
-		end
+		mod:LoopingAnim(sprite, "PulseOut")
+
 		if entity.ProjectileCooldown <= 0 then
 			entity.State = NpcState.STATE_STOMP
 			sprite:Play("DigIn", true)

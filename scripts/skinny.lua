@@ -33,10 +33,7 @@ function mod:skinnyUpdate(entity)
 
 			-- Creep
 			if entity.Variant == 0 and entity:IsFrame(4, 0) then
-				local creep = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_RED, 0, entity.Position, Vector.Zero, entity):ToEffect()
-				creep.Scale = 0.75
-				creep:SetTimeout(Settings.CreepTime)
-				creep:Update()
+				mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 0.75, Settings.CreepTime)
 
 			-- Bullets
 			elseif entity.Variant == 1 and entity:IsFrame(16, 0) then
@@ -83,22 +80,19 @@ function mod:skinnyUpdate(entity)
 		else
 			if entity.Pathfinder:HasPathToPos(target.Position) then
 				if game:GetRoom():CheckLine(entity.Position, target.Position, 0, 0, false, false) then
-					entity.Velocity = (entity.Velocity + ((target.Position - entity.Position):Normalized() * speed - entity.Velocity) * 0.25)
+					entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Normalized() * speed, 0.25)
 				else
 					entity.Pathfinder:FindGridPath(target.Position, speed / 6, 500, false)
 				end
-			
 			else
-				entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+				entity.Velocity = mod:StopLerp(entity.Velocity)
 			end
 		end
 
 
 		-- Animation
 		entity:AnimWalkFrame("WalkHori", "WalkVert", 0.1)
-		if not sprite:IsOverlayPlaying(anim) then
-			sprite:PlayOverlay(anim, true)
-		end
+		mod:LoopingOverlay(sprite, anim)
 		if anim == "Head" then
 			sprite:SetOverlayFrame(anim, sprite:GetFrame())
 		end

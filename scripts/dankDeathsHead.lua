@@ -28,9 +28,7 @@ function mod:dankDeathsHeadUpdate(entity)
 				entity.State = NpcState.STATE_ATTACK
 				sprite:Play("Bounce", true)
 
-				local creep = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_BLACK, 0, entity.Position, Vector.Zero, entity):ToEffect()
-				creep.Scale = 1.6
-				creep:Update()
+				mod:QuickCreep(EffectVariant.CREEP_BLACK, entity, entity.Position, 1.6)
 				SFXManager():Play(SoundEffect.SOUND_GOOATTACH0, 0.8)
 			end
 		end

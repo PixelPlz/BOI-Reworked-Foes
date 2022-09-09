@@ -30,10 +30,8 @@ function mod:dankGlobinUpdate(entity)
 		if entity.I1 == 1 and entity.Pathfinder:HasPathToPos(place, false) then
 			entity.Pathfinder:FindGridPath(place, 0.85, 500, false)
 
-			if entity:IsFrame(3, 0) then
-				local creep = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_BLACK, 0, entity.Position, Vector.Zero, entity):ToEffect()
-				creep.Scale = 0.75
-				creep:Update()
+			if entity:IsFrame(4, 0) then
+				mod:QuickCreep(EffectVariant.CREEP_BLACK, entity, entity.Position, 0.9)
 			end
 		end
 	end

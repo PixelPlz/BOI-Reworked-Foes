@@ -21,9 +21,7 @@ function mod:nerveEnding2Update(entity)
 		
 		-- Idle
 		if entity.State == 3 then
-			if not sprite:IsPlaying("Idle") then
-				sprite:Play("Idle", true)
-			end
+			mod:LoopingAnim(sprite, "Idle")
 			
 			if entity.ProjectileCooldown <= 0 then
 				-- Attack if in range

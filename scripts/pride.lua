@@ -13,12 +13,13 @@ superPrideBulletColor:SetColorize(1, 1, 1, 1)
 function mod:prideUpdate(entity)
 	local sprite = entity:GetSprite()
 
+
 	-- Custom laser attack
 	if entity.State == NpcState.STATE_ATTACK then
 		entity.State = NpcState.STATE_ATTACK3
 
 	elseif entity.State == NpcState.STATE_ATTACK3 then
-		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+		entity.Velocity = mod:StopLerp(entity.Velocity)
 
 		if sprite:IsEventTriggered("Shoot") then
 			if entity.SubType == 0 then
@@ -60,7 +61,7 @@ function mod:prideUpdate(entity)
 		entity.State = NpcState.STATE_ATTACK4
 	
 	elseif entity.State == NpcState.STATE_ATTACK4 then
-		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+		entity.Velocity = mod:StopLerp(entity.Velocity)
 
 		if sprite:IsEventTriggered("Beam") then
 			local room = game:GetRoom()

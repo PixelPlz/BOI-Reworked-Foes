@@ -21,10 +21,8 @@ function mod:dartFlyUpdate(entity)
 
 	-- Idle
 	if entity.State == NpcState.STATE_MOVE then
-		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
-		if not sprite:IsPlaying("Fly") then
-			sprite:Play("Fly", true)
-		end
+		entity.Velocity = mod:StopLerp(entity.Velocity)
+		mod:LoopingAnim(sprite, "Fly")
 		sprite.Rotation = (target.Position - entity.Position):GetAngleDegrees() - 90
 		
 		if entity.ProjectileCooldown <= 0 then
@@ -56,7 +54,7 @@ function mod:dartFlyUpdate(entity)
 			end
 
 		else
-			entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+			entity.Velocity = mod:StopLerp(entity.Velocity)
 			sprite.Rotation = (target.Position - entity.Position):GetAngleDegrees() - 90
 		end
 	end

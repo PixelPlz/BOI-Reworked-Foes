@@ -82,7 +82,7 @@ function mod:gishUpdate(entity)
 				
 				-- Creep
 				if entity:IsFrame(4, 0) then
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, creepType, 0, entity.Position, Vector.Zero, entity):ToEffect().Scale = 1.75
+					mod:QuickCreep(creepType, entity, entity.Position, 1.75)
 				end
 			end
 			if entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
@@ -95,20 +95,16 @@ function mod:gishUpdate(entity)
 			else
 				if entity.Pathfinder:HasPathToPos(target.Position) then
 					if game:GetRoom():CheckLine(entity.Position, target.Position, 0, 0, false, false) then
-						entity.Velocity = (entity.Velocity + ((target.Position - entity.Position):Normalized() * speed - entity.Velocity) * 0.25)
+						entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Normalized() * speed, 0.25)
 					else
 						entity.Pathfinder:FindGridPath(target.Position, speed / 6, 500, false)
 					end
-				
 				else
 					data.state = States.BigJump
 				end
 			end
 
-			-- Animation
-			if not sprite:IsPlaying(anim) then
-				sprite:Play(anim, true)
-			end
+			mod:LoopingAnim(sprite, anim)
 			spriteFlipX()
 
 			-- Decide attack
@@ -154,18 +150,13 @@ function mod:gishUpdate(entity)
 				entity.I2 = 0
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
+				mod:QuickCreep(creepType, entity, entity.Position, 5 - entity.SubType)
 
 				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):ToEffect()
 				effect:GetSprite().Color = entity.SplatColor
 				effect.DepthOffset = entity.DepthOffset + 10
 				if data.state == States.Land then
 					effect.Scale = 1.5
-				end
-
-				-- Creep
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, creepType, 0, entity.Position, Vector.Zero, entity):ToEffect().Scale = 1.6
-				for i = 0, 8 do
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, creepType, 0, entity.Position + (Vector.FromAngle(i * 45) * 40), Vector.Zero, entity):ToEffect().Scale = 1.6
 				end
 
 			
@@ -209,13 +200,11 @@ function mod:gishUpdate(entity)
 			-- Regular jump
 			if data.state == States.Jump then
 				if entity.I2 == 1 then
-					entity.Velocity = (entity.Velocity + (entity.V1 * Settings.JumpSpeed - entity.Velocity) * 0.25)
+					entity.Velocity = mod:Lerp(entity.Velocity, entity.V1 * Settings.JumpSpeed, 0.25)
 				else
-					entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+					entity.Velocity = mod:StopLerp(entity.Velocity)
 				end
-				if not sprite:IsPlaying("Attack") then
-					sprite:Play("Attack", true)
-				end
+				mod:LoopingAnim(sprite, "Attack")
 
 				if sprite:IsEventTriggered("Jump") then
 					entity.V1 = (target.Position - entity.Position):Normalized()
@@ -246,10 +235,8 @@ function mod:gishUpdate(entity)
 
 			-- Big jump
 			elseif data.state == States.BigJump then
-				entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
-				if not sprite:IsPlaying("JumpUp") then
-					sprite:Play("JumpUp", true)
-				end
+				entity.Velocity = mod:StopLerp(entity.Velocity)
+				mod:LoopingAnim(sprite, "JumpUp")
 
 				if sprite:GetFrame() == 14 then
 					data.state = States.Land
@@ -258,17 +245,15 @@ function mod:gishUpdate(entity)
 			-- Land
 			elseif data.state == States.Land then
 				if entity.I2 == 1 and sprite:GetFrame() < 24 then
-					entity.Velocity = (entity.Velocity + ((target.Position - entity.Position):Normalized() * Settings.AirSpeed - entity.Velocity) * 0.25)
+					entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Normalized() * Settings.AirSpeed, 0.25)
 				else
 					local multiplier = 0.25
 					if entity.I2 == 1 then
 						multiplier = 0.1
 					end
-					entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * multiplier)
+					entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, multiplier)
 				end
-				if not sprite:IsPlaying("JumpDown") then
-					sprite:Play("JumpDown", true)
-				end
+				mod:LoopingAnim(sprite, "JumpDown")
 
 				if sprite:IsEventTriggered("Land") then
 					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position + Vector(12, -32), Vector.Zero, entity):GetSprite().Color = entity.SplatColor
@@ -290,10 +275,8 @@ function mod:gishUpdate(entity)
 
 		-- Spit attack
 		elseif data.state == States.Attacking then
-			entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
-			if not sprite:IsPlaying("Taunt") then
-				sprite:Play("Taunt", true)
-			end
+			entity.Velocity = mod:StopLerp(entity.Velocity)
+			mod:LoopingAnim(sprite, "Taunt")
 			spriteFlipX()
 
 			if sprite:IsEventTriggered("Shoot") then
@@ -304,8 +287,8 @@ function mod:gishUpdate(entity)
 					Isaac.Spawn(EntityType.ENTITY_CLOTTY, 1, 0, entity.Position, (target.Position - entity.Position):Normalized() * 10, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 
 					params.Color = tarBulletColor
-					params.Scale = 1.35
-					entity:FireBossProjectiles(8, target.Position, 2.5, params)
+					params.Scale = 1.5
+					entity:FireBossProjectiles(10, target.Position, 3, params)
 				
 				elseif entity.SubType == 1 then
 					params.BulletFlags = (ProjectileFlags.DECELERATE | ProjectileFlags.BURST8)

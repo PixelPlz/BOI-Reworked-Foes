@@ -95,7 +95,6 @@ function mod:lustUpdate(entity)
 		-- Lasting effects --
 		-- Nerf their speed a bit if they don't have a speed up
 		if data.speedUp == true then
-			--sprite.Color = speedUpColor
 			entity:SetColor(speedUpColor, 10, 10, false, true)
 		else
 			entity.Velocity = entity.Velocity * Settings.SpeedNerf
@@ -115,10 +114,8 @@ function mod:lustUpdate(entity)
 		end
 
 		-- Leave behind creep
-		if data.hasCreep == true and entity:IsFrame(4, 0) then
-			local creep = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_RED, 0, entity.Position, Vector.Zero, entity):ToEffect()
-			creep.Scale = 0.75 * entity.Scale
-			creep:Update()
+		if data.hasCreep == true and entity:IsFrame(3, 0) then
+			mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 0.8 * entity.Scale)
 		end
 
 		-- Sun beams
@@ -167,9 +164,7 @@ function mod:lustUpdate(entity)
 
 		-- Use items
 		if entity.State == NpcState.STATE_ATTACK then
-			if not sprite:IsPlaying("Use0" .. entity.I2) then
-				sprite:Play("Use0" .. entity.I2, true)
-			end
+			mod:LoopingAnim(sprite, "Use0" .. entity.I2)
 
 			if sprite:GetFrame() == 2 then
 				local playSFX = false
@@ -218,9 +213,7 @@ function mod:lustUpdate(entity)
 
 					else
 						SFXManager():Play(SoundEffect.SOUND_GASCAN_POUR)
-						local creep = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_YELLOW, 0, entity.Position, Vector.Zero, entity):ToEffect()
-						creep.Scale = Settings.CreepScale
-						creep:SetTimeout(Settings.CreepTime)
+						mod:QuickCreep(EffectVariant.CREEP_YELLOW, entity, entity.Position, Settings.CreepScale, Settings.CreepTime)
 						
 						if entity.Variant == 1 then
 							local params = ProjectileParams()
@@ -351,7 +344,7 @@ function mod:lustUpdate(entity)
 			end
 
 
-			entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+			entity.Velocity = mod:StopLerp(entity.Velocity)
 			if sprite:GetFrame() == 21 then
 				entity.State = NpcState.STATE_MOVE
 			end

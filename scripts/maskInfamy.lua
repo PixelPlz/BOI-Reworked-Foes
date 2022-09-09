@@ -129,7 +129,7 @@ function mod:maskInfamyUpdate(entity)
 			elseif data.facing == "Up" then
 				angle = -90
 			end
-			entity.Velocity = (entity.Velocity + (Vector.FromAngle(angle) * speed - entity.Velocity) * 0.015)
+			entity.Velocity = mod:Lerp(entity.Velocity, Vector.FromAngle(angle) * speed, 0.015)
 			entity.I2 = entity.I2 + 1 -- Only crash if it charged for long enough
 
 			-- Crash into wall
@@ -158,17 +158,15 @@ function mod:maskInfamyUpdate(entity)
 				entity.I2 = 0
 			end
 			
-			
+			-- Yellow champion creep
 			if FiendFolio and entity.SubType == 2 and entity:IsFrame(2, 0) and entity.I2 >= 7 then
-				local creep = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_YELLOW, 0, entity.Position, Vector.Zero, entity):ToEffect()
-				creep.Scale = 1.15
-				creep:Update()
+				mod:QuickCreep(EffectVariant.CREEP_YELLOW, entity, entity.Position, 1.15)
 			end
 
 
 		-- Stunned
 		elseif data.state == States.Attack2 then
-			entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+			entity.Velocity = mod:StopLerp(entity.Velocity)
 
 			if entity.ProjectileCooldown <= 0 then
 				data.state = States.Idle
@@ -178,11 +176,8 @@ function mod:maskInfamyUpdate(entity)
 			end
 		end
 
-
-		-- Walking animation
-		if not sprite:IsPlaying(prefix .. "Mask" .. data.facing) then
-			sprite:Play(prefix .. "Mask" .. data.facing, true)
-		end
+		-- Animation
+		mod:LoopingAnim(sprite, prefix .. "Mask" .. data.facing)
 
 
 	-- Transition to 2nd phase
@@ -263,9 +258,7 @@ function mod:heartInfamyUpdate(entity)
 		if entity.I1 == 1 then
 			suffix = "Alt"
 		end
-		if not sprite:IsPlaying("HeartBeat" .. suffix) then
-			sprite:Play("HeartBeat" .. suffix, true)
-		end
+		mod:LoopingAnim(sprite, "HeartBeat" .. suffix)
 		
 		-- Heart beat
 		if sprite:IsEventTriggered("Shoot") and not entity.SubType == 2 then
@@ -291,7 +284,7 @@ function mod:heartInfamyUpdate(entity)
 
 	-- Ground slam
 	elseif data.state == States.Attack1 then
-		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+		entity.Velocity = mod:StopLerp(entity.Velocity)
 		if not sprite:IsPlaying("HeartAttack") and not sprite:IsPlaying("HeartAttackAlt") then
 			if entity.I1 == 0 then
 				sprite:Play("HeartAttack", true)
@@ -316,7 +309,7 @@ function mod:heartInfamyUpdate(entity)
 			local params = ProjectileParams()
 			-- FF kidney champion
 			if FiendFolio and entity.SubType == 2 then
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_YELLOW, 0, entity.Position, Vector.Zero, entity):ToEffect().Scale = 2
+				mod:QuickCreep(EffectVariant.CREEP_YELLOW, entity, entity.Position, 3)
 				params.Color = FiendFolio.ColorLemonYellow
 				params.FallingAccelModifier = 0.075
 
@@ -346,10 +339,7 @@ function mod:heartInfamyUpdate(entity)
 				
 				-- Creep for jump attack
 				if sprite:IsPlaying("HeartAttackAlt") then
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_RED, 0, entity.Position, Vector.Zero, entity):ToEffect().Scale = 1.5
-					for i = 0, 8 do
-						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_RED, 0, entity.Position + (Vector.FromAngle(i * 45) * 40), Vector.Zero, entity):ToEffect().Scale = 1.5
-					end
+					mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 5)
 				-- Slam effect
 				else
 					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity).SpriteScale = Vector(0.75, 0.75)
@@ -365,10 +355,8 @@ function mod:heartInfamyUpdate(entity)
 
 	-- Burst / Homing shots
 	elseif data.state == States.Attack2 then
-		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
-		if not sprite:IsPlaying("BurstAttack") then
-			sprite:Play("BurstAttack", true)
-		end
+		entity.Velocity = mod:StopLerp(entity.Velocity)
+		mod:LoopingAnim(sprite, "BurstAttack")
 
 		if sprite:IsEventTriggered("Shoot") then
 			entity:PlaySound(SoundEffect.SOUND_BLOODSHOOT, 1.25, 0, false, 1)

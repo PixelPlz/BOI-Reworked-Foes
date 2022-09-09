@@ -71,20 +71,6 @@ function mod:gluttonyUpdate(entity)
 			end
 
 
-		-- Creep from brimstone attack
-		elseif entity.State == NpcState.STATE_ATTACK2 then
-			for i = 0, 40 do
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_RED, 0, entity.Position + (entity.V1 * (i * 30)), Vector.Zero, entity):ToEffect().Scale = 1.15
-			end
-
-			-- Super Gluttony back laser
-			if entity.Variant == 1 then
-				for i = 1, 40 do
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_RED, 0, entity.Position + (-entity.V1 * (i * 30)), Vector.Zero, entity):ToEffect().Scale = 1.15
-				end
-			end
-
-
 		-- Chubber attack for champion gluttony
 		elseif entity.State == NpcState.STATE_ATTACK3 then
 			entity:PlaySound(SoundEffect.SOUND_MEAT_JUMPS, 0.9, 0, false, 1)

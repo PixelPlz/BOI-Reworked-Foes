@@ -178,7 +178,7 @@ function mod:conquestPreUpdate(entity)
 
 			-- Appear
 			if entity.State == NpcState.STATE_APPEAR_CUSTOM then
-				entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+				entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				if sprite:IsEventTriggered("Shoot") then
 					entity:PlaySound(SoundEffect.SOUND_MONSTER_ROAR_0, 0.9, 0, false, 1)
@@ -191,9 +191,7 @@ function mod:conquestPreUpdate(entity)
 			-- Idle
 			elseif entity.State == NpcState.STATE_MOVE then
 				entity.Velocity = (entity.Velocity + ((target.Position - entity.Position):Normalized() * (Settings.MoveSpeed - entity.SubType) - entity.Velocity) * 0.25)
-				if not sprite:IsPlaying("Walk") then
-					sprite:Play("Walk", true)
-				end
+				mod:LoopingAnim(sprite, "Walk")
 
 				if entity.Velocity.X < 0 then
 					sprite.FlipX = true
@@ -204,7 +202,7 @@ function mod:conquestPreUpdate(entity)
 
 			-- Attack
 			elseif entity.State == NpcState.STATE_ATTACK then
-				entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+				entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				if sprite:IsEventTriggered("Shoot") then
 					entity:PlaySound(SoundEffect.SOUND_MONSTER_ROAR_0, 0.9, 0, false, 1)
@@ -260,10 +258,8 @@ function mod:conquestPreUpdate(entity)
 				entity.TargetPosition = Vector(entity.V2.X, target.Position.Y)
 				entity.Position = (entity.Position + (entity.TargetPosition - entity.Position) * 0.25)
 
-				entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
-				if not sprite:IsPlaying("Dash") then
-					sprite:Play("Dash", true)
-				end
+				entity.Velocity = mod:StopLerp(entity.Velocity)
+				mod:LoopingAnim(sprite, "Dash")
 
 				if entity.ProjectileCooldown <= 0 then
 					entity.State = NpcState.STATE_MOVE
@@ -292,13 +288,11 @@ function mod:conquestPreUpdate(entity)
 				end
 
 				if entity.I1 == 0 then
-					entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+					entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				elseif entity.I1 == 1 then
 					entity.Velocity = entity.V1 * Settings.DashSpeed
-					if not sprite:IsPlaying("Dash") then
-						sprite:Play("Dash", true)
-					end
+					mod:LoopingAnim(sprite, "Dash")
 
 					-- Turn around
 					local room = game:GetRoom()

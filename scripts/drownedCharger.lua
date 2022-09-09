@@ -66,7 +66,7 @@ function mod:drownedChargerUpdate(entity)
 					end
 
 				else
-					entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+					entity.Velocity = mod:StopLerp(entity.Velocity)
 				end
 			end
 		end

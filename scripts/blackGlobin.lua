@@ -59,10 +59,8 @@ function mod:blackGlobinHeadUpdate(entity)
 	
 	elseif entity.State == NpcState.STATE_STOMP or entity.State == NpcState.STATE_JUMP then
 		-- Creep
-		if entity:IsFrame(4, 0) then
-			local creep = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_RED, 0, entity.Position, Vector.Zero, entity):ToEffect()
-			creep:SetTimeout(Settings.CreepTime)
-			creep:Update()
+		if entity:IsFrame(3, 0) then
+			mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 1, Settings.CreepTime)
 		end
 
 
@@ -79,22 +77,17 @@ function mod:blackGlobinHeadUpdate(entity)
 				entity.I2 = entity.I2 - 1
 			end
 
+			-- Impact with grids
 			if entity:CollidesWithGrid() or sprite:IsEventTriggered("Splat") then
 				SFXManager():Play(SoundEffect.SOUND_MEAT_JUMPS)
-				local impactCreep = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_RED, 0, entity.Position, Vector.Zero, entity):ToEffect()
-				impactCreep.Scale = 1.5
-				impactCreep:SetTimeout(Settings.CreepTime)
-				impactCreep:Update()
+				mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 1.5, Settings.CreepTime)
 			end
 
 
 		-- Recover
 		elseif entity.State == NpcState.STATE_JUMP then
-			entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
-
-			if not sprite:IsPlaying("Recover") then
-				sprite:Play("Recover", true)
-			end
+			entity.Velocity = mod:StopLerp(entity.Velocity)
+			mod:LoopingAnim(sprite, "Recover")
 
 			if sprite:IsEventTriggered("Splat") then
 				SFXManager():Play(SoundEffect.SOUND_GOOATTACH0, 0.9)

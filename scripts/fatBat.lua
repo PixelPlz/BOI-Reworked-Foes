@@ -46,7 +46,7 @@ function mod:fatBatUpdate(entity)
 			entity:FireBossProjectiles(1, entity.Position + (entity.V1 * 10), 4, params)
 
 		else
-			entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+			entity.Velocity = mod:StopLerp(entity.Velocity)
 		end
 
 
@@ -67,7 +67,7 @@ function mod:fatBatUpdate(entity)
 
 	-- Shit
 	elseif entity.State == NpcState.STATE_ATTACK3 then
-		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+		entity.Velocity = mod:StopLerp(entity.Velocity)
 
 		if sprite:IsEventTriggered("Shoot") then
 			game:ButterBeanFart(entity.Position, Settings.FartRadius, entity, true)

@@ -62,10 +62,7 @@ function mod:blightedOvumBabyUpdate(entity)
 
 		-- New laser attack
 		elseif entity.State == NpcState.STATE_ATTACK2 then
-			if not sprite:IsPlaying("Attack01") then
-				sprite:Play("Attack01", true)
-			end
-
+			mod:LoopingAnim(sprite, "Attack01")
 
 			-- Shoot laser
 			if sprite:IsEventTriggered("GetPos") then

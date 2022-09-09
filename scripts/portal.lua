@@ -279,17 +279,13 @@ function mod:portalUpdate(entity)
 	if entity.Variant == 40 then
 		local sprite = entity:GetSprite()
 
-		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
-		if not sprite:IsPlaying("Idle") then
-			sprite:Play("Idle", true)
-		end
+		entity.Velocity = Vector.Zero
+		mod:LoopingAnim(sprite, "Idle")
 
 
 		-- Idle
 		if entity.State == NpcState.STATE_IDLE then
-			if not sprite:IsOverlayPlaying("FaceIdle") then
-				sprite:PlayOverlay("FaceIdle", true)
-			end
+			mod:LoopingOverlay(sprite, "FaceIdle")
 			
 			if entity.ProjectileCooldown <= 0 then
 				entity.State = NpcState.STATE_SUMMON

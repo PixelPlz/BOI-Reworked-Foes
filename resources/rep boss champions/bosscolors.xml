@@ -323,7 +323,7 @@
 	<!-- Clutch -->
     <boss id="921" variant="0">
 		<color anm2path="clutch_orange.anm2"/>
-		<color anm2path="clutch_black.anm2"/>/>
+		<color anm2path="clutch_black.anm2"/>
 	</boss>
 	<boss id="889" variant="0">
 		<color suffix="_orange"/>

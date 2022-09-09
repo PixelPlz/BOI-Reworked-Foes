@@ -53,7 +53,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ponUpdate, EntityType.ENTITY_PON
 function mod:flamingHopperInit(entity)
 	entity.MaxHitPoints = 10
 	entity.HitPoints = entity.MaxHitPoints
-	entity.ProjectileCooldown = 3
+	entity.ProjectileCooldown = 1
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.flamingHopperInit, EntityType.ENTITY_FLAMINGHOPPER)
 

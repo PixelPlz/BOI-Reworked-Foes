@@ -1,21 +1,6 @@
 local mod = BetterMonsters
 local game = Game()
 
-function IRFfireRing(entity)
-	local ring = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, 40, entity.Position, Vector.Zero, entity)
-	ring.DepthOffset = entity.DepthOffset - 10
-	ring.SpriteScale = Vector(1.25, 1.25)
-	SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END)
-
-	for i, e in pairs(Isaac.FindInRadius(entity.Position, 60, 40)) do
-		local dmg = 0
-		if e.Type == EntityType.ENTITY_PLAYER then
-			dmg = 1
-		end
-		e:TakeDamage(dmg, DamageFlag.DAMAGE_FIRE, EntityRef(entity), 0)
-	end
-end
-
 
 
 function mod:flamingFattyUpdate(entity)

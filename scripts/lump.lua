@@ -31,9 +31,7 @@ function mod:lumpUpdate(entity)
 
 
 	if entity.State == NpcState.STATE_IDLE then
-		if not sprite:IsPlaying("Shake") then
-			sprite:Play("Shake", true)
-		end
+		mod:LoopingAnim(sprite, "Shake")
 		
 		-- Shoot if target is close enough
 		if entity.Position:Distance(game:GetNearestPlayer(entity.Position).Position) <= 220 and room:CheckLine(entity.Position, target.Position, 3, 0, false, false) then

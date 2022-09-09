@@ -113,9 +113,8 @@ function mod:daddyLongLegsUpdate(entity)
 			elseif entity.Variant == 1 then
 				params.Color = skyBulletColor
 				-- Creep
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_WHITE, 0, entity.Position, Vector.Zero, entity):ToEffect().Scale = 1.75
-				for i = 0, 8 do
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_WHITE, 0, entity.Position + (Vector.FromAngle(i * 45) * 50), Vector.Zero, entity):ToEffect().Scale = 1.75
+				for i = 1, 4 do
+					mod:QuickCreep(EffectVariant.CREEP_WHITE, entity, entity.Position + (Vector.FromAngle(i * 90) * 50), 2.25)
 				end
 			end
 

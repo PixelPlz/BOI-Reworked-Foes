@@ -34,9 +34,7 @@ function mod:forsakenUpdate(entity)
 	if entity.State == NpcState.STATE_SUMMON or entity.State == NpcState.STATE_IDLE then -- It starts with its state being 13 for some reason?
 		entity.Pathfinder:MoveRandomlyBoss(false)
 		entity.Velocity = entity.Velocity * 0.925
-		if not sprite:IsPlaying("Idle") then
-			sprite:Play("Idle", true)
-		end
+		mod:LoopingAnim(sprite, "Idle")
 		
 		-- Decide attack
 		if entity.ProjectileCooldown <= 0 then
@@ -58,10 +56,8 @@ function mod:forsakenUpdate(entity)
 	
 	-- Flame attack
 	elseif entity.State == NpcState.STATE_ATTACK then
-		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
-		if not sprite:IsPlaying("BlastStart") then
-			sprite:Play("BlastStart", true)
-		end
+		entity.Velocity = mod:StopLerp(entity.Velocity)
+		mod:LoopingAnim(sprite, "BlastStart")
 
 		if sprite:GetFrame() == 11 then
 			entity:PlaySound(SoundEffect.SOUND_THE_FORSAKEN_SCREAM, 1.1, 0, false, 1)
@@ -76,9 +72,7 @@ function mod:forsakenUpdate(entity)
 
 	elseif entity.State == NpcState.STATE_ATTACK2 then
 		entity.Velocity = Vector.Zero
-		if not sprite:IsPlaying("Blasting") then
-			sprite:Play("Blasting", true)
-		end
+		mod:LoopingAnim(sprite, "Blasting")
 
 		local shotsCount = Settings.FlameShots
 		if entity.ProjectileCooldown <= 0 then
@@ -138,7 +132,7 @@ function mod:forsakenUpdate(entity)
 	
 	-- Summon enemies
 	elseif entity.State == NpcState.STATE_SUMMON2 or entity.State == NpcState.STATE_SUMMON3 then
-		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
+		entity.Velocity = mod:StopLerp(entity.Velocity)
 		if not sprite:IsPlaying("Summon") then
 			sprite:Play("Summon", true)
 			entity:PlaySound(SoundEffect.SOUND_THE_FORSAKEN_LAUGH, 1, 0, false, 1)
@@ -193,10 +187,8 @@ function mod:forsakenUpdate(entity)
 	
 	-- Bouncing bones attack
 	elseif entity.State == NpcState.STATE_JUMP then
-		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
-		if not sprite:IsPlaying("FadeOut") then
-			sprite:Play("FadeOut", true)
-		end
+		entity.Velocity = mod:StopLerp(entity.Velocity)
+		mod:LoopingAnim(sprite, "FadeOut")
 
 		if sprite:GetFrame() == 19 then
 			entity.State = NpcState.STATE_MOVE
@@ -206,9 +198,7 @@ function mod:forsakenUpdate(entity)
 	elseif entity.State == NpcState.STATE_MOVE then
 		entity.Pathfinder:MoveRandomlyBoss(false)
 		entity.Velocity = entity.Velocity * 0.9
-		if not sprite:IsPlaying("Faded") then
-			sprite:Play("Faded", true)
-		end
+		mod:LoopingAnim(sprite, "Faded")
 		
 		-- Transparency
 		if entity.StateFrame > 0 then
@@ -234,10 +224,8 @@ function mod:forsakenUpdate(entity)
 		end
 
 	elseif entity.State == NpcState.STATE_STOMP then
-		entity.Velocity = (entity.Velocity + (Vector.Zero - entity.Velocity) * 0.25)
-		if not sprite:IsPlaying("FadeIn") then
-			sprite:Play("FadeIn", true)
-		end
+		entity.Velocity = mod:StopLerp(entity.Velocity)
+		mod:LoopingAnim(sprite, "FadeIn")
 
 		if sprite:GetFrame() == 10 then
 			entity.State = NpcState.STATE_IDLE
