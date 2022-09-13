@@ -43,7 +43,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.wallHuggerUpdate, EntityType.ENT
 
 -- [[ Grudge ]]--
 function mod:grudgeUpdate(entity)
-	if entity.State == 16 then
+	if entity.State == 16 and not (FiendFolio and entity.Variant == 114) then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 
 		if entity.StateFrame >= 30 then

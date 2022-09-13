@@ -10,7 +10,7 @@
         <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
 	
-	<entity anm2path="096.000_Eternal Fly.anm2" baseHP="12" boss="0" champion="0" collisionDamage="1" collisionMass="3" collisionRadius="17" friction="1" gridCollision="walls" id="18" name="#ETERNAL_FLY" numGridCollisionPoints="4" portrait="176" reroll="true" shadowSize="11" stageHP="0" tags="fly" variant="4040">
+	<entity anm2path="096.000_Eternal Fly.anm2" baseHP="14" boss="0" champion="0" collisionDamage="1" collisionMass="3" collisionRadius="17" friction="1" gridCollision="walls" id="18" name="#ETERNAL_FLY" numGridCollisionPoints="4" portrait="176" reroll="true" shadowSize="11" stageHP="0" tags="fly" variant="4040">
         <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
 
@@ -31,7 +31,11 @@
         <gibs amount="6" blood="1" bone="0" dust="1" eye="0" gut="0" large="0"/>
     </entity>
 
-	<entity anm2path="205.000_Nest.anm2" baseHP="13" boss="0" champion="1" collisionDamage="0" collisionMass="7" collisionRadius="13" friction="1" id="16" name="Nest (New)" numGridCollisionPoints="12" portrait="73" reroll="true" shadowSize="14" stageHP="0" variant="40">
+	<entity anm2path="016.040_Mullicocoon.anm2" baseHP="12" boss="0" champion="1" collisionDamage="0" collisionMass="6" collisionRadius="13" friction="1" id="16" name="Mullicocoon" numGridCollisionPoints="12" portrait="11" reroll="true" shadowSize="13" stageHP="0" variant="40">
+        <bestiary anim="WalkVert" overlay="Walk" transform="0,0,1"/>
+        <gibs amount="6" blood="1" bone="1" eye="1" gut="1" large="0"/>
+    </entity>
+	<entity anm2path="205.000_Nest.anm2" baseHP="20" boss="0" champion="1" collisionDamage="0" collisionMass="7" collisionRadius="13" friction="1" id="22" name="Nest (New)" numGridCollisionPoints="12" portrait="73" reroll="true" shadowSize="14" stageHP="0" variant="40">
         <bestiary parent="205.0"/>
         <gibs amount="6" blood="1" bone="1" eye="1" gut="1" large="0"/>
     </entity>

@@ -75,13 +75,14 @@ function mod:angelFeatherUpdate(projectile)
 
 	if not sprite:IsPlaying("Move") then
 		sprite:Play("Move", true)
+		projectile.SplatColor = Color(1,1,1, 1, 1,1,1)
 	end
 	sprite.Rotation = projectile.Velocity:GetAngleDegrees()
 	
 	if projectile:IsDead() then
 		local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BULLET_POOF, 0, projectile.Position, Vector.Zero, projectile):GetSprite()
 		effect.Scale = Vector(0.75, 0.75)
-		effect.Color = Color(1,1,1, 1, 1,1,1)
+		effect.Color = projectile.SplatColor
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.angelFeatherUpdate, featherVariant)

@@ -45,7 +45,7 @@ function mod:satanUpdate(entity)
 			entity:SetColor(Color(1,1,1, 1, 0.7,0,0), 15, 1, true, false)
 
 		elseif entity.State == NpcState.STATE_SUMMON then
-			if sprite:GetFrame() == 4 then
+			if sprite:GetFrame() == 3 then
 				entity.V2 = entity:GetPlayerTarget().Position
 			end
 			if sprite:IsEventTriggered("Shoot") then
@@ -139,7 +139,7 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.satanUpdate, EntityType.ENTITY_SATAN)
 
 function mod:brimstoneProjectileUpdate(projectile)
-	if (projectile.SpawnerType == EntityType.ENTITY_LOKI and projectile.SpawnerVariant == 1) or projectile.SpawnerType == EntityType.ENTITY_SATAN then
+	if ((projectile.SpawnerType == EntityType.ENTITY_LOKI or projectile.SpawnerType == EntityType.ENTITY_URIEL) and projectile.SpawnerVariant == 1) or projectile.SpawnerType == EntityType.ENTITY_SATAN then
 		if projectile.FrameCount % 3 == 0 then
 			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, projectile.Position + projectile.Velocity, -projectile.Velocity:Normalized() * 2, projectile):ToEffect()
 			local scaler = projectile.Scale * math.random(50, 70) / 100
@@ -161,8 +161,8 @@ function mod:kLeechInit(entity)
 			Isaac.Spawn(EntityType.ENTITY_NULLS, 0, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
 
 		-- 2nd phase
-		elseif entity.SpawnerVariant == 10 and entity.SpawnerEntity:ToNPC().I2 == 0 then
-			Isaac.Spawn(EntityType.ENTITY_SUCKER, 0, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
+		--elseif entity.SpawnerVariant == 10 and entity.SpawnerEntity:ToNPC().I2 == 0 then
+			--Isaac.Spawn(EntityType.ENTITY_SUCKER, 0, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
 		end
 	end
 end
