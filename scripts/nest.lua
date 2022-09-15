@@ -9,7 +9,7 @@ function mod:nestInit(entity)
 	-- Only replace nests on chaper 1 floors
 	if (stage > 0 and stage < 4) or (stage > 26 and stage < 29) then
 		entity:Remove()
-		Isaac.Spawn(EntityType.ENTITY_MULLIGAN, 40, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
+		Isaac.Spawn(EntityType.ENTITY_MULLIGAN, IRFentities.mullicocoonVariant, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
 	else
 		entity:Morph(EntityType.ENTITY_HIVE, 40, 0, entity:GetChampionColorIdx())
 	end
@@ -20,7 +20,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.nestInit, EntityType.ENTITY_N
 
 -- Mullicocoon
 function mod:mullicocoonInit(entity)
-	if entity.Variant == 40 then
+	if entity.Variant == IRFentities.mullicocoonVariant then
 		local offset = math.random(0, 359)
 		for i = 1, 3 do
 			local spider = Isaac.Spawn(EntityType.ENTITY_SPIDER, 0, 0, entity.Position + (Vector.FromAngle(offset + (i * 120)) * math.random(10, 30)), Vector.Zero, entity)
@@ -32,21 +32,21 @@ end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.mullicocoonInit, EntityType.ENTITY_MULLIGAN)
 
 function mod:mullicocoonDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 40 and damageSource.Type == EntityType.ENTITY_SPIDER then
+	if target.Variant == IRFentities.mullicocoonVariant and damageSource.Type == EntityType.ENTITY_SPIDER then
 		return false
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.mullicocoonDMG, EntityType.ENTITY_MULLIGAN)
 
 function mod:mullicocoonCollide(entity, target, bool)
-	if entity.Variant == 40 and target.Type == EntityType.ENTITY_SPIDER then
+	if entity.Variant == IRFentities.mullicocoonVariant and target.Type == EntityType.ENTITY_SPIDER then
 		return true -- Ignore collision
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.mullicocoonCollide, EntityType.ENTITY_MULLIGAN)
 
 function mod:mullicocoonDeath(entity)
-	if entity.Variant == 40 then
+	if entity.Variant == IRFentities.mullicocoonVariant then
 		SFXManager():Play(SoundEffect.SOUND_BOIL_HATCH, 0.8)
 		
 		for i = 1, 3 do
@@ -62,7 +62,7 @@ function mod:mullicocoonDeath(entity)
 			end
 			
 			for j, spawn in pairs(Isaac.FindByType(checkType, -1, -1, false, false)) do
-				if spawn.SpawnerType == EntityType.ENTITY_MULLIGAN and spawn.SpawnerVariant == 40 then
+				if spawn.SpawnerType == EntityType.ENTITY_MULLIGAN and spawn.SpawnerVariant == IRFentities.mullicocoonVariant then
 					spawn:Remove()
 					Isaac.Spawn(spawnType, 0, 0, entity.Position, Vector.Zero, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 				end

@@ -1,8 +1,8 @@
 <AnimatedActor>
-	<Info CreatedBy="Unknown" CreatedOn="2022-07-04 14:56:17" Version="5" Fps="30"/>
+	<Info CreatedBy="Unknown" CreatedOn="2022-09-15 22:32:11" Version="6" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="cocoon_projectile.png" Id="0"/>
+			<Spritesheet Path="monsters\better\cocoon_projectile.png" Id="0"/>
 		</Spritesheets>
 		<Layers>
 			<Layer Name="body" Id="0" SpritesheetId="0"/>

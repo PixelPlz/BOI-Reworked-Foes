@@ -43,6 +43,7 @@ function mod:fallenUrielUpdate(entity)
 				local params = ProjectileParams()
 				params.Variant = ProjectileVariant.PROJECTILE_HUSH
 				params.Color = brimstoneBulletColor
+				params.BulletFlags = ProjectileFlags.BROCCOLI
 				params.Scale = 1.25
 				params.CircleAngle = 0
 				entity:FireProjectiles(Vector(entity.Position.X, game:GetRoom():GetBottomRightPos().Y - 1), Vector(10, 16), 9, params)
@@ -70,7 +71,7 @@ function mod:fallenUrielUpdate(entity)
 			-- Shots
 			if entity.I2 == 1 then
 				if entity.ProjectileCooldown == 20 then
-					entity:FireProjectiles(entity.Position, (entity.V2 - (entity.Position - Vector(0, 40))):Normalized() * 10, 5, ProjectileParams())
+					entity:FireProjectiles(entity.Position, (entity.V2 - (entity.Position - Vector(0, 40))):Normalized() * 9, 5, ProjectileParams())
 					entity:PlaySound(SoundEffect.SOUND_THUMBS_DOWN, 0.6, 0, false, 1)
 				end
 
@@ -163,20 +164,3 @@ function mod:fallenGabrielDMG(target, damageAmount, damageFlags, damageSource, d
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.fallenGabrielDMG, EntityType.ENTITY_GABRIEL)
-
-
-
--- Feather projectiles
-function mod:angelProjectileUpdate(projectile)
-	if projectile.SpawnerType == EntityType.ENTITY_URIEL or projectile.SpawnerType == EntityType.ENTITY_GABRIEL then
-		projectile.Variant = Isaac.GetEntityVariantByName("Angelic Feather Projectile")
-		projectile:GetSprite():Load("gfx/feather_projectile.anm2", true)
-
-		if projectile.SpawnerVariant == 1 then
-			projectile:GetSprite().Color = Color(0.25,0.25,0.25, 1)
-			projectile.SplatColor = Color(0.1,0.1,0.1, 1)
-			projectile:GetSprite():Play("Move", true)
-		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.angelProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)

@@ -24,7 +24,7 @@ function mod:stevenUpdate(entity)
 			if not data.child:Exists() then
 				data.child = nil
 			end
-			if entity:HasMortalDamage() then
+			if entity:HasMortalDamage() and data.child then
 				data.child:GetData().timer = data.timer
 			end
 		end

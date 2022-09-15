@@ -7,10 +7,6 @@ local Settings = {
 	ShotSpeed = 10
 }
 
-portalBulletColor = Color(0.5,0.5,0.7, 1, 0.05,0.05,0.125)
-portalBulletTrail = Color(0.5,0.5,0.7, 1, 0,0.2,0.5)
-portalSpawnColor = Color(0.2,0.2,0.3, 0, 1.5,0.75,3)
-
 local portalSpawns = { -- Corresponds to the values from game:GetRoom():GetRoomConfigStage()
 	{ -- Basement
 		{EntityType.ENTITY_GAPER, 1},
@@ -322,6 +318,7 @@ function mod:portalUpdate(entity)
 						params.BulletFlags = ProjectileFlags.ORBIT_CCW
 						entity.StateFrame = 0
 					end
+					params.BulletFlags = params.BulletFlags + ProjectileFlags.BROCCOLI
 					params.TargetPosition = entity.Position
 
 					entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 0), 7, params)
@@ -347,18 +344,3 @@ function mod:portalDMG(target, damageAmount, damageFlags, damageSource, damageCo
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.portalDMG, EntityType.ENTITY_PORTAL)
-
-function mod:portalProjectileUpdate(projectile)
-	if projectile.SpawnerType == EntityType.ENTITY_PORTAL and projectile.SpawnerVariant == 40 then
-		if projectile.FrameCount % 3 == 0 then
-			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, projectile.Position + projectile.Velocity, -projectile.Velocity:Normalized() * 2, projectile):ToEffect()
-			local scaler = projectile.Scale * math.random(50, 70) / 100
-			trail.SpriteScale = Vector(scaler, scaler)
-			trail:GetSprite().Color = portalBulletTrail
-			trail.SpriteOffset = Vector(0, projectile.Height + 7)
-			trail.DepthOffset = -80
-			trail:Update()
-		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.portalProjectileUpdate, ProjectileVariant.PROJECTILE_HUSH)

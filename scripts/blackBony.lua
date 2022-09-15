@@ -93,26 +93,24 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.blackBonyUpdate, EntityType.ENTITY_BLACK_BONY)
 
 function mod:blackBonyDeath(entity)
-	if entity.SubType > 0 then
-		local type = BombVariant.BOMB_NORMAL
-		local flags = TearFlags.TEAR_NORMAL
-		if entity.SubType == 1 then
-			flags = TearFlags.TEAR_CROSS_BOMB
-		elseif entity.SubType == 2 then
-			flags = TearFlags.TEAR_SCATTER_BOMB
-		elseif entity.SubType == 3 then
-			flags = TearFlags.TEAR_POISON
-		elseif entity.SubType == 4 then
-			flags = TearFlags.TEAR_BURN
-		elseif entity.SubType == 5 then
-			flags = TearFlags.TEAR_SAD_BOMB
-		elseif entity.SubType == 6 then
-			type = BombVariant.BOMB_BRIMSTONE
-		end
-
-		local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, type, 0, entity.Position, Vector.Zero, entity):ToBomb()
-		bomb:AddTearFlags(flags)
-		bomb:SetExplosionCountdown(0)
+	local type = BombVariant.BOMB_NORMAL
+	local flags = TearFlags.TEAR_NORMAL
+	if entity.SubType == 1 then
+		flags = TearFlags.TEAR_CROSS_BOMB
+	elseif entity.SubType == 2 then
+		flags = TearFlags.TEAR_SCATTER_BOMB
+	elseif entity.SubType == 3 then
+		flags = TearFlags.TEAR_POISON
+	elseif entity.SubType == 4 then
+		flags = TearFlags.TEAR_BURN
+	elseif entity.SubType == 5 then
+		flags = TearFlags.TEAR_SAD_BOMB
+	elseif entity.SubType == 6 then
+		type = BombVariant.BOMB_BRIMSTONE
 	end
+
+	local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, type, 0, entity.Position, Vector.Zero, entity):ToBomb()
+	bomb:AddTearFlags(flags)
+	bomb:SetExplosionCountdown(0)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.blackBonyDeath, EntityType.ENTITY_BLACK_BONY)

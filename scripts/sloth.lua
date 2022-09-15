@@ -117,19 +117,12 @@ function mod:slothDMG(target, damageAmount, damageFlags, damageSource, damageCou
 	if damageSource.SpawnerType == EntityType.ENTITY_SLOTH and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
 		return false
 	end
-	
-	-- Spawn spiders if champion
-	if target.SubType == 1 and target.HitPoints < target.MaxHitPoints - ((target.MaxHitPoints / Settings.SpiderCount) * target:ToNPC().I1) then
-		target:ToNPC().I1 = target:ToNPC().I1 + 1
-		EntityNPC.ThrowSpider(target.Position, target, target.Position + ((damageSource.Position - target.Position):Normalized() * math.random(80, 120)), false, -10)
-		SFXManager():Play(SoundEffect.SOUND_BOIL_HATCH, 0.8)
-	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.slothDMG, EntityType.ENTITY_SLOTH)
 
 function mod:slothProjectileUpdate(projectile)
 	if projectile.SpawnerType == EntityType.ENTITY_SLOTH and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 and projectile:IsDead() then
-		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_WHITE, 0, projectile.Position, Vector.Zero, projectile):ToEffect().Scale = 1.25
+		mod:QuickCreep(EffectVariant.CREEP_WHITE, projectile.SpawnerEntity, projectile.Position, 1.25)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.slothProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)

@@ -4,6 +4,14 @@ local game = Game()
 local json = require("json")
 
 -- Useful colors & values --
+IRFentities = {
+	featherProjectile = Isaac.GetEntityVariantByName("Angelic Feather Projectile"),
+	cocoonProjectile = Isaac.GetEntityVariantByName("Spider Cocoon Projectile"),
+	bubbleFly = Isaac.GetEntityVariantByName("Bubble Fly"),
+	cofferVariant = Isaac.GetEntityVariantByName("Coffer"),
+	mullicocoonVariant = Isaac.GetEntityVariantByName("Mullicocoon"),
+}
+
 sunBeamColor = Color(1,1,1, 1, 0.3,0.3,0)
 ghostGibs = Color(1,1,1, 0.25, 1,1,1)
 brimstoneBulletColor = Color(1,0.25,0.25, 1, 0.25,0,0)
@@ -16,6 +24,10 @@ skyBulletColor:SetColorize(1, 1, 1, 1)
 
 greenBulletColor = Color(1,1,1, 1, 0,0,0)
 greenBulletColor:SetColorize(0, 1, 0, 1)
+
+portalBulletColor = Color(0.5,0.5,0.7, 1, 0.05,0.05,0.125)
+portalBulletTrail = Color(0.5,0.5,0.7, 1, 0,0.25,0.5)
+portalSpawnColor = Color(0.2,0.2,0.3, 0, 1.5,0.75,3)
 
 
 
@@ -157,6 +169,7 @@ include("scripts.forsaken")
 --include("scripts.ragMega")
 --include("scripts.sisterVis")
 include("scripts.taintedFaceless")
+include("scripts.projectiles")
 include("scripts.bossHealthBars")
 
 

@@ -1,8 +1,6 @@
 local mod = BetterMonsters
 local game = Game()
 
-local cofferVariant = Isaac.GetEntityVariantByName("Coffer")
-
 local Settings = {
 	CoinHealPercentage = 5,
 	CoinCollectRange = 20,
@@ -149,7 +147,7 @@ function mod:cofferReplace(entity)
 		entity:Remove() -- Properly sets their stage HP
 
 		if entity.SpawnerEntity.SubType == 0 then
-			Isaac.Spawn(EntityType.ENTITY_KEEPER, cofferVariant, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):Update()
+			Isaac.Spawn(EntityType.ENTITY_KEEPER, IRFentities.cofferVariant, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):Update()
 
 		elseif entity.SpawnerEntity.SubType == 1 then
 			local coin = Isaac.Spawn(EntityType.ENTITY_ULTRA_COIN, 2, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
@@ -163,7 +161,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.cofferReplace, EntityType.ENT
 function mod:cofferUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	if entity.Variant == cofferVariant then
+	if entity.Variant == IRFentities.cofferVariant then
 		-- Go towards coins
 		if not game:IsGreedMode() then
 			for _, pickup in pairs(Isaac.FindInRadius(entity.Position, 120, EntityPartition.PICKUP)) do

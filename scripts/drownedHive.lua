@@ -1,8 +1,6 @@
 local mod = BetterMonsters
 local game = Game()
 
-local bubbleVariant = Isaac.GetEntityVariantByName("Bubble")
-
 local Settings = {
 	PopTime = 180,
 	BubbleShotSpeed = 9,
@@ -14,14 +12,14 @@ local Settings = {
 
 --[[ Bubble ]]--
 function mod:bubbleUpdate(entity)
-	if entity.Variant == bubbleVariant then
+	if entity.Variant == IRFentities.bubbleFly then
 		if entity:HasMortalDamage() or entity.ProjectileCooldown >= Settings.PopTime then
 			entity.I2 = 1
 
 			local params = ProjectileParams()
 			params.Variant = ProjectileVariant.PROJECTILE_TEAR
 			params.FallingAccelModifier = 0.18
-			entity:FireProjectiles(entity.Position, Vector(Settings.BubbleShotSpeed, 0), 6, params)
+			entity:FireProjectiles(entity.Position, Vector(Settings.BubbleShotSpeed, 0), 7, params)
 		end
 		
 		if entity.I2 == 1 then
@@ -44,7 +42,7 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.bubbleUpdate, EntityType.ENTITY_FLY)
 
 function mod:bubbleCollide(entity, target, bool)
-	if entity.Variant == bubbleVariant then
+	if entity.Variant == IRFentities.bubbleFly then
 		if target.Type == EntityType.ENTITY_PLAYER then
 			entity:ToNPC().I2 = 1 -- Pop
 		elseif target.Type == EntityType.ENTITY_HIVE then
@@ -73,8 +71,8 @@ function mod:drownedHiveUpdate(entity)
 				
 				-- Spawn a bubble fly if it has none spanwed
 				if sprite:GetOverlayFrame() == 5 then
-					if Isaac.CountEntities(entity, EntityType.ENTITY_FLY, bubbleVariant, -1) < Settings.MaxBubbles then
-						Isaac.Spawn(EntityType.ENTITY_FLY, bubbleVariant, 0, entity.Position, (entity:GetPlayerTarget().Position - entity.Position):Normalized() * 8, entity):ToNPC().State = NpcState.STATE_MOVE
+					if Isaac.CountEntities(entity, EntityType.ENTITY_FLY, IRFentities.bubbleFly, -1) < Settings.MaxBubbles then
+						Isaac.Spawn(EntityType.ENTITY_FLY, IRFentities.bubbleFly, 0, entity.Position, (entity:GetPlayerTarget().Position - entity.Position):Normalized() * 8, entity):ToNPC().State = NpcState.STATE_MOVE
 					else
 						entity.I2 = 1
 					end
@@ -118,7 +116,7 @@ function mod:drownedHiveDeath(entity, target, bool)
 			if maggot.SpawnerType == EntityType.ENTITY_HIVE then
 				maggot:Remove()
 
-				local fly = Isaac.Spawn(EntityType.ENTITY_FLY, bubbleVariant, 0, entity.Position, Vector.Zero, entity):ToNPC()
+				local fly = Isaac.Spawn(EntityType.ENTITY_FLY, IRFentities.bubbleFly, 0, entity.Position, Vector.Zero, entity):ToNPC()
 				fly.State = NpcState.STATE_MOVE
 				
 				if entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then

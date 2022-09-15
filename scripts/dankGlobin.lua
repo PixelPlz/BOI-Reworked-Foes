@@ -11,7 +11,7 @@ function mod:dankGlobinUpdate(entity)
 		if sprite:IsEventTriggered("Shoot") then
 			local params = ProjectileParams()
 			params.Color = tarBulletColor
-			entity:FireProjectiles(entity.Position, Vector(10, 0), 6, params)
+			entity:FireProjectiles(entity.Position, Vector(10, 0), 7, params)
 			
 			for i, spider in pairs(Isaac.FindByType(EntityType.ENTITY_SPIDER, -1, -1, false, false)) do
 				if spider.SpawnerType == EntityType.ENTITY_GLOBIN and spider.SpawnerVariant == 2 then
