@@ -28,7 +28,6 @@ function mod:satanUpdate(entity)
 				local params = ProjectileParams()
 				params.Variant = ProjectileVariant.PROJECTILE_HUSH
 				params.Color = brimstoneBulletColor
-				params.BulletFlags = ProjectileFlags.BROCCOLI
 
 				params.Scale = 1.25
 				params.CircleAngle = 0

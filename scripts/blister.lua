@@ -11,7 +11,9 @@ local Settings = {
 
 
 function mod:blisterReplace(entity)
-	entity:Morph(EntityType.ENTITY_HOPPER, 1, 303, entity:GetChampionColorIdx())
+	if entity.Variant == 0 and entity.SubType == 0 then
+		entity:Morph(EntityType.ENTITY_HOPPER, 1, 303, entity:GetChampionColorIdx())
+	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blisterReplace, EntityType.ENTITY_BLISTER)
 

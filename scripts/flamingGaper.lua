@@ -2,7 +2,7 @@ local mod = BetterMonsters
 local game = Game()
 
 local Settings = {
-	SpeedMultiplier = 1.2,
+	SpeedMultiplier = 1.15,
 	Cooldown = 80,
 	MoveTime = 60
 }

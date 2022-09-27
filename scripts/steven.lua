@@ -37,7 +37,7 @@ function mod:stevenUpdate(entity)
 
 			SFXManager():Play(SoundEffect.SOUND_STATIC)
 			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BIG_SPLASH, 2, entity.Position, Vector.Zero, entity).DepthOffset = entity.DepthOffset + 10
-			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CREEP_STATIC, 0, entity.Position, Vector.Zero, entity):ToEffect().Scale = 1.5
+			mod:QuickCreep(EffectVariant.CREEP_STATIC, entity, entity.Position, 1.5)
 
 			if data.child then
 				data.child.Position = Vector(room:GetBottomRightPos().X + (room:GetTopLeftPos().X - data.child.Position.X), room:GetBottomRightPos().Y + (room:GetTopLeftPos().Y - data.child.Position.Y))

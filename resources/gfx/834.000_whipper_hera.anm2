@@ -1,8 +1,8 @@
 <AnimatedActor>
-	<Info CreatedBy="trtv" CreatedOn="2022-09-08 19:07:11" Version="4" Fps="30"/>
+	<Info CreatedBy="trtv" CreatedOn="2022-09-26 00:04:40" Version="5" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="bosses\better\834.000_whipper_body_hera.png" Id="0"/>
+			<Spritesheet Path="monsters\better\834.000_whipper_body_hera.png" Id="0"/>
 			<Spritesheet Path="monsters/repentance/834.000_whipper_head_gehenna.png" Id="1"/>
 		</Spritesheets>
 		<Layers>

@@ -43,7 +43,6 @@ function mod:fallenUrielUpdate(entity)
 				local params = ProjectileParams()
 				params.Variant = ProjectileVariant.PROJECTILE_HUSH
 				params.Color = brimstoneBulletColor
-				params.BulletFlags = ProjectileFlags.BROCCOLI
 				params.Scale = 1.25
 				params.CircleAngle = 0
 				entity:FireProjectiles(Vector(entity.Position.X, game:GetRoom():GetBottomRightPos().Y - 1), Vector(10, 16), 9, params)

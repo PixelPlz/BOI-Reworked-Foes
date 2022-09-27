@@ -4,8 +4,6 @@ local game = Game()
 local Settings = {
 	SpeedMultiplier = 0.9,
 	ShotSpeed = 9,
-	NewHealth = 24,
-	NewHealthRed = 16,
 	Cooldown = 90,
 	Range = 200
 }
@@ -14,15 +12,12 @@ local Settings = {
 
 function mod:raglingInit(entity)
 	if entity.Variant == 1 then
-		-- Less health for Rag Man raglings
-		local targetHp = Settings.NewHealth
-		if entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
-			targetHp = Settings.NewHealthRed
-		end
+		entity.MaxHitPoints = 25 -- Same as the HP for Ragman's head
 
-		if entity.MaxHitPoints > targetHp then
-			entity.MaxHitPoints = targetHp
-			entity.HitPoints = targetHp
+		if entity.SpawnerType == EntityType.ENTITY_RAG_MAN and entity.SpawnerVariant == 1 and entity.SpawnerEntity then
+			entity.HitPoints = entity.SpawnerEntity.HitPoints
+		else
+			entity.HitPoints = entity.MaxHitPoints
 		end
 	end
 end

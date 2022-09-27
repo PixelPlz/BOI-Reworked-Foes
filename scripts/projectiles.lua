@@ -1,6 +1,133 @@
 local mod = BetterMonsters
 local game = Game()
 
+corpseGreenBulletColor = Color(1,1,1, 1, 0,0,0)
+corpseGreenBulletColor:SetColorize(0.7, 1.25, 0.6, 1)
+corpseGreenBulletTrail = Color(1,1,1, 1, 0,0,0)
+corpseGreenBulletTrail:SetColorize(0.7, 1.25, 0.6, 1.75)
+
+charredMeatColor = Color(1,1,1, 1, 0,0,0)
+charredMeatColor:SetColorize(0.4,0.2,0.17, 1)
+
+
+
+function mod:ChangeProjectile(projectile, variant, anim, color)
+	local sprite = projectile:GetSprite()
+	local oldAnim = sprite:GetAnimation()
+
+	projectile.Variant = variant
+	sprite:Load("gfx/" .. anim .. ".anm2", true)
+	sprite:Play(oldAnim, true)
+
+	if color then
+		sprite.Color = color
+	end
+end
+
+
+
+function mod:replaceNormalProjectiles(projectile)
+	local sprite = projectile:GetSprite()
+	local data = projectile:GetData()
+
+	-- Clotty variants
+	if projectile.SpawnerType == EntityType.ENTITY_CLOTTY then
+		if projectile.SpawnerVariant == 2 then
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR, "009.004_tear projectile")
+		elseif projectile.SpawnerVariant == 3 then
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR, "009.004_tear projectile", charredMeatColor)
+		end
+
+
+	-- Dead Meat / Cyst
+	elseif (projectile.SpawnerType == EntityType.ENTITY_MEMBRAIN and projectile.SpawnerVariant == 2) or projectile.SpawnerType == EntityType.ENTITY_CYST then
+		sprite.Color = corpseGreenBulletColor
+		if projectile.SpawnerType == EntityType.ENTITY_MEMBRAIN and projectile.SpawnerVariant == 2 then
+			data.hasTrail = true
+			data.trailColor = corpseGreenBulletTrail
+		end
+
+
+	-- Tube Worm
+	elseif projectile.SpawnerType == EntityType.ENTITY_ROUND_WORM and projectile.SpawnerVariant == 1 then
+		local bg = game:GetRoom():GetBackdropType()
+		if bg == BackdropType.FLOODED_CAVES or bg == BackdropType.DOWNPOUR then
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR, "009.004_tear projectile")
+		elseif bg == BackdropType.DROSS then
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_PUKE, "009.003_puke projectile")
+		end
+	
+	
+	-- The Haunt
+	elseif projectile.SpawnerType == EntityType.ENTITY_THE_HAUNT then
+		projectile:AddProjectileFlags(ProjectileFlags.GHOST)
+
+
+	-- Red champion Mega Maw / Gate
+	elseif (projectile.SpawnerType == EntityType.ENTITY_MEGA_MAW or projectile.SpawnerType == EntityType.ENTITY_GATE) and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 then
+		projectile.CollisionDamage = 1
+
+
+	-- Angels
+	elseif projectile.SpawnerType == EntityType.ENTITY_URIEL or projectile.SpawnerType == EntityType.ENTITY_GABRIEL
+	or (projectile.SpawnerType == EntityType.ENTITY_BABY and projectile.SpawnerVariant == 1 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1) then
+		mod:ChangeProjectile(projectile, IRFentities.featherProjectile, "feather_projectile")
+		-- Black feather
+		if (projectile.SpawnerType == EntityType.ENTITY_URIEL or projectile.SpawnerType == EntityType.ENTITY_GABRIEL) and projectile.SpawnerVariant == 1 then
+			projectile.SubType = 1
+		end
+
+
+	-- Blue boil / Blue conjoined fatty
+	elseif projectile.SpawnerType == EntityType.ENTITY_HUSH_BOIL or (projectile.SpawnerType == EntityType.ENTITY_CONJOINED_FATTY and projectile.SpawnerVariant == 1) then
+		local color = nil
+		if projectile.SpawnerType == EntityType.ENTITY_HUSH_BOIL then
+			color = Color(0.6,0.6,0.6, 1, 0,0,0.1)
+		end
+		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_HUSH, "009.006_hush projectile", color)
+	
+	
+	-- Mr. Mine
+	elseif projectile.SpawnerType == EntityType.ENTITY_MR_MINE then
+		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR, "009.004_tear projectile")
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.replaceNormalProjectiles, ProjectileVariant.PROJECTILE_NORMAL)
+
+function mod:replacePukeProjectiles(projectile)
+	local sprite = projectile:GetSprite()
+
+	-- Black champion Dingle
+	if projectile.SpawnerType == EntityType.ENTITY_DINGLE and projectile.SpawnerVariant == 0 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 then
+		sprite.Color = tarBulletColor
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.replacePukeProjectiles, ProjectileVariant.PROJECTILE_PUKE)
+
+function mod:replaceTearProjectiles(projectile)
+	if ((projectile.SpawnerType == EntityType.ENTITY_CHARGER or projectile.SpawnerType == EntityType.ENTITY_HIVE) and projectile.SpawnerVariant == 1)
+	or (projectile.SpawnerType == EntityType.ENTITY_BOOMFLY and projectile.SpawnerVariant == 2) then
+		projectile.CollisionDamage = 1
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.replaceTearProjectiles, ProjectileVariant.PROJECTILE_TEAR)
+
+function mod:replaceHushProjectiles(projectile)
+	local data = projectile:GetData()
+
+	-- Lokii / Fallen Uriel / Satan
+	if ((projectile.SpawnerType == EntityType.ENTITY_LOKI or projectile.SpawnerType == EntityType.ENTITY_URIEL) and projectile.SpawnerVariant == 1) or projectile.SpawnerType == EntityType.ENTITY_SATAN then
+		data.hasTrail = true
+
+
+	-- Portal
+	elseif projectile.SpawnerType == EntityType.ENTITY_PORTAL then
+		data.hasTrail = true
+		data.trailColor = portalBulletTrail
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.replaceHushProjectiles, ProjectileVariant.PROJECTILE_HUSH)
+
 
 
 -- Feather projectile
@@ -12,7 +139,7 @@ function mod:angelicFeatherUpdate(projectile)
 
 		if projectile.SubType == 1 then
 			sprite.Color = Color(0.25,0.25,0.25, 1)
-			projectile.SplatColor = tarBulletColor
+			projectile.SplatColor = Color(0,0,0, 1)
 		else
 			projectile.SplatColor = Color(1,1,1, 1, 1,1,1)
 		end
@@ -27,19 +154,6 @@ function mod:angelicFeatherUpdate(projectile)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.angelicFeatherUpdate, IRFentities.featherProjectile)
-
-function mod:replaceAngleProjectile(projectile)
-	if projectile.SpawnerType == EntityType.ENTITY_URIEL or projectile.SpawnerType == EntityType.ENTITY_GABRIEL
-	or (projectile.SpawnerType == EntityType.ENTITY_BABY and projectile.SpawnerVariant == 1 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1) then
-		projectile.Variant = IRFentities.featherProjectile
-		projectile:GetSprite():Load("gfx/feather_projectile.anm2", true)
-		
-		if (projectile.SpawnerType == EntityType.ENTITY_URIEL or projectile.SpawnerType == EntityType.ENTITY_GABRIEL) and projectile.SpawnerVariant == 1 then
-			projectile.SubType = 1
-		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.replaceAngleProjectile, ProjectileVariant.PROJECTILE_NORMAL)
 
 
 
@@ -62,33 +176,22 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.cocoonUpdate, IRFent
 
 
 
--- Fix some projectiles doing more damage than they should
-function mod:dronwedEnemyProjectileUpdate(projectile)
-	if ((projectile.SpawnerType == EntityType.ENTITY_CHARGER or projectile.SpawnerType == EntityType.ENTITY_HIVE) and projectile.SpawnerVariant == 1)
-	or (projectile.SpawnerType == EntityType.ENTITY_BOOMFLY and projectile.SpawnerVariant == 2) then
-		projectile.CollisionDamage = 1
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.dronwedEnemyProjectileUpdate, ProjectileVariant.PROJECTILE_TEAR)
-
-
-
 -- Trailing projectile
 function mod:trailingProjectileUpdate(projectile)
-	if projectile:HasProjectileFlags(ProjectileFlags.BROCCOLI) then
+	if projectile:GetData().hasTrail == true then
 		if projectile.FrameCount % 3 == 0 then
-			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, projectile.Position + projectile.Velocity, -projectile.Velocity:Normalized() * 2, projectile):ToEffect()
+			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, projectile.Position, -projectile.Velocity:Normalized() * 2, projectile):ToEffect()
 			local scaler = projectile.Scale * math.random(50, 70) / 100
 			trail.SpriteScale = Vector(scaler, scaler)
-			trail.SpriteOffset = Vector(0, projectile.Height + 6)
+			trail.SpriteOffset = projectile.PositionOffset + Vector(0, 7)
 			trail.DepthOffset = -80
 
-			if projectile.SpawnerType == EntityType.ENTITY_PORTAL and projectile.SpawnerVariant == 40 then
-				trail:GetSprite().Color = portalBulletTrail
+			if projectile:GetData().trailColor then
+				trail:GetSprite().Color = projectile:GetData().trailColor
 			end
 			
 			trail:Update()
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.trailingProjectileUpdate, ProjectileVariant.PROJECTILE_HUSH)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.trailingProjectileUpdate)

@@ -318,7 +318,6 @@ function mod:portalUpdate(entity)
 						params.BulletFlags = ProjectileFlags.ORBIT_CCW
 						entity.StateFrame = 0
 					end
-					params.BulletFlags = params.BulletFlags + ProjectileFlags.BROCCOLI
 					params.TargetPosition = entity.Position
 
 					entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 0), 7, params)

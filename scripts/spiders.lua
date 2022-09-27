@@ -48,7 +48,7 @@ function mod:babyLongLegsUpdate(entity)
 		
 		-- Swap spawns
 		if entity:GetSprite():IsEventTriggered("Lay") then
-			for i, stuff in pairs(Isaac.FindByType(checkType, -1, -1, false, false)) do
+			for i, stuff in pairs(Isaac.FindByType(checkType, checkVariant, -1, false, false)) do
 				if stuff.SpawnerType == EntityType.ENTITY_BABY_LONG_LEGS then
 					stuff:Remove()
 
