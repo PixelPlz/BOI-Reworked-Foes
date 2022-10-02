@@ -8,7 +8,7 @@ function mod:psyTumorUpdate(entity)
 		local params = ProjectileParams()
 		params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.SMART)
 		params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
-		params.ChangeTimeout = 150
+		params.ChangeTimeout = 120
 
 		params.Acceleration = 1.1
 		params.FallingSpeedModifier = 1

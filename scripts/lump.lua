@@ -5,7 +5,6 @@ local game = Game()
 
 function mod:lumpInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-	entity.CollisionDamage = 0
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.lumpInit, EntityType.ENTITY_LUMP)
 
@@ -39,7 +38,7 @@ function mod:lumpUpdate(entity)
 			sprite:Play("Spit", true)
 		end
 
-		-- Change position if player 
+		-- Change position if player is not close enough
 		if entity.StateFrame <= 0 then
 			entity.State = NpcState.STATE_STOMP
 			sprite:Play("Hide", true)

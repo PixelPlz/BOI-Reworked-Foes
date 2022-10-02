@@ -165,7 +165,7 @@ include("scripts.fleshDeathHead")
 include("scripts.ulcer")
 include("scripts.blister")
 include("scripts.portal")
---include("scripts.stain")
+include("scripts.stain")
 include("scripts.forsaken")
 --include("scripts.ragMega")
 --include("scripts.sisterVis")
@@ -176,7 +176,7 @@ include("scripts.bossHealthBars")
 
 
 -- Useful functions
-function mod:Lerp(first,second,percent)
+function mod:Lerp(first, second, percent)
 	return (first + (second - first) * percent)
 end
 

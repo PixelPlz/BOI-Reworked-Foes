@@ -178,7 +178,7 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.cocoonUpdate, IRFent
 
 -- Trailing projectile
 function mod:trailingProjectileUpdate(projectile)
-	if projectile:GetData().hasTrail == true then
+	if projectile:GetData().hasTrail and projectile:GetData().hasTrail == true then
 		if projectile.FrameCount % 3 == 0 then
 			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, projectile.Position, -projectile.Velocity:Normalized() * 2, projectile):ToEffect()
 			local scaler = projectile.Scale * math.random(50, 70) / 100
