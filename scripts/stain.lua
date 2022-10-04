@@ -44,7 +44,7 @@ function mod:stainUpdate(entity)
 				if entity.SubType == 1 then
 					entity.State = NpcState.STATE_ATTACK2
 					sprite:Play("Attack2Begin", true)
-					entity.ProjectileCooldown = math.random(120, 160)
+					entity.ProjectileCooldown = math.random(90, 120)
 				else
 					entity.State = NpcState.STATE_STOMP
 					sprite:Play("GoUnder", true)
@@ -61,7 +61,7 @@ function mod:stainUpdate(entity)
 				entity.State = NpcState.STATE_ATTACK5
 				sprite:Play("Attack3", true)
 				entity:PlaySound(SoundEffect.SOUND_GHOST_SHOOT, 1, 0, false, 1)
-				entity.ProjectileCooldown = entity.ProjectileCooldown - 10
+				entity.ProjectileCooldown = entity.ProjectileCooldown - 20
 			end
 
 
@@ -93,11 +93,11 @@ function mod:stainUpdate(entity)
 		-- Popup
 		elseif entity.State == NpcState.STATE_JUMP then
 			if sprite:IsFinished("Appear") then
-				entity.ProjectileCooldown = math.random(80, 100)
+				entity.ProjectileCooldown = math.random(60, 90)
 
 				-- Only spawn up to 3 chargers
 				local attackCount = 3
-				if Isaac.CountEntities(entity, EntityType.ENTITY_CHARGER, -1, -1) >= 3 then
+				if Isaac.CountEntities(entity, EntityType.ENTITY_MAGGOT, -1, -1) >= 4 then
 					attackCount = 2
 				end
 
@@ -129,14 +129,14 @@ function mod:stainUpdate(entity)
 			
 			if entity.I1 == 1 then
 				if entity.I2 <= 0 then
-					entity.I2 = 4
+					entity.I2 = 3
 					entity.StateFrame = entity.StateFrame + 1
 
 					local params = ProjectileParams()
 					params.CircleAngle = entity.StateFrame * 0.4
 					params.FallingSpeedModifier = -1
 					params.Scale = 1.5
-					entity:FireProjectiles(entity.Position, Vector(9, 8), 9, params)
+					entity:FireProjectiles(entity.Position, Vector(11, 8), 9, params)
 
 				else
 					entity.I2 = entity.I2 - 1
@@ -192,7 +192,7 @@ function mod:stainUpdate(entity)
 				
 				if sprite:IsFinished("Attack2Summon") then
 					entity.State = NpcState.STATE_ATTACK3
-					entity.ProjectileCooldown = math.random(120, 160)
+					entity.ProjectileCooldown = math.random(90, 120)
 				end
 			end
 
@@ -214,7 +214,7 @@ function mod:stainUpdate(entity)
 
 					-- Spawn them in pairs
 					if entity.StateFrame >= 1 then
-						entity.I1 = 30 + (entity.SubType * 15)
+						entity.I1 = 30 + (entity.SubType * 5)
 						entity.I2 = entity.I2 + 1
 						entity.StateFrame = 0
 					else
@@ -266,7 +266,9 @@ function mod:stainUpdate(entity)
 		-- Summon
 		elseif entity.State == NpcState.STATE_SUMMON then
 			if sprite:IsEventTriggered("Shoot") then
-				Isaac.Spawn(EntityType.ENTITY_CHARGER, 0, 0, entity.Position + Vector(0, 10), Vector.Zero, entity):ToNPC()
+				for i = -1, 1, 2 do
+					Isaac.Spawn(EntityType.ENTITY_MAGGOT, 0, 0, entity.Position + Vector(i * 10, 10), Vector.Zero, entity):ToNPC()
+				end
 				SFXManager():Play(SoundEffect.SOUND_SUMMONSOUND)
 			end
 			
@@ -280,8 +282,13 @@ function mod:stainUpdate(entity)
 	elseif entity.Variant == 10 then
 		if sprite:IsEventTriggered("Start") then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
+			entity:PlaySound(SoundEffect.SOUND_SKIN_PULL, 1, 0, false, 1)
+
 		elseif sprite:IsEventTriggered("Stop") then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+			if entity.SubType ~= 1 then
+				mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 0.9)
+			end
 		end
 		
 		if sprite:IsFinished("Tentacle") then
@@ -307,7 +314,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.stainCollision, EntityTyp
 
 function mod:stainDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == 10 and target.SpawnerEntity then
-		target.SpawnerEntity:TakeDamage(damageAmount, damageFlags, damageSource, damageCountdownFrames)
+		target.SpawnerEntity:TakeDamage(damageAmount / 2, damageFlags, damageSource, damageCountdownFrames)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.stainDMG, EntityType.ENTITY_STAIN)
