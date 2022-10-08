@@ -4,7 +4,7 @@ local game = Game()
 local Settings = {
 	DeathShotSpeed = 12,
 	TransparencyTimer = 10,
-	MoveSpeed = 4.5,
+	MoveSpeed = 4.25,
 	Cooldown = 150,
 	Range = 400,
 	PushBackSpeed = 1.25
@@ -34,16 +34,14 @@ function mod:blightedOvumBabyUpdate(entity)
 				sprite.Color = Color(1,1,1, 0.35)
 				data.transTimer = data.transTimer - 1
 			end
-		
+
 		else
 			sprite.Color = Color(1,1,1, 0.7)
 		end
 
 
 		if entity.State == NpcState.STATE_MOVE then
-			if entity.Parent then
-				entity.Velocity = (entity.Parent.Position - entity.Position):Normalized() * Settings.MoveSpeed
-			end
+			entity.Velocity = (target.Position - entity.Position):Normalized() * Settings.MoveSpeed
 
 			if entity.ProjectileCooldown <= 0 and entity.Position:Distance(target.Position) <= Settings.Range then
 				entity.State = NpcState.STATE_ATTACK2

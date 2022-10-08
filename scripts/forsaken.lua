@@ -7,7 +7,7 @@ local Settings = {
 	TransparencyTimer = 10,
 	SpiderCount = 3,
 
-	BouncerCount = 4,
+	BouncerCount = 3,
 	BallCount = 3,
 
 	ShotSpeed = 9,
@@ -161,15 +161,9 @@ function mod:forsakenUpdate(entity)
 
 				-- Spiders, darken room
 				elseif entity.SubType == 1 then
-					game:Darken(1, 210)
-
 					local offset = math.random(0, 359)
 					for i = 0, Settings.SpiderCount - 1 do
-						local bigBool = false
-						if i == 0 then
-							bigBool = true
-						end
-						EntityNPC.ThrowSpider(entity.Position, entity, entity.Position + (Vector.FromAngle(offset + (i * (360 / Settings.SpiderCount))) * math.random(80, 120)), bigBool, -10)
+						EntityNPC.ThrowSpider(entity.Position, entity, entity.Position + (Vector.FromAngle(offset + (i * (360 / Settings.SpiderCount))) * math.random(80, 120)), false, -10)
 					end
 				end
 			end
