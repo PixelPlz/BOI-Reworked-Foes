@@ -8,12 +8,14 @@ function mod:postGameStartedHPBars()
 		local path = "gfx/ui/bosshp_icons"
 		HPBars.BossIgnoreList["97.0"] = true
 
+		-- Gish
 		HPBars.BossDefinitions["43.1"] = {
 			sprite = path .. "/chapter3/gish.png",
 			offset = Vector(-5, 0),
 			bossColors = {"_white"}
 		}
 
+		-- Deadly Sins
 		HPBars.BossDefinitions["46.0"] = {
 			sprite = path .. "/minibosses/sloth.png",
 			offset = Vector(-6, 0),
@@ -65,6 +67,7 @@ function mod:postGameStartedHPBars()
 			bossColors = {"_yellow"}
 		}
 
+		-- Conquest
 		HPBars.BossDefinitions["65.1"] = {
 			sprite = path .. "/horsemen/conquest.png",
 			offset = Vector(-7, 0),
@@ -84,7 +87,34 @@ function mod:postGameStartedHPBars()
 				{function(entity) return entity.SubType == 1 end, path .. "/horsemen/conquest_horse_red.png"}
 			},
 		}
+		
+		-- Scarred Womb Fistula
+		HPBars.BossDefinitions["71.0"] = {
+			sprite = path .. "/chapter2/fistula_large.png",
+			offset = Vector(-7, 0),
+			bossColors = {"_grey"},
+			conditionalSprites = {
+				{function(entity) return entity.SubType == 1000 end, path .. "/chapter2/fistula_large_scarred.png"}
+			},
+		}
+		HPBars.BossDefinitions["72.0"] = {
+			sprite = path .. "/chapter2/fistula_medium.png",
+			offset = Vector(-4, 0),
+			bossColors = {"_grey"},
+			conditionalSprites = {
+				{function(entity) return entity.SubType == 1000 end, path .. "/chapter2/fistula_medium_scarred.png"}
+			},
+		}
+		HPBars.BossDefinitions["73.0"] = {
+			sprite = path .. "/chapter2/fistula_small.png",
+			offset = Vector(-2, 0),
+			bossColors = {"_grey"},
+			conditionalSprites = {
+				{function(entity) return entity.SubType == 1000 end, path .. "/chapter2/fistula_small_scarred.png"}
+			},
+		}
 
+		-- Fallen / Krampus
 		HPBars.BossDefinitions["81.0"] = {
 			sprite = path .. "/chapter1/the_fallen.png",
 			offset = Vector(-7, 2),
@@ -96,6 +126,7 @@ function mod:postGameStartedHPBars()
 			bossColors = {"_red"}
 		}
 
+		-- Headless Horseman
 		HPBars.BossDefinitions["82.0"] = {
 			sprite = path .. "/horsemen/headless_horsemen_body.png",
 			offset = Vector(-4, 0),

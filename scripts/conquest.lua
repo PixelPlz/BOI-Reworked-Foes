@@ -3,7 +3,7 @@ local game = Game()
 
 local Settings = {
 	MoveSpeed = 6,
-	AttackCount = 3,
+	Cooldown = {90, 120},
 
 	DashSpeed = 26,
 	DashCooldown = 30,
@@ -29,6 +29,7 @@ function mod:conquestUpdate(entity)
 			conquest.State = NpcState.STATE_APPEAR_CUSTOM
 			conquest.MaxHitPoints = entity.MaxHitPoints
 			conquest.HitPoints = entity.MaxHitPoints / 2
+			conquest.ProjectileCooldown = Settings.Cooldown[1]
 
 			local conquestSprite = conquest:GetSprite()
 			conquestSprite:Play("Appear", true)
@@ -124,13 +125,6 @@ function mod:conquestDMG(target, damageAmount, damageFlags, damageSource, damage
 	or (target.Variant == 1 and target.SpawnerEntity and target.SpawnerType == EntityType.ENTITY_WAR and target.SpawnerVariant == 1 and target.SpawnerEntity.HitPoints <= target.SpawnerEntity.MaxHitPoints / 2))) then
 		return false
 	end
-	
-	-- Do attack if below 75%, 50% and 25% health
-	if target.Variant == 11 and target.HitPoints <= (target.MaxHitPoints / 2) - (((target.MaxHitPoints / 2) / (Settings.AttackCount + 1)) * (target:ToNPC().I1 + 1)) and target:ToNPC().State == NpcState.STATE_MOVE then
-		target:ToNPC().I1 = target:ToNPC().I1 + 1
-		target:ToNPC().State = NpcState.STATE_ATTACK
-		target:GetSprite():Play("Attack", true)
-	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.conquestDMG, EntityType.ENTITY_WAR)
 
@@ -198,6 +192,13 @@ function mod:conquestPreUpdate(entity)
 				elseif entity.Velocity.X > 0 then
 					sprite.FlipX = false
 				end
+				
+				if entity.ProjectileCooldown <= 0 then
+					entity.State = NpcState.STATE_ATTACK
+					sprite:Play("Attack", true)
+				else
+					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+				end
 
 
 			-- Attack
@@ -230,6 +231,7 @@ function mod:conquestPreUpdate(entity)
 
 				if sprite:IsFinished("Attack") then
 					entity.State = NpcState.STATE_MOVE
+					entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
 				end
 
 

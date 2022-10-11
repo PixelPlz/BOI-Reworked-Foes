@@ -4,14 +4,16 @@ local game = Game()
 
 
 function mod:nestInit(entity)
-	local stage = game:GetRoom():GetRoomConfigStage()
+	if entity.Variant == 0 and entity.SubType == 0 then
+		local stage = game:GetRoom():GetRoomConfigStage()
 
-	-- Only replace nests on chaper 1 floors
-	if (stage > 0 and stage < 4) or (stage > 26 and stage < 29) then
-		entity:Remove()
-		Isaac.Spawn(EntityType.ENTITY_MULLIGAN, IRFentities.mullicocoonVariant, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
-	else
-		entity:Morph(EntityType.ENTITY_HIVE, 40, 0, entity:GetChampionColorIdx())
+		-- Only replace nests on chaper 1 floors
+		if (stage > 0 and stage < 4) or (stage > 26 and stage < 29) then
+			entity:Remove()
+			Isaac.Spawn(EntityType.ENTITY_MULLIGAN, IRFentities.mullicocoonVariant, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
+		else
+			entity:Morph(EntityType.ENTITY_HIVE, 40, 0, entity:GetChampionColorIdx())
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.nestInit, EntityType.ENTITY_NEST)

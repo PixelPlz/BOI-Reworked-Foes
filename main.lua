@@ -35,8 +35,9 @@ portalSpawnColor = Color(0.2,0.2,0.3, 0, 1.5,0.75,3)
 IRFconfig = {
 	-- General
 	breakableHosts = true,
-	blackBonyCostumes = true,
+	clearerHiddenEnemies = true,
 	classicEternalFlies = true,
+	blackBonyCostumes = true,
 }
 
 -- Load settings
@@ -75,12 +76,12 @@ if ModConfigMenu then
   	})
 	ModConfigMenu.AddSetting(category, "General", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
-	    CurrentSetting = function() return IRFconfig.blackBonyCostumes end,
-	    Display = function() return "Black Bony Indicator: " .. (IRFconfig.blackBonyCostumes and "Head Costume" or "Icon") end,
+	    CurrentSetting = function() return IRFconfig.clearerHiddenEnemies end,
+	    Display = function() return "Clearer hidden enemies: " .. (IRFconfig.clearerHiddenEnemies and "On" or "Off") end,
 	    OnChange = function(bool)
-	    	IRFconfig.blackBonyCostumes = bool
+	    	IRFconfig.clearerHiddenEnemies = bool
 	    end,
-	    Info = {"Black Bony bomb type indicator. (default = Head Costume)"}
+	    Info = {"Toggle burrowing visual for some underground enemies. (default = on)"}
   	})
 	ModConfigMenu.AddSetting(category, "General", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
@@ -90,6 +91,15 @@ if ModConfigMenu then
 	    	IRFconfig.classicEternalFlies = bool
 	    end,
 	    Info = {"Toggle classic Eternal Flies. (default = on)"}
+  	})
+	ModConfigMenu.AddSetting(category, "General", {
+    	Type = ModConfigMenu.OptionType.BOOLEAN,
+	    CurrentSetting = function() return IRFconfig.blackBonyCostumes end,
+	    Display = function() return "Black Bony Indicator: " .. (IRFconfig.blackBonyCostumes and "Head Costume" or "Icon") end,
+	    OnChange = function(bool)
+	    	IRFconfig.blackBonyCostumes = bool
+	    end,
+	    Info = {"Black Bony bomb type indicator. (default = Head Costume)"}
   	})
 end
 
@@ -149,7 +159,6 @@ include("scripts.codWorm")
 include("scripts.skinny")
 include("scripts.camilloJr")
 include("scripts.nerveEnding2")
-include("scripts.noKnockback")
 include("scripts.psyTumor")
 include("scripts.fatBat")
 include("scripts.megaMaw")
@@ -171,7 +180,9 @@ include("scripts.forsaken")
 --include("scripts.sisterVis")
 include("scripts.taintedFaceless")
 include("scripts.projectiles")
+include("scripts.hiddenEnemies")
 include("scripts.bossHealthBars")
+include("scripts.misc")
 
 
 

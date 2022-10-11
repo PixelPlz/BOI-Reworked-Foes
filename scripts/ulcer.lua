@@ -14,7 +14,7 @@ function mod:ulcerUpdate(entity)
 			entity:PlaySound(SoundEffect.SOUND_WORM_SPIT, 1.25, 0, false, 1)
 			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOP_EXPLOSION, 0, entity.Position, Vector.Zero, entity).SpriteOffset = Vector(0, -12)
 
-			if Isaac.CountEntities(entity, EntityType.ENTITY_DIP, -1, -1) < 4 and entity.Pathfinder:HasPathToPos(entity:GetPlayerTarget().Position, true) then
+			if Isaac.CountEntities(entity, EntityType.ENTITY_DIP, -1, -1) < 4 and entity.Pathfinder:HasPathToPos(entity:GetPlayerTarget().Position, false) == true then
 				Isaac.Spawn(EntityType.ENTITY_DIP, math.random(0, 1), 0, entity.Position - Vector(0, 5), Vector.Zero, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 
 			else
