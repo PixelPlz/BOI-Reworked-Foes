@@ -8,29 +8,14 @@ function mod:wrathUpdate(entity)
 	local target = entity:GetPlayerTarget()
 
 
-	if entity.State == NpcState.STATE_MOVE then
-		if entity.ProjectileCooldown > 0 then
-			entity.ProjectileCooldown = entity.ProjectileCooldown - 1
-		end
-		entity:GetData().lastAnim = sprite:GetAnimation()
-
-
 	-- Custom attack
-	elseif entity.State == NpcState.STATE_ATTACK2 then
-		-- Prevent them from spamming the bombs
-		if entity.ProjectileCooldown <= 0 then
-			entity.State = NpcState.STATE_ATTACK3
-		else
-			entity.State = NpcState.STATE_MOVE
-			sprite:Play(entity:GetData().lastAnim, true)
-		end
+	if entity.State == NpcState.STATE_ATTACK2 then
+		entity.State = NpcState.STATE_ATTACK3
 
 	elseif entity.State == NpcState.STATE_ATTACK3 then
 		entity.Velocity = Vector.Zero
 
 		if sprite:GetFrame() == 4 then
-			entity.ProjectileCooldown = 30
-
 			-- Wrath bomber man bombs
 			if entity.Variant == 0 then
 				local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_NORMAL, 0, entity.Position, Vector.Zero, entity):ToBomb()

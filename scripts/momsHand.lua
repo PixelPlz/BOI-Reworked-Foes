@@ -5,9 +5,12 @@ local game = Game()
 
 -- Mom's Hand --
 function mod:momsHandInit(entity)
-	entity:GetSprite():Play("Appear", true)
-	entity:GetData().init = false
-	entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+	if IRFconfig.hiddenAppearAnims == true then
+		entity:GetSprite():Play("Appear", true)
+		entity:GetData().init = false
+		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+	end
+
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.momsHandInit, EntityType.ENTITY_MOMS_HAND)
@@ -105,9 +108,12 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.momsHandCollide, EntityTy
 
 -- Mom's Dead Hand --
 function mod:momsDeadHandInit(entity)
-	entity:GetSprite():Play("Appear", true)
-	entity:GetData().init = false
-	entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+	if IRFconfig.hiddenAppearAnims == true then
+		entity:GetSprite():Play("Appear", true)
+		entity:GetData().init = false
+		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+	end
+
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	entity.SplatColor = Color(0.25,0.25,0.25, 1)
 end

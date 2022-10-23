@@ -36,8 +36,8 @@ IRFconfig = {
 	-- General
 	breakableHosts = true,
 	clearerHiddenEnemies = true,
+	hiddenAppearAnims = true,
 	classicEternalFlies = true,
-	blackBonyCostumes = true,
 }
 
 -- Load settings
@@ -85,21 +85,21 @@ if ModConfigMenu then
   	})
 	ModConfigMenu.AddSetting(category, "General", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
+	    CurrentSetting = function() return IRFconfig.hiddenAppearAnims end,
+	    Display = function() return "Extra appear animations: " .. (IRFconfig.hiddenAppearAnims and "On" or "Off") end,
+	    OnChange = function(bool)
+	    	IRFconfig.hiddenAppearAnims = bool
+	    end,
+	    Info = {"Toggle appear animations for enemies that don't start visible. (default = on)"}
+  	})
+	ModConfigMenu.AddSetting(category, "General", {
+    	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function() return IRFconfig.classicEternalFlies end,
 	    Display = function() return "Classic Eternal Flies: " .. (IRFconfig.classicEternalFlies and "On" or "Off") end,
 	    OnChange = function(bool)
 	    	IRFconfig.classicEternalFlies = bool
 	    end,
 	    Info = {"Toggle classic Eternal Flies. (default = on)"}
-  	})
-	ModConfigMenu.AddSetting(category, "General", {
-    	Type = ModConfigMenu.OptionType.BOOLEAN,
-	    CurrentSetting = function() return IRFconfig.blackBonyCostumes end,
-	    Display = function() return "Black Bony Indicator: " .. (IRFconfig.blackBonyCostumes and "Head Costume" or "Icon") end,
-	    OnChange = function(bool)
-	    	IRFconfig.blackBonyCostumes = bool
-	    end,
-	    Info = {"Black Bony bomb type indicator. (default = Head Costume)"}
   	})
 end
 
@@ -162,6 +162,7 @@ include("scripts.nerveEnding2")
 include("scripts.psyTumor")
 include("scripts.fatBat")
 include("scripts.megaMaw")
+include("scripts.mrFred")
 include("scripts.fallenAngels")
 include("scripts.ragling")
 --include("scripts.floatingKnight")

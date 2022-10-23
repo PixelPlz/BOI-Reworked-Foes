@@ -25,9 +25,11 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.polycephalusUpdate, EntityType.E
 
 --[[ Needle / Pasty ]]--
 function mod:needleInit(entity)
-	entity:GetSprite():Play("Appear", true)
-	entity:GetData().init = false
-	entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+	if IRFconfig.hiddenAppearAnims == true then
+		entity:GetSprite():Play("Appear", true)
+		entity:GetData().init = false
+		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.needleInit, EntityType.ENTITY_NEEDLE)
 

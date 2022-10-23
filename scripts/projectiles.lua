@@ -94,6 +94,16 @@ function mod:replaceNormalProjectiles(projectile)
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.replaceNormalProjectiles, ProjectileVariant.PROJECTILE_NORMAL)
 
+function mod:replaceBoneProjectiles(projectile)
+	local sprite = projectile:GetSprite()
+
+	-- Black Bony
+	if projectile.SpawnerType == EntityType.ENTITY_BLACK_BONY then
+		sprite.Color = Color(0.25,0.25,0.25, 1)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.replaceBoneProjectiles, ProjectileVariant.PROJECTILE_BONE)
+
 function mod:replacePukeProjectiles(projectile)
 	local sprite = projectile:GetSprite()
 

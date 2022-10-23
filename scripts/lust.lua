@@ -177,11 +177,11 @@ function mod:lustUpdate(entity)
 					data.crushRocks = true
 
 
-				-- Pretty flies / Death head
+				-- Pretty flies / Bony
 				elseif entity.I2 == 2 then
 					if entity.SubType == 1 then
 						SFXManager():Play(SoundEffect.SOUND_SUMMONSOUND)
-						Isaac.Spawn(EntityType.ENTITY_DEATHS_HEAD, 0, 0, entity.Position + Vector(0, 10), Vector.Zero, entity)
+						Isaac.Spawn(EntityType.ENTITY_BONY, 0, 0, entity.Position + Vector(0, 10), Vector.Zero, entity)
 
 					else
 						playSFX = true

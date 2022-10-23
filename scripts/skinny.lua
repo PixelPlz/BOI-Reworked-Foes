@@ -64,6 +64,10 @@ function mod:skinnyUpdate(entity)
 						local skull = Isaac.Spawn(EntityType.ENTITY_DEATHS_HEAD, 0, 0, entity.Position + Vector(0, entity.Scale * -5), Vector.Zero, entity)
 						skull:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 						skull:ToNPC().Scale = entity.Scale
+
+						if game:IsGreedMode() then
+							entity.Child = skull
+						end
 					end
 				end
 			end
@@ -117,6 +121,13 @@ function mod:skinnyUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.skinnyUpdate, EntityType.ENTITY_SKINNY)
+
+function mod:rottyGreedDeath(entity)
+	if entity.Variant == 1 and game:IsGreedMode() and entity.Child then
+		entity.Child:Kill()
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.rottyGreedDeath, EntityType.ENTITY_SKINNY)
 
 function mod:rottyProjectileUpdate(projectile)
 	if projectile.SpawnerType == EntityType.ENTITY_SKINNY and projectile.SpawnerVariant == 1 then

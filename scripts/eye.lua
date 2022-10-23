@@ -42,9 +42,12 @@ function mod:eyeUpdate(entity)
 		if (entity.Variant == 0 and sprite:GetFrame() == 1) or (entity.Variant == 1 and sprite:GetOverlayFrame() == 1) then
 			local pitch = 1.1
 			local offset = 16
+			local xScale = 1
+
 			if entity.Variant == 1 then
 				pitch = 1
 				offset = 0
+				xScale = 2
 				sprite.PlaybackSpeed = 0.9
 			end
 			SFXManager():Play(SoundEffect.SOUND_LASERRING_WEAK, 1.15, 0, false, pitch)
@@ -54,7 +57,7 @@ function mod:eyeUpdate(entity)
 			tracer.Timeout = 1
 			tracer.TargetPosition = Vector.FromAngle(entity.V1.X)
 			tracer:GetSprite().Color = Color(1,0,0, 0.25)
-			tracer.SpriteScale = Vector(2, 0)
+			tracer.SpriteScale = Vector(xScale, 0)
 		end
 	end
 end

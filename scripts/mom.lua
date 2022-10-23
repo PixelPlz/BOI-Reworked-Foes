@@ -50,60 +50,28 @@ function mod:momInit(entity)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.momInit, EntityType.ENTITY_MOM)
 
+-- Red champion eye shot
 function mod:momUpdate(entity)
-	-- Extra foot for red champion
-	if entity.FrameCount == 0 and entity.Variant == 10 and entity.SubType == 2 and not entity:GetData().hasFoot and game:GetRoom():GetBossID() ~= 70 then
-		local foot = Isaac.Spawn(entity.Type, entity.Variant, entity.SubType, entity.Position, Vector.Zero, entity):ToNPC()
-		foot:GetData().hasFoot = true
-		foot.ProjectileCooldown = entity.ProjectileCooldown * 1.25
-		foot.Parent = entity
-		entity.Child = foot
-		entity:GetData().hasFoot = true
-	end
-
-
-	-- Red champion
-	if entity.SubType == 2 then
+	if entity.Variant == 0 and entity.SubType == 2 then
 		local sprite = entity:GetSprite()
 
-		-- Eye shot
-		if entity.Variant == 0 then
-			if entity.State == NpcState.STATE_ATTACK then
-				entity.State = NpcState.STATE_ATTACK5
-				sprite:Play("EyeLaser", true)
-				entity.I2 = 0
-			
-			elseif entity.State == NpcState.STATE_ATTACK5 then
-				if sprite:IsEventTriggered("Shoot") or sprite:GetFrame() == 55 or sprite:GetFrame() == 65 then
-					local params = ProjectileParams()
-					params.Scale = 1.4 - (entity.I2 * 0.1)
-					entity:FireProjectiles(entity.Position + Vector(0, 20), (entity:GetPlayerTarget().Position - (entity.Position + Vector(0, 20))):Normalized() * 10, 0 + entity.I2, params)
+		if entity.State == NpcState.STATE_ATTACK then
+			entity.State = NpcState.STATE_ATTACK5
+			sprite:Play("EyeLaser", true)
+			entity.I2 = 0
+		
+		elseif entity.State == NpcState.STATE_ATTACK5 then
+			if sprite:IsEventTriggered("Shoot") or sprite:GetFrame() == 55 or sprite:GetFrame() == 65 then
+				local params = ProjectileParams()
+				params.Scale = 1.4 - (entity.I2 * 0.1)
+				entity:FireProjectiles(entity.Position + Vector(0, 20), (entity:GetPlayerTarget().Position - (entity.Position + Vector(0, 20))):Normalized() * 10, 0 + entity.I2, params)
 
-					entity.I2 = entity.I2 + 1
-					entity:PlaySound(SoundEffect.SOUND_BLOODSHOOT, 1.5, 0, false, 1)
-				end
-
-				if sprite:IsFinished("EyeLaser") then
-					entity.State = NpcState.STATE_IDLE
-				end
+				entity.I2 = entity.I2 + 1
+				entity:PlaySound(SoundEffect.SOUND_BLOODSHOOT, 1.5, 0, false, 1)
 			end
 
-
-		-- Slower feet
-		elseif entity.Variant == 10 then
-			if sprite:GetFrame() <= 25 then
-				sprite.PlaybackSpeed = 0.85
-			else
-				sprite.PlaybackSpeed = 1
-			end
-
-			-- Dumb workaround for shared HP
-			if entity.Parent then
-				if entity.HitPoints > entity.Parent.HitPoints then
-					entity.HitPoints = entity.Parent.HitPoints
-				elseif entity.HitPoints < entity.Parent.HitPoints then
-					entity.Parent.HitPoints = entity.HitPoints
-				end
+			if sprite:IsFinished("EyeLaser") then
+				entity.State = NpcState.STATE_IDLE
 			end
 		end
 	end
