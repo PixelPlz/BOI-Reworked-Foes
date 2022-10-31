@@ -40,7 +40,7 @@ function fleshDeathHeadHeal(entity, big)
 
 	else
 		for _,v in pairs(Isaac.GetRoomEntities()) do
-			if v.Type > 9 and v.Type < 1000 and entity.Position:Distance(v.Position) <= Settings.Range and not (v.Type == 212 and v.Variant == 1 and v.SubType == 4286)
+			if v.Type > 9 and v.Type < 1000 and entity.Position:Distance(v.Position) <= Settings.Range and v.Type ~= EntityType.ENTITY_FLESH_DEATHS_HEAD
 			and v.HitPoints < v.MaxHitPoints and v.EntityCollisionClass ~= EntityCollisionClass.ENTCOLL_NONE then
 				v:AddHealth(Settings.HealAmount * multiplier)
 				SFXManager():Play(sound)
@@ -57,54 +57,55 @@ end
 
 
 
-function mod:fleshDeathHeadReplace(entity)
-	entity:Morph(EntityType.ENTITY_DEATHS_HEAD, 1, 4286, entity:GetChampionColorIdx())
+function mod:fleshDeathHeadInit(entity)
+	entity.CanShutDoors = true
+	entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+	entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fleshDeathHeadReplace, EntityType.ENTITY_FLESH_DEATHS_HEAD)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fleshDeathHeadInit, EntityType.ENTITY_FLESH_DEATHS_HEAD)
 
 function mod:fleshDeathHeadUpdate(entity)
-	if entity.Variant == 1 and entity.SubType == 4286 then
-		local data = entity:GetData()
+	local data = entity:GetData()
 
-		entity.SplatColor = Color(1,0,0, 1) -- Has to be in the update callback to work for some reason
+	-- Healing aura
+	if not data.aura or (data.aura and not data.aura:Exists()) then
+		data.aura = Isaac.Spawn(EntityType.ENTITY_EFFECT, 868, 0, entity.Position, Vector.Zero, entity):ToEffect()
+		data.aura.Parent = entity
+		data.aura:GetSprite():Play("FadeIn", true)
+		data.aura.DepthOffset = -1000
+	end
 
-		-- Healing aura
-		if not data.aura or (data.aura and not data.aura:Exists()) then
-			data.aura = Isaac.Spawn(EntityType.ENTITY_EFFECT, 868, 0, entity.Position, Vector.Zero, entity):ToEffect()
-			data.aura.Parent = entity
-			data.aura:GetSprite():Play("FadeIn", true)
-			data.aura.DepthOffset = -1000
-		end
+	if entity.ProjectileCooldown <= 0 then
+		fleshDeathHeadHeal(entity)
+		entity.ProjectileCooldown = Settings.Cooldown
+	else
+		entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+	end
 
-		if entity.ProjectileCooldown <= 0 then
-			fleshDeathHeadHeal(entity)
-			entity.ProjectileCooldown = Settings.Cooldown
-		
-		else
-			entity.ProjectileCooldown = entity.ProjectileCooldown - 1
-		end
 
-		-- Make them not heal players infinitely if friendly
-		if not data.playerHeals then
-			data.playerHeals = 0
-		elseif data.playerHeals >= Settings.MaxPlayerHeals then
-			entity:Die()
-		end
+	-- Make them not heal players infinitely if friendly
+	if not data.playerHeals then
+		data.playerHeals = 0
+	elseif data.playerHeals >= Settings.MaxPlayerHeals then
+		entity:Die()
+	end
+
+
+	if entity:IsDead() then
+		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.fleshDeathHeadUpdate, EntityType.ENTITY_DEATHS_HEAD)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.fleshDeathHeadUpdate, EntityType.ENTITY_FLESH_DEATHS_HEAD)
 
 function mod:fleshDeathHeadDeath(entity)
-	if entity.Variant == 1 and entity.SubType == 4286 then
-		fleshDeathHeadHeal(entity, true)
-		
-		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, nil)
-		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, nil)
-		SFXManager():Play(SoundEffect.SOUND_MEATY_DEATHS, 0.9)
-		SFXManager():Play(SoundEffect.SOUND_EXPLOSION_WEAK, 1.1)
-	end
+	fleshDeathHeadHeal(entity, true)
+	
+	Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, nil)
+	Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, nil)
+	SFXManager():Play(SoundEffect.SOUND_MEATY_DEATHS, 0.9)
+	SFXManager():Play(SoundEffect.SOUND_EXPLOSION_WEAK, 1.1)
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.fleshDeathHeadDeath, EntityType.ENTITY_DEATHS_HEAD)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.fleshDeathHeadDeath, EntityType.ENTITY_FLESH_DEATHS_HEAD)
 
 
 

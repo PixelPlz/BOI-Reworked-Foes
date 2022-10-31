@@ -16,7 +16,8 @@
     </entity>
 
 	<entity anm2path="027.003_soft host.anm2" baseHP="15" boss="0" champion="1" collisionDamage="1" collisionMass="15" collisionRadius="13" friction="1" id="27" name="Soft Host" numGridCollisionPoints="12" portrait="247" shadowSize="25" stageHP="0" variant="3" subtype="40">
-        <gibs amount="9" blood="0" bone="0" dust="1" eye="0" gut="0" large="0" rock="1"/>
+        <bestiary anim="Shoot" transform="0,0,1"/>
+		<gibs amount="9" blood="0" bone="0" dust="1" eye="0" gut="0" large="0" rock="1"/>
     </entity>
 
 	<entity anm2path="065.011_Conquest without horse.anm2" baseHP="500" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" id="65" name="Conquest without horse" numGridCollisionPoints="0" portrait="30" shadowSize="19" stageHP="0" variant="11">
@@ -27,7 +28,7 @@
         <gibs amount="6" blood="1" bone="1" eye="0" gut="0" large="0"/>
     </entity>
 	
-	<entity anm2path="086.001_Coffer.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="86" name="Coffer" numGridCollisionPoints="12" portrait="25" reroll="true" shadowSize="14" stageHP="1" variant="450">
+	<entity anm2path="086.001_Coffer.anm2" baseHP="8" boss="0" champion="0" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="86" name="Coffer" numGridCollisionPoints="12" portrait="25" reroll="true" shadowSize="14" stageHP="1" variant="450">
         <bestiary anim="JumpDown" transform="0,0,1"/>
         <gibs amount="6" blood="1" bone="0" dust="1" eye="0" gut="0" large="0"/>
     </entity>
@@ -41,10 +42,6 @@
         <gibs amount="6" blood="1" bone="1" eye="1" gut="1" large="0"/>
     </entity>
 
-    <entity anm2path="230.000_CamilloJr.anm2" baseHP="32" boss="0" champion="1" collisionDamage="1" collisionMass="22" collisionRadius="16" friction="1" gridCollision="walls" id="212" name="Camillo Jr. (New)" numGridCollisionPoints="12" portrait="107" reroll="true" shadowSize="26" stageHP="0" variant="1" subtype="4230">
-        <bestiary parent="230.0"/>
-        <gibs amount="5" blood="1" bone="0" eye="1" gut="0" large="0"/>
-    </entity>
     <entity anm2path="039.022_CamilloJr Projectile.anm2" baseHP="1000" boss="0" champion="1" collisionDamage="2" collisionInterval="1" collisionMass="10" collisionRadius="13" friction="1" gridCollision="none" id="39" name="Camillo Jr. Projectile" numGridCollisionPoints="12" portrait="35" shadowSize="15" stageHP="0" variant="22" subtype="230">
         <bestiary parent="230.0"/>
 		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
@@ -57,10 +54,9 @@
         <bestiary parent="246.0"/>
         <gibs amount="1" blood="0" bone="0" dust="1" eye="0" gut="0" large="0"/>
     </entity>
-
-	<entity anm2path="286.000_FleshDeathsHead.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="20" collisionRadius="13" friction="1" gridCollision="walls" id="212" name="Flesh Death's Head (New)" numGridCollisionPoints="12" portrait="132" shadowSize="17" stageHP="0" variant="1" subtype="4286">
-        <bestiary parent="286.0"/>
-        <gibs amount="8" blood="0" bone="1" eye="0" gut="0" large="0"/>
+	
+	<entity anm2path="003.128_Bone Orbital.anm2" baseHP="12" boss="0" champion="0" collisionDamage="1" collisionMass="10" collisionRadius="12" friction="1" gridCollision="none" id="200" name="Bone Orbital" numGridCollisionPoints="12" shadowSize="14" stageHP="0" variant="4440">
+        <gibs amount="1" blood="0" bone="1" eye="0" gut="0" large="0"/>
     </entity>
 
     <entity anm2path="303.000_Blister.anm2" baseHP="16" boss="0" champion="1" collisionDamage="1" collisionMass="5" collisionRadius="13" friction="1" id="29" name="Blister (New)" numGridCollisionPoints="12" portrait="157" shadowSize="14" stageHP="8" tags="spider" variant="1" subtype="303">
@@ -69,19 +65,21 @@
     </entity>
 
 	<entity anm2path="401.000_TheStain.anm2" baseHP="400" boss="0" champion="0" collisionDamage="1" collisionMass="0" collisionRadius="18" friction="1" id="401" name="The Stain Tentacle" numGridCollisionPoints="0" portrait="79" reroll="false" shadowSize="0" shutdoors="false" stageHP="0" variant="10">
-        <gibs amount="6" blood="1" bone="0" eye="0" gut="0" large="0"/>
+        <bestiary parent="401.0"/>
+		<gibs amount="6" blood="1" bone="0" eye="0" gut="0" large="0"/>
     </entity>
 
 	<entity anm2path="834.000_whipper_hera.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="834" name="Altar Scamp" numGridCollisionPoints="12" portrait="222" shadowSize="14" stageHP="0" variant="0" subtype="43">
-        <gibs amount="6" blood="0" bone="1" eye="0" gut="1" large="0" worm="1"/>
+		<gibs amount="6" blood="0" bone="1" eye="0" gut="1" large="0" worm="1"/>
     </entity>
 	
 	<entity anm2path="859.001_flesh floating host.anm2" baseHP="21" boss="0" champion="1" collisionDamage="1" collisionMass="40" collisionRadius="13" friction="1" gridCollision="walls" id="859" name="Flesh Floast" numGridCollisionPoints="12" portrait="275" shadowSize="20" stageHP="0" variant="1">
-        <gibs amount="6" blood="1" bone="1" eye="0" gut="0" large="0" worm="1"/>
+        <bestiary anim="Shoot" transform="0,0,1"/>
+		<gibs amount="6" blood="1" bone="1" eye="0" gut="0" large="0" worm="1"/>
     </entity>
 
 
 	<!-- Effects -->
-	<entity anm2path="1000.147_fire ring.anm2" collisionDamage="10" collisionMass="8" collisionRadius="0" friction="1" subtype="40" id="1000" name="Fire Ring"    numGridCollisionPoints="0" shadowSize="0" variant="147"/>
-	<entity anm2path="healing_aura.anm2" 	   collisionDamage="0"  collisionMass="0" collisionRadius="0" friction="1" subtype="0"  id="1000" name="Healing Aura" numGridCollisionPoints="0" shadowSize="0" variant="868"/>
+	<entity anm2path="1000.147_fire ring.anm2" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" subtype="40" id="1000" name="Fire Ring"    numGridCollisionPoints="0" shadowSize="0" variant="147"/>
+	<entity anm2path="healing_aura.anm2" 	   collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" subtype="0"  id="1000" name="Healing Aura" numGridCollisionPoints="0" shadowSize="0" variant="868"/>
 </entities>

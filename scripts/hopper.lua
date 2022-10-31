@@ -84,7 +84,7 @@ function mod:flamingHopperUpdate(entity)
 			entity.Velocity = Vector.Zero
 			entity.TargetPosition = entity.Position
 			entity.ProjectileCooldown = 3
-			IRFfireRing(entity)
+			mod:FireRing(entity)
 		end
 	end
 end

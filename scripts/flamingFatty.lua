@@ -6,7 +6,7 @@ local game = Game()
 function mod:flamingFattyUpdate(entity)
 	-- Fire ring
 	if entity.Variant == 2 and entity:GetSprite():IsEventTriggered("Shoot") then
-		IRFfireRing(entity)
+		mod:FireRing(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingFattyUpdate, EntityType.ENTITY_FATTY)
@@ -14,7 +14,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingFattyUpdate, EntityType.E
 function mod:flamingFattyDeath(entity)
 	-- Fire ring
 	if entity.Variant == 2 then
-		IRFfireRing(entity)
+		mod:FireRing(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.flamingFattyDeath, EntityType.ENTITY_FATTY)

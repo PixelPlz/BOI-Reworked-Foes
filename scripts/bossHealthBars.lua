@@ -113,6 +113,15 @@ function mod:postGameStartedHPBars()
 				{function(entity) return entity.SubType == 1000 end, path .. "/chapter2/fistula_small_scarred.png"}
 			},
 		}
+		
+		-- Blighted Ovum
+		HPBars.BossDefinitions["79.2"] = {
+			sprite = path .. "/chapter1/blighted_ovum.png",
+			offset = Vector(-4, 0),
+			conditionalSprites = {
+				{"isIIEqual", path .. "/chapter1/blighted_ovum_phase2.png", {1}}
+			},
+		}
 
 		-- Fallen / Krampus
 		HPBars.BossDefinitions["81.0"] = {

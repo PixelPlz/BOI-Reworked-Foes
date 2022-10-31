@@ -2,22 +2,28 @@ local mod = BetterMonsters
 local game = Game()
 
 local Settings = {
-	MoveSpeed = 9,
-	Cooldown = 15,
-	MoveTime = 20
+	MoveSpeed = 8,
+	Cooldown = 16,
+	MoveTime = 16
 }
 
 
 
 function mod:dartFlyInit(entity)
-	entity:GetSprite().Offset = Vector(0, -16)
-	entity.ProjectileCooldown = Settings.Cooldown
+	local sprite = entity:GetSprite()
+
+	sprite.Rotation = 0
+	sprite.Offset = Vector(0, -14)
+	entity.ProjectileCooldown = Settings.Cooldown * 1.5
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.dartFlyInit, EntityType.ENTITY_DART_FLY)
 
 function mod:dartFlyUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
+	
+	sprite.FlipX = false
+
 
 	-- Idle
 	if entity.State == NpcState.STATE_MOVE then

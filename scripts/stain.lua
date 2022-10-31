@@ -97,7 +97,7 @@ function mod:stainUpdate(entity)
 
 				-- Only spawn up to 3 chargers
 				local attackCount = 3
-				if Isaac.CountEntities(entity, EntityType.ENTITY_MAGGOT, -1, -1) >= 4 then
+				if Isaac.CountEntities(entity, EntityType.ENTITY_MAGGOT, -1, -1) >= 3 then
 					attackCount = 2
 				end
 
@@ -123,6 +123,8 @@ function mod:stainUpdate(entity)
 			if sprite:IsEventTriggered("Start") then
 				entity:PlaySound(SoundEffect.SOUND_WEIRD_WORM_SPIT, 1, 0, false, 1)
 				entity.I1 = 1
+				entity.I2 = 0
+				entity.StateFrame = 0
 			elseif sprite:IsEventTriggered("Stop") then
 				entity.I1 = 0
 			end
@@ -133,10 +135,10 @@ function mod:stainUpdate(entity)
 					entity.StateFrame = entity.StateFrame + 1
 
 					local params = ProjectileParams()
-					params.CircleAngle = entity.StateFrame * 0.4
+					params.CircleAngle = entity.StateFrame * 0.3
 					params.FallingSpeedModifier = -1
 					params.Scale = 1.5
-					entity:FireProjectiles(entity.Position, Vector(11, 8), 9, params)
+					entity:FireProjectiles(entity.Position, Vector(9.5, 8), 9, params)
 
 				else
 					entity.I2 = entity.I2 - 1
@@ -175,13 +177,16 @@ function mod:stainUpdate(entity)
 					end
 				end
 
+			-- Champion attack
 			elseif entity.State == NpcState.STATE_SUMMON2 then
 				if sprite:IsEventTriggered("Shoot") then
-					if Isaac.CountEntities(entity, EntityType.ENTITY_CHARGER, -1, -1) >= 3 or math.random(0, 1) == 1 then
-						entity:PlaySound(SoundEffect.SOUND_MEATY_DEATHS, 1, 0, false, 1)
-						entity:PlaySound(SoundEffect.SOUND_MEATHEADSHOOT, 1, 0, false, 1)
-						for i = 1, 8 do
-							Isaac.Spawn(EntityType.ENTITY_VIS, 22, 2, entity.Position, Vector.FromAngle(i * 45) * 16, entity).Parent = entity
+					if Isaac.CountEntities(entity, EntityType.ENTITY_CHARGER, -1, -1) >= 2 or math.random(0, 1) == 1 then
+						entity:PlaySound(SoundEffect.SOUND_MEATY_DEATHS, 0.9, 0, false, 1)
+						entity:PlaySound(SoundEffect.SOUND_MEATHEADSHOOT, 1.1, 0, false, 1)
+						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position + Vector(10, -28), Vector.Zero, entity).DepthOffset = entity.DepthOffset - 100
+
+						for i = 0, 3 do
+							Isaac.Spawn(EntityType.ENTITY_VIS, 22, 0, entity.Position, Vector.FromAngle(i * 90) * 18, entity).Parent = entity
 						end
 
 					else
@@ -189,18 +194,19 @@ function mod:stainUpdate(entity)
 						SFXManager():Play(SoundEffect.SOUND_SUMMONSOUND)
 					end
 				end
-				
+
 				if sprite:IsFinished("Attack2Summon") then
 					entity.State = NpcState.STATE_ATTACK3
-					entity.ProjectileCooldown = math.random(90, 120)
+					entity.ProjectileCooldown = 120
 				end
 			end
 
+			-- Spawn tentacles
 			if entity.I2 < 3 or entity.SubType == 1 then
 				if entity.I1 <= 0 then
 					local pos = target.Position
 					if entity.StateFrame > 0 and entity.SubType ~= 1 then
-						pos = target.Position + (target.Velocity * 20)
+						pos = room:GetClampedPosition(target.Position + (target.Velocity * 10), 0)
 					end
 					local tentacle = Isaac.Spawn(EntityType.ENTITY_STAIN, 10, entity.SubType, pos, Vector.Zero, entity)
 					tentacle.Parent = entity
@@ -214,7 +220,7 @@ function mod:stainUpdate(entity)
 
 					-- Spawn them in pairs
 					if entity.StateFrame >= 1 then
-						entity.I1 = 30 + (entity.SubType * 5)
+						entity.I1 = 35
 						entity.I2 = entity.I2 + 1
 						entity.StateFrame = 0
 					else
@@ -266,14 +272,13 @@ function mod:stainUpdate(entity)
 		-- Summon
 		elseif entity.State == NpcState.STATE_SUMMON then
 			if sprite:IsEventTriggered("Shoot") then
-				for i = -1, 1, 2 do
-					Isaac.Spawn(EntityType.ENTITY_MAGGOT, 0, 0, entity.Position + Vector(i * 10, 10), Vector.Zero, entity):ToNPC()
-				end
+				Isaac.Spawn(EntityType.ENTITY_MAGGOT, 0, 0, entity.Position + Vector(0, 10), Vector.Zero, entity):ToNPC()
 				SFXManager():Play(SoundEffect.SOUND_SUMMONSOUND)
 			end
 			
 			if sprite:IsFinished("Summon") then
 				entity.State = NpcState.STATE_IDLE
+				entity.ProjectileCooldown = 60
 			end
 		end
 
@@ -287,7 +292,7 @@ function mod:stainUpdate(entity)
 		elseif sprite:IsEventTriggered("Stop") then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 			if entity.SubType ~= 1 then
-				mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 0.9)
+				mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position)
 			end
 		end
 		

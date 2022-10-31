@@ -3,7 +3,7 @@ local game = Game()
 
 local Settings = {
 	HideTime = 120,
-	ShotSpeed = 10,
+	ShotSpeed = 12,
 	VulnerableTime = 45
 }
 
@@ -53,13 +53,7 @@ function mod:codWormUpdate(entity)
 	elseif entity.State == NpcState.STATE_ATTACK then
 		if sprite:IsEventTriggered("Shoot") then
 			entity:PlaySound(SoundEffect.SOUND_WORM_SPIT, 1.2, 0, false, 1)
-
-			local params = ProjectileParams()
-			params.Scale = 1.25
-			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * Settings.ShotSpeed, 4, params)
-			if entity.I2 == 1 then
-				entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * (Settings.ShotSpeed - 3), 2, params)
-			end
+			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * (Settings.ShotSpeed - (entity.I2 * 2)), 3 + (entity.I2 * 2), ProjectileParams())
 		end
 
 		if sprite:IsFinished("Attack") then
