@@ -54,10 +54,6 @@
         <bestiary parent="246.0"/>
         <gibs amount="1" blood="0" bone="0" dust="1" eye="0" gut="0" large="0"/>
     </entity>
-	
-	<entity anm2path="003.128_Bone Orbital.anm2" baseHP="12" boss="0" champion="0" collisionDamage="1" collisionMass="10" collisionRadius="12" friction="1" gridCollision="none" id="200" name="Bone Orbital" numGridCollisionPoints="12" shadowSize="14" stageHP="0" variant="4440">
-        <gibs amount="1" blood="0" bone="1" eye="0" gut="0" large="0"/>
-    </entity>
 
     <entity anm2path="303.000_Blister.anm2" baseHP="16" boss="0" champion="1" collisionDamage="1" collisionMass="5" collisionRadius="13" friction="1" id="29" name="Blister (New)" numGridCollisionPoints="12" portrait="157" shadowSize="14" stageHP="8" tags="spider" variant="1" subtype="303">
         <bestiary parent="303.0"/>
