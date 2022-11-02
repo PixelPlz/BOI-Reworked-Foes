@@ -46,6 +46,26 @@ function mod:replaceNormalProjectiles(projectile)
 			data.hasTrail = true
 			data.trailColor = corpseGreenBulletTrail
 		end
+	
+	
+	-- Frail
+	elseif projectile.SpawnerType == EntityType.ENTITY_PIN and projectile.SpawnerVariant == 2 and projectile.SpawnerEntity then
+		if projectile.SpawnerEntity:ToNPC().I2 == 0 then
+			sprite.Color = corpseGreenBulletColor
+			if projectile:HasProjectileFlags(ProjectileFlags.EXPLODE) then
+				projectile:AddProjectileFlags(ProjectileFlags.ACID_GREEN)
+			end
+
+		elseif projectile.SpawnerEntity:ToNPC().I2 == 1 and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
+			data.hasTrail = true
+			projectile.Scale = 1.75
+			
+			-- Black champion
+			if projectile.SpawnerEntity.SubType == 1 then
+				projectile:ClearProjectileFlags(ProjectileFlags.BURST)
+				projectile:AddProjectileFlags(ProjectileFlags.EXPLODE)
+			end
+		end
 
 
 	-- Tube Worm

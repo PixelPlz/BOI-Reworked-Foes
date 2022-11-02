@@ -23,7 +23,7 @@ function mod:prideUpdate(entity)
 
 		if sprite:IsEventTriggered("Shoot") then
 			if entity.SubType == 0 then
-				SFXManager():Play(SoundEffect.SOUND_BLOOD_LASER, 1.25, 0, false, 1)
+				SFXManager():Play(SoundEffect.SOUND_BOSS_LITE_HISS, 1, 0, false, 1)
 				--SFXManager():Play(SoundEffect.SOUND_BLOOD_LASER_SMALL, 1.1, 0, false, 1) -- For flash brimstone sound
 
 			elseif entity.SubType == 1 then

@@ -6,8 +6,8 @@ local Settings = {
 	TransparencyTimer = 10,
 
 	MoveSpeed = 5.5,
-	ChaseSpeed = 7,
-	AngrySpeed = 6,
+	ChaseSpeed = 6.75,
+	AngrySpeed = 5.75,
 
 	ChaseTime = 120,
 	CreepTime = 100,

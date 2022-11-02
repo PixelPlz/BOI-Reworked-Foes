@@ -70,7 +70,9 @@ function mod:fallenUrielUpdate(entity)
 			-- Shots
 			if entity.I2 == 1 then
 				if entity.ProjectileCooldown == 20 then
-					entity:FireProjectiles(entity.Position, (entity.V2 - (entity.Position - Vector(0, 40))):Normalized() * 9, 5, ProjectileParams())
+					local params = ProjectileParams()
+					params.Spread = 1.2
+					entity:FireProjectiles(entity.Position, (entity.V2 - (entity.Position - Vector(0, 40))):Normalized() * 9, 5, params)
 					entity:PlaySound(SoundEffect.SOUND_THUMBS_DOWN, 0.6, 0, false, 1)
 				end
 
