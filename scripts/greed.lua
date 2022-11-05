@@ -60,31 +60,33 @@ mod:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, mod.greedRobPickup)
 
 -- Greed
 function mod:greedUpdate(entity)
-	local sprite = entity:GetSprite()
+	if mod:CheckForRev() == false and ((entity.Variant == 0 and entity.SubType <= 1) or entity.Variant == 1) then
+		local sprite = entity:GetSprite()
 
-	if entity.State == NpcState.STATE_ATTACK or entity.State == NpcState.STATE_ATTACK3 then
-		if sprite:GetFrame() == 5 then
-			entity:PlaySound(SoundEffect.SOUND_BLOODSHOOT, 1, 0, false, 1)
-		end
-
-		-- Custom champion attack
-		if entity.State == NpcState.STATE_ATTACK then
-			if entity.SubType == 1 and (sprite:IsPlaying("Attack01Down") or sprite:IsPlaying("Attack01Hori") or sprite:IsPlaying("Attack01Up")) then
-				entity.State = NpcState.STATE_ATTACK3
+		if entity.State == NpcState.STATE_ATTACK or entity.State == NpcState.STATE_ATTACK3 then
+			if sprite:GetFrame() == 5 then
+				entity:PlaySound(SoundEffect.SOUND_BLOODSHOOT, 1, 0, false, 1)
 			end
 
-		elseif entity.State == NpcState.STATE_ATTACK3 then
-			if sprite:GetFrame() == 4 then
-				
-				local params = ProjectileParams()
-				params.Variant = ProjectileVariant.PROJECTILE_COIN
-				params.BulletFlags = ProjectileFlags.EXPLODE
-				params.Scale = 1.25
-				entity:FireProjectiles(entity.Position, entity.V1, 1, params)
-			end
+			-- Custom champion attack
+			if entity.State == NpcState.STATE_ATTACK then
+				if entity.SubType == 1 and (sprite:IsPlaying("Attack01Down") or sprite:IsPlaying("Attack01Hori") or sprite:IsPlaying("Attack01Up")) then
+					entity.State = NpcState.STATE_ATTACK3
+				end
 
-			if sprite:IsFinished(sprite:GetAnimation()) then
-				entity.State = NpcState.STATE_MOVE
+			elseif entity.State == NpcState.STATE_ATTACK3 then
+				if sprite:GetFrame() == 4 then
+					
+					local params = ProjectileParams()
+					params.Variant = ProjectileVariant.PROJECTILE_COIN
+					params.BulletFlags = ProjectileFlags.EXPLODE
+					params.Scale = 1.25
+					entity:FireProjectiles(entity.Position, entity.V1, 1, params)
+				end
+
+				if sprite:IsFinished(sprite:GetAnimation()) then
+					entity.State = NpcState.STATE_MOVE
+				end
 			end
 		end
 	end
@@ -133,7 +135,7 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.greedHit)
 
 function mod:championGreedReward(entity)
 	-- Midas' Touch
-	if entity.SpawnerType == EntityType.ENTITY_GREED and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= 202 then
+	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_GREED and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= 202 then
 		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 202, false, true, false)
 	end
 end

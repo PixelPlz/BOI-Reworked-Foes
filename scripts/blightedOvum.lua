@@ -19,15 +19,17 @@ ghostTrailColor:SetColorize(1, 1, 1, 1)
 
 
 function mod:blightedOvumInit(entity)
-	if entity.Variant == 2 then
-		entity.MaxHitPoints = 280
-		entity.HitPoints = entity.MaxHitPoints
+	if entity.Variant == 2 or entity.Variant == 12 then
 		entity.ProjectileCooldown = Settings.Cooldown[1]
 
-	elseif entity.Variant == 12 then
-		entity.ProjectileCooldown = Settings.Cooldown[1]
-		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
-		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
+		if entity.Variant == 2 then
+			entity.MaxHitPoints = 280
+			entity.HitPoints = entity.MaxHitPoints
+
+		elseif entity.Variant == 12 then
+			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
+			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blightedOvumInit, EntityType.ENTITY_GEMINI)
@@ -35,7 +37,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blightedOvumInit, EntityType.
 function mod:blightedOvumUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
-	local data = entity:GetData()
+
 
 	-- Big guy
 	if entity.Variant == 2 then
@@ -212,13 +214,9 @@ function mod:blightedOvumUpdate(entity)
 	-- Baby
 	elseif entity.Variant == 12 then
 		-- Transparency
-		if data.transTimer ~= nil then -- trans rights
-			if data.transTimer <= 0 then
-				data.transTimer = nil
-			else
-				sprite.Color = Color(1,1,1, 0.5)
-				data.transTimer = data.transTimer - 1
-			end
+		if entity.I2 > 0 then
+			sprite.Color = Color(1,1,1, 0.5)
+			entity.I2 = entity.I2 - 1
 		else
 			sprite.Color = Color.Default
 		end
@@ -323,7 +321,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blightedOvumUpdate, EntityTy
 
 function mod:blightedOvumDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == 12 then
-		target:GetData().transTimer = Settings.TransparencyTimer
+		target.I2 = Settings.TransparencyTimer
 		return false
 	end
 end

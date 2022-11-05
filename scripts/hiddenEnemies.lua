@@ -21,12 +21,12 @@ function mod:pinInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.pinInit, EntityType.ENTITY_PIN)
+--mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.pinInit, EntityType.ENTITY_PIN)
 
 function mod:pinUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	-- Appear animation
+	--[[ Appear animation
 	if entity.State == NpcState.STATE_APPEAR_CUSTOM then
 		if sprite:IsFinished("Attack1") then
 			entity.State = NpcState.STATE_APPEAR
@@ -39,6 +39,7 @@ function mod:pinUpdate(entity)
 
 		return true
 	end
+	]]--
 
 	-- Dirt effect
 	if IRFconfig.clearerHiddenEnemies == true and entity.Variant < 3 and entity:IsFrame(6, 0) and not entity.Parent and entity.Visible == false then

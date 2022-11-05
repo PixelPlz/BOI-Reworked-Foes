@@ -3,7 +3,7 @@ local game = Game()
 
 local Settings = {
 	SuperSlothShots = 2,
-	ShotSpeed = 8,
+	ShotSpeed = 7,
 	FlyAngle = 15,
 	FlySpeed = 8,
 	SpiderCount = 5
@@ -12,7 +12,7 @@ local Settings = {
 
 
 function mod:slothUpdate(entity)
-	if entity.Variant == 0 or entity.Variant == 1 then
+	if mod:CheckForRev() == false and ((entity.Variant == 0 and entity.SubType <= 1) or entity.Variant == 1) then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
 
@@ -121,7 +121,7 @@ end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.slothDMG, EntityType.ENTITY_SLOTH)
 
 function mod:slothProjectileUpdate(projectile)
-	if projectile.SpawnerType == EntityType.ENTITY_SLOTH and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 and projectile:IsDead() then
+	if mod:CheckForRev() == false and projectile.SpawnerType == EntityType.ENTITY_SLOTH and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 and projectile:IsDead() then
 		mod:QuickCreep(EffectVariant.CREEP_WHITE, projectile.SpawnerEntity, projectile.Position, 1.25)
 	end
 end
@@ -130,7 +130,7 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.slothProjectileUpdat
 
 
 function mod:championSlothReward(entity)
-	if entity.SpawnerType == EntityType.ENTITY_SLOTH and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
+	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_SLOTH and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
 		-- Spider Bite
 		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= 89 then
 			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 89, false, true, false)

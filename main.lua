@@ -148,8 +148,8 @@ include("scripts.spiders")
 include("scripts.eternalFly") 
 include("scripts.maskInfamy")
 --include("scripts.wretched")
---include("scripts.blueBaby")
 include("scripts.daddyLongLegs")
+--include("scripts.blueBaby")
 include("scripts.nest")
 include("scripts.flamingFatty")
 include("scripts.dankDeathsHead")
@@ -219,6 +219,8 @@ function mod:QuickCreep(type, spawner, position, scale, timeout)
 		creep:SetTimeout(timeout)
 	end
 	creep:Update()
+	
+	return creep
 end
 
 
@@ -234,5 +236,16 @@ function mod:FireRing(entity)
 			dmg = 1
 		end
 		e:TakeDamage(dmg, DamageFlag.DAMAGE_FIRE, EntityRef(entity), 0)
+	end
+	
+	return ring
+end
+
+
+function mod:CheckForRev()
+	if REVEL and REVEL.IsRevelStage(true) then
+		return true
+	else
+		return false
 	end
 end

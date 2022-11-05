@@ -16,32 +16,34 @@ local Settings = {
 
 
 function mod:envyUpdate(entity)
-	if entity.Variant >= 10 and entity.FrameCount == 0 then
-		entity.I2 = 1
-		entity.ProjectileCooldown = Settings.InitialTimer
-	end
-
-	-- Bounce timer
-	if entity.ProjectileCooldown <= 0 then
-		entity.I2 = 0
-	else
-		-- Give initial speed
-		if entity.ProjectileCooldown == Settings.InitialTimer - 1 and entity.I1 == 0 and entity.SpawnerEntity then
-			entity.Velocity = (entity.Position - entity.SpawnerEntity.Position):Normalized() * Settings.InitialSpeed
-			entity.I1 = 1
+	if mod:CheckForRev() == false then
+		if entity.Variant >= 10 and entity.FrameCount == 0 then
+			entity.I2 = 1
+			entity.ProjectileCooldown = Settings.InitialTimer
 		end
-		entity.ProjectileCooldown = entity.ProjectileCooldown - 1
-	end
 
-	-- Disable AI when bouncing
-	if not entity:HasMortalDamage() and entity.FrameCount ~= 0 and entity.I2 == 1 then
-		return true
+		-- Bounce timer
+		if entity.ProjectileCooldown <= 0 then
+			entity.I2 = 0
+		else
+			-- Give initial speed
+			if entity.ProjectileCooldown == Settings.InitialTimer - 1 and entity.I1 == 0 and entity.SpawnerEntity then
+				entity.Velocity = (entity.Position - entity.SpawnerEntity.Position):Normalized() * Settings.InitialSpeed
+				entity.I1 = 1
+			end
+			entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+		end
+
+		-- Disable AI when bouncing
+		if not entity:HasMortalDamage() and entity.FrameCount ~= 0 and entity.I2 == 1 then
+			return true
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.envyUpdate, EntityType.ENTITY_ENVY)
 
 function mod:envyCollide(entity, target, bool)
-	if target.Type == EntityType.ENTITY_ENVY and (entity.I1 == 1 or entity.Variant < 2) then
+	if mod:CheckForRev() == false and target.Type == EntityType.ENTITY_ENVY and (entity.I1 == 1 or entity.Variant < 2) then
 		-- Get bounce strength
 		local eSize = math.floor(entity.Variant / 10)
 		local tSize = math.floor(target.Variant / 10)
@@ -77,7 +79,7 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.envyCollide, EntityType.ENTITY_ENVY)
 
 function mod:envyDeath(entity)
-	if entity.Variant == 0 and entity.SubType == 1 then
+	if mod:CheckForRev() == false and entity.Variant == 0 and entity.SubType == 1 then
 		entity:FireProjectiles(entity.Position, Vector(Settings.BaseShotSpeed, 0), 8, ProjectileParams())
 	end
 end
@@ -86,7 +88,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.envyDeath, EntityType.ENTITY
 
 
 function mod:envyRewards(entity)
-	if entity.SpawnerType == EntityType.ENTITY_ENVY then
+	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_ENVY then
 		-- Tammy's Head
 		if entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= 38 then
 			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 38, false, true, false)

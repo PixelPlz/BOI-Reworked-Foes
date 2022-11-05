@@ -70,23 +70,25 @@ lemonBulletColor:SetColorize(1, 1, 0.25, 1)
 
 
 function mod:lustInit(entity)
-	local data = entity:GetData()
+	if mod:CheckForRev() == false and ((entity.Variant == 0 and entity.SubType <= 1) or entity.Variant == 1) then
+		local data = entity:GetData()
 
-	data.speedUp = false
-	data.crushRocks = false
-	data.hasCreep = false
+		data.speedUp = false
+		data.crushRocks = false
+		data.hasCreep = false
 
-	-- Champion specific
-	if entity.SubType == 1 then
-		data.sunBeams = false
-		data.towerBombs = false
-		data.foolPosition = entity.Position
+		-- Champion specific
+		if entity.SubType == 1 then
+			data.sunBeams = false
+			data.towerBombs = false
+			data.foolPosition = entity.Position
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.lustInit, EntityType.ENTITY_LUST)
 
 function mod:lustUpdate(entity)
-	if (entity.Variant == 0 and (entity.SubType == 0 or entity.SubType == 1)) or entity.Variant == 1 then
+	if mod:CheckForRev() == false and ((entity.Variant == 0 and entity.SubType <= 1) or entity.Variant == 1) then
 		local sprite = entity:GetSprite()
 		local data = entity:GetData()
 		local room = game:GetRoom()
@@ -372,7 +374,7 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.lustUpdate, EntityType.ENTITY_LUST)
 
 function mod:lustDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if (target.Variant == 0 and (target.SubType == 0 or target.SubType == 1)) or target.Variant == 1 then
+	if mod:CheckForRev() == false and ((target.Variant == 0 and target.SubType <= 1) or target.Variant == 1) then
 		-- Only take 10% damage from things spawned by Lust
 		if damageSource.SpawnerType == EntityType.ENTITY_LUST then
 			if not (damageFlags & DamageFlag.DAMAGE_NOKILL > 0) then
@@ -385,8 +387,8 @@ end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.lustDMG, EntityType.ENTITY_LUST)
 
 function mod:lustHit(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Type == EntityType.ENTITY_PLAYER -- Fuck you
-	and (damageSource.Type == EntityType.ENTITY_LUST and damageSource.Entity and ((damageSource.Variant == 0 and (damageSource.Entity.SubType == 0 or damageSource.Entity.SubType == 1)) or damageSource.Variant == 1)) then
+	if target.Type == EntityType.ENTITY_PLAYER and mod:CheckForRev() == false
+	and (damageSource.Type == EntityType.ENTITY_LUST and damageSource.Entity and ((damageSource.Variant == 0 and damageSource.Entity.SubType <= 1) or damageSource.Variant == 1)) then
 		local lust = damageSource.Entity
 
 		lust:AddHealth((lust.MaxHitPoints / 100) * Settings.TouchHeal)
@@ -404,7 +406,7 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.lustHit)
 
 
 function mod:championLustReward(entity)
-	if entity.SpawnerType == EntityType.ENTITY_LUST and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
+	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_LUST and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
 		-- Card Reading
 		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= 660 then
 			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 660, false, true, false)
