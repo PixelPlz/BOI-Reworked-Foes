@@ -321,7 +321,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blightedOvumUpdate, EntityTy
 
 function mod:blightedOvumDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == 12 then
-		target.I2 = Settings.TransparencyTimer
+		target:ToNPC().I2 = Settings.TransparencyTimer
 		return false
 	end
 end
