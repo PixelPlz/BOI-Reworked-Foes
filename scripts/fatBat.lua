@@ -70,7 +70,7 @@ function mod:fatBatUpdate(entity)
 		entity.Velocity = mod:StopLerp(entity.Velocity)
 
 		if sprite:IsEventTriggered("Shoot") then
-			game:ButterBeanFart(entity.Position, Settings.FartRadius, entity, true)
+			game:ButterBeanFart(entity.Position, Settings.FartRadius, entity, true, false)
 			entity:PlaySound(SoundEffect.SOUND_SHAKEY_KID_ROAR, 0.9, 0, false, 1)
 
 			local guano = Isaac.GridSpawn(GridEntityType.GRID_POOP, Settings.GuanoVariant, entity.Position, false)

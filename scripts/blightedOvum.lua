@@ -189,7 +189,7 @@ function mod:blightedOvumUpdate(entity)
 
 		-- Run away
 		elseif entity.State == NpcState.STATE_IDLE then
-			local vector = room:FindFreePickupSpawnPosition(entity.Position + (Vector.FromAngle((entity.Position - target.Position):GetAngleDegrees() + math.random(-15, 15)) * 120), 40, true, false)
+			local vector = game:GetRoom():FindFreePickupSpawnPosition(entity.Position + (Vector.FromAngle((entity.Position - target.Position):GetAngleDegrees() + math.random(-15, 15)) * 120), 40, true, false)
 			
 			if entity.Position:Distance(vector) > 40 and entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) == false then
 				if game:GetRoom():CheckLine(entity.Position, vector, 0, 0, false, false) then

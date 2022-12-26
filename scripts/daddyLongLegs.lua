@@ -123,7 +123,7 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.daddyLongLegsUpdate, EntityType.ENTITY_DADDYLONGLEGS)
 
 function mod:daddyLongLegsCollide(entity, target, bool)
-	if target.Type == ENTITY_DADDYLONGLEGS or (target.Type == EntityType.ENTITY_HOPPER and target.Variant == 1) then
+	if target.Type == EntityType.ENTITY_DADDYLONGLEGS or (target.Type == EntityType.ENTITY_HOPPER and target.Variant == 1) then
 		return true -- Ignore collision
 	end
 end
