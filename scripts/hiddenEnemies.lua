@@ -1,11 +1,10 @@
 local mod = BetterMonsters
-local game = Game()
 
 
 
 -- [[ Pin / Scolex / Frail ]]--
 function mod:pinInit(entity)
-	if IRFconfig.hiddenAppearAnims == true and entity.Variant < 3 and not entity.Parent and not entity.SpawnerEntity then
+	if IRFconfig.appearPins == true and entity.Variant < 3 and not entity.Parent and not entity.SpawnerEntity then
 		local sprite = entity:GetSprite()
 
 		sprite:Play("Attack1", true)
@@ -21,12 +20,12 @@ function mod:pinInit(entity)
 		end
 	end
 end
---mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.pinInit, EntityType.ENTITY_PIN)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.pinInit, EntityType.ENTITY_PIN)
 
-function mod:pinUpdate(entity)
+function mod:pinPreUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	--[[ Appear animation
+	-- Appear animation
 	if entity.State == NpcState.STATE_APPEAR_CUSTOM then
 		if sprite:IsFinished("Attack1") then
 			entity.State = NpcState.STATE_APPEAR
@@ -39,66 +38,90 @@ function mod:pinUpdate(entity)
 
 		return true
 	end
-	]]--
 
 	-- Dirt effect
-	if IRFconfig.clearerHiddenEnemies == true and entity.Variant < 3 and entity:IsFrame(6, 0) and not entity.Parent and entity.Visible == false then
+	if IRFconfig.noHiddenPins == true and entity.Variant < 3 and entity:IsFrame(6, 0) and not entity.Parent and entity.Visible == false then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DIRT_PILE, 0, entity.Position, Vector.Zero, entity).SpriteScale = Vector(1.2, 1.2)
 	end
+end
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.pinPreUpdate, EntityType.ENTITY_PIN)
 
 
-	-- Always do tail attack after head attack for Scolex
-	if entity.Variant == 1 and entity.State == NpcState.STATE_ATTACK2 and sprite:IsFinished("Attack2") then
-		entity.State = NpcState.STATE_ATTACK
-		sprite:Play("Attack1", true)
-		entity.StateFrame = 0
-	
-	-- Black Champion Frail spiders
-	elseif entity.Variant == 2 and entity.SubType == 1 then
-		if entity.State == NpcState.STATE_ATTACK2 then
-			if sprite:IsPlaying("Attack2") and sprite:GetFrame() == 44 then
-				entity.State = NpcState.STATE_SUMMON
-			end
-		
-		elseif entity.State == NpcState.STATE_SUMMON then
-			if sprite:GetFrame() == 45 then
-				local offset = math.random(0, 359)
-				for i = 0, 2 do
-					EntityNPC.ThrowSpider(entity.Position, entity, entity.Position + (Vector.FromAngle(offset + (i * 120)) * math.random(80, 120)), false, -50)
-				end
-				entity:PlaySound(SoundEffect.SOUND_MONSTER_ROAR_2, 1, 0, false, 1)
-			
-			elseif sprite:GetFrame() == 48 then
-				entity.State = NpcState.STATE_ATTACK2
-				entity.StateFrame = 48
-			end
+
+--[[ Mom's Hand ]]--
+function mod:momsHandInit(entity)
+	if IRFconfig.appearMomsHands == true then
+		entity:GetSprite():Play("JumpUp", true)
+		entity:GetData().init = false
+		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+	end
+
+	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.momsHandInit, EntityType.ENTITY_MOMS_HAND)
+
+function mod:momsHandPreUpdate(entity)
+	if entity:GetData().init == false then
+		if entity:GetSprite():IsFinished("JumpUp") then
+			entity:GetData().init = true
 		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.pinUpdate, EntityType.ENTITY_PIN)
 
-function mod:pinDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if damageSource.SpawnerType == EntityType.ENTITY_PIN and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
-		return false
+		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.pinDMG, EntityType.ENTITY_PIN)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.momsHandPreUpdate, EntityType.ENTITY_MOMS_HAND)
+
+
+
+--[[ Mom's Dead Hand ]]--
+function mod:momsDeadHandInit(entity)
+	if IRFconfig.appearMomsHands == true then
+		entity:GetSprite():Play("JumpUp", true)
+		entity:GetData().init = false
+		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+	end
+
+	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+	entity.SplatColor = Color(0.25,0.25,0.25, 1)
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.momsDeadHandInit, EntityType.ENTITY_MOMS_DEAD_HAND)
+
+function mod:momsDeadHandPreUpdate(entity)
+	if entity:GetData().init == false then
+		if entity:GetSprite():IsFinished("JumpUp") then
+			entity:GetData().init = true
+		end
+
+		return true
+	end
+end
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.momsDeadHandPreUpdate, EntityType.ENTITY_MOMS_DEAD_HAND)
 
 
 
 -- [[ Polycephalus ]]--
-function mod:polycephalusUpdate(entity)
-	if IRFconfig.clearerHiddenEnemies == true and entity.Variant == 0 and entity.State == 4 and entity.I1 == 2 and entity:IsFrame(6, 0) then
+function mod:polycephalusDirt(entity)
+	if IRFconfig.noHiddenPoly == true and entity.Variant == 0 and entity.State == NpcState.STATE_MOVE and entity.I1 == 2 and entity:IsFrame(6, 0) then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DIRT_PILE, 0, entity.Position, Vector.Zero, entity).SpriteScale = Vector(1.2, 1.2)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.polycephalusUpdate, EntityType.ENTITY_POLYCEPHALUS)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.polycephalusDirt, EntityType.ENTITY_POLYCEPHALUS)
+
+
+
+-- [[ The Stain ]]--
+function mod:stainDirt(entity)
+	if IRFconfig.noHiddenStain == true and entity.State == NpcState.STATE_MOVE and entity.I1 == 2 and entity:IsFrame(6, 0) then
+		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DIRT_PILE, 0, entity.Position, Vector.Zero, entity).SpriteScale = Vector(1.2, 1.2)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.stainDirt, EntityType.ENTITY_STAIN)
 
 
 
 --[[ Needle / Pasty ]]--
 function mod:needleInit(entity)
-	if IRFconfig.hiddenAppearAnims == true then
+	if IRFconfig.appearNeedles == true then
 		entity:GetSprite():Play("Appear", true)
 		entity:GetData().init = false
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
@@ -116,3 +139,15 @@ function mod:needleUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.needleUpdate, EntityType.ENTITY_NEEDLE)
+
+
+
+--[[ Dust ]]--
+function mod:dustParticles(entity)
+	if IRFconfig.noHiddenDust == true and entity.V1.X < 0.1 and entity:IsFrame(16, 0) then
+		for i = 1, 3 do
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.EMBER_PARTICLE, 0, entity.Position + Vector(0, -24) + (Vector.FromAngle(math.random(0, 359)) * 10), Vector.Zero, entity):GetSprite().Color = dustColor
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.dustParticles, EntityType.ENTITY_DUST)
