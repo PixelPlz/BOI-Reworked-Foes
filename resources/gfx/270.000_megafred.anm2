@@ -1,8 +1,8 @@
 <AnimatedActor>
-	<Info CreatedBy="Ferpe" CreatedOn="2022-10-23 23:26:50" Version="56" Fps="30"/>
+	<Info CreatedBy="Ferpe" CreatedOn="2022-12-07 19:11:41" Version="57" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="bosses\better\megafred.png" Id="0"/>
+			<Spritesheet Path="bosses\rebirth\megafred.png" Id="0"/>
 		</Spritesheets>
 		<Layers>
 			<Layer Name="Head" Id="0" SpritesheetId="0"/>

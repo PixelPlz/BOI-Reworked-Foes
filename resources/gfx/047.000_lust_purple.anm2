@@ -1,8 +1,8 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2022-08-20 22:01:40" Version="114" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2022-12-07 19:04:55" Version="115" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="bosses\better\miniboss_07_lust_purple.png" Id="0"/>
+			<Spritesheet Path="bosses\classic\miniboss_07_lust_purple.png" Id="0"/>
 			<Spritesheet Path="ui\ui_cardfronts.png" Id="1"/>
 		</Spritesheets>
 		<Layers>

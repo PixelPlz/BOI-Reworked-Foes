@@ -1,8 +1,8 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2022-08-18 22:00:18" Version="142" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2022-12-08 11:23:25" Version="143" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="bosses\better\boss_071_lokii.png" Id="0"/>
+			<Spritesheet Path="bosses\classic\boss_071_lokii.png" Id="0"/>
 			<Spritesheet Path="shadow.png" Id="1"/>
 			<Spritesheet Path="monsters\classic\monster_101_redboomfly.png" Id="2"/>
 		</Spritesheets>

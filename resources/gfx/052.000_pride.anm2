@@ -1,8 +1,8 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2022-08-08 10:11:08" Version="118" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2022-12-10 14:28:25" Version="120" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="bosses\better\miniboss_09_pride.png" Id="0"/>
+			<Spritesheet Path="bosses\classic\miniboss_09_pride.png" Id="0"/>
 		</Spritesheets>
 		<Layers>
 			<Layer Name="body" Id="0" SpritesheetId="0"/>
@@ -238,14 +238,11 @@
 			</NullAnimations>
 			<Triggers>
 				<Trigger EventId="2" AtFrame="0"/>
-				<Trigger EventId="2" AtFrame="2"/>
-				<Trigger EventId="2" AtFrame="4"/>
+				<Trigger EventId="2" AtFrame="3"/>
 				<Trigger EventId="2" AtFrame="6"/>
-				<Trigger EventId="2" AtFrame="8"/>
-				<Trigger EventId="2" AtFrame="10"/>
+				<Trigger EventId="2" AtFrame="9"/>
 				<Trigger EventId="2" AtFrame="12"/>
-				<Trigger EventId="2" AtFrame="14"/>
-				<Trigger EventId="2" AtFrame="16"/>
+				<Trigger EventId="2" AtFrame="15"/>
 				<Trigger EventId="1" AtFrame="18"/>
 			</Triggers>
 		</Animation>

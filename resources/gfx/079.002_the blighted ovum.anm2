@@ -1,8 +1,8 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2022-10-31 14:10:45" Version="127" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2022-12-07 19:02:54" Version="128" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="bosses\better\boss_024_blightedovum.png" Id="0"/>
+			<Spritesheet Path="bosses\classic\boss_024_blightedovum.png" Id="0"/>
 		</Spritesheets>
 		<Layers>
 			<Layer Name="body" Id="0" SpritesheetId="0"/>

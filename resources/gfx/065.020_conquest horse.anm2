@@ -1,8 +1,8 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2022-08-09 14:22:26" Version="111" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2022-12-07 19:03:22" Version="112" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="bosses\better\boss_066_conquest 2.png" Id="0"/>
+			<Spritesheet Path="bosses\classic\boss_066_conquest 2.png" Id="0"/>
 		</Spritesheets>
 		<Layers>
 			<Layer Name="body" Id="0" SpritesheetId="0"/>
