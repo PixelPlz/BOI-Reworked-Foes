@@ -114,7 +114,6 @@ function mod:eternalFlyUpdate(entity)
 		entity:Morph(EntityType.ENTITY_ATTACKFLY, 4040, 0, entity:GetChampionColorIdx())
 		entity.HitPoints = entity.MaxHitPoints
 		entity.I1 = 0
-		entity.Scale = 1.15
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.eternalFlyUpdate, EntityType.ENTITY_ATTACKFLY)

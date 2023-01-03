@@ -10,7 +10,7 @@
 		<devolve id="18.0.0" weight="1" />
     </entity>
 
-	<entity anm2path="096.000_eternal fly.anm2" baseHP="14" boss="0" champion="0" collisionDamage="1" collisionMass="3" collisionRadius="17" friction="1" gridCollision="walls" id="18" name="#ETERNAL_FLY" numGridCollisionPoints="4" portrait="176" reroll="true" shadowSize="11" stageHP="0" tags="fly" variant="4040">
+	<entity anm2path="attack eternal fly.anm2" baseHP="14" boss="0" champion="0" collisionDamage="1" collisionMass="3" collisionRadius="17" friction="1" gridCollision="walls" id="18" name="Attack Eternal Fly" numGridCollisionPoints="4" portrait="176" reroll="true" shadowSize="11" stageHP="0" tags="fly" variant="4040">
         <bestiary parent="96.0"/>
 		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
 		<devolve id="13.0.0" weight="1"/>
