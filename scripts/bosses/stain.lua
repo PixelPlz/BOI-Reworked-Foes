@@ -150,7 +150,7 @@ function mod:stainTentacleUpdate(entity)
 				local hurt = false
 
 				-- Check if it hit the target
-				if room:CheckLine(entity.Position, target.Position, 3, 0, false, false) then
+				if Game():GetRoom():CheckLine(entity.Position, target.Position, 3, 0, false, false) then
 					if sprite:IsPlaying("SwingLeft") or sprite:IsPlaying("SwingRight") then
 						if entity.Position.Y <= target.Position.Y + Settings.SideRange and entity.Position.Y >= target.Position.Y - Settings.SideRange then
 							if sprite:IsPlaying("SwingLeft") and target.Position.X > (entity.Position.X - Settings.FrontRange) and target.Position.X < entity.Position.X
