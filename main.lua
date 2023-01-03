@@ -1,193 +1,76 @@
 BetterMonsters = RegisterMod("Better Vanilla Monsters", 1)
 local mod = BetterMonsters
-local game = Game()
-local json = require("json")
 
--- Useful colors & values --
+--[[ New entity enums ]]--
 IRFentities = {
+	-- Projectiles
 	featherProjectile = Isaac.GetEntityVariantByName("Angelic Feather Projectile"),
-	cocoonProjectile = Isaac.GetEntityVariantByName("Spider Cocoon Projectile"),
-	bubbleFly = Isaac.GetEntityVariantByName("Bubble Fly"),
-	cofferVariant = Isaac.GetEntityVariantByName("Coffer"),
-	mullicocoonVariant = Isaac.GetEntityVariantByName("Mullicocoon"),
+
+	-- Enemies
+	bubbleFly 	  = Isaac.GetEntityVariantByName("Bubble Fly"),
+	teratomar 	  = Isaac.GetEntityVariantByName("Teratomar"),
+	coffer 		  = Isaac.GetEntityVariantByName("Coffer"),
+	forgottenBody = Isaac.GetEntityVariantByName("Forgotten Body (Boss)"),
+	boneOrbital   = Isaac.GetEntityVariantByName("Enemy Bone Orbital"),
+	mullicocoon   = Isaac.GetEntityVariantByName("Mullicocoon"),
+	ragPlasma 	  = Isaac.GetEntityVariantByName("Rag Mega Plasma"),
+
+	-- Effects
+	healingAura = Isaac.GetEntityVariantByName("Healing Aura"),
+	holyTracer  = Isaac.GetEntityVariantByName("Holy Tracer"),
 }
 
-sunBeamColor = Color(1,1,1, 1, 0.3,0.3,0)
-ghostGibs = Color(1,1,1, 0.25, 1,1,1)
+
+
+--[[ Colors ]]--
+-- Bullets
 brimstoneBulletColor = Color(1,0.25,0.25, 1, 0.25,0,0)
 
 tarBulletColor = Color(0.5,0.5,0.5, 1, 0,0,0)
 tarBulletColor:SetColorize(1, 1, 1, 1)
 
-skyBulletColor = Color(1,1,1, 1, 0.5,0.5,0.5)
+skyBulletColor = Color(1,1,1, 1, 0.55,0.55,0.55)
 skyBulletColor:SetColorize(1, 1, 1, 1)
 
 greenBulletColor = Color(1,1,1, 1, 0,0,0)
 greenBulletColor:SetColorize(0, 1, 0, 1)
 
+corpseGreenBulletColor = Color(1,1,1, 1, 0,0,0)
+corpseGreenBulletColor:SetColorize(0.7, 1.25, 0.6, 1)
+corpseGreenBulletTrail = Color(1,1,1, 1, 0,0,0)
+corpseGreenBulletTrail:SetColorize(0.7, 1.25, 0.6, 1.75)
+
+charredMeatColor = Color(1,1,1, 1, 0,0,0)
+charredMeatColor:SetColorize(0.4,0.2,0.17, 1)
+
 portalBulletColor = Color(0.5,0.5,0.7, 1, 0.05,0.05,0.125)
 portalBulletTrail = Color(0.5,0.5,0.7, 1, 0,0.25,0.5)
+
+forgottenBoneColor = Color(0.34,0.34,0.34, 1)
+forgottenBulletColor = Color(0.8,0.8,0.8, 0.7, 0.1,0.2,0.4)
+lostBulletColor = Color(1,1,1, 0.7, 0.25,0.25,0.25)
+
+-- Misc.
+sunBeamColor = Color(1,1,1, 1, 0.3,0.3,0)
+
+ragManPsyColor = Color(0,0,0, 1, 0.6,0.1,0.6)
+ragManBloodColor = Color(0,0,0, 1, 0.35,0.1,0.35)
+
+ghostGibs = Color(1,1,1, 0.25, 1,1,1)
+ghostTrailColor = Color(1,1,1, 0.25, 0.5,0.5,0.5)
+ghostTrailColor:SetColorize(1, 1, 1, 1)
+
+dustColor = Color(0.8,0.8,0.8, 0.8, 0.05,0.025,0)
+dustColor:SetColorize(1, 1, 1, 1)
+
 portalSpawnColor = Color(0.2,0.2,0.3, 0, 1.5,0.75,3)
 
 
 
--- Mod config menu --
-IRFconfig = {
-	-- General
-	breakableHosts = true,
-	clearerHiddenEnemies = true,
-	hiddenAppearAnims = true,
-	classicEternalFlies = true,
-}
-
--- Load settings
-function mod:postGameStarted()
-    if mod:HasData() then
-        local data = json.decode(mod:LoadData())
-        for k, v in pairs(data) do
-            if IRFconfig[k] ~= nil then IRFconfig[k] = v end
-        end
-    end
-end
-mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.postGameStarted)
-
--- Save settings
-function mod:preGameExit() mod:SaveData(json.encode(IRFconfig)) end
-mod:AddCallback(ModCallbacks.MC_PRE_GAME_EXIT, mod.preGameExit)
-
--- Menu options
-if ModConfigMenu then
-  	local category = "Reworked Foes"
-	ModConfigMenu.RemoveCategory(category);
-  	ModConfigMenu.UpdateCategory(category, {
-		Name = category,
-		Info = "Change settings for Improved & Reworked Foes"
-	})
-	
-	-- General settings
-	ModConfigMenu.AddSetting(category, "General", {
-    	Type = ModConfigMenu.OptionType.BOOLEAN,
-	    CurrentSetting = function() return IRFconfig.breakableHosts end,
-	    Display = function() return "Breakable hosts: " .. (IRFconfig.breakableHosts and "On" or "Off") end,
-	    OnChange = function(bool)
-	    	IRFconfig.breakableHosts = bool
-	    end,
-	    Info = {"Toggle breakable hosts. (default = on)"}
-  	})
-	ModConfigMenu.AddSetting(category, "General", {
-    	Type = ModConfigMenu.OptionType.BOOLEAN,
-	    CurrentSetting = function() return IRFconfig.clearerHiddenEnemies end,
-	    Display = function() return "Clearer hidden enemies: " .. (IRFconfig.clearerHiddenEnemies and "On" or "Off") end,
-	    OnChange = function(bool)
-	    	IRFconfig.clearerHiddenEnemies = bool
-	    end,
-	    Info = {"Toggle burrowing visual for some underground enemies. (default = on)"}
-  	})
-	ModConfigMenu.AddSetting(category, "General", {
-    	Type = ModConfigMenu.OptionType.BOOLEAN,
-	    CurrentSetting = function() return IRFconfig.hiddenAppearAnims end,
-	    Display = function() return "Extra appear animations: " .. (IRFconfig.hiddenAppearAnims and "On" or "Off") end,
-	    OnChange = function(bool)
-	    	IRFconfig.hiddenAppearAnims = bool
-	    end,
-	    Info = {"Toggle appear animations for enemies that don't start visible. (default = on)"}
-  	})
-	ModConfigMenu.AddSetting(category, "General", {
-    	Type = ModConfigMenu.OptionType.BOOLEAN,
-	    CurrentSetting = function() return IRFconfig.classicEternalFlies end,
-	    Display = function() return "Classic Eternal Flies: " .. (IRFconfig.classicEternalFlies and "On" or "Off") end,
-	    OnChange = function(bool)
-	    	IRFconfig.classicEternalFlies = bool
-	    end,
-	    Info = {"Toggle classic Eternal Flies. (default = on)"}
-  	})
-end
 
 
-
--- External scripts --
-include("scripts.flamingGaper")
-include("scripts.clotty")
-include("scripts.drownedHive")
-include("scripts.drownedCharger")
-include("scripts.dankGlobin")
-include("scripts.drownedBoomFly")
-include("scripts.host")
---include("scripts.chad")
-include("scripts.hopper")
-include("scripts.redMaw")
-include("scripts.angelicBaby")
-include("scripts.chubber")
-include("scripts.selflessKnight")
-include("scripts.pokies")
---include("scripts.monstro2")
-include("scripts.gish")
-include("scripts.mom")
-include("scripts.sloth")
-include("scripts.lust")
-include("scripts.wrath")
-include("scripts.gluttony")
-include("scripts.greed")
-include("scripts.envy")
-include("scripts.pride")
-include("scripts.holyLeech")
-include("scripts.lump")
-include("scripts.membrain")
-include("scripts.scarredParaBite")
-include("scripts.eye")
-include("scripts.conquest")
-include("scripts.bloat")
-include("scripts.lokii")
---include("scripts.teratoma")
-include("scripts.steven")
-include("scripts.blightedOvum")
-include("scripts.fallen")
-include("scripts.headlessHorseman")
-include("scripts.satan")
-include("scripts.spiders")
-include("scripts.eternalFly") 
-include("scripts.maskInfamy")
---include("scripts.wretched")
-include("scripts.daddyLongLegs")
---include("scripts.blueBaby")
-include("scripts.nest")
-include("scripts.flamingFatty")
-include("scripts.dankDeathsHead")
-include("scripts.momsHand")
-include("scripts.ghosts")
-include("scripts.codWorm")
-include("scripts.skinny")
-include("scripts.camilloJr")
-include("scripts.nerveEnding2")
-include("scripts.psyTumor")
-include("scripts.fatBat")
-include("scripts.megaMaw")
-include("scripts.mrFred")
-include("scripts.fallenAngels")
-include("scripts.ragling")
---include("scripts.floatingKnight")
-include("scripts.dartFly")
-include("scripts.blackBony")
-include("scripts.blackGlobin")
-include("scripts.megaClotty")
---include("scripts.boneKnight")
-include("scripts.fleshDeathHead")
-include("scripts.ulcer")
-include("scripts.blister")
-include("scripts.portal")
-include("scripts.stain")
-include("scripts.forsaken")
---include("scripts.ragMega")
---include("scripts.sisterVis")
-include("scripts.taintedFaceless")
-include("scripts.projectiles")
-include("scripts.hiddenEnemies")
-include("scripts.bossHealthBars")
-include("scripts.misc")
-
-
-
--- Useful functions
+--[[ Useful functions ]]--
+-- Lerp functions
 function mod:Lerp(first, second, percent)
 	return (first + (second - first) * percent)
 end
@@ -197,19 +80,52 @@ function mod:StopLerp(vector)
 end
 
 
+-- Looping animation helpers
 function mod:LoopingAnim(sprite, anim)
 	if not sprite:IsPlaying(anim) then
 		sprite:Play(anim, true)
 	end
 end
 
-function mod:LoopingOverlay(sprite, anim)
+function mod:LoopingOverlay(sprite, anim, priority)
 	if not sprite:IsOverlayPlaying(anim) then
+		if priority then
+			sprite:SetOverlayRenderPriority(priority)
+		end
 		sprite:PlayOverlay(anim, true)
 	end
 end
 
 
+-- Shooting effect helper
+function mod:shootEffect(entity, subtype, offset, color, scale, behind)
+	local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, subtype, entity.Position, Vector.Zero, entity):ToEffect()
+	local sprite = effect:GetSprite()
+	effect:FollowParent(entity)
+
+	if subtype == 5 then
+		sprite.PlaybackSpeed = 1.5
+	end
+	if offset then
+		sprite.Offset = offset
+	end
+	if color then
+		sprite.Color = color
+	end
+	if scale then
+		effect.Scale = scale
+	end
+	if behind == true then
+		effect.DepthOffset = entity.DepthOffset - 10
+	else
+		effect.DepthOffset = entity.DepthOffset + 10
+	end
+	
+	return effect
+end
+
+
+-- Creep spawning helper
 function mod:QuickCreep(type, spawner, position, scale, timeout)
 	local creep = Isaac.Spawn(EntityType.ENTITY_EFFECT, type, 0, position, Vector.Zero, spawner):ToEffect()
 	if scale then
@@ -224,6 +140,58 @@ function mod:QuickCreep(type, spawner, position, scale, timeout)
 end
 
 
+-- Cord spawning helper
+function mod:QuickCord(parent, child, anm2)
+	local cord = Isaac.Spawn(EntityType.ENTITY_EVIS, 10, 0, parent.Position, Vector.Zero, parent):ToNPC()
+	cord.Parent = parent
+	cord.Target = child
+	parent.Child = cord
+	cord.DepthOffset = child.DepthOffset - 150
+	
+	if anm2 then
+		cord:GetSprite():Load("gfx/" .. anm2 .. ".anm2", true)
+	end
+	
+	return cord
+end
+
+
+-- Throw Dip
+function mod:ThrowDip(position, spawner, targetPosition, variant, yOffset)
+	-- If spawner is friendly
+	if spawner:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) and spawner.SpawnerEntity and spawner.SpawnerEntity:ToPlayer() then
+		local subtype = 0
+		-- Corny
+		if variant == 1 or variant == 3 then
+			subtype = 2
+		-- Brownie
+		elseif variant == 2 then
+			subtype = 20
+		end
+		spawner.SpawnerEntity:ToPlayer():ThrowFriendlyDip(subtype, position, targetPosition)
+
+	else
+		local spider = EntityNPC.ThrowSpider(position, spawner, targetPosition, false, yOffset)
+		spider:GetData().thrownDip = variant
+
+		-- Get the proper animatiom file
+		local anm2 = "216.000_dip"
+		if variant == 1 then
+			anm2 = "216.001_corn"
+		elseif variant == 2 then
+			anm2 = "216.002_browniecorn"
+		elseif variant == 3 then
+			anm2 = "216.003_big corn"
+		end
+
+		local sprite = spider:GetSprite()
+		sprite:Load("gfx/" .. anm2 .. ".anm2", true)
+		sprite:Play("Move", true)
+	end
+end
+
+
+-- Fire ring attack
 function mod:FireRing(entity)
 	local ring = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, 40, entity.Position, Vector.Zero, entity)
 	ring.DepthOffset = entity.DepthOffset - 10
@@ -242,6 +210,7 @@ function mod:FireRing(entity)
 end
 
 
+-- Revelations compatibility check for minibosses
 function mod:CheckForRev()
 	if REVEL and REVEL.IsRevelStage(true) then
 		return true
@@ -249,3 +218,121 @@ function mod:CheckForRev()
 		return false
 	end
 end
+
+
+
+
+
+--[[ Load scripts ]]--
+function mod:LoadScripts(scripts, subfolder)
+	if not subfolder then
+		subfolder = ""
+	end
+	for i = 1, #scripts do
+		include("scripts." .. subfolder .. "." .. scripts[i])
+	end
+end
+
+-- General
+local generalScripts = {
+	"bossHealthBars",
+	"configMenu",
+	"hiddenEnemies",
+	"misc",
+	"projectiles",
+}
+mod:LoadScripts(generalScripts)
+
+-- Enemies
+local enemyScripts = {
+	"flamingGaper",
+	"drownedHive",
+	"drownedCharger",
+	"dankGlobin",
+	"drownedBoomFly",
+	"host",
+	"hoppers",
+	"redMaw",
+	"angelicBaby",
+	"selflessKnight",
+	"pokies",
+	"holyLeech",
+	"lump",
+	"membrain",
+	"scarredParaBite",
+	"eye",
+	"boneOrbital",
+	"nest",
+	"babyLongLegs",
+	"flamingFatty",
+	"dankDeathsHead",
+	"momsHand",
+	"codWorm",
+	"skinny",
+	"camilloJr",
+	"nerveEnding2",
+	"psyTumor",
+	"fatBat",
+	"ragling",
+	--"floatingKnight",
+	"dartFly",
+	"blackBony",
+	"blackGlobin",
+	"megaClotty",
+	--"boneKnight",
+	"fleshDeathHead",
+	"ulcer",
+	"blister",
+	"portal",
+}
+mod:LoadScripts(enemyScripts, "enemies")
+
+-- Minibosses
+local minibossScripts = {
+	"sloth",
+	"lust",
+	"wrath",
+	"gluttony",
+	"greed",
+	"envy",
+	"pride",
+	"fallenAngels",
+}
+mod:LoadScripts(minibossScripts, "minibosses")
+
+-- Bosses
+local bossScripts = {
+	"carrionQueen",
+	--"chad",
+	--"monstro2",
+	"gish",
+	"mom",
+	"conquest",
+	"lokii",
+	"teratoma",
+	"steven",
+	"blightedOvum",
+	"satan",
+	"maskInfamy",
+	--"wretched",
+	"daddyLongLegs",
+	"blueBaby",
+	--"turdlings",
+	--"dangle",
+	"mrFred",
+	--"lamb",
+	"stain",
+	"forsaken",
+	"ragMega",
+	--"sisterVis",
+}
+mod:LoadScripts(bossScripts, "bosses")
+
+-- Champions
+local championScripts = {
+	"bloat",
+	"fallen",
+	"headlessHorseman",
+	"megaMaw",
+}
+mod:LoadScripts(championScripts, "champions")
