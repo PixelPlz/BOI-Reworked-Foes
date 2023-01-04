@@ -22,12 +22,12 @@ function mod:conquestUpdate(entity)
 		local sprite = entity:GetSprite()
 
 		-- Go to 2nd phase
-		if not entity.SpawnerEntity and entity.HitPoints <= entity.MaxHitPoints / 2 and entity.State ~= NpcState.STATE_ATTACK2 and Game():GetRoom():GetBossID() ~= 70 then
+		if not entity.SpawnerEntity and entity.HitPoints <= entity.MaxHitPoints / 2 and entity.State ~= NpcState.STATE_ATTACK2 and not entity:GetData().wasDelirium then
 			-- Conquest without horse
 			local conquest = Isaac.Spawn(EntityType.ENTITY_WAR, 11, entity.SubType, entity.Position, Vector.Zero, entity):ToNPC()
 			conquest.State = NpcState.STATE_APPEAR_CUSTOM
 			conquest.MaxHitPoints = entity.MaxHitPoints
-			conquest.HitPoints = entity.MaxHitPoints / 2
+			conquest.HitPoints = entity.HitPoints
 			conquest.ProjectileCooldown = Settings.Cooldown[1]
 
 			local conquestSprite = conquest:GetSprite()
@@ -44,8 +44,9 @@ function mod:conquestUpdate(entity)
 			horseSprite.FlipX = sprite.FlipX
 
 
-			-- Set up champions properly
+			-- Champion specific
 			if entity.SubType == 1 then
+				-- Set up champions properly
 				for i = 0, conquestSprite:GetLayerCount() do
 					conquestSprite:ReplaceSpritesheet(i, "gfx/bosses/classic/boss_066_conquest 2_red.png")
 				end
@@ -55,12 +56,12 @@ function mod:conquestUpdate(entity)
 				horseSprite:ReplaceSpritesheet(0, "gfx/bosses/classic/boss_066_conquest 2_red.png")
 				horseSprite:LoadGraphics()
 				horse.Scale = 1.15
-			end
 
-			-- Damage all globins
-			for _,v in pairs(Isaac.GetRoomEntities()) do
-				if v.Type == EntityType.ENTITY_GLOBIN and v.SpawnerType == EntityType.ENTITY_WAR and v.SpawnerVariant == 1 and v:ToNPC().State ~= NpcState.STATE_IDLE then
-					v:TakeDamage(40, 0, EntityRef(entity), 30)
+				-- Damage all globins
+				for _,v in pairs(Isaac.GetRoomEntities()) do
+					if v.Type == EntityType.ENTITY_GLOBIN and v.SpawnerType == EntityType.ENTITY_WAR and v.SpawnerVariant == 1 and v:ToNPC().State ~= NpcState.STATE_IDLE then
+						v:TakeDamage(40, 0, EntityRef(entity), 30)
+					end
 				end
 			end
 
@@ -120,8 +121,13 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.conquestUpdate, EntityType.ENTITY_WAR)
 
 function mod:conquestDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if damageSource.Type == EntityType.ENTITY_WAR or damageSource.SpawnerType == EntityType.ENTITY_WAR or (target.Variant == 1 and (target.HitPoints <= target.MaxHitPoints / 2
-	or (target.Variant == 1 and target.SpawnerEntity and target.SpawnerType == EntityType.ENTITY_WAR and target.SpawnerVariant == 1 and target.SpawnerEntity.HitPoints <= target.SpawnerEntity.MaxHitPoints / 2))) then
+	if damageSource.Type == EntityType.ENTITY_WAR or damageSource.SpawnerType == EntityType.ENTITY_WAR then
+		return false
+	end
+
+	if target.Variant == 1 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0)
+	and ((target.HitPoints <= target.MaxHitPoints / 2) or (target.SpawnerEntity and target.SpawnerType == target.Type and target.SpawnerEntity.HitPoints <= target.SpawnerEntity.MaxHitPoints / 2)) then
+		target:TakeDamage(damageAmount / 4, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
 		return false
 	end
 end

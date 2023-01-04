@@ -19,7 +19,11 @@ function mod:stainInit(entity)
 		entity.State = NpcState.STATE_SPECIAL
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		
-		if entity.SubType == 1 then
+		if entity.SpawnerEntity and entity.SpawnerEntity:GetData().wasDelirium then
+			sprite:ReplaceSpritesheet(1, "gfx/bosses/afterbirthplus/deliriumforms/afterbirth/thestain.png")
+			sprite:LoadGraphics()
+
+		elseif entity.SubType == 1 then
 			sprite:ReplaceSpritesheet(1, "gfx/bosses/afterbirth/thestain_grey.png")
 			sprite:LoadGraphics()
 		end
@@ -31,7 +35,6 @@ function mod:stainUpdate(entity)
 	if entity.Variant == 0 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
-		local room = Game():GetRoom()
 
 
 		-- Tentacle attack
@@ -65,7 +68,7 @@ function mod:stainUpdate(entity)
 			if entity.StateFrame < 3 then
 				if entity.ProjectileCooldown <= 0 then
 					for i = 0, 1 do
-						local pos = room:FindFreePickupSpawnPosition((target.Position + Vector.FromAngle(math.random(0, 3) * 90) * 100), 80, true, false)
+						local pos = Game():GetRoom():FindFreePickupSpawnPosition((target.Position + Vector.FromAngle(math.random(0, 3) * 90) * 100), 80, true, false)
 						local tentacle = Isaac.Spawn(EntityType.ENTITY_STAIN, 10, entity.SubType, pos, Vector.Zero, entity)
 						tentacle.Parent = entity
 

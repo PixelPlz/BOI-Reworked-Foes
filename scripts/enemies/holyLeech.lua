@@ -4,7 +4,7 @@ local mod = BetterMonsters
 
 function mod:holyLeechUpdate(entity)
 	if entity.Variant == 2 then
-		-- Find the ccrresponding eternal fly
+		-- Find the corresponding eternal fly
 		if not entity.Child then
 			for i, fly in pairs(Isaac.FindByType(EntityType.ENTITY_ETERNALFLY, -1, -1, false, false)) do
 				if fly.SpawnerEntity and fly.SpawnerEntity.Index == entity.Index then

@@ -68,6 +68,12 @@ function mod:blueBabyUpdate(entity)
 				data.chain[i].V1 = Vector(i + 0.5, 0)
 				data.chain[i].Child = entity.Child
 				data.chain[i].Parent = entity
+
+				-- Delirium sprites
+				if data.wasDelirium then
+					data.chain[i]:GetSprite():ReplaceSpritesheet(0, "gfx/bosses/afterbirthplus/deliriumforms/classic/boss_078_bluebaby.png")
+					data.chain[i]:GetSprite():LoadGraphics()
+				end
 			end
 			
 			-- Update parents
@@ -80,6 +86,18 @@ function mod:blueBabyUpdate(entity)
 				if bone.Parent.Index == entity.Index then
 					bone.Parent = entity.Child
 				end
+			end
+
+			-- Delirium sprites
+			if data.wasDelirium then
+				for i = 0, body:GetSprite():GetLayerCount() do
+					body:GetSprite():ReplaceSpritesheet(i, "gfx/bosses/afterbirthplus/deliriumforms/classic/boss_078_bluebaby.png")
+					body:GetSprite():LoadGraphics()
+				end
+			-- G Fuel sprites
+			elseif Game():GetSeeds():HasSeedEffect(SeedEffect.SEED_G_FUEL) then
+				body:GetSprite():Load("gfx/promo/gfuel/forgotten body (gfuel).anm2", true)
+				body:GetSprite():Play("Appear", true)
 			end
 		end
 		
@@ -112,8 +130,6 @@ function mod:blueBabyUpdate(entity)
 			entity.State = NpcState.STATE_IDLE
 			entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
 			data.tearCooldown = Settings.TearCooldown
-			entity.I2 = 0
-			entity.StateFrame = 0
 			
 			if entity.I1 == 2 and (entity.HitPoints < (entity.MaxHitPoints / 2) and math.random(0, 1) == 1) then
 				if data.isSoul ~= true then
@@ -129,7 +145,7 @@ function mod:blueBabyUpdate(entity)
 			local thirdHp = (entity.MaxHitPoints / 3)
 
 			-- Transition to next phase
-			if entity.HitPoints <= entity.MaxHitPoints - (thirdHp * entity.I1) and room:GetBossID() ~= 70 then
+			if entity.HitPoints <= entity.MaxHitPoints - (thirdHp * entity.I1) and not data.wasDelirium then
 				entity.State = NpcState.STATE_SPECIAL
 				sprite:Play(entity.I1 .. "_Transition", true)
 				entity.I2 = 0
@@ -266,7 +282,12 @@ function mod:blueBabyUpdate(entity)
 				if data.isSoul == true and attack ~= 2 then
 					soulGetIn()
 				end
+				if data.wasDelirium and entity.I1 == 3 and attack == 3 then
+					attack = math.random(1, 2)
+				end
+
 				entity.I2 = 0
+				entity.StateFrame = 0
 
 				if attack == 1 then
 					entity.State = NpcState.STATE_ATTACK
@@ -398,7 +419,7 @@ function mod:blueBabyUpdate(entity)
 						local params = ProjectileParams()
 						params.Variant = ProjectileVariant.PROJECTILE_TEAR
 						params.FallingSpeedModifier = 1
-						params.FallingAccelModifier = -0.1
+						params.FallingAccelModifier = -0.09
 
 						params.Scale = 1.35
 						params.BulletFlags = ProjectileFlags.CURVE_RIGHT
@@ -487,7 +508,7 @@ function mod:blueBabyUpdate(entity)
 
 					elseif sprite:IsEventTriggered("Shoot") then
 						-- 1st attack is Holy Orb
-						if entity.StateFrame == 0 then
+						if entity.StateFrame == 0 and not data.wasDelirium then
 							Isaac.Spawn(200, IRFentities.forgottenBody, 2, entity.Position, (target.Position - entity.Position):Normalized() * 20, entity)
 							SFXManager():Play(SoundEffect.SOUND_LIGHTBOLT)
 
@@ -772,6 +793,13 @@ function mod:blueBabyUpdate(entity)
 			if sprite:IsFinished() then
 				backToIdle()
 			end
+		
+		
+		-- Delirium fix
+		elseif data.wasDelirium then
+			entity.State = NpcState.STATE_IDLE
+			entity.I1 = 4 - math.ceil(entity.HitPoints / (entity.MaxHitPoints / 3))
+			entity.ProjectileCooldown = 60
 		end
 
 

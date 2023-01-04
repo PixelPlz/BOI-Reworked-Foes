@@ -61,9 +61,13 @@ function mod:stevenUpdate(entity)
 				data.timer = 240
 
 			else
+				-- Teleport warn animation
 				if data.timer <= 30 then
 					local num = (30 - data.timer) * 0.02
 					entity:SetColor(Color(1,1,1, 1, num,num,num), 5, 1, true, false)
+					if data.child then
+						data.child:SetColor(Color(1,1,1, 1, num,num,num), 5, 1, true, false)
+					end
 				end
 				data.timer = data.timer - 1
 			end

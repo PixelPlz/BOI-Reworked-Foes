@@ -30,7 +30,7 @@
         <gibs amount="6" blood="1" bone="1" eye="0" gut="0" large="0"/>
     </entity>
 	
-	<entity anm2path="teratomar.anm2" baseHP="60" boss="1" bossID="33" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" gridCollision="walls" hasFloorAlts="true" id="200" name="Teratomar" numGridCollisionPoints="12" portrait="42" shadowSize="27" stageHP="0" variant="4071">
+	<entity anm2path="teratomar.anm2" baseHP="100" boss="1" bossID="33" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" gridCollision="walls" hasFloorAlts="true" id="200" name="Teratomar" numGridCollisionPoints="12" portrait="42" shadowSize="27" stageHP="0" variant="4071">
         <bestiary anim="Idle" transform="0,8,1"/>
 		<gibs amount="8" blood="1" bone="1" eye="0" gut="1" large="1" worm="1"/>
     </entity>

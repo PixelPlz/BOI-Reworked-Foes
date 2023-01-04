@@ -182,6 +182,16 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.redGhostUpdate, EntityType.ENTIT
 
 
 
+--[[ Delirium helper ]]--
+function mod:deliriumHelper(entity)
+	if not entity:GetData().wasDelirium then
+		entity:GetData().wasDelirium = true
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.deliriumHelper, EntityType.ENTITY_DELIRIUM)
+
+
+
 --[[ Tainted Faceless ]]--
 function mod:tFacelessUpdate(entity)
 	if entity.Variant == 1 then

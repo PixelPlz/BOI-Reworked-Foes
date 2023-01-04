@@ -112,17 +112,17 @@ function mod:gishUpdate(entity)
 					local decide = math.random(0, 2)
 					entity.I1 = 0
 
-					if decide == 1 then
-						data.state = States.BigJump
-
-					-- Only spawn clots if there are less than the max amount
-					elseif decide == 2 and (Isaac.CountEntities(entity, EntityType.ENTITY_CLOTTY, 1, -1) < Settings.MaxClots or entity.SubType == 1) then
-						data.state = States.Attacking
-
-					else
+					if decide == 0 and not data.wasDelirium then
 						data.state = States.Running
 						entity.ProjectileCooldown = Settings.RunTime
 						entity:PlaySound(SoundEffect.SOUND_MONSTER_ROAR_1, 0.8, 0, false, 1)
+
+					-- Only spawn clots if there are less than the max amount
+					elseif decide == 1 and (Isaac.CountEntities(entity, EntityType.ENTITY_CLOTTY, 1, -1) < Settings.MaxClots or entity.SubType == 1) then
+						data.state = States.Attacking
+
+					else
+						data.state = States.BigJump
 					end
 				
 				elseif data.state == States.Running then

@@ -16,6 +16,8 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.carrionQueenInit, EntityType.
 
 function mod:carrionQueenUpdate(entity)
 	if entity.Variant == 2 and entity.I1 == 0 then
+		local room = Game():GetRoom()
+
 		-- Charge diagonally
 		if entity.State == NpcState.STATE_MOVE and ((entity.HitPoints > (entity.MaxHitPoints / 10) * 3) or entity.SubType == 1) then
 			entity.StateFrame = 1
@@ -31,7 +33,7 @@ function mod:carrionQueenUpdate(entity)
 					local chargeAngle = 45 + (i * 90)
 
 					if angle > (chargeAngle - 15) and angle < (chargeAngle + 15) and target.Position:Distance(entity.Position) <= 240
-					and Game():GetRoom():CheckLine(target.Position, entity.Position, 0, 0, false, false) == true then
+					and room:CheckLine(target.Position, entity.Position, 0, 0, false, false) == true then
 						entity.State = NpcState.STATE_ATTACK
 						entity.V1 = Vector.FromAngle(chargeAngle)
 						entity:PlaySound(SoundEffect.SOUND_MONSTER_ROAR_0, 1, 0, false, 1)
@@ -41,6 +43,15 @@ function mod:carrionQueenUpdate(entity)
 			
 			else
 				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+			end
+		
+		
+		-- Make her eat her own shit
+		elseif entity.State == NpcState.STATE_ATTACK then
+			local index = room:GetGridIndex(entity.Position + (entity.Velocity:Normalized() * (entity.Size * entity.SizeMulti)) + (entity.Velocity:Normalized() * 15))
+			local grid = room:GetGridEntity(index)
+			if grid ~= nil and grid:GetType() == GridEntityType.GRID_POOP then
+				grid:Hurt(10)
 			end
 		
 		
@@ -63,3 +74,25 @@ function mod:carrionQueenCollide(entity, target, bool)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.carrionQueenCollide, EntityType.ENTITY_CHUB)
+
+-- Turn red poops into regular ones
+function mod:carrionQueenDeath(entity)
+	if entity.Variant == 2 and entity.I1 == 0 and entity.SubType == 0 and Isaac.CountEntities(nil, EntityType.ENTITY_CHUB, 2, -1) <= 1 then
+		local room = Game():GetRoom()
+		
+		for i = 0, room:GetGridSize() do
+			local grid = room:GetGridEntity(i)
+			if grid ~= nil and grid:GetType() == GridEntityType.GRID_POOP and grid:GetVariant() == 1 then
+				grid:SetVariant(0)
+				grid:ToPoop().ReviveTimer = 0
+				grid.State = 0
+
+				local sprite = grid:GetSprite()
+				sprite:ReplaceSpritesheet(0, "gfx/grid/grid_poop_" .. math.random(1, 3) .. ".png")
+				sprite:LoadGraphics()
+				sprite:Play("Appear", true)
+			end
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.carrionQueenDeath, EntityType.ENTITY_CHUB)

@@ -9,7 +9,7 @@ local Settings = {
 
 
 -- Function for making greedy enemies collect pickups
-local function greedCollect(entity)
+function mod:greedCollect(entity)
 	-- Don't pick up coins in greed mode
 	if not Game():IsGreedMode() then
 		for _, pickup in pairs(Isaac.FindInRadius(entity.Position, Settings.CoinMagnetRange, EntityPartition.PICKUP)) do
@@ -112,7 +112,7 @@ function mod:greedUpdate(entity)
 		end
 	end
 
-	greedCollect(entity)
+	mod:greedCollect(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.greedUpdate, EntityType.ENTITY_GREED)
 
@@ -199,7 +199,7 @@ function mod:cofferUpdate(entity)
 	end
 
 	-- Also for keepers
-	greedCollect(entity)
+	mod:greedCollect(entity)
 	if sprite:IsPlaying("JumpDown") and sprite:GetFrame() == 22 then
 		entity.Velocity = Vector.Zero
 		entity.TargetPosition = entity.Position
@@ -209,15 +209,26 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.cofferUpdate, EntityType.ENTITY_
 
 function mod:cofferDeath(entity)
 	if entity.Variant == IRFentities.coffer and entity.I1 > 0 then
+		local target = entity:GetPlayerTarget()
 		local params = ProjectileParams()
 		params.Variant = ProjectileVariant.PROJECTILE_COIN
+		
+		if entity.I1 == 1 then
+			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * 8, 0, params)
 
-		if entity.I1 >= 8 then
-			entity:FireProjectiles(entity.Position, Vector(8, 6), 9, params)
-		elseif entity.I1 >= 4 then
+		elseif entity.I1 == 3 then
+			for i = 0, 2 do
+				entity:FireProjectiles(entity.Position, Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees() + (i * 120)) * 8, 0, params)
+			end
+
+		elseif entity.I1 == 4 then
 			entity:FireProjectiles(entity.Position, Vector(8, 4), math.random(6, 7), params)
+
+		elseif entity.I1 >= 8 then
+			entity:FireProjectiles(entity.Position, Vector(8, 8), 8, params)
+
 		else
-			entity:FireProjectiles(entity.Position, Vector(8, 3), 9, params)
+			entity:FireProjectiles(entity.Position, Vector(8, entity.I1), 9, params)
 		end
 	end
 end
@@ -227,6 +238,6 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.cofferDeath, EntityType.ENTI
 
 -- Hanger
 function mod:hangerUpdate(entity)
-	greedCollect(entity)
+	mod:greedCollect(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hangerUpdate, EntityType.ENTITY_HANGER)

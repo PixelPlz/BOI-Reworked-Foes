@@ -41,7 +41,7 @@ function mod:replaceNormalProjectiles(projectile)
 	
 	-- Frail
 	elseif projectile.SpawnerType == EntityType.ENTITY_PIN and projectile.SpawnerVariant == 2 and projectile.SpawnerEntity then
-		if projectile.SpawnerEntity:ToNPC().I2 == 0 then
+		if projectile.SpawnerEntity:ToNPC().I2 == 0 and not projectile.SpawnerEntity:GetData().wasDelirium then
 			sprite.Color = corpseGreenBulletColor
 			if projectile:HasProjectileFlags(ProjectileFlags.EXPLODE) then
 				projectile:AddProjectileFlags(ProjectileFlags.ACID_GREEN)
@@ -75,8 +75,8 @@ function mod:replaceNormalProjectiles(projectile)
 
 
 	-- Angels
-	elseif Game():GetRoom():GetBossID() ~= 70 and (projectile.SpawnerType == EntityType.ENTITY_URIEL or projectile.SpawnerType == EntityType.ENTITY_GABRIEL
-	or (projectile.SpawnerType == EntityType.ENTITY_BABY and projectile.SpawnerVariant == 1 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1)) then
+	elseif ((projectile.SpawnerType == EntityType.ENTITY_URIEL or projectile.SpawnerType == EntityType.ENTITY_GABRIEL) and projectile.SpawnerEntity and not projectile.SpawnerEntity:GetData().wasDelirium)
+	or (projectile.SpawnerType == EntityType.ENTITY_BABY and projectile.SpawnerVariant == 1 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1) then
 		mod:ChangeProjectile(projectile, IRFentities.featherProjectile, "feather projectile")
 		-- Black feather
 		if (projectile.SpawnerType == EntityType.ENTITY_URIEL or projectile.SpawnerType == EntityType.ENTITY_GABRIEL) and projectile.SpawnerVariant == 1 then

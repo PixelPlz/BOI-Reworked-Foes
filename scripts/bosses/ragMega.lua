@@ -91,7 +91,7 @@ function mod:ragMegaUpdate(entity)
 
 			-- Appear animation fix
 			if entity.State == NpcState.STATE_INIT then
-				if sprite:IsFinished("Appear") then
+				if sprite:IsFinished("Appear") or data.wasDelirium then
 					entity.State = NpcState.STATE_MOVE
 				end
 
@@ -117,7 +117,7 @@ function mod:ragMegaUpdate(entity)
 					local totalRaglings = 0
 					local deadRaglings = 0
 					for i, ragling in pairs(Isaac.FindByType(EntityType.ENTITY_RAGLING, 1, -1, false, true)) do
-						if ragling.Parent.Index == entity.Index then
+						if ragling.Parent and ragling.Parent.Index == entity.Index then
 							totalRaglings = totalRaglings + 1
 							
 							-- If dead
@@ -135,7 +135,7 @@ function mod:ragMegaUpdate(entity)
 					local attack = math.random(1, attackCount)
 
 					-- First attack is always a ragling
-					if entity.ProjectileDelay == -1 then
+					if not data.wasDelirium and entity.ProjectileDelay == -1 then
 						attack = 3
 						entity.ProjectileDelay = 1
 					end
@@ -422,7 +422,7 @@ function mod:ragMegaDMG(target, damageAmount, damageFlags, damageSource, damageC
 		return false
 	end
 end
---mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ragMegaDMG, EntityType.ENTITY_RAG_MEGA)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ragMegaDMG, EntityType.ENTITY_RAG_MEGA)
 
 
 

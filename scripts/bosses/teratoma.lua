@@ -123,23 +123,25 @@ function mod:teratomarUpdate(entity)
 		end
 
 
-		-- Remove chunks from the list if they don't exist
-		for i = 1, #data.chunks do
-			local chunk = data.chunks[i]
-			if chunk and (not chunk:Exists() or chunk:IsDead()) then
-				if chunk.Child then
-					chunk.Child:Remove()
-				end
-
-				table.remove(data.chunks, i)
-			end
-		end
-
-
-		-- Gradually increase orbit distance
-		if #data.chunks > 0 then
+		if data.chunks then
+			-- Remove chunks from the list if they don't exist
 			for i = 1, #data.chunks do
-				data.chunks[i]:ToNPC().V2 = Vector(2, 80 + (entity.MaxHitPoints - entity.HitPoints))
+				local chunk = data.chunks[i]
+				if chunk and (not chunk:Exists() or chunk:IsDead()) then
+					if chunk.Child then
+						chunk.Child:Remove()
+					end
+
+					table.remove(data.chunks, i)
+				end
+			end
+
+
+			-- Gradually increase orbit distance
+			if #data.chunks > 0 then
+				for i = 1, #data.chunks do
+					data.chunks[i]:ToNPC().V2 = Vector(2, 80 + (entity.MaxHitPoints - entity.HitPoints))
+				end
 			end
 		end
 	end

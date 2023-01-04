@@ -264,6 +264,11 @@ function mod:mrFredUpdate(entity)
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_IDLE
 			end
+		
+		
+		-- Delirium fix
+		elseif entity:GetData().wasDelirium then
+			entity.State = NpcState.STATE_IDLE
 		end
 
 

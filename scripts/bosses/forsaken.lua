@@ -224,6 +224,12 @@ function mod:forsakenUpdate(entity)
 			entity.State = NpcState.STATE_IDLE
 			entity.ProjectileCooldown = Settings.Cooldown
 		end
+	
+	
+	-- Delirium fix
+	elseif entity:GetData().wasDelirium then
+		entity.State = NpcState.STATE_IDLE
+		entity.I2 = math.random(0, 2)
 	end
 
 

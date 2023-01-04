@@ -163,13 +163,18 @@ function mod:blightedOvumUpdate(entity)
 
 			-- Transition to 2nd phase
 			if entity.I1 == 0 and entity.HitPoints <= (entity.MaxHitPoints / 2) then
-				entity.State = NpcState.STATE_SPECIAL
-				sprite:PlayOverlay("Transition1", true)
+				if entity:GetData().wasDelirium then
+					entity.I1 = 1
 
-				entity:BloodExplode()
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity)
-				SFXManager():Play(SoundEffect.SOUND_DEATH_BURST_LARGE)
-				SFXManager():Play(SoundEffect.SOUND_MEATY_DEATHS)
+				else
+					entity.State = NpcState.STATE_SPECIAL
+					sprite:PlayOverlay("Transition1", true)
+
+					entity:BloodExplode()
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity)
+					SFXManager():Play(SoundEffect.SOUND_DEATH_BURST_LARGE)
+					SFXManager():Play(SoundEffect.SOUND_MEATY_DEATHS)
+				end
 			end
 
 
