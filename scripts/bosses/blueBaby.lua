@@ -25,15 +25,14 @@ function mod:blueBabyInit(entity)
 		entity.MaxHitPoints = Settings.NewHP
 		entity.HitPoints = entity.MaxHitPoints
 		entity.I1 = 1
-		entity.I2 = 0
 
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
 		entity.ProjectileCooldown = Settings.Cooldown[2]
-		data.tearCooldown = Settings.TearCooldown * 2
-		data.shotCount = 0
+		data.tearCooldown = Settings.TearCooldown
+		data.shotCount = 1
 		data.spawnTimer = Settings.FlyDelay
 		data.isSoul = false
 	end
@@ -47,10 +46,6 @@ function mod:blueBabyUpdate(entity)
 		local data = entity:GetData()
 		local room = Game():GetRoom()
 
-
-		if sprite:IsEventTriggered("Flap") then
-			SFXManager():Play(SoundEffect.SOUND_ANGEL_WING, 0.75)
-		end
 
 		-- Change to soul form
 		local function soulGetOut()
@@ -100,7 +95,7 @@ function mod:blueBabyUpdate(entity)
 				body:GetSprite():Play("Appear", true)
 			end
 		end
-		
+
 		-- Change from soul form
 		local function soulGetIn()
 			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 10, entity.Position, (entity.Child.Position - entity.Position):Normalized() * 7, entity).SpriteOffset = Vector(0, -10)
@@ -130,7 +125,7 @@ function mod:blueBabyUpdate(entity)
 			entity.State = NpcState.STATE_IDLE
 			entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
 			data.tearCooldown = Settings.TearCooldown
-			
+
 			if entity.I1 == 2 and (entity.HitPoints < (entity.MaxHitPoints / 2) and math.random(0, 1) == 1) then
 				if data.isSoul ~= true then
 					soulGetOut()
@@ -226,13 +221,16 @@ function mod:blueBabyUpdate(entity)
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_BONE
 					params.Color = forgottenBoneColor
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * (10 - (data.shotCount % 3)), 0 + (data.shotCount % 3), params)
+
+					local mode = 0
+					if data.shotCount % 3 == 0 then
+						mode = 2
+					end
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * (10 - mode), mode, params)
 					SFXManager():Play(SoundEffect.SOUND_SCAMPER)
 
 				else
-					SFXManager():Play(SoundEffect.SOUND_TEARS_FIRE)
 					local params = ProjectileParams()
-					params.Scale = 1.35
 
 					-- Every 3rd attack is homing in 1st phase
 					local isHoming = 0
@@ -241,6 +239,7 @@ function mod:blueBabyUpdate(entity)
 					end
 					-- Is attack homing or not
 					if isHoming == 1 then
+						params.Scale = 1.35
 						params.BulletFlags = ProjectileFlags.SMART
 					else
 						params.Variant = ProjectileVariant.PROJECTILE_TEAR
@@ -270,6 +269,7 @@ function mod:blueBabyUpdate(entity)
 
 				data.tearCooldown = Settings.TearCooldown
 				data.shotCount = data.shotCount + 1
+				SFXManager():Play(SoundEffect.SOUND_TEARS_FIRE)
 
 			else
 				data.tearCooldown = data.tearCooldown - 1
@@ -402,12 +402,14 @@ function mod:blueBabyUpdate(entity)
 					if entity.I1 == 1 then
 						local params = ProjectileParams()
 						params.Variant = ProjectileVariant.PROJECTILE_TEAR
-						params.Scale = 1.65
-						params.BulletFlags = ProjectileFlags.MEGA_WIGGLE
 						params.FallingSpeedModifier = 1
 						params.FallingAccelModifier = -0.1
+						params.BulletFlags = ProjectileFlags.MEGA_WIGGLE
 
+						params.Scale = 1.35
 						entity:FireProjectiles(entity.Position, Vector(10, 8), 8, params)
+
+						params.Scale = 1.65
 						params.WiggleFrameOffset = 10
 						params.CircleAngle = 0.41
 						entity:FireProjectiles(entity.Position, Vector(6, 8), 9, params)
@@ -510,6 +512,7 @@ function mod:blueBabyUpdate(entity)
 						-- 1st attack is Holy Orb
 						if entity.StateFrame == 0 and not data.wasDelirium then
 							Isaac.Spawn(200, IRFentities.forgottenBody, 2, entity.Position, (target.Position - entity.Position):Normalized() * 20, entity)
+							entity:PlaySound(SoundEffect.SOUND_THUMBSUP, 0.6, 0, false, 1)
 							SFXManager():Play(SoundEffect.SOUND_LIGHTBOLT)
 
 						-- Feather shots for the rest
@@ -522,7 +525,7 @@ function mod:blueBabyUpdate(entity)
 
 							params.Spread = 1.3
 							entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * 7, 5, params)
-							entity:PlaySound(SoundEffect.SOUND_THUMBS_DOWN, 0.6, 0, false, 1)
+							entity:PlaySound(SoundEffect.SOUND_THUMBSDOWN_AMPLIFIED, 1.25, 0, false, 1)
 						end
 
 					elseif sprite:IsEventTriggered("End") then
@@ -662,7 +665,7 @@ function mod:blueBabyUpdate(entity)
 					elseif entity.I1 == 3 then
 						params.Scale = 1.35
 						entity:FireProjectiles(entity.Position, Vector(12, 8), 8, params)
-						params.Scale = 1.85
+						params.Scale = 1.65
 						params.CircleAngle = 0.41
 						entity:FireProjectiles(entity.Position, Vector(7, 8), 9, params)
 					end
@@ -793,8 +796,9 @@ function mod:blueBabyUpdate(entity)
 			if sprite:IsFinished() then
 				backToIdle()
 			end
-		
-		
+
+
+
 		-- Delirium fix
 		elseif data.wasDelirium then
 			entity.State = NpcState.STATE_IDLE
@@ -819,7 +823,7 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.blueBabyDMG, EntityType.ENT
 
 
 
--- Butt bombs
+--[[ Butt bombs ]]--
 function mod:blueBabyBomb(entity)
 	if entity.SpawnerType == EntityType.ENTITY_ISAAC and entity.SpawnerVariant == 1 then
 		if entity:IsDead() and entity.SpawnerEntity then
@@ -843,7 +847,7 @@ mod:AddCallback(ModCallbacks.MC_POST_BOMB_UPDATE, mod.blueBabyBomb, BombVariant.
 
 
 
--- Forgotten body and chain, Lost Holy orb
+--[[ Forgotten body and chain, Lost Holy orb ]]--
 function mod:forgottenBodyInit(entity)
 	if entity.Variant == IRFentities.forgottenBody then
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_BLOOD_SPLASH | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
@@ -995,7 +999,7 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.forgottenBodyDMG, 200)
 
 
 
--- Holy tracers
+--[[ Holy tracers ]]--
 function mod:holyTracerUpdate(effect)
 	local sprite = effect:GetSprite()
 

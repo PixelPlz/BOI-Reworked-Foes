@@ -317,6 +317,7 @@ local bossScripts = {
 	--"wretched",
 	"daddyLongLegs",
 	"blueBaby",
+	"hushBaby",
 	--"turdlings",
 	--"dangle",
 	"mrFred",

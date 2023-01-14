@@ -2,8 +2,8 @@ local mod = BetterMonsters
 
 local Settings = {
 	MoveSpeed = 5,
-	RunSpeed = 7.5,
-	JumpSpeed = 13,
+	RunSpeed = 7,
+	JumpSpeed = 12,
 	AirSpeed = 10,
 
 	MoveTime = 90,

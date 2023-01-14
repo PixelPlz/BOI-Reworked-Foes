@@ -4,102 +4,109 @@
 
 
 	<!-- Enemies -->
-	<entity anm2path="013.440_bubble fly.anm2" baseHP="10" boss="0" champion="0" collisionDamage="0" collisionMass="4" collisionRadius="18" friction="1" gridCollision="walls" id="13" name="Bubble Fly" numGridCollisionPoints="4" portrait="5" reroll="true" shadowSize="11" stageHP="0" tags="fly" variant="440">
+	<entity anm2path="013.440_bubble fly.anm2" baseHP="10" boss="0" champion="0" collisionDamage="0" collisionMass="4" collisionRadius="18" friction="1" gridCollision="walls" id="13" name="Bubble Fly" numGridCollisionPoints="4" portrait="0" reroll="true" shadowSize="11" stageHP="0" tags="fly" variant="440">
         <bestiary anim="Fly" transform="0,0,1"/>
         <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
 		<devolve id="18.0.0" weight="1" />
     </entity>
 
-	<entity anm2path="attack eternal fly.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="3" collisionRadius="17" friction="1" gridCollision="walls" id="18" name="Attack Eternal Fly" numGridCollisionPoints="4" portrait="176" reroll="true" shadowSize="11" stageHP="0" tags="fly" variant="4040">
+	<entity anm2path="attack eternal fly.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="3" collisionRadius="17" friction="1" gridCollision="walls" id="18" name="Attack Eternal Fly" numGridCollisionPoints="4" portrait="1" reroll="true" shadowSize="11" stageHP="0" tags="fly" variant="4040">
         <bestiary parent="96.0"/>
 		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
 		<devolve id="13.0.0" weight="1"/>
     </entity>
 
-	<entity anm2path="027.003_soft host.anm2" baseHP="15" boss="0" champion="1" collisionDamage="1" collisionMass="15" collisionRadius="13" friction="1" id="27" name="Soft Host" numGridCollisionPoints="12" portrait="247" shadowSize="25" stageHP="0" variant="3" subtype="40">
+	<entity anm2path="027.003_soft host.anm2" baseHP="16" boss="0" champion="1" collisionDamage="1" collisionMass="15" collisionRadius="13" friction="1" id="27" name="Soft Host" numGridCollisionPoints="12" portrait="2" shadowSize="25" stageHP="0" variant="3" subtype="40">
         <bestiary anim="Shoot" transform="0,0,1"/>
 		<gibs amount="9" blood="0" bone="0" dust="1" eye="0" gut="0" large="0" rock="1"/>
 		<devolve id="27.1.0" weight="1" />
     </entity>
 
-	<entity anm2path="065.011_conquest without horse.anm2" baseHP="500" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" id="65" name="Conquest without horse" numGridCollisionPoints="0" portrait="30" shadowSize="19" stageHP="0" variant="11">
+	<entity anm2path="065.011_conquest without horse.anm2" baseHP="500" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" id="65" name="Conquest without horse" numGridCollisionPoints="0" portrait="20" shadowSize="19" stageHP="0" variant="11">
         <bestiary parent="65.1"/>
 		<gibs amount="12" blood="1" bone="1" eye="0" gut="1" large="1"/>
     </entity>
-	<entity anm2path="065.020_conquest horse.anm2" baseHP="150" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" id="65" name="Conquest Horse" numGridCollisionPoints="0" portrait="30" shadowSize="19" stageHP="0" tags="nodelirium" variant="20">
+	<entity anm2path="065.020_conquest horse.anm2" baseHP="150" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" id="65" name="Conquest Horse" numGridCollisionPoints="0" portrait="20" shadowSize="19" stageHP="0" tags="nodelirium" variant="20">
         <gibs amount="6" blood="1" bone="1" eye="0" gut="0" large="0"/>
     </entity>
 	
-	<entity anm2path="teratomar.anm2" baseHP="100" boss="1" bossID="33" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" gridCollision="walls" hasFloorAlts="true" id="200" name="Teratomar" numGridCollisionPoints="12" portrait="42" shadowSize="27" stageHP="0" variant="4071">
+	<entity anm2path="teratomar.anm2" baseHP="100" boss="1" bossID="33" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" gridCollision="walls" hasFloorAlts="true" id="200" name="Teratomar" numGridCollisionPoints="12" portrait="21" shadowSize="27" stageHP="0" variant="4071">
         <bestiary anim="Idle" transform="0,8,1"/>
 		<gibs amount="8" blood="1" bone="1" eye="0" gut="1" large="1" worm="1"/>
     </entity>
 
-	<entity anm2path="086.450_coffer.anm2" baseHP="8" boss="0" champion="0" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="86" name="Coffer" numGridCollisionPoints="12" portrait="25" reroll="true" shadowSize="14" stageHP="1" variant="450">
+	<entity anm2path="086.450_coffer.anm2" baseHP="8" boss="0" champion="0" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="86" name="Coffer" numGridCollisionPoints="12" portrait="3" reroll="true" shadowSize="14" stageHP="1" variant="450">
         <bestiary anim="JumpDown" transform="0,0,1"/>
         <gibs amount="4" blood="1" bone="0" dust="1" eye="0" gut="0" large="0"/>
 		<devolve id="5.69.0" weight="1" />
     </entity>
 
-	<entity anm2path="039.022_forgotten bone projectile.anm2" baseHP="1000" boss="0" champion="0" collisionDamage="2" collisionInterval="1" collisionMass="10" collisionRadius="13" friction="1" gridCollision="none" id="39" name="Forgotten Bone Projectile" numGridCollisionPoints="12" portrait="63" shadowSize="15" stageHP="0" variant="22" subtype="102">
+	<entity anm2path="039.022_forgotten bone projectile.anm2" baseHP="1000" boss="0" champion="0" collisionDamage="2" collisionInterval="1" collisionMass="10" collisionRadius="13" friction="1" gridCollision="none" id="39" name="Forgotten Bone Projectile" numGridCollisionPoints="12" portrait="22" shadowSize="15" stageHP="0" variant="22" subtype="102">
         <bestiary parent="102.1"/>
 		<gibs amount="1" blood="0" bone="1" eye="0" gut="0" large="0" sound_bone="1"/>
     </entity>
-	<entity anm2path="forgotten body (boss).anm2" baseHP="1000" boss="0" champion="0" collisionDamage="1" collisionMass="100" collisionRadius="18" friction="1" gridCollision="walls" id="200" name="Forgotten Body (Boss)" numGridCollisionPoints="12" portrait="63" shadowSize="16" stageHP="0" variant="4102" subtype="0">
+	<entity anm2path="forgotten body (boss).anm2" baseHP="1000" boss="0" champion="0" collisionDamage="1" collisionMass="100" collisionRadius="18" friction="1" gridCollision="walls" id="200" name="Forgotten Body (Boss)" numGridCollisionPoints="12" portrait="22" shadowSize="16" stageHP="0" variant="4102" subtype="0">
         <bestiary parent="102.1"/>
 		<gibs amount="10" blood="0" bone="1" eye="0" gut="0" large="0"/>
     </entity>
-	<entity anm2path="forgotten body (boss).anm2" baseHP="1000" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" gridCollision="none" id="200" name="Forgotten Chain (Boss)" numGridCollisionPoints="0" portrait="63" shadowSize="8" stageHP="0" variant="4102" subtype="1">
+	<entity anm2path="forgotten body (boss).anm2" baseHP="1000" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" gridCollision="none" id="200" name="Forgotten Chain (Boss)" numGridCollisionPoints="0" portrait="22" shadowSize="8" stageHP="0" variant="4102" subtype="1">
 		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
-	<entity anm2path="holy orb.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="20" collisionRadius="13" friction="1" id="200" name="Lost Holy Orb" numGridCollisionPoints="16" portrait="63" shadowSize="16" stageHP="0" variant="4102" subtype="2">
+	<entity anm2path="holy orb.anm2" baseHP="1000" boss="0" champion="0" collisionDamage="1" collisionMass="20" collisionRadius="13" friction="1" id="200" name="Lost Holy Orb" numGridCollisionPoints="16" portrait="22" shadowSize="16" stageHP="0" variant="4102" subtype="2">
         <bestiary parent="102.1"/>
 		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
 
-	<entity anm2path="003.128_bone orbital.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="1" collisionRadius="13" friction="1" gridCollision="none" id="200" name="Enemy Bone Orbital" numGridCollisionPoints="0" shadowSize="12" shutdoors="false" stageHP="1" variant="4436" subtype="0">
-        <gibs amount="1" blood="0" bone="1" eye="0" gut="0" large="0" sound_bone="1"/>
+    <entity anm2path="296.000_Hush Fly.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="3" collisionRadius="9" friction="1" gridCollision="walls" id="200" name="#HUSH_FLY" numGridCollisionPoints="0" portrait="199" shadowSize="11" stageHP="0" tags="fly" variant="4103">
+        <bestiary parent="296.0"/>
+        <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
+    	<devolve id="222.0.0" weight="1" />
+	</entity>
+
+	<entity anm2path="003.128_bone orbital.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="1" collisionRadius="13" friction="1" gridCollision="none" id="200" name="Enemy Bone Orbital" numGridCollisionPoints="0" portrait="4" shadowSize="12" shutdoors="false" stageHP="1" variant="4436" subtype="0">
+        <bestiary anim="Idle0" transform="0,0,1"/>
+		<gibs amount="1" blood="0" bone="1" eye="0" gut="0" large="0" sound_bone="1"/>
     </entity>
-	<entity anm2path="forgotten bone orbital.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="1" collisionRadius="13" friction="1" gridCollision="none" id="200" name="Forgotten Bone Orbital" numGridCollisionPoints="0" shadowSize="12" shutdoors="false" stageHP="0" variant="4436" subtype="1">
+	<entity anm2path="forgotten bone orbital.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="1" collisionRadius="13" friction="1" gridCollision="none" id="200" name="Forgotten Bone Orbital" numGridCollisionPoints="0" portrait="4" shadowSize="12" shutdoors="false" stageHP="0" variant="4436" subtype="1">
         <gibs amount="1" blood="0" bone="1" eye="0" gut="0" large="0" sound_bone="1"/>
     </entity>
 
-	<entity anm2path="016.040_mullicocoon.anm2" baseHP="12" boss="0" champion="1" collisionDamage="0" collisionMass="6" collisionRadius="13" friction="1" id="16" name="Mullicocoon" numGridCollisionPoints="12" portrait="11" reroll="true" shadowSize="13" stageHP="0" variant="40">
+	<entity anm2path="016.040_mullicocoon.anm2" baseHP="13" boss="0" champion="1" collisionDamage="0" collisionMass="6" collisionRadius="13" friction="1" id="16" name="Mullicocoon" numGridCollisionPoints="12" portrait="5" reroll="true" shadowSize="13" stageHP="0" variant="40">
         <bestiary anim="WalkVert" overlay="Walk" transform="0,0,1"/>
         <gibs amount="6" blood="1" bone="1" eye="1" gut="1" large="0"/>
 		<devolve id="11.0.0" weight="1" />
     </entity>
-	<entity anm2path="205.000_nest.anm2" baseHP="20" boss="0" champion="1" collisionDamage="0" collisionMass="7" collisionRadius="13" friction="1" id="22" name="Nest (New)" numGridCollisionPoints="12" portrait="73" reroll="true" shadowSize="14" stageHP="0" variant="40">
+	<entity anm2path="205.000_nest.anm2" baseHP="20" boss="0" champion="1" collisionDamage="0" collisionMass="7" collisionRadius="13" friction="1" id="22" name="Nest (New)" numGridCollisionPoints="12" portrait="6" reroll="true" shadowSize="14" stageHP="0" variant="40">
         <bestiary parent="205.0"/>
         <gibs amount="6" blood="1" bone="1" eye="1" gut="1" large="0"/>
 		<devolve id="16.40.0" weight="1" />
     </entity>
 
-    <entity anm2path="039.022_camillojr projectile.anm2" baseHP="1000" boss="0" champion="1" collisionDamage="2" collisionInterval="1" collisionMass="10" collisionRadius="13" friction="1" gridCollision="none" id="39" name="Camillo Jr. Projectile" numGridCollisionPoints="12" portrait="107" shadowSize="15" stageHP="0" variant="22" subtype="230">
+    <entity anm2path="039.022_camillojr projectile.anm2" baseHP="1000" boss="0" champion="1" collisionDamage="2" collisionInterval="1" collisionMass="10" collisionRadius="13" friction="1" gridCollision="none" id="39" name="Camillo Jr. Projectile" numGridCollisionPoints="12" portrait="7" shadowSize="15" stageHP="0" variant="22" subtype="230">
         <bestiary parent="230.0"/>
 		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
 
-    <entity anm2path="ragling rags.anm2" baseHP="13" boss="0" champion="1" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="200" name="Ragling Rags" numGridCollisionPoints="12" portrait="178" shadowSize="28" shutdoors="false" stageHP="0" tags="spider homing_soul noreroll" variant="4246">
+    <entity anm2path="ragling rags.anm2" baseHP="13" boss="0" champion="1" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="200" name="Ragling Rags" numGridCollisionPoints="12" portrait="8" shadowSize="28" shutdoors="false" stageHP="0" tags="spider homing_soul noreroll" variant="4246">
         <bestiary parent="246.0"/>
         <gibs amount="1" blood="0" bone="0" dust="1" eye="0" gut="0" large="0"/>
     </entity>
 
-	<entity anm2path="401.010_thestain tentacle.anm2" baseHP="400" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="18" friction="1" id="401" name="The Stain Tentacle" numGridCollisionPoints="0" portrait="79" reroll="false" shadowSize="0" shutdoors="false" stageHP="0" variant="10">
+	<entity anm2path="401.010_thestain tentacle.anm2" baseHP="400" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="18" friction="1" id="401" name="The Stain Tentacle" numGridCollisionPoints="0" portrait="24" reroll="false" shadowSize="0" shutdoors="false" stageHP="0" variant="10">
         <bestiary parent="401.0"/>
 		<gibs amount="6" blood="1" bone="0" eye="0" gut="0" large="0"/>
     </entity>
 
-	<entity anm2path="ragmega plasma.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="20" collisionRadius="13" friction="1" id="200" name="Rag Mega Plasma" numGridCollisionPoints="16" portrait="161" shadowSize="16" stageHP="0" variant="4409">
+	<entity anm2path="ragmega plasma.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="20" collisionRadius="13" friction="1" id="200" name="Rag Mega Plasma" numGridCollisionPoints="16" portrait="25" shadowSize="16" stageHP="0" variant="4409">
         <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
 
-	<entity anm2path="834.000_whipper_hera.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="834" name="Altar Scamp" numGridCollisionPoints="12" portrait="222" shadowSize="14" stageHP="0" variant="0" subtype="43">
+	<entity anm2path="834.000_whipper_hera.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="834" name="Altar Scamp" numGridCollisionPoints="12" portrait="9" shadowSize="14" stageHP="0" variant="0" subtype="43">
 		<gibs amount="6" blood="0" bone="1" eye="0" gut="1" large="0" worm="1"/>
 		<devolve id="41.1.0" weight="1" />
     </entity>
 
-	<entity anm2path="859.001_flesh floating host.anm2" baseHP="21" boss="0" champion="1" collisionDamage="1" collisionMass="40" collisionRadius="13" friction="1" gridCollision="walls" id="859" name="Flesh Floast" numGridCollisionPoints="12" portrait="275" shadowSize="20" stageHP="0" variant="1">
+	<entity anm2path="859.001_flesh floating host.anm2" baseHP="21" boss="0" champion="1" collisionDamage="1" collisionMass="40" collisionRadius="13" friction="1" gridCollision="walls" id="859" name="Flesh Floast" numGridCollisionPoints="12" portrait="10" shadowSize="20" stageHP="0" variant="1">
         <bestiary anim="Shoot" transform="0,0,1"/>
 		<gibs amount="6" blood="1" bone="1" eye="0" gut="0" large="0" worm="1"/>
 		<devolve id="815.0.0" weight="1" />
