@@ -4,7 +4,7 @@ local mod = BetterMonsters
 
 -- [[ Pin / Scolex / Frail ]]--
 function mod:pinInit(entity)
-	if IRFconfig.appearPins == true and entity.Variant < 3 and entity.SubType ~= 2 and not entity.Parent and not entity.SpawnerEntity then
+	if IRFconfig.appearPins == true and entity.Variant < 3 and (not FiendFolio or entity.SubType ~= 2) and (not GBMd or entity.Variant > 0) and not entity.Parent and not entity.SpawnerEntity then
 		local sprite = entity:GetSprite()
 
 		sprite:Play("Attack1", true)
@@ -38,6 +38,7 @@ function mod:pinPreUpdate(entity)
 
 		return true
 	end
+
 
 	-- Dirt effect
 	if IRFconfig.noHiddenPins == true and entity.Variant < 3 and entity:IsFrame(6, 0) and not entity.Parent and entity.Visible == false then
