@@ -18,6 +18,7 @@ IRFentities = {
 	-- Effects
 	healingAura = Isaac.GetEntityVariantByName("Healing Aura"),
 	holyTracer  = Isaac.GetEntityVariantByName("Holy Tracer"),
+	brimstoneSwirl = Isaac.GetEntityVariantByName("Single Laser Brimstone Swirl"),
 }
 
 
