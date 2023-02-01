@@ -16,8 +16,8 @@ IRFentities = {
 	ragPlasma 	  = Isaac.GetEntityVariantByName("Rag Mega Plasma"),
 
 	-- Effects
-	healingAura = Isaac.GetEntityVariantByName("Healing Aura"),
-	holyTracer  = Isaac.GetEntityVariantByName("Holy Tracer"),
+	healingAura    = Isaac.GetEntityVariantByName("Healing Aura"),
+	holyTracer 	   = Isaac.GetEntityVariantByName("Holy Tracer"),
 	brimstoneSwirl = Isaac.GetEntityVariantByName("Single Laser Brimstone Swirl"),
 }
 
@@ -291,6 +291,7 @@ mod:LoadScripts(enemyScripts, "enemies")
 -- Minibosses
 local minibossScripts = {
 	"sloth",
+	--"ultraPride",
 	"lust",
 	"wrath",
 	"gluttony",
@@ -308,6 +309,7 @@ local bossScripts = {
 	--"monstro2",
 	"gish",
 	"mom",
+	"pin",
 	"conquest",
 	"lokii",
 	"teratoma",
@@ -327,6 +329,7 @@ local bossScripts = {
 	"forsaken",
 	"ragMega",
 	--"sisterVis",
+	--"delirium",
 }
 mod:LoadScripts(bossScripts, "bosses")
 
