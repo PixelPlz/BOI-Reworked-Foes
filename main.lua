@@ -45,7 +45,7 @@ charredMeatColor = Color(1,1,1, 1, 0,0,0)
 charredMeatColor:SetColorize(0.4,0.2,0.17, 1)
 
 portalBulletColor = Color(0.5,0.5,0.7, 1, 0.05,0.05,0.125)
-portalBulletTrail = Color(0.5,0.5,0.7, 1, 0,0.25,0.5)
+portalBulletTrail = Color(0,0,0, 1, 0.4,0.4,0.6)
 
 forgottenBoneColor = Color(0.34,0.34,0.34, 1)
 forgottenBulletColor = Color(0.8,0.8,0.8, 0.7, 0.1,0.2,0.4)

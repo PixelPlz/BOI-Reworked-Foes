@@ -57,7 +57,7 @@
 		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
 
-    <entity anm2path="296.000_Hush Fly.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="3" collisionRadius="9" friction="1" gridCollision="walls" id="200" name="#HUSH_FLY" numGridCollisionPoints="0" portrait="199" shadowSize="11" stageHP="0" tags="fly" variant="4103">
+    <entity anm2path="296.000_Hush Fly.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="3" collisionRadius="9" friction="1" gridCollision="walls" id="200" name="#HUSH_FLY" numGridCollisionPoints="0" portrait="1" shadowSize="11" stageHP="0" tags="fly" variant="4103">
         <bestiary parent="296.0"/>
         <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     	<devolve id="222.0.0" weight="1" />

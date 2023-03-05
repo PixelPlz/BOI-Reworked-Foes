@@ -5,6 +5,7 @@ function mod:postGameStartedHPBars()
 		local path = "gfx/ui/bosshp_icons/"
 
 		HPBars.BossIgnoreList["97.0"] = true
+		HPBars.BossIgnoreList["403.10"] = true
 
 		-- Gish
 		HPBars.BossDefinitions["43.1"] = {
@@ -149,6 +150,13 @@ function mod:postGameStartedHPBars()
 			sprite = path .. "horsemen/headless_horsemen_head.png",
 			offset = Vector(-7, 0),
 			bossColors = {"_purple"}
+		}
+
+		-- Forsaken clone
+		HPBars.BossDefinitions["403.10"] = {
+			sprite = path .. "chapter2/the_forsaken.png",
+			offset = Vector(-6, 0),
+			bossColors = {"_black"}
 		}
 	end
 end

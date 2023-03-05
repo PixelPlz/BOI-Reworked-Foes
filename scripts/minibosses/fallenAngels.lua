@@ -167,7 +167,7 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.fallenGabrielUpdate, EntityType.ENTITY_GABRIEL)
 
 function mod:gabrielCollision(entity, target, cock)
-	if target.SpawnerType == EntityType.ENTITY_GABRIEL then
+	if target.SpawnerType == entity.Type then
 		return true -- Ignore collision
 	end
 end
@@ -228,7 +228,7 @@ function mod:singleBrimstoneSwirlUpdate(effect)
 				rotateDir = -1
 			end
 
-			data.brim:SetActiveRotation(0, rotateDir * 45, rotateDir * 1.25, false)
+			data.brim:SetActiveRotation(0, rotateDir * 45, rotateDir * 1.1, false)
 		end
 	end
 

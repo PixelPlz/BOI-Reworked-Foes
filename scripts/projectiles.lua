@@ -34,7 +34,6 @@ function mod:replaceNormalProjectiles(projectile)
 	elseif (projectile.SpawnerType == EntityType.ENTITY_MEMBRAIN and projectile.SpawnerVariant == 2) or projectile.SpawnerType == EntityType.ENTITY_CYST then
 		sprite.Color = corpseGreenBulletColor
 		if projectile.SpawnerType == EntityType.ENTITY_MEMBRAIN and projectile.SpawnerVariant == 2 then
-			data.hasTrail = true
 			data.trailColor = corpseGreenBulletTrail
 		end
 	
@@ -48,8 +47,8 @@ function mod:replaceNormalProjectiles(projectile)
 			end
 
 		elseif projectile.SpawnerEntity:ToNPC().I2 == 1 and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
-			data.hasTrail = true
-			projectile.Scale = 1.75
+			data.trailColor = Color.Default
+			projectile.Scale = 1.5
 			
 			-- Black champion
 			if projectile.SpawnerEntity.SubType == 1 then
@@ -72,6 +71,11 @@ function mod:replaceNormalProjectiles(projectile)
 	-- Red champion Mega Maw / Gate
 	elseif (projectile.SpawnerType == EntityType.ENTITY_MEGA_MAW or projectile.SpawnerType == EntityType.ENTITY_GATE) and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 then
 		projectile.CollisionDamage = 1
+
+
+	-- Mr. Fred
+	elseif projectile.SpawnerType == EntityType.ENTITY_MR_FRED and projectile:HasProjectileFlags(ProjectileFlags.EXPLODE) then
+		data.trailColor = Color.Default
 
 
 	-- Angels
@@ -102,26 +106,32 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.replaceNormalProject
 
 function mod:replaceBoneProjectiles(projectile)
 	local sprite = projectile:GetSprite()
-	
+	local data = projectile:GetData()
+
 	if projectile.FrameCount <= 2 then
 		sprite.Scale = Vector(projectile.Scale, projectile.Scale)
 		if projectile.Scale >= 1.5 then
-			sprite.Scale = Vector(projectile.Scale - 0.1, projectile.Scale - 0.1)
+			sprite.Scale = Vector(projectile.Scale - 0.5, projectile.Scale - 0.5)
 			sprite:Load("gfx/830.010_big bone.anm2", true)
 			sprite:Play("Move", true)
 		end
 	end
 
-	
+
 	-- Teratomar
 	if projectile.SpawnerType == 200 and projectile.SpawnerVariant == IRFentities.teratomar and projectile.FrameCount < 2 then
 		mod:ChangeProjectile(projectile, projectile.Variant, "002.002_tooth tear", Color(0.45,0.45,0.45, 1))
 		sprite:Play("Tooth4Move", true)
 
-	
+
 	-- Black Bony
 	elseif projectile.SpawnerType == EntityType.ENTITY_BLACK_BONY then
 		sprite.Color = Color(0.2,0.2,0.2, 1)
+
+
+	-- Forsaken
+	elseif projectile.SpawnerType == EntityType.ENTITY_FORSAKEN and not projectile:HasProjectileFlags(ProjectileFlags.BLUE_FIRE_SPAWN) then
+		data.trailColor = Color(0,0,0, 0.6, 0.6,0.6,0.6)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.replaceBoneProjectiles, ProjectileVariant.PROJECTILE_BONE)
@@ -149,19 +159,18 @@ function mod:replaceHushProjectiles(projectile)
 	local data = projectile:GetData()
 
 	-- Lokii / Fallen Uriel / Satan
-	if ((projectile.SpawnerType == EntityType.ENTITY_LOKI or projectile.SpawnerType == EntityType.ENTITY_URIEL) and projectile.SpawnerVariant == 1) or projectile.SpawnerType == EntityType.ENTITY_SATAN then
-		data.hasTrail = true
+	if ((projectile.SpawnerType == EntityType.ENTITY_LOKI or projectile.SpawnerType == EntityType.ENTITY_URIEL) and projectile.SpawnerVariant == 1)
+	or projectile.SpawnerType == EntityType.ENTITY_SATAN or projectile.SpawnerType == EntityType.ENTITY_FORSAKEN then
+		data.trailColor = Color.Default
 
 
 	-- Portal
 	elseif projectile.SpawnerType == EntityType.ENTITY_PORTAL then
-		data.hasTrail = true
 		data.trailColor = portalBulletTrail
 
 
 	-- Rag Mega Plasma
 	elseif projectile.SpawnerType == 200 and projectile.SpawnerVariant == IRFentities.ragPlasma then
-		data.hasTrail = true
 		data.trailColor = ragManPsyColor
 	end
 end
@@ -199,18 +208,32 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.angelicFeatherUpdate
 
 -- Trailing projectile
 function mod:trailingProjectileUpdate(projectile)
-	if projectile:GetData().hasTrail and projectile:GetData().hasTrail == true then
-		if projectile.FrameCount % 3 == 0 then
-			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, projectile.Position, -projectile.Velocity:Normalized() * 2, projectile):ToEffect()
-			local scaler = projectile.Scale * math.random(50, 70) / 100
+	local data = projectile:GetData()
+
+	if data.trailColor and projectile:IsFrame(2, 0) then
+		for i = 0, 1 do
+			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, projectile.Position, Vector.Zero, projectile):ToEffect()
+
+			local scaler = projectile.Scale * 0.65
+			-- Trail
+			if i == 1 then
+				scaler = projectile.Scale * (math.random(60, 70) / 100)
+				trail.Velocity = -projectile.Velocity:Normalized() * 1.5
+				trail.SpriteOffset = Vector(projectile.PositionOffset.X, projectile.Height * 0.65)
+
+			-- Back
+			else
+				trail:FollowParent(projectile)
+			end
+
 			trail.SpriteScale = Vector(scaler, scaler)
-			trail.SpriteOffset = projectile.PositionOffset + Vector(0, 7)
 			trail.DepthOffset = projectile.DepthOffset - 10
 
-			if projectile:GetData().trailColor then
-				trail:GetSprite().Color = projectile:GetData().trailColor
-			end
-			
+			-- Custom color
+			local c = data.trailColor
+			local colorOffset = math.random(-1, 1) * 0.06
+			trail:GetSprite().Color = Color(c.R,c.G,c.B, 1, c.RO + colorOffset, c.GO + colorOffset, c.BO + colorOffset)
+
 			trail:Update()
 		end
 	end

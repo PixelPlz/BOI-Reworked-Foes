@@ -5,8 +5,8 @@ local Settings = {
 	Cooldown = {80, 110},
 	TransparencyTimer = 10,
 
-	MoveSpeed = 5.5,
-	ChaseSpeed = 6.75,
+	MoveSpeed = 5.25,
+	ChaseSpeed = 6.5,
 	AngrySpeed = 5.75,
 
 	ChaseTime = 120,

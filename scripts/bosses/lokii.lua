@@ -21,7 +21,7 @@ local Settings = {
 
 
 function mod:lokiiInit(entity)
-	if entity.Variant == 1 then
+	if entity.Variant == 1 and entity.SubType == 0 then
 		entity.ProjectileCooldown = Settings.Cooldown
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 	end
@@ -29,7 +29,7 @@ end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.lokiiInit, EntityType.ENTITY_LOKI)
 
 function mod:lokiiUpdate(entity)
-	if entity.Variant == 1 then
+	if entity.Variant == 1 and entity.SubType == 0 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
 		local data = entity:GetData()
@@ -196,7 +196,7 @@ function mod:lokiiUpdate(entity)
 						params.CircleAngle = 0.5 - ((entity.I1 - 1) * 0.5)
 						entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 6), 9, params)
 					end
-					
+
 					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 3, entity.Position, Vector.Zero, entity)
 					effect.DepthOffset = entity.DepthOffset - 10
 					effect:GetSprite().Offset = Vector(0, -12)

@@ -31,10 +31,19 @@ function mod:boneOrbitalUpdate(entity)
 		if entity.Parent then
 			-- Get offset
 			local siblingCount = 0
+			local leaderRotation = Vector.Zero
+
 			for i, sibling in pairs(Isaac.FindByType(entity.Type, entity.Variant, entity.SubType, false, true)) do
 				if sibling:HasCommonParentWithEntity(entity) then
 					sibling:ToNPC().StateFrame = i
 					siblingCount = siblingCount + 1
+
+					-- Match the oldest sibling's rotation
+					if i == 1 then
+						leaderRotation = sibling:ToNPC().V1
+					else
+						sibling:ToNPC().V1 = leaderRotation
+					end
 				end
 			end
 

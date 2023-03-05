@@ -249,18 +249,14 @@ function mod:heartInfamyUpdate(entity)
 	
 	elseif data.state == States.Idle then
 		entity.Pathfinder:MoveRandomlyBoss(false)
-		entity.Velocity = entity.Velocity * 0.925
+		entity.Velocity = entity.Velocity * 0.95
 
 		local suffix = ""
 		if entity.I1 == 1 then
 			suffix = "Alt"
 		end
 		mod:LoopingAnim(sprite, "HeartBeat" .. suffix)
-		
-		-- Heart beat
-		if sprite:IsEventTriggered("Shoot") and not entity.SubType == 2 then
-			entity:PlaySound(SoundEffect.SOUND_HEARTBEAT_FASTEST, 1.15, 0, false, 1)
-		end
+
 
 		-- Decide attack
 		if entity.ProjectileCooldown <= 0 then
@@ -271,9 +267,17 @@ function mod:heartInfamyUpdate(entity)
 			
 			if whichAttack == 1 then
 				data.state = States.Attack1
+				if entity.I1 == 0 then
+					sprite:Play("HeartAttack", true)
+				elseif entity.I1 == 1 then
+					sprite:Play("HeartAttackAlt", true)
+				end
+
 			elseif whichAttack == 2 then
 				data.state = States.Attack2
+				sprite:Play("BurstAttack", true)
 			end
+
 		else
 			entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 		end
@@ -282,14 +286,6 @@ function mod:heartInfamyUpdate(entity)
 	-- Ground slam
 	elseif data.state == States.Attack1 then
 		entity.Velocity = mod:StopLerp(entity.Velocity)
-		if not sprite:IsPlaying("HeartAttack") and not sprite:IsPlaying("HeartAttackAlt") then
-			if entity.I1 == 0 then
-				sprite:Play("HeartAttack", true)
-			elseif entity.I1 == 1 then
-				sprite:Play("HeartAttackAlt", true)
-			end
-		end
-
 
 		if sprite:IsEventTriggered("Jump") then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
@@ -345,9 +341,9 @@ function mod:heartInfamyUpdate(entity)
 					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity).SpriteScale = Vector(0.75, 0.75)
 				end
 			end
+		end
 
-
-		elseif sprite:IsEventTriggered("Switch") then
+		if sprite:IsFinished() then
 			data.state = States.Idle
 			entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
 		end
@@ -356,7 +352,6 @@ function mod:heartInfamyUpdate(entity)
 	-- Burst / Homing shots
 	elseif data.state == States.Attack2 then
 		entity.Velocity = mod:StopLerp(entity.Velocity)
-		mod:LoopingAnim(sprite, "BurstAttack")
 
 		if sprite:IsEventTriggered("Shoot") then
 			entity:PlaySound(SoundEffect.SOUND_BLOODSHOOT, 1.25, 0, false, 1)
@@ -386,13 +381,20 @@ function mod:heartInfamyUpdate(entity)
 				params.Scale = 1.5
 				entity:FireBossProjectiles(12, target.Position, 8, params)
 			end
+		end
 
-		elseif sprite:IsEventTriggered("Switch") and (entity.I1 == 0 or (entity.I1 == 1 and entity.I2 >= Settings.Phase2Shots)) then
-			data.state = States.Idle
-			entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
-			entity.I2 = 0
+		if sprite:IsFinished() then
+			-- Attack 2 times in second phase
+			if entity.I1 == 1 and entity.I2 < Settings.Phase2Shots then
+				sprite:Play("BurstAttack", true)
+			else
+				data.state = States.Idle
+				entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
+				entity.I2 = 0
+			end
 		end
 	end
+
 
 	-- Transition to 2nd phase
 	if entity.HitPoints <= entity.MaxHitPoints / 2 and entity.I1 ~= 1 then
@@ -402,6 +404,7 @@ function mod:heartInfamyUpdate(entity)
 			entity.Child:GetData().state = States.Transition
 		end
 	end
+
 
 	-- Black champion laser
 	if entity.SubType == 1 and entity.FrameCount >= 20 and entity.Child then
