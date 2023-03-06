@@ -4,8 +4,9 @@ function mod:postGameStartedHPBars()
 	if HPBars then
 		local path = "gfx/ui/bosshp_icons/"
 
-		HPBars.BossIgnoreList["97.0"] = true
-		HPBars.BossIgnoreList["403.10"] = true
+		HPBars.BossIgnoreList["97.0"] = true -- Mask of Infamy
+		HPBars.BossIgnoreList["200.4102"] = true -- Forgotten Body
+		HPBars.BossIgnoreList["403.10"] = true -- Forsaken clone
 
 		-- Gish
 		HPBars.BossDefinitions["43.1"] = {
