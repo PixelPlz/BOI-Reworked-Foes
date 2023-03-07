@@ -45,7 +45,7 @@
         <bestiary parent="102.1"/>
 		<gibs amount="1" blood="0" bone="1" eye="0" gut="0" large="0" sound_bone="1"/>
     </entity>
-	<entity anm2path="forgotten body (boss).anm2" baseHP="1000" boss="0" champion="0" collisionDamage="1" collisionMass="100" collisionRadius="18" friction="1" gridCollision="walls" id="200" name="Forgotten Body (Boss)" numGridCollisionPoints="12" portrait="22" shadowSize="16" stageHP="0" variant="4102" subtype="0">
+	<entity anm2path="forgotten body (boss).anm2" baseHP="1000" boss="1" champion="0" collisionDamage="1" collisionMass="100" collisionRadius="18" friction="1" gridCollision="walls" id="200" name="Forgotten Body (Boss)" numGridCollisionPoints="12" portrait="22" shadowSize="16" stageHP="0" variant="4102" subtype="0">
         <bestiary parent="102.1"/>
 		<gibs amount="10" blood="0" bone="1" eye="0" gut="0" large="0"/>
     </entity>
