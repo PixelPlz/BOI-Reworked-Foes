@@ -40,8 +40,11 @@ function mod:replaceNormalProjectiles(projectile)
 	
 	-- Frail
 	elseif projectile.SpawnerType == EntityType.ENTITY_PIN and projectile.SpawnerVariant == 2 and projectile.SpawnerEntity then
-		if projectile.SpawnerEntity:ToNPC().I2 == 0 and not projectile.SpawnerEntity:GetData().wasDelirium then
-			sprite.Color = corpseGreenBulletColor
+		if projectile.SpawnerEntity:ToNPC().I2 == 0 then
+			if not projectile.SpawnerEntity:GetData().wasDelirium then
+				sprite.Color = corpseGreenBulletColor
+			end
+
 			if projectile:HasProjectileFlags(ProjectileFlags.EXPLODE) then
 				projectile:AddProjectileFlags(ProjectileFlags.ACID_GREEN)
 			end
@@ -50,8 +53,8 @@ function mod:replaceNormalProjectiles(projectile)
 			data.trailColor = Color.Default
 			projectile.Scale = 1.5
 			
-			-- Black champion
-			if projectile.SpawnerEntity.SubType == 1 then
+			-- Black champion (this is retarded)
+			if projectile.SpawnerEntity.SpawnerEntity and projectile.SpawnerEntity.SpawnerEntity.SubType == 1 then
 				projectile:ClearProjectileFlags(ProjectileFlags.BURST)
 				projectile:AddProjectileFlags(ProjectileFlags.EXPLODE)
 			end
