@@ -1,4 +1,5 @@
 local mod = BetterMonsters
+IRFkrampusChampID = 1
 
 
 
@@ -61,7 +62,7 @@ function mod:redKrampusUpdate(entity)
 
 
 	-- Krampus
-	elseif entity.Variant == 1 and entity.SubType == 1 then
+	elseif entity.Variant == 1 and entity.SubType == IRFkrampusChampID then
 		-- Replace brimstone attack
 		if sprite:IsEventTriggered("StartShoot") then
 			entity.I2 = 1
