@@ -199,7 +199,7 @@ function mod:FireRing(entity)
 	ring.SpriteScale = Vector(1.35, 1.35)
 	SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END)
 
-	for i, e in pairs(Isaac.FindInRadius(entity.Position, 70, 40)) do
+	for i, e in pairs(Isaac.FindInRadius(entity.Position, 65, 40)) do
 		local dmg = 0
 		if e.Type == EntityType.ENTITY_PLAYER then
 			dmg = 1
@@ -306,7 +306,6 @@ mod:LoadScripts(minibossScripts, "minibosses")
 local bossScripts = {
 	"carrionQueen",
 	--"chad",
-	--"monstro2",
 	"gish",
 	"mom",
 	"pin",
@@ -329,7 +328,6 @@ local bossScripts = {
 	"forsaken",
 	"ragMega",
 	--"sisterVis",
-	--"delirium",
 }
 mod:LoadScripts(bossScripts, "bosses")
 

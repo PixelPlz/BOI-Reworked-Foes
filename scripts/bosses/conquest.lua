@@ -2,7 +2,7 @@ local mod = BetterMonsters
 
 local Settings = {
 	MoveSpeed = 6,
-	Cooldown = {90, 120},
+	Cooldown = 90,
 
 	DashSpeed = 26,
 	DashCooldown = 30,
@@ -24,11 +24,11 @@ function mod:conquestUpdate(entity)
 		-- Go to 2nd phase
 		if not entity.SpawnerEntity and entity.HitPoints <= entity.MaxHitPoints / 2 and entity.State ~= NpcState.STATE_ATTACK2 and not entity:GetData().wasDelirium then
 			-- Conquest without horse
-			local conquest = Isaac.Spawn(EntityType.ENTITY_WAR, 11, entity.SubType, entity.Position, Vector.Zero, entity):ToNPC()
+			local conquest = Isaac.Spawn(EntityType.ENTITY_WAR, 11, entity.SubType, entity.Position, (entity.Position - entity:GetPlayerTarget().Position):Normalized() * 20, entity):ToNPC()
 			conquest.State = NpcState.STATE_APPEAR_CUSTOM
 			conquest.MaxHitPoints = entity.MaxHitPoints
 			conquest.HitPoints = entity.HitPoints
-			conquest.ProjectileCooldown = Settings.Cooldown[1]
+			conquest.ProjectileCooldown = Settings.Cooldown
 
 			local conquestSprite = conquest:GetSprite()
 			conquestSprite:Play("Appear", true)
@@ -40,7 +40,7 @@ function mod:conquestUpdate(entity)
 			horse.State = NpcState.STATE_MOVE
 
 			local horseSprite = horse:GetSprite()
-			horseSprite:Play("DashStart", true)
+			horseSprite:Play("Appear", true)
 			horseSprite.FlipX = sprite.FlipX
 
 
@@ -212,7 +212,7 @@ function mod:conquestPreUpdate(entity)
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				if sprite:IsEventTriggered("Shoot") then
-					entity:PlaySound(SoundEffect.SOUND_MONSTER_ROAR_0, 0.9, 0, false, 1)
+					entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_4, 0.9, 0, false, 1)
 					local params = ProjectileParams()
 
 					if entity.SubType == 0 then
@@ -240,7 +240,7 @@ function mod:conquestPreUpdate(entity)
 
 				if sprite:IsFinished("Attack") then
 					entity.State = NpcState.STATE_MOVE
-					entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
+					entity.ProjectileCooldown = Settings.Cooldown
 				end
 			end
 

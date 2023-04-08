@@ -37,7 +37,7 @@ function mod:gishInit(entity)
 		-- Hera's Whippers (kinky)
 		if entity.SubType == 1 then
 			for i = -1, 1, 2 do
-				Isaac.Spawn(EntityType.ENTITY_WHIPPER, 0, 43, entity.Position + Vector(i * 40, 0), Vector.Zero, entity)
+				Isaac.Spawn(EntityType.ENTITY_WHIPPER, 0, 43, entity.Position + Vector(i * 50, 0), Vector.Zero, entity)
 			end
 		end
 	end

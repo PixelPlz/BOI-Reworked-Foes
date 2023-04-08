@@ -12,7 +12,7 @@ local Settings = {
 	MinChargeTime = 15,
 
 	NewHealth = 500,
-	Cooldown = {80, 110},
+	Cooldown = 90,
 	ShotSpeed = 12,
 	Phase2Shots = 2,
 	BlackLaserOffset = -35,
@@ -40,7 +40,7 @@ function mod:maskInfamyReplace(entity)
 
 	if entity.SubType == 1 then
 		entity.SplatColor = ragManBloodColor
-	elseif entity.SubType == 2 then
+	elseif entity.SubType == 2 and FiendFolio then
 		entity.SplatColor = FiendFolio.ColorLemonYellow
 	end
 end
@@ -223,7 +223,7 @@ function mod:heartInfamyReplace(entity)
 	local data = entity:GetData()
 	
 	data.state = States.Appear
-	entity.ProjectileCooldown = Settings.Cooldown[1]
+	entity.ProjectileCooldown = Settings.Cooldown / 2
 	entity.MaxHitPoints = Settings.NewHealth
 	entity.HitPoints = entity.MaxHitPoints
 	
@@ -345,7 +345,7 @@ function mod:heartInfamyUpdate(entity)
 
 		if sprite:IsFinished() then
 			data.state = States.Idle
-			entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
+			entity.ProjectileCooldown = Settings.Cooldown
 		end
 
 
@@ -389,7 +389,7 @@ function mod:heartInfamyUpdate(entity)
 				sprite:Play("BurstAttack", true)
 			else
 				data.state = States.Idle
-				entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
+				entity.ProjectileCooldown = Settings.Cooldown
 				entity.I2 = 0
 			end
 		end

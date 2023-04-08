@@ -89,8 +89,8 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.envyDeath, EntityType.ENTITY
 function mod:envyRewards(entity)
 	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_ENVY then
 		-- Tammy's Head
-		if entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= 38 then
-			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 38, false, true, false)
+		if entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= CollectibleType.COLLECTIBLE_TAMMYS_HEAD then
+			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_TAMMYS_HEAD, false, true, false)
 
 		-- Trinkets
 		elseif entity.Variant == PickupVariant.PICKUP_BOMB and entity.SubType == BombSubType.BOMB_TROLL then

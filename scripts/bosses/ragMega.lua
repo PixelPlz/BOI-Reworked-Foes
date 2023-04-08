@@ -2,7 +2,7 @@ local mod = BetterMonsters
 
 local Settings = {
 	NewHealth = 300,
-	Cooldown = {90, 120},
+	Cooldown = 90,
 
 	MoveSpeed = 2.5,
 	BallSpeed = 7,
@@ -17,7 +17,7 @@ function mod:ragMegaInit(entity)
 	if entity.Variant == 0 then
 		entity.MaxHitPoints = Settings.NewHealth
 		entity.HitPoints = entity.MaxHitPoints
-		entity.ProjectileCooldown = Settings.Cooldown[1]
+		entity.ProjectileCooldown = Settings.Cooldown / 2
 
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
@@ -109,7 +109,7 @@ function mod:ragMegaUpdate(entity)
 
 				-- Choose attack
 				if entity.ProjectileCooldown <= 0 then
-					entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
+					entity.ProjectileCooldown = Settings.Cooldown
 					entity.I2 = 0
 					entity.StateFrame = 0
 

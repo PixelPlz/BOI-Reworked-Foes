@@ -17,7 +17,7 @@ end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.skinnyInit, EntityType.ENTITY_SKINNY)
 
 function mod:skinnyUpdate(entity)
-	if entity.Variant == 0 or entity.Variant == 1 then
+	if entity.Variant <= 1 then
 		local sprite = entity:GetSprite()
 		local data = entity:GetData()
 		local target = entity:GetPlayerTarget()
@@ -120,6 +120,25 @@ function mod:skinnyUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.skinnyUpdate, EntityType.ENTITY_SKINNY)
+
+-- Turn Skinnies into Crispies when burnt
+function mod:skinnyIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if target.Variant == 0 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
+		target:ToNPC():Morph(target.Type, 2, 0, target:ToNPC():GetChampionColorIdx())
+		
+		if target:ToNPC().State ~= NpcState.STATE_MOVE then
+			target:ToNPC().State = NpcState.STATE_MOVE
+			target.HitPoints = 9.9
+		end
+
+		target:GetSprite():PlayOverlay("Head", true)
+		target:Update()
+		SFXManager():Play(SoundEffect.SOUND_FIREDEATH_HISS)
+
+		return false
+	end
+end
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.skinnyIgnite, EntityType.ENTITY_SKINNY)
 
 function mod:rottyGreedDeath(entity)
 	if entity.Variant == 1 and Game():IsGreedMode() and entity.Child then

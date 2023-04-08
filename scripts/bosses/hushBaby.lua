@@ -3,7 +3,7 @@ local mod = BetterMonsters
 local Settings = {
 	MoveSpeed = 5,
 
-	Cooldown = {90, 120},
+	Cooldown = 90,
 	TearCooldown = 22,
 	TeleportCooldown = {90, 180},
 	SoundTimer = {120, 180},
@@ -133,7 +133,7 @@ function mod:hushBabyUpdate(entity)
 
 				-- Choose an attack
 				if entity.ProjectileCooldown <= 0 then
-					entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
+					entity.ProjectileCooldown = Settings.Cooldown
 					data.tearCooldown = Settings.TearCooldown
 
 					local attack = math.random(1, 2)
@@ -191,8 +191,9 @@ function mod:hushBabyUpdate(entity)
 
 			if sprite:IsFinished() then
 				entity.I1 = entity.I1 + 1
-				entity.ProjectileCooldown = Settings.Cooldown[1]
+				entity.ProjectileCooldown = Settings.Cooldown
 				data.spawnTimer = 0
+				data.shotCount = 1
 				entity.State = NpcState.STATE_IDLE
 			end
 

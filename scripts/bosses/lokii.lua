@@ -1,18 +1,18 @@
 local mod = BetterMonsters
 
 local Settings = {
-	Cooldown = 60,
+	Cooldown = 90,
 	PlayerDistance = 120,
 	MoveSpeed = 4,
+	HopSpeed = 12,
+	TPdistance = 280,
+
 	ShotSpeed = 11,
 	AngryShotSpeed = 12,
 
 	FlySpeed = 20,
 	PushBack = 15,
 	MaxFlies = 2,
-
-	HopSpeed = 12,
-	TPdistance = 320,
 
 	LaserSpeed = 5,
 	LaserBurstSpeed = 10
@@ -22,7 +22,7 @@ local Settings = {
 
 function mod:lokiiInit(entity)
 	if entity.Variant == 1 and entity.SubType == 0 then
-		entity.ProjectileCooldown = Settings.Cooldown
+		entity.ProjectileCooldown = Settings.Cooldown / 2
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 	end
 end
@@ -94,7 +94,12 @@ function mod:lokiiUpdate(entity)
 				mod:LoopingAnim(sprite, "Walk")
 
 				if entity.ProjectileCooldown <= 0 and pair.State == NpcState.STATE_IDLE then
-					local attack = math.random(0, 3)
+					local attackCount = 2
+					if entity.Position:Distance(target.Position) <= 280 then
+						attackCount = 3
+					end
+
+					local attack = math.random(0, attackCount)
 
 					if attack == 0 then
 						entity.State = NpcState.STATE_JUMP
@@ -138,14 +143,18 @@ function mod:lokiiUpdate(entity)
 				end
 
 				if sprite:IsFinished("TeleportUp") then
-					local sideL = -60
-					local sideH = 60
+					local sideMulti = -1
 					if entity.I1 == 1 then
-						sideL = 120
-						sideH = 240
+						sideMulti = 1
 					end
-					entity.V1 = target.Position + Vector.FromAngle(math.random(sideL, sideH)) * Settings.TPdistance
+
+					entity.V1 = target.Position + Vector.FromAngle(target.Velocity:GetAngleDegrees() + (sideMulti * 90)) * Settings.TPdistance
 					entity.V1 = Game():GetRoom():FindFreePickupSpawnPosition(entity.V1, 40, true, false)
+
+					if entity.V1:Distance(Game():GetNearestPlayer(entity.Position).Position) < 160 then
+						entity.V1 = target.Position + ((Game():GetRoom():GetCenterPos() - target.Position):Normalized() * Settings.TPdistance)
+						entity.V1 = Game():GetRoom():FindFreePickupSpawnPosition(entity.V1, 40, true, false)
+					end
 
 					entity.Position = entity.V1
 					entity.State = NpcState.STATE_STOMP
@@ -248,10 +257,23 @@ function mod:lokiiUpdate(entity)
 
 					else
 						entity.StateFrame = 4
+
+						-- If they collide
 						if entity.Position.Y <= pair.Position.Y + 20 and entity.Position.Y >= pair.Position.Y - 20 and pair:GetData().brim then
 							data.brim:SetMaxDistance((entity.Position + Vector(12 - ((entity.I1 - 1) * 24), 0)):Distance(pair.Position) / 2)
+							entity.I2 = 1
+
 						else
-							data.brim:SetMaxDistance(0)
+							-- Cancel the attack if moved
+							if entity.I2 == 1 then
+								sprite:SetFrame(50)
+								data.brim:SetTimeout(1)
+								entity.I2 = 2
+								entity.StateFrame = 1
+
+							elseif entity.I2 == 0 then
+								data.brim:SetMaxDistance(0)
+							end
 						end
 					end
 				end

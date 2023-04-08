@@ -2,7 +2,7 @@ local mod = BetterMonsters
 
 local Settings = {
 	NewHealth = 400,
-	Cooldown = {90, 120},
+	Cooldown = 90,
 	TransparencyTimer = 10,
 
 	SpitBaseTime = 30,
@@ -16,7 +16,7 @@ local Settings = {
 function mod:forsakenInit(entity)
 	entity.MaxHitPoints = Settings.NewHealth
 	entity.HitPoints = entity.MaxHitPoints
-	entity.ProjectileCooldown = Settings.Cooldown[1]
+	entity.ProjectileCooldown = Settings.Cooldown / 2
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
 	if entity.SubType == 1 then
@@ -192,7 +192,7 @@ function mod:forsakenUpdate(entity)
 		entity.Velocity = mod:StopLerp(entity.Velocity)
 
 		if sprite:IsFinished() then
-			entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
+			entity.ProjectileCooldown = Settings.Cooldown
 			entity.I1 = 0
 			entity.I2 = 0
 			entity.StateFrame = 0

@@ -8,7 +8,7 @@ local Settings = {
 
 
 
--- Function for making greedy enemies collect pickups
+-- Function for making greedy enemies collect coins
 function mod:greedCollect(entity)
 	-- Don't pick up coins in greed mode
 	if not Game():IsGreedMode() then
@@ -29,12 +29,15 @@ function mod:greedRobPickup(entity)
 	local data = entity:GetData()
 	local sprite = entity:GetSprite()
 
+
+	-- Collect the coin
 	if data.greedRobber then
 		if not sprite:IsPlaying("Collect") then
 			sprite:Play("Collect", true)
 			data.greedRobbed = true
 			data.greedRobber:SetColor(Color(1,1,1, 1, 0.5,0.5,0), 5, 1, true, false)
 			
+			-- Proper coin values
 			local multiplier = 1
 			if entity.SubType == CoinSubType.COIN_NICKEL or entity.SubType == CoinSubType.COIN_STICKYNICKEL then
 				multiplier = 5
@@ -43,23 +46,27 @@ function mod:greedRobPickup(entity)
 			elseif entity.SubType == CoinSubType.COIN_DOUBLEPACK or entity.SubType == CoinSubType.COIN_LUCKYPENNY then
 				multiplier = 2
 			end
+
+			-- Heal based on the coin value
 			data.greedRobber:AddHealth((data.greedRobber.MaxHitPoints / 100) * Settings.CoinHealPercentage * multiplier)
 
+			-- Add to Coffer coin projectiles
 			if data.greedRobber.Type == EntityType.ENTITY_KEEPER and data.greedRobber.Variant == IRFentities.coffer then
 				data.greedRobber.I1 = data.greedRobber.I1 + multiplier
 			end
 		end
+
 		data.greedRobber = nil
 	end
 
-	if data.greedRobbed then
-		if sprite:IsPlaying("Collect") and sprite:GetFrame() == 4 then
-			entity:PlayPickupSound()
-			entity:Remove()
-		end
+
+	-- Remove the coin
+	if data.greedRobbed and sprite:IsPlaying("Collect") and sprite:GetFrame() == 4 then
+		entity:PlayPickupSound()
+		entity:Remove()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, mod.greedRobPickup)
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, mod.greedRobPickup, PickupVariant.PICKUP_COIN)
 
 
 
@@ -86,7 +93,7 @@ function mod:greedUpdate(entity)
 					params.Variant = ProjectileVariant.PROJECTILE_COIN
 					params.BulletFlags = ProjectileFlags.EXPLODE
 					params.Scale = 1.25
-					entity:FireProjectiles(entity.Position, entity.V1, 1, params)
+					entity:FireProjectiles(entity.Position, entity.V1:Normalized() * 8, 1, params)
 				end
 
 				if sprite:IsFinished(sprite:GetAnimation()) then
@@ -123,7 +130,7 @@ function mod:greedDMG(target, damageAmount, damageFlags, damageSource, damageCou
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.greedDMG, EntityType.ENTITY_GREED)
 
--- Super Greed
+-- Super Greed hitting a player
 function mod:greedHit(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Type == EntityType.ENTITY_PLAYER and ((damageSource.SpawnerType == EntityType.ENTITY_GREED and damageSource.SpawnerVariant == 1)
 	or (damageSource.Type == EntityType.ENTITY_GREED and damageSource.Variant == 1)) then
@@ -151,8 +158,6 @@ function mod:greedHit(target, damageAmount, damageFlags, damageSource, damageCou
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.greedHit)
-
-
 
 function mod:championGreedReward(entity)
 	-- Midas' Touch
@@ -198,8 +203,10 @@ function mod:cofferUpdate(entity)
 		entity.ProjectileCooldown = 3
 	end
 
+
 	-- Also for keepers
 	mod:greedCollect(entity)
+
 	if sprite:IsPlaying("JumpDown") and sprite:GetFrame() == 22 then
 		entity.Velocity = Vector.Zero
 		entity.TargetPosition = entity.Position
@@ -241,3 +248,21 @@ function mod:hangerUpdate(entity)
 	mod:greedCollect(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hangerUpdate, EntityType.ENTITY_HANGER)
+
+
+
+-- Greed Gaper
+function mod:greedGaperUpdate(entity)
+	mod:greedCollect(entity)
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.greedGaperUpdate, EntityType.ENTITY_GREED_GAPER)
+
+
+
+-- Fiend Folio Dangler
+function mod:danglerUpdate(entity)
+	if FiendFolio then
+		mod:greedCollect(entity)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.danglerUpdate, 610)

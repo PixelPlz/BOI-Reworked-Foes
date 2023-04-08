@@ -30,7 +30,7 @@ function mod:mrFredUpdate(entity)
 			mod:LoopingAnim(sprite, "Idle")
 
 			if entity.ProjectileCooldown <= 0 then
-				entity.ProjectileCooldown = math.random(60, 90)
+				entity.ProjectileCooldown = 60
 
 				-- Decide attack
 				local attack = math.random(1, 5)
@@ -143,7 +143,7 @@ function mod:mrFredUpdate(entity)
 
 			if sprite:IsFinished("Shoot") then
 				entity.State = NpcState.STATE_IDLE
-				entity.ProjectileCooldown = 60
+				entity.ProjectileCooldown = 90
 			end
 
 

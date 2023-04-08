@@ -2,7 +2,7 @@ local mod = BetterMonsters
 
 local Settings = {
 	NewHP = 250,
-	Cooldown = {80, 110},
+	Cooldown = 90,
 	TransparencyTimer = 10,
 
 	MoveSpeed = 5.25,
@@ -17,7 +17,7 @@ local Settings = {
 
 function mod:blightedOvumInit(entity)
 	if entity.Variant == 2 or entity.Variant == 12 then
-		entity.ProjectileCooldown = Settings.Cooldown[1]
+		entity.ProjectileCooldown = math.random(Settings.Cooldown / 2, Settings.Cooldown * 2)
 
 		if entity.Variant == 2 then
 			entity.MaxHitPoints = Settings.NewHP
@@ -75,7 +75,7 @@ function mod:blightedOvumUpdate(entity)
 
 						elseif sprite:GetOverlayFrame() == 31 then
 							entity.State = NpcState.STATE_MOVE
-							entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
+							entity.ProjectileCooldown = Settings.Cooldown
 						end
 					end
 
@@ -153,7 +153,7 @@ function mod:blightedOvumUpdate(entity)
 					end
 
 					entity.State = NpcState.STATE_MOVE
-					entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
+					entity.ProjectileCooldown = Settings.Cooldown
 				end
 
 			else
@@ -188,7 +188,7 @@ function mod:blightedOvumUpdate(entity)
 			elseif sprite:IsOverlayFinished("Transition2") then
 				entity.State = NpcState.STATE_MOVE
 				entity.I1 = 1
-				entity.ProjectileCooldown = Settings.Cooldown[1]
+				entity.ProjectileCooldown = Settings.Cooldown
 			end
 
 		-- Run away
@@ -280,7 +280,7 @@ function mod:blightedOvumUpdate(entity)
 
 				if sprite:IsFinished("Attack01") then
 					entity.State = NpcState.STATE_MOVE
-					entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
+					entity.ProjectileCooldown = Settings.Cooldown
 				end
 			end
 

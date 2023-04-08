@@ -10,7 +10,11 @@ local Settings = {
 
 function mod:angelicBabyInit(entity)
 	if entity.Variant == 1 and entity.SubType == 0 and entity.SpawnerType == EntityType.ENTITY_GABRIEL then
-		entity:Morph(entity.Type, 1 - entity.SpawnerVariant, 1 - entity.SpawnerVariant, entity:GetChampionColorIdx())
+		if entity.SpawnerVariant == 1 then
+			entity:Morph(EntityType.ENTITY_IMP, 0, 0, entity:GetChampionColorIdx())
+		else
+			entity:Morph(entity.Type, 1, 1, entity:GetChampionColorIdx())
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.angelicBabyInit, EntityType.ENTITY_BABY)

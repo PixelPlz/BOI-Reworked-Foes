@@ -32,7 +32,7 @@ function mod:lumpUpdate(entity)
 		mod:LoopingAnim(sprite, "Shake")
 		
 		-- Shoot if target is close enough
-		if entity.Position:Distance(Game():GetNearestPlayer(entity.Position).Position) <= 220 and room:CheckLine(entity.Position, target.Position, 3, 0, false, false) then
+		if entity.Position:Distance(target.Position) <= 220 and room:CheckLine(entity.Position, target.Position, 3, 0, false, false) then
 			entity.State = NpcState.STATE_ATTACK
 			sprite:Play("Spit", true)
 		end
@@ -69,7 +69,7 @@ function mod:lumpUpdate(entity)
 			minDistance = 120
 		end
 
-		if entity.StateFrame <= 0 and entity.V1:Distance(target.Position) >= minDistance then
+		if entity.StateFrame <= 0 and entity.V1:Distance(Game():GetNearestPlayer(entity.Position).Position) >= minDistance then
 			entity.Position = entity.V1
 			entity.State = NpcState.STATE_JUMP
 			sprite:Play("Emerge", true)

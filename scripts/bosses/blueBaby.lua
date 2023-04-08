@@ -5,7 +5,7 @@ local Settings = {
 	MoveSpeed = 4.75,
 	SoulSpeed = 3.75,
 
-	Cooldown = {90, 120},
+	Cooldown = 90,
 	TearCooldown = 22,
 	FlyDelay = 60,
 
@@ -30,7 +30,7 @@ function mod:blueBabyInit(entity)
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
-		entity.ProjectileCooldown = Settings.Cooldown[2]
+		entity.ProjectileCooldown = Settings.Cooldown
 		data.tearCooldown = Settings.TearCooldown
 		data.shotCount = 1
 		data.spawnTimer = Settings.FlyDelay
@@ -123,7 +123,7 @@ function mod:blueBabyUpdate(entity)
 		-- Reset back to idle phase
 		local function backToIdle()
 			entity.State = NpcState.STATE_IDLE
-			entity.ProjectileCooldown = math.random(Settings.Cooldown[1], Settings.Cooldown[2])
+			entity.ProjectileCooldown = Settings.Cooldown
 			data.tearCooldown = Settings.TearCooldown
 
 			if entity.I1 == 2 and (entity.HitPoints < (entity.MaxHitPoints / 2) and math.random(0, 1) == 1) then
@@ -385,6 +385,7 @@ function mod:blueBabyUpdate(entity)
 			if sprite:IsFinished() then
 				entity.I1 = entity.I1 + 1
 				data.spawnTimer = 0
+				data.shotCount = 1
 				backToIdle()
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 			end
@@ -803,7 +804,7 @@ function mod:blueBabyUpdate(entity)
 		elseif data.wasDelirium then
 			entity.State = NpcState.STATE_IDLE
 			entity.I1 = 4 - math.ceil(entity.HitPoints / (entity.MaxHitPoints / 3))
-			entity.ProjectileCooldown = 60
+			entity.ProjectileCooldown = Settings.Cooldown / 2
 		end
 
 

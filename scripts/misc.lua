@@ -60,6 +60,20 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.scarredGutsDeath, EntityType
 
 
 
+--[[ Reduce Monstro 2 and Gish HP ]]--
+function mod:monstro2Init(entity)
+	local newHealth = 540
+	if entity.SubType == 1 then
+		newHealth = 460
+	end
+
+	entity.MaxHitPoints = newHealth
+	entity.HitPoints = entity.MaxHitPoints
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.monstro2Init, EntityType.ENTITY_MONSTRO2)
+
+
+
 --[[ Fistula Scarred Womb skin ]]--
 local function fistulaScarredSkin(entity)
 	if IRFconfig.matriarchFistula == true and entity.Variant == 0 then
@@ -153,6 +167,25 @@ function mod:gurglingsUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gurglingsUpdate, EntityType.ENTITY_GURGLING)
+
+
+
+--[[ Homunculus, Begotten chain break ]]--
+function mod:homunculusChainBreak(entity)
+	if entity.Variant == 10 then
+		SFXManager():Play(SoundEffect.SOUND_MEATY_DEATHS, 0.75)
+		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 1, entity.Position, Vector.Zero, entity)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_ENTITY_REMOVE, mod.homunculusChainBreak, EntityType.ENTITY_HOMUNCULUS)
+
+function mod:begottenChainBreak(entity)
+	if entity.Variant == 10 then
+		SFXManager():Play(SoundEffect.SOUND_CHAIN_BREAK, 0.75)
+		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CHAIN_GIB, 0, entity.Position, Vector.FromAngle(math.random(0, 359)), entity):GetSprite().Color = Color(0.75,0.75,0.75, 1)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_ENTITY_REMOVE, mod.begottenChainBreak, EntityType.ENTITY_BEGOTTEN)
 
 
 
