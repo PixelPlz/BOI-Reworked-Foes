@@ -36,27 +36,35 @@ function mod:replaceNormalProjectiles(projectile)
 		if projectile.SpawnerType == EntityType.ENTITY_MEMBRAIN and projectile.SpawnerVariant == 2 then
 			data.trailColor = corpseGreenBulletTrail
 		end
-	
-	
-	-- Frail
-	elseif projectile.SpawnerType == EntityType.ENTITY_PIN and projectile.SpawnerVariant == 2 and projectile.SpawnerEntity then
-		if projectile.SpawnerEntity:ToNPC().I2 == 0 then
-			if not projectile.SpawnerEntity:GetData().wasDelirium then
-				sprite.Color = corpseGreenBulletColor
-			end
 
-			if projectile:HasProjectileFlags(ProjectileFlags.EXPLODE) then
-				projectile:AddProjectileFlags(ProjectileFlags.ACID_GREEN)
-			end
 
-		elseif projectile.SpawnerEntity:ToNPC().I2 == 1 and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
+	-- Pin variants
+	elseif projectile.SpawnerType == EntityType.ENTITY_PIN then
+		-- Scolex
+		if projectile.SpawnerVariant == 1 and projectile:HasProjectileFlags(ProjectileFlags.EXPLODE) then
 			data.trailColor = Color.Default
-			projectile.Scale = 1.5
-			
-			-- Black champion (this is retarded)
-			if projectile.SpawnerEntity.SpawnerEntity and projectile.SpawnerEntity.SpawnerEntity.SubType == 1 then
-				projectile:ClearProjectileFlags(ProjectileFlags.BURST)
-				projectile:AddProjectileFlags(ProjectileFlags.EXPLODE)
+
+
+		-- Frail
+		elseif projectile.SpawnerVariant == 2 and projectile.SpawnerEntity then
+			if projectile.SpawnerEntity:ToNPC().I2 == 0 then
+				if not projectile.SpawnerEntity:GetData().wasDelirium then
+					sprite.Color = corpseGreenBulletColor
+				end
+
+				if projectile:HasProjectileFlags(ProjectileFlags.EXPLODE) then
+					projectile:AddProjectileFlags(ProjectileFlags.ACID_GREEN)
+				end
+
+			elseif projectile.SpawnerEntity:ToNPC().I2 == 1 and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
+				data.trailColor = Color.Default
+				projectile.Scale = 1.5
+				
+				-- Black champion (this is retarded)
+				if projectile.SpawnerEntity.SpawnerEntity and projectile.SpawnerEntity.SpawnerEntity.SubType == 1 then
+					projectile:ClearProjectileFlags(ProjectileFlags.BURST)
+					projectile:AddProjectileFlags(ProjectileFlags.EXPLODE)
+				end
 			end
 		end
 
@@ -71,9 +79,39 @@ function mod:replaceNormalProjectiles(projectile)
 		end
 
 
-	-- Red champion Mega Maw / Gate
-	elseif (projectile.SpawnerType == EntityType.ENTITY_MEGA_MAW or projectile.SpawnerType == EntityType.ENTITY_GATE) and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 then
-		projectile.CollisionDamage = 1
+	-- Mega Maw
+	elseif projectile.SpawnerType == EntityType.ENTITY_MEGA_MAW and projectile.SpawnerEntity then
+		-- Red champion
+		if projectile.SpawnerEntity.SubType == 1 then
+			projectile.CollisionDamage = 1
+		else
+			projectile:AddProjectileFlags(ProjectileFlags.FIRE)
+		end
+
+
+	-- The Gate
+	elseif projectile.SpawnerType == EntityType.ENTITY_GATE and projectile.SpawnerEntity then
+		-- Make red champion only deal half a heart of damage
+		if projectile.SpawnerEntity.SubType == 1 then
+			projectile.CollisionDamage = 1
+
+		-- Fire projectiles for regular and black champion
+		else
+			local color = Color(1,1,1, 1, 0,-0.4,-0.4)
+			-- Blue fires for black champion
+			if projectile.SpawnerEntity.SubType == 2 then
+				color = Color(0,0,0, 1, 0,0.75,1.5)
+			end
+
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_FIRE, "009.002_fire projectile", color)
+			projectile:AddProjectileFlags(ProjectileFlags.FIRE)
+			sprite.Offset = Vector(0, 15)
+		end
+
+
+	-- Black champion Dark One
+	elseif projectile.SpawnerType == EntityType.ENTITY_DARK_ONE and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 then
+		sprite.Color = shadyBulletColor
 
 
 	-- Mr. Fred
@@ -103,6 +141,11 @@ function mod:replaceNormalProjectiles(projectile)
 	-- Mr. Mine
 	elseif projectile.SpawnerType == EntityType.ENTITY_MR_MINE then
 		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR, "009.004_tear projectile")
+
+
+	-- Black Rag Man
+	elseif projectile.SpawnerType == EntityType.ENTITY_RAG_MAN and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 and not projectile:HasProjectileFlags(ProjectileFlags.SMART) then
+		projectile:AddProjectileFlags(ProjectileFlags.SMART)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.replaceNormalProjectiles, ProjectileVariant.PROJECTILE_NORMAL)
@@ -145,6 +188,11 @@ function mod:replacePukeProjectiles(projectile)
 	-- Black champion Dingle
 	if projectile.SpawnerType == EntityType.ENTITY_DINGLE and projectile.SpawnerVariant == 0 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 then
 		sprite.Color = tarBulletColor
+
+
+	-- Red champion Mega Fatty
+	elseif projectile.SpawnerType == EntityType.ENTITY_MEGA_FATTY and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 then
+		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_NORMAL, "009.000_projectile")
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.replacePukeProjectiles, ProjectileVariant.PROJECTILE_PUKE)
@@ -160,10 +208,13 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.replaceTearProjectil
 
 function mod:replaceHushProjectiles(projectile)
 	local data = projectile:GetData()
-
-	-- Lokii / Fallen Uriel / Satan
-	if ((projectile.SpawnerType == EntityType.ENTITY_LOKI or projectile.SpawnerType == EntityType.ENTITY_URIEL) and projectile.SpawnerVariant == 1)
-	or projectile.SpawnerType == EntityType.ENTITY_SATAN or projectile.SpawnerType == EntityType.ENTITY_FORSAKEN then
+	
+	-- Lokii / Satan / Black Dark One / Fallen Uriel / Forsaken
+	if (projectile.SpawnerType == EntityType.ENTITY_LOKI and projectile.SpawnerVariant == 1)
+	or projectile.SpawnerType == EntityType.ENTITY_SATAN
+	or projectile.SpawnerType == EntityType.ENTITY_DARK_ONE and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1
+	or (projectile.SpawnerType == EntityType.ENTITY_URIEL and projectile.SpawnerVariant == 1)
+	or projectile.SpawnerType == EntityType.ENTITY_FORSAKEN then
 		data.trailColor = Color.Default
 
 

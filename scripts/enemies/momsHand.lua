@@ -21,6 +21,12 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.momsHandUpdate, EntityType.ENTIT
 function mod:momsDeadHandUpdate(entity)
 	local sprite = entity:GetSprite()
 
+	-- Replace appear sound
+	if SFXManager():IsPlaying(SoundEffect.SOUND_MOM_VOX_EVILLAUGH) then
+		SFXManager():Stop(SoundEffect.SOUND_MOM_VOX_EVILLAUGH)
+		SFXManager():Play(SoundEffect.SOUND_MOTHERSHADOW_APPEAR)
+	end
+
 	if sprite:IsEventTriggered("Land") then
 		-- Remove default rock waves
 		for i, rockWave in pairs(Isaac.FindByType(EntityType.ENTITY_EFFECT, EffectVariant.CRACKWAVE, -1, false, false)) do
@@ -30,10 +36,13 @@ function mod:momsDeadHandUpdate(entity)
 		end
 
 
+		-- Projectiles
 		local params = ProjectileParams()
 		params.Scale = 1.35
 
+		-- Get fitting projectile
 		local bg = Game():GetRoom():GetBackdropType()
+
 		if bg == BackdropType.CORPSE or bg == BackdropType.CORPSE2 then
 			params.Color = corpseGreenBulletColor
 		elseif not (bg == BackdropType.WOMB or bg == BackdropType.UTERO or bg == BackdropType.SCARRED_WOMB or bg == BackdropType.CORPSE3) then
@@ -41,6 +50,9 @@ function mod:momsDeadHandUpdate(entity)
 		end
 
 		entity:FireProjectiles(entity.Position, Vector(11, 8), 8, params)
+
+
+		-- New shockwave
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SHOCKWAVE, 0, entity.Position, Vector.Zero, entity):ToEffect().Timeout = 10
 		Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
 	end

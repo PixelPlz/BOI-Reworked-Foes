@@ -102,8 +102,8 @@ function mod:fleshDeathHeadDeath(entity)
 	
 	Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, nil)
 	Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, nil)
-	SFXManager():Play(SoundEffect.SOUND_MEATY_DEATHS, 0.9)
-	SFXManager():Play(SoundEffect.SOUND_EXPLOSION_WEAK, 1.1)
+	SFXManager():Play(SoundEffect.SOUND_MEATY_DEATHS)
+	SFXManager():Play(SoundEffect.SOUND_EXPLOSION_WEAK)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.fleshDeathHeadDeath, EntityType.ENTITY_FLESH_DEATHS_HEAD)
 

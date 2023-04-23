@@ -336,6 +336,10 @@ function mod:blightedOvumDeath(entity)
 	if entity.Variant == 12 then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ENEMY_GHOST, 2, entity.Position, Vector.Zero, entity)
 		SFXManager():Play(SoundEffect.SOUND_DEMON_HIT)
+
+		for i, e in pairs(Isaac.FindInRadius(entity.Position, 60, EntityPartition.ENEMY)) do
+			e:TakeDamage(40, 0, EntityRef(entity), 0)
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.blightedOvumDeath, EntityType.ENTITY_GEMINI)

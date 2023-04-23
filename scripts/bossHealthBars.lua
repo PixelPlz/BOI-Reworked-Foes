@@ -152,6 +152,13 @@ function mod:postGameStartedHPBars()
 			offset = Vector(-7, 0),
 			bossColors = {"_purple"}
 		}
+		
+		-- Dark One
+		HPBars.BossDefinitions["267.0"] = {
+			sprite = path .. "chapter2/dark_one.png",
+			offset = Vector(-5, -2),
+			bossColors = {"_black"}
+		}
 
 		-- Forsaken clone
 		HPBars.BossDefinitions["403.10"] = {

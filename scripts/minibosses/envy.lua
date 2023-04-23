@@ -7,7 +7,7 @@ local Settings = {
 	BaseTimer = 30,
 	BaseMulti = 0.1,
 	BaseDiv = 0.05,
-	MaxStrength = 16,
+	MaxStrength = 15,
 	BaseVolume = 2.2,
 	BaseShotSpeed = 7.5
 }
@@ -15,7 +15,7 @@ local Settings = {
 
 
 function mod:envyUpdate(entity)
-	if mod:CheckForRev() == false then
+	if mod:CheckForRev() == false and (IRFconfig.envyRework == true or entity.SubType == 1) then
 		if entity.Variant >= 10 and entity.FrameCount == 0 then
 			entity.I2 = 1
 			entity.ProjectileCooldown = Settings.InitialTimer
@@ -42,7 +42,7 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.envyUpdate, EntityType.ENTITY_ENVY)
 
 function mod:envyCollide(entity, target, bool)
-	if mod:CheckForRev() == false and target.Type == EntityType.ENTITY_ENVY and (entity.I1 == 1 or entity.Variant < 2) then
+	if mod:CheckForRev() == false and (IRFconfig.envyRework == true or entity.SubType == 1) and target.Type == EntityType.ENTITY_ENVY and (entity.I1 == 1 or entity.Variant < 2) then
 		-- Get bounce strength
 		local eSize = math.floor(entity.Variant / 10)
 		local tSize = math.floor(target.Variant / 10)

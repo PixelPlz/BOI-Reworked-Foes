@@ -8,9 +8,14 @@ function mod:pinInit(entity)
 		local sprite = entity:GetSprite()
 
 		sprite:Play("Attack1", true)
-		sprite:SetFrame(80)
 		entity.State = NpcState.STATE_APPEAR_CUSTOM
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+
+		local frame = 80
+		if entity.Variant == 1 then
+			frame = 46
+		end
+		sprite:SetFrame(frame)
 
 		-- Black Frail fix
 		if entity.Variant == 2 and entity.SubType == 1 then

@@ -20,7 +20,7 @@ function mod:selflessKnightUpdate(entity)
 
 				entity:FireProjectiles(entity.Position, -entity.Velocity:Normalized() * Settings.ShotSpeed, 0, params)
 				entity.ProjectileCooldown = Settings.Cooldown
-				SFXManager():Play(SoundEffect.SOUND_TEARS_FIRE, 0.75)
+				SFXManager():Play(SoundEffect.SOUND_TEARS_FIRE, 0.8)
 			end
 
 		else

@@ -144,8 +144,8 @@
 	</boss>
 	<!-- Widow -->
 	<boss id="100" variant="0">
-		<color suffix="_black" />
-		<color suffix="_pink" scale="0.75" hp="0.9" />
+		<color suffix="_black" hp="1.15" />
+		<color suffix="_pink" scale="0.75" hp="0.8" />
 	</boss>
 	<!-- Gurglings -->
 	<boss id="237" variant="1">
@@ -190,7 +190,7 @@
 	<!-- Lil Horn -->
 	<boss id="404" variant="0">
 		<color anm2path="404.000_Littlehorn_orange.anm2" />
-		<color suffix="_black" />
+		<color anm2path="404.000_Littlehorn_black.anm2" />
 	</boss>
 	<boss id="404" variant="1">
 		<color suffix="_orange" />
@@ -298,5 +298,9 @@
 	</boss>
 	<boss id="83" variant="0">
 		<color suffix="_purple" scale="1.15" hp="1.15"/>
+	</boss>
+	<!-- Dark One -->
+	<boss id="267" variant="0">
+		<color suffix="_black" />
 	</boss>
 </bosscolors>

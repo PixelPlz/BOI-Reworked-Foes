@@ -74,6 +74,16 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.monstro2Init, EntityType.ENTI
 
 
 
+--[[ Make Peep and the Bloat's eyes bounce off of them and each other ]]--
+function mod:peepEyeCollision(entity, target, cock)
+	if (entity.Variant == 10 or entity.Variant == 11) and target.Type == entity.Type then
+		entity.Velocity = (entity.Position - target.Position):Normalized()
+	end
+end
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.peepEyeCollision, EntityType.ENTITY_PEEP)
+
+
+
 --[[ Fistula Scarred Womb skin ]]--
 local function fistulaScarredSkin(entity)
 	if IRFconfig.matriarchFistula == true and entity.Variant == 0 then
@@ -134,6 +144,18 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.eternalFlyUpdate, EntityType.ENT
 
 
 
+--[[ Gurdy Jr. ]]--
+function mod:gurdyJrUpdate(entity)
+	local sprite = entity:GetSprite()
+
+	if entity.State == NpcState.STATE_ATTACK and sprite:IsPlaying("Attack03Start") and sprite:GetFrame() < 8 then
+		entity.Velocity = Vector.Zero
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gurdyJrUpdate, EntityType.ENTITY_GURDY_JR)
+
+
+
 --[[ Thrown Dip ]]--
 function mod:thrownDipUpdate(entity)
 	local data = entity:GetData()
@@ -159,6 +181,20 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.thrownDipUpdate, EntityType.ENTI
 
 
 --[[ Gurglings ]]--
+-- Different sprites for the boss and enemy ones
+function mod:gurglingsInit(entity)
+	if entity.Variant == 1 and entity.SubType == 0 then
+		local sprite = entity:GetSprite()
+
+		sprite:ReplaceSpritesheet(0, "gfx/monsters/rebirth/monster_237_gurgling_boss hands.png")
+		sprite:ReplaceSpritesheet(1, "gfx/monsters/rebirth/monster_237_gurgling_boss.png")
+		sprite:ReplaceSpritesheet(2, "gfx/monsters/rebirth/monster_237_gurgling_boss.png")
+		sprite:LoadGraphics()
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.gurglingsInit, EntityType.ENTITY_GURGLING)
+
+-- Make them immuno to knockback while charging
 function mod:gurglingsUpdate(entity)
 	if entity.State == NpcState.STATE_ATTACK then
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
@@ -186,6 +222,19 @@ function mod:begottenChainBreak(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_ENTITY_REMOVE, mod.begottenChainBreak, EntityType.ENTITY_BEGOTTEN)
+
+
+
+--[[ Let the Gate do other attacks before spawning Leapers ]]--
+function mod:gateUpdate(entity)
+	local sprite = entity:GetSprite()
+
+	if entity.State == NpcState.STATE_SUMMON and sprite:GetFrame() == 0 and math.random(0, 2) == 0 then
+		entity.State = NpcState.STATE_ATTACK2
+		SFXManager():Stop(SoundEffect.SOUND_MONSTER_GRUNT_4)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gateUpdate, EntityType.ENTITY_GATE)
 
 
 

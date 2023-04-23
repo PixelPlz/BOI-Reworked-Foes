@@ -191,7 +191,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.stainTentacleUpdate, EntityT
 
 function mod:stainTentacleDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == 10 and target.Parent then
-		target.Parent:TakeDamage(damageAmount / 2, damageFlags, damageSource, damageCountdownFrames)
+		target.Parent:TakeDamage(damageAmount / 2, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 5)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.stainTentacleDMG, EntityType.ENTITY_STAIN)

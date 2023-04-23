@@ -79,23 +79,13 @@ function mod:forsakenUpdate(entity)
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 	end
 
+
 	-- Particles
-	if entity:IsFrame(2, 0) then
-		for i = 0, 4 do
-			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DARK_BALL_SMOKE_PARTICLE, 0, entity.Position, Vector.FromAngle(math.random(0, 359)), entity):ToEffect()
-			local scaler = math.random(100, 120) / 100
-			trail.SpriteScale = Vector(scaler, scaler)
-			trail.SpriteOffset = Vector(0, -40) + (trail.Velocity * 25)
-			trail.DepthOffset = entity.DepthOffset - 50
-
-			trail:GetSprite().PlaybackSpeed = 0.5
-			if entity.SubType == 0 then
-				trail:GetSprite().Color = Color(0,0,0, 0.35, 0.5,0.5,0.5)
-			end
-
-			trail:Update()
-		end
+	local color = Color.Default
+	if entity.SubType == 0 then
+		color = Color(0,0,0, 0.35, 0.5,0.5,0.5)
 	end
+	mod:smokeParticles(entity, Vector(0, -40), 25, Vector(100, 120), color)
 
 
 	-- Bony phase
@@ -695,7 +685,7 @@ function mod:forsakenDMG(target, damageAmount, damageFlags, damageSource, damage
 
 	-- Clones
 	elseif target.Variant == 10 and target.Parent then
-		target.Parent:TakeDamage(damageAmount / 2, damageFlags, damageSource, damageCountdownFrames)
+		target.Parent:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 5)
 		if target.HitPoints - damageAmount <= 0 then
 			return false
 		end

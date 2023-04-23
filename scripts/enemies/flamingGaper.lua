@@ -26,16 +26,19 @@ function mod:flamingGaperUpdate(entity)
 			end
 
 			if entity.ProjectileCooldown <= 0 then
-				if not sprite:IsOverlayPlaying("Ignite") then
-					sprite:PlayOverlay("Ignite", true)
+				if entity.Pathfinder:HasPathToPos(entity:GetPlayerTarget().Position, false) then
+					if not sprite:IsOverlayPlaying("Ignite") then
+						sprite:PlayOverlay("Ignite", true)
+					end
+					
+					if sprite:GetOverlayFrame() == 8 then
+						entity.I1 = 1
+						entity.ProjectileCooldown = Settings.MoveTime
+						SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END)
+						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, 0, entity.Position, Vector.Zero, entity)
+					end
 				end
-				
-				if sprite:GetOverlayFrame() == 8 then
-					entity.I1 = 1
-					entity.ProjectileCooldown = Settings.MoveTime
-					SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END)
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, 0, entity.Position, Vector.Zero, entity)
-				end
+
 			else
 				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 			end

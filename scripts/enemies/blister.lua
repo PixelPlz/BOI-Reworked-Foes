@@ -4,7 +4,7 @@ local mod = BetterMonsters
 
 function mod:blisterInit(entity)
 	if entity.Variant == 0 and entity.SubType == 0 then
-		entity.StateFrame = 30
+		entity.StateFrame = math.random(15, 45)
 		entity.ProjectileCooldown = math.random(1, 2)
 	end
 end
@@ -59,7 +59,7 @@ function mod:blisterUpdate(entity)
 			
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
-				entity.StateFrame = math.random(30, 60)
+				entity.StateFrame = 30
 				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 			end
 
@@ -94,7 +94,7 @@ function mod:blisterUpdate(entity)
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
 				entity.StateFrame = 30
-				entity.ProjectileCooldown = 3
+				entity.ProjectileCooldown = 2
 			end
 		end
 

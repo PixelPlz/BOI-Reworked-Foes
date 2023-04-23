@@ -8,29 +8,32 @@ IRFentities = {
 
 	-- Enemies
 	bubbleFly 	  = Isaac.GetEntityVariantByName("Bubble Fly"),
+	dirtHelper 	  = Isaac.GetEntityVariantByName("Scolex Dirt Helper"),
 	teratomar 	  = Isaac.GetEntityVariantByName("Teratomar"),
 	coffer 		  = Isaac.GetEntityVariantByName("Coffer"),
 	forgottenBody = Isaac.GetEntityVariantByName("Forgotten Body (Boss)"),
 	boneOrbital   = Isaac.GetEntityVariantByName("Enemy Bone Orbital"),
 	mullicocoon   = Isaac.GetEntityVariantByName("Mullicocoon"),
+	raglingRags   = Isaac.GetEntityVariantByName("Ragling Rags"),
 	ragPlasma 	  = Isaac.GetEntityVariantByName("Rag Mega Plasma"),
 
 	-- Effects
 	healingAura    = Isaac.GetEntityVariantByName("Healing Aura"),
 	holyTracer 	   = Isaac.GetEntityVariantByName("Holy Tracer"),
-	brimstoneSwirl = Isaac.GetEntityVariantByName("Single Laser Brimstone Swirl"),
+	brimstoneSwirl = Isaac.GetEntityVariantByName("Single Brimstone Swirl"),
 }
 
 
 
 --[[ Colors ]]--
--- Bullets
+-- Projectiles
 brimstoneBulletColor = Color(1,0.25,0.25, 1, 0.25,0,0)
+shadyBulletColor = Color(-1,-1,-1, 1, 1,0,0)
 
 tarBulletColor = Color(0.5,0.5,0.5, 1, 0,0,0)
 tarBulletColor:SetColorize(1, 1, 1, 1)
 
-skyBulletColor = Color(1,1,1, 1, 0.55,0.55,0.55)
+skyBulletColor = Color(1,1,1, 1, 0.5,0.5,0.5)
 skyBulletColor:SetColorize(1, 1, 1, 1)
 
 greenBulletColor = Color(1,1,1, 1, 0,0,0)
@@ -65,6 +68,8 @@ dustColor = Color(0.8,0.8,0.8, 0.8, 0.05,0.025,0)
 dustColor:SetColorize(1, 1, 1, 1)
 
 portalSpawnColor = Color(0.2,0.2,0.3, 0, 1.5,0.75,3)
+
+fakeDamageColor = Color(1,0.5,0.5, 1, 0.8,0,0)
 
 
 
@@ -121,7 +126,8 @@ function mod:shootEffect(entity, subtype, offset, color, scale, behind)
 	else
 		effect.DepthOffset = entity.DepthOffset + 10
 	end
-	
+
+	effect:Update()
 	return effect
 end
 
@@ -196,7 +202,6 @@ end
 function mod:FireRing(entity)
 	local ring = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, 40, entity.Position, Vector.Zero, entity)
 	ring.DepthOffset = entity.DepthOffset - 10
-	ring.SpriteScale = Vector(1.35, 1.35)
 	SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END)
 
 	for i, e in pairs(Isaac.FindInRadius(entity.Position, 65, 40)) do
@@ -208,6 +213,64 @@ function mod:FireRing(entity)
 	end
 	
 	return ring
+end
+
+
+-- Smoke particles
+function mod:smokeParticles(entity, offset, radius, scale, color, newSprite)
+	if entity:IsFrame(2, 0) then
+		for i = 0, 4 do
+			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DARK_BALL_SMOKE_PARTICLE, 0, entity.Position, Vector.FromAngle(math.random(0, 359)), entity):ToEffect()
+			local sprite = trail:GetSprite()
+			trail.DepthOffset = entity.DepthOffset - 50
+			sprite.PlaybackSpeed = 0.5
+
+			trail.SpriteOffset = offset + (trail.Velocity * radius)
+
+			local scaler = math.random(scale.X, scale.Y) / 100
+			trail.SpriteScale = Vector(scaler, scaler)
+
+			if color then
+				sprite.Color = color
+			end
+
+			if newSprite then
+				sprite:ReplaceSpritesheet(0, "gfx/" .. newSprite .. ".png")
+				sprite:LoadGraphics()
+			end
+
+			trail:Update()
+		end
+	end
+end
+
+
+-- Turn red poops in the room into regular poops
+function mod:removeRedPoops()
+	local room = Game():GetRoom()
+
+	for i = 0, room:GetGridSize() do
+		local grid = room:GetGridEntity(i)
+		if grid ~= nil and grid:GetType() == GridEntityType.GRID_POOP and grid:GetVariant() == 1 then
+			grid:SetVariant(0)
+			grid:ToPoop().ReviveTimer = 0
+			grid.State = 0
+
+			local sprite = grid:GetSprite()
+			sprite:ReplaceSpritesheet(0, "gfx/grid/grid_poop_" .. math.random(1, 3) .. ".png")
+			sprite:LoadGraphics()
+			sprite:Play("Appear", true)
+		end
+	end
+end
+
+
+-- Print the color of an entity (for debugging)
+function mod:printColor(entity)
+	local sprite = entity:GetSprite()
+	print()
+	print("entity color:  " .. entity.Color.R .. ", " .. entity.Color.G .. ", " .. entity.Color.B .. "  -  " .. entity.Color.RO .. ", " .. entity.Color.GO .. ", " .. entity.Color.BO)
+	print("sprite color:  " .. sprite.Color.R .. ", " .. sprite.Color.G .. ", " .. sprite.Color.B .. "  -  " .. sprite.Color.RO .. ", " .. sprite.Color.GO .. ", " .. sprite.Color.BO)
 end
 
 
@@ -237,6 +300,7 @@ end
 -- General
 local generalScripts = {
 	"bossHealthBars",
+	--"dss",
 	"configMenu",
 	"hiddenEnemies",
 	"misc",
@@ -308,10 +372,13 @@ local bossScripts = {
 	--"chad",
 	"gish",
 	"mom",
-	"pin",
+	"scolex",
+	"frail",
 	"conquest",
+	--"husk",
 	"lokii",
 	"teratoma",
+	--"itLives",
 	"steven",
 	"blightedOvum",
 	"satan",
@@ -328,14 +395,17 @@ local bossScripts = {
 	"forsaken",
 	"ragMega",
 	--"sisterVis",
+	--"delirium",
 }
 mod:LoadScripts(bossScripts, "bosses")
 
 -- Champions
 local championScripts = {
+	"tweaks",
 	"bloat",
 	"fallen",
 	"headlessHorseman",
 	"megaMaw",
+	"darkOne",
 }
 mod:LoadScripts(championScripts, "champions")

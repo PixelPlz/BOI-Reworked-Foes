@@ -3,7 +3,7 @@ IRFkrampusChampID = 1
 
 
 
-function mod:redKrampusUpdate(entity)
+function mod:fallenUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
 
@@ -90,4 +90,4 @@ function mod:redKrampusUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.redKrampusUpdate, EntityType.ENTITY_FALLEN)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.fallenUpdate, EntityType.ENTITY_FALLEN)

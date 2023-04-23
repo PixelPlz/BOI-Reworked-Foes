@@ -47,7 +47,7 @@ function mod:fallenUrielUpdate(entity)
 				params.Color = brimstoneBulletColor
 				params.Scale = 1.25
 				params.CircleAngle = 0
-				entity:FireProjectiles(Vector(entity.Position.X, Game():GetRoom():GetBottomRightPos().Y - 1), Vector(10.5, 16), 9, params)
+				entity:FireProjectiles(Vector(entity.Position.X, Game():GetRoom():GetBottomRightPos().Y - 1), Vector(11, 16), 9, params)
 			end
 
 			if sprite:IsFinished("LaserShot") and (not data.brim or not data.brim:Exists()) then

@@ -132,37 +132,34 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.greedDMG, EntityType.ENTITY
 
 -- Super Greed hitting a player
 function mod:greedHit(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Type == EntityType.ENTITY_PLAYER and ((damageSource.SpawnerType == EntityType.ENTITY_GREED and damageSource.SpawnerVariant == 1)
-	or (damageSource.Type == EntityType.ENTITY_GREED and damageSource.Variant == 1)) then
+	if (damageSource.Type == EntityType.ENTITY_PROJECTILE and damageSource.SpawnerType == EntityType.ENTITY_GREED and damageSource.SpawnerVariant == 1)
+	or (damageSource.Type == EntityType.ENTITY_GREED and damageSource.Variant == 1) then
 		local player = target:ToPlayer()
 
 		-- Remove bombs
-		if player:GetNumBombs() > 0 then
-			player:AddBombs(-1)
+		local amount = math.min(player:GetNumBombs(), math.random(1, 2))
+		player:AddBombs(-amount)
 
-			if player:GetNumBombs() > 1 then
-				player:AddBombs(-1)
-				Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_BOMB, BombSubType.BOMB_NORMAL, player.Position, Vector.FromAngle(math.random(0, 359)) * math.random(4, 6), nil)
-			end
+		if amount > 1 then
+			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_BOMB, BombSubType.BOMB_NORMAL, player.Position, Vector.FromAngle(math.random(0, 359)) * math.random(4, 6), nil)
 		end
 
-		-- Remove keys
-		if player:GetNumKeys() > 0 then
-			player:AddKeys(-1)
 
-			if player:GetNumKeys() > 1 then
-				player:AddKeys(-1)
-				Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_KEY, KeySubType.KEY_NORMAL, player.Position, Vector.FromAngle(math.random(0, 359)) * math.random(4, 6), nil)
-			end
+		-- Remove keys
+		local amount = math.min(player:GetNumKeys(), math.random(1, 2))
+		player:AddKeys(-amount)
+
+		if amount > 1 then
+			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_KEY, KeySubType.KEY_NORMAL, player.Position, Vector.FromAngle(math.random(0, 359)) * math.random(4, 6), nil)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.greedHit)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.greedHit, EntityType.ENTITY_PLAYER)
 
 function mod:championGreedReward(entity)
 	-- Midas' Touch
-	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_GREED and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= 202 then
-		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 202, false, true, false)
+	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_GREED and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= CollectibleType.COLLECTIBLE_MIDAS_TOUCH then
+		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_MIDAS_TOUCH, false, true, false)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championGreedReward, PickupVariant.PICKUP_COLLECTIBLE)

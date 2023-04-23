@@ -190,7 +190,7 @@ function mod:conquestPreUpdate(entity)
 
 			-- Idle
 			elseif entity.State == NpcState.STATE_MOVE then
-				entity.Velocity = (entity.Velocity + ((target.Position - entity.Position):Normalized() * (Settings.MoveSpeed - entity.SubType) - entity.Velocity) * 0.25)
+				entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Normalized() * (Settings.MoveSpeed - entity.SubType), 0.25)
 				mod:LoopingAnim(sprite, "Walk")
 
 				if entity.Velocity.X < 0 then
@@ -291,8 +291,6 @@ function mod:conquestPreUpdate(entity)
 					-- Red champion bullets
 					if entity.SubType == 1 then
 						if room:IsPositionInRoom(entity.Position, 0) == true and entity:IsFrame(2, 0) then
-							entity.ProjectileDelay = room:GetGridIndex(entity.Position)
-
 							local params = ProjectileParams()
 							params.Scale = 1.4
 							params.FallingSpeedModifier = 1

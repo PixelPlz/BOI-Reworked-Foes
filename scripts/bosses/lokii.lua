@@ -1,7 +1,7 @@
 local mod = BetterMonsters
 
 local Settings = {
-	Cooldown = 90,
+	Cooldown = 60,
 	PlayerDistance = 120,
 	MoveSpeed = 4,
 	HopSpeed = 12,
@@ -143,17 +143,19 @@ function mod:lokiiUpdate(entity)
 				end
 
 				if sprite:IsFinished("TeleportUp") then
+					local room = Game():GetRoom()
+
 					local sideMulti = -1
 					if entity.I1 == 1 then
 						sideMulti = 1
 					end
 
 					entity.V1 = target.Position + Vector.FromAngle(target.Velocity:GetAngleDegrees() + (sideMulti * 90)) * Settings.TPdistance
-					entity.V1 = Game():GetRoom():FindFreePickupSpawnPosition(entity.V1, 40, true, false)
+					entity.V1 = room:FindFreePickupSpawnPosition(entity.V1, 40, true, false)
 
 					if entity.V1:Distance(Game():GetNearestPlayer(entity.Position).Position) < 160 then
-						entity.V1 = target.Position + ((Game():GetRoom():GetCenterPos() - target.Position):Normalized() * Settings.TPdistance)
-						entity.V1 = Game():GetRoom():FindFreePickupSpawnPosition(entity.V1, 40, true, false)
+						entity.V1 = target.Position + ((room:GetCenterPos() - target.Position):Normalized() * Settings.TPdistance)
+						entity.V1 = room:FindFreePickupSpawnPosition(entity.V1, 40, true, false)
 					end
 
 					entity.Position = entity.V1

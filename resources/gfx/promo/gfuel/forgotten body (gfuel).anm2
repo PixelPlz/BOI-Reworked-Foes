@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="Pixel" CreatedOn="2023-01-04 17:56:35" Version="211" Fps="30"/>
+	<Info CreatedBy="Pixel" CreatedOn="2023. 04. 22. 19:16:04" Version="212" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="bosses\g fuel bluebaby.png" Id="0"/>
@@ -60,9 +60,7 @@
 					<Frame XPosition="0" YPosition="-42" XScale="100" YScale="100" Delay="1" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="false"/>
 				</NullAnimation>
 			</NullAnimations>
-			<Triggers>
-				<Trigger EventId="0" AtFrame="0"/>
-			</Triggers>
+			<Triggers/>
 		</Animation>
 		<Animation Name="Idle" FrameNum="22" Loop="true">
 			<RootAnimation>

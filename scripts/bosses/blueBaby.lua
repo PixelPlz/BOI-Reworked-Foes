@@ -2,6 +2,9 @@ local mod = BetterMonsters
 
 local Settings = {
 	NewHP = 3000,
+	SpawnDmgReduction = 50,
+	TransitionDmgReduction = 90,
+
 	MoveSpeed = 4.75,
 	SoulSpeed = 3.75,
 
@@ -35,6 +38,7 @@ function mod:blueBabyInit(entity)
 		data.shotCount = 1
 		data.spawnTimer = Settings.FlyDelay
 		data.isSoul = false
+		data.damageReduction = Settings.SpawnDmgReduction
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blueBabyInit, EntityType.ENTITY_ISAAC)
@@ -189,6 +193,12 @@ function mod:blueBabyUpdate(entity)
 					SFXManager():Play(SoundEffect.SOUND_BONE_SNAP, 0.6)
 					data.spawnTimer = data.spawnTimer + 1
 				end
+			end
+
+
+			-- Damage reduction timer
+			if data.damageReduction > 0 then
+				data.damageReduction = data.damageReduction - 1
 			end
 		end
 
@@ -388,6 +398,7 @@ function mod:blueBabyUpdate(entity)
 				data.shotCount = 1
 				backToIdle()
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
+				data.damageReduction = Settings.TransitionDmgReduction
 			end
 
 
@@ -816,8 +827,17 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blueBabyUpdate, EntityType.ENTITY_ISAAC)
 
 function mod:blueBabyDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 1 and (target:ToNPC().State == NpcState.STATE_SPECIAL or (damageSource.SpawnerType == target.Type and damageSource.SpawnerVariant == target.Variant)) then
-		return false
+	if target.Variant == 1 then
+		-- Don't take damage during transitioning
+		if (target:ToNPC().State == NpcState.STATE_SPECIAL or (damageSource.SpawnerType == target.Type and damageSource.SpawnerVariant == target.Variant)) then
+			return false
+
+		-- Damage reduction after transitioning
+		elseif target:GetData().damageReduction > 0 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+			local onePercent = damageAmount / 100
+			target:TakeDamage(damageAmount - target:GetData().damageReduction * onePercent, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+			return false
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.blueBabyDMG, EntityType.ENTITY_ISAAC)

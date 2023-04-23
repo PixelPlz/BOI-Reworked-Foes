@@ -105,8 +105,8 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.gluttonyDMG, EntityType.ENT
 function mod:championGluttonyReward(entity)
 	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_GLUTTONY and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
 		-- Infestation
-		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= 148 then
-			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 148, false, true, false)
+		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= CollectibleType.COLLECTIBLE_INFESTATION then
+			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_INFESTATION, false, true, false)
 		
 		-- Rotten hearts
 		elseif entity.Variant == PickupVariant.PICKUP_HEART and entity.SubType >= HeartSubType.HEART_SOUL and entity.SubType ~= HeartSubType.HEART_ROTTEN then

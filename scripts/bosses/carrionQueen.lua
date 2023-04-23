@@ -77,22 +77,8 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.carrionQueenCollide, Enti
 
 -- Turn red poops into regular ones
 function mod:carrionQueenDeath(entity)
-	if entity.Variant == 2 and entity.I1 == 0 and entity.SubType == 0 and Isaac.CountEntities(nil, EntityType.ENTITY_CHUB, 2, -1) <= 1 then
-		local room = Game():GetRoom()
-		
-		for i = 0, room:GetGridSize() do
-			local grid = room:GetGridEntity(i)
-			if grid ~= nil and grid:GetType() == GridEntityType.GRID_POOP and grid:GetVariant() == 1 then
-				grid:SetVariant(0)
-				grid:ToPoop().ReviveTimer = 0
-				grid.State = 0
-
-				local sprite = grid:GetSprite()
-				sprite:ReplaceSpritesheet(0, "gfx/grid/grid_poop_" .. math.random(1, 3) .. ".png")
-				sprite:LoadGraphics()
-				sprite:Play("Appear", true)
-			end
-		end
+	if entity.Variant == 2 and entity.I1 == 0 and entity.SubType == 0 and Isaac.CountEntities(nil, entity.Type, entity.Variant, -1) <= 1 then
+		mod:removeRedPoops()
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.carrionQueenDeath, EntityType.ENTITY_CHUB)

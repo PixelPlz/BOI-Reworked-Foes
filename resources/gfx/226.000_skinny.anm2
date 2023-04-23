@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2022-07-08 15:23:30" Version="111" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2023. 04. 20. 22:24:06" Version="112" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="monsters\classic\monster_000_bodies01.png" Id="0"/>
@@ -14,7 +14,6 @@
 		</Nulls>
 		<Events>
 			<Event Name="Sound" Id="0"/>
-			<Event Name="Switch" Id="1"/>
 		</Events>
 	</Content>
 	<Animations DefaultAnimation="WalkHori">
@@ -128,7 +127,6 @@
 			</NullAnimations>
 			<Triggers>
 				<Trigger EventId="0" AtFrame="5"/>
-				<Trigger EventId="1" AtFrame="14"/>
 			</Triggers>
 		</Animation>
 		<Animation Name="HeadFast" FrameNum="16" Loop="true">

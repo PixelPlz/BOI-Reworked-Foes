@@ -417,8 +417,8 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.lustHit)
 function mod:championLustReward(entity)
 	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_LUST and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
 		-- Card Reading
-		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= 660 then
-			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 660, false, true, false)
+		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= CollectibleType.COLLECTIBLE_CARD_READING then
+			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_CARD_READING, false, true, false)
 		
 		-- Cards
 		elseif entity.Variant == PickupVariant.PICKUP_PILL then

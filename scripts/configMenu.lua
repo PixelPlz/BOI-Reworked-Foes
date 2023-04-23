@@ -6,7 +6,10 @@ IRFconfig = {
 	breakableHosts   = true,
 	noChapter1Nests  = true,
 	matriarchFistula = true,
-	
+	envyRework 		 = true,
+	raglingRework 	 = true,
+	blackBonyBombs   = true,
+
 	-- Hidden enemy visuals
 	noHiddenPins  = true,
 	noHiddenPoly  = true,
@@ -96,6 +99,48 @@ if ModConfigMenu then
 	    	IRFconfig.matriarchFistula = bool
 	    end,
 	    Info = {"Better colors for Fistulas spawned by the Matriarch."}
+  	})
+	-- Envy bounces
+	ModConfigMenu.AddSetting(category, "General", {
+    	Type = ModConfigMenu.OptionType.BOOLEAN,
+	    CurrentSetting = function()
+			return IRFconfig.envyRework
+		end,
+	    Display = function()
+			return "Envy rework: " .. (IRFconfig.envyRework and "On" or "Off")
+		end,
+	    OnChange = function(bool)
+	    	IRFconfig.envyRework = bool
+	    end,
+	    Info = {"Envy's heads will bounce off of each other."}
+  	})
+	-- Ragling rags
+	ModConfigMenu.AddSetting(category, "General", {
+    	Type = ModConfigMenu.OptionType.BOOLEAN,
+	    CurrentSetting = function()
+			return IRFconfig.raglingRework
+		end,
+	    Display = function()
+			return "Ragling rags: " .. (IRFconfig.raglingRework and "On" or "Off")
+		end,
+	    OnChange = function(bool)
+	    	IRFconfig.raglingRework = bool
+	    end,
+	    Info = {"Raglings will spawn 'Ragling rags' on death."}
+  	})
+	-- Black Bony bombs
+	ModConfigMenu.AddSetting(category, "General", {
+    	Type = ModConfigMenu.OptionType.BOOLEAN,
+	    CurrentSetting = function()
+			return IRFconfig.blackBonyBombs
+		end,
+	    Display = function()
+			return "Black Bony bomb effects: " .. (IRFconfig.blackBonyBombs and "On" or "Off")
+		end,
+	    OnChange = function(bool)
+	    	IRFconfig.blackBonyBombs = bool
+	    end,
+	    Info = {"Black Bonies will spawn with random bomb effects."}
   	})
 
 

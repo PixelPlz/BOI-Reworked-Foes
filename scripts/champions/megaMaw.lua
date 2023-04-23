@@ -22,9 +22,9 @@ function mod:megaMawUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.megaMawUpdate, EntityType.ENTITY_MEGA_MAW)
 
-function mod:gateUpdate(entity)
+function mod:redGateUpdate(entity)
 	if entity.SubType == 1 and entity:GetSprite():IsEventTriggered("Shoot") then
 		entity:PlaySound(SoundEffect.SOUND_GHOST_SHOOT, 1.25, 0, false, 1)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gateUpdate, EntityType.ENTITY_GATE)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.redGateUpdate, EntityType.ENTITY_GATE)

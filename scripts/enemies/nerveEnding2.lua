@@ -26,7 +26,7 @@ function mod:nerveEnding2Update(entity)
 		entity.Velocity = Vector.Zero
 		
 		-- Idle
-		if entity.State == 3 then
+		if entity.State == NpcState.STATE_IDLE then
 			mod:LoopingAnim(sprite, "Idle")
 			
 			if entity.ProjectileCooldown <= 0 then
@@ -36,12 +36,12 @@ function mod:nerveEnding2Update(entity)
 					if entity.Position.Y <= target.Position.Y + Settings.SideRange and entity.Position.Y >= target.Position.Y - Settings.SideRange then
 						if target.Position.X > (entity.Position.X - Settings.FrontRange) and target.Position.X < entity.Position.X then
 							data.swingDir = "Left"
-							entity.State = 8
+							entity.State = NpcState.STATE_ATTACK
 							sprite:Play("Swing" .. data.swingDir, true)
 
 						elseif target.Position.X < (entity.Position.X + Settings.FrontRange) and target.Position.X > entity.Position.X then
 							data.swingDir = "Right"
-							entity.State = 8
+							entity.State = NpcState.STATE_ATTACK
 							sprite:Play("Swing" .. data.swingDir, true)
 						end
 
@@ -49,12 +49,12 @@ function mod:nerveEnding2Update(entity)
 					elseif entity.Position.X <= target.Position.X + Settings.SideRange and entity.Position.X >= target.Position.X - Settings.SideRange then
 						if target.Position.Y > (entity.Position.Y - Settings.FrontRange) and target.Position.Y < entity.Position.Y then
 							data.swingDir = "Up"
-							entity.State = 8
+							entity.State = NpcState.STATE_ATTACK
 							sprite:Play("Swing" .. data.swingDir, true)
 
 						elseif target.Position.Y < (entity.Position.Y + Settings.FrontRange) and target.Position.Y > entity.Position.Y then
 							data.swingDir = "Down"
-							entity.State = 8
+							entity.State = NpcState.STATE_ATTACK
 							sprite:Play("Swing" .. data.swingDir, true)
 						end
 					end
@@ -66,7 +66,7 @@ function mod:nerveEnding2Update(entity)
 
 
 		-- Attack
-		elseif entity.State == 8 then
+		elseif entity.State == NpcState.STATE_ATTACK then
 			if sprite:IsEventTriggered("Sound") then
 				SFXManager():Play(SoundEffect.SOUND_WHIP)
 
@@ -102,7 +102,7 @@ function mod:nerveEnding2Update(entity)
 			end
 
 			if sprite:IsFinished(sprite:GetAnimation()) then
-				entity.State = 3
+				entity.State = NpcState.STATE_IDLE
 				entity.ProjectileCooldown = Settings.Cooldown
 			end
 		end

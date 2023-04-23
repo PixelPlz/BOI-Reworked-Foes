@@ -26,8 +26,8 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.raglingInit, EntityType.ENTIT
 function mod:raglingUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	if entity:GetChampionColorIdx() == 12 or entity:GetChampionColorIdx() == 20 then
-		entity:MakeChampion(1, 6, true)
+	if entity:GetChampionColorIdx() == ChampionColor.DARK_RED or entity:GetChampionColorIdx() == ChampionColor.PULSE_RED then
+		entity:MakeChampion(1, ChampionColor.WHITE, true)
 	end
 
 
@@ -80,21 +80,18 @@ function mod:raglingUpdate(entity)
 	-- Fix Rag Man's dead raglings rendering above entities
 	if entity.Variant == 1 then
 		if entity.State == NpcState.STATE_SPECIAL then
-			if entity.V2 == Vector.Zero then
-				entity.V2 = Vector(entity.DepthOffset, 0)
-			end
-			entity.DepthOffset = -1000
-		
+			entity.SortingLayer = SortingLayer.SORTING_BACKGROUND
+
 		elseif entity.State == NpcState.STATE_APPEAR_CUSTOM then
-			entity.DepthOffset = entity.V2.X
+			entity.SortingLayer = SortingLayer.SORTING_NORMAL
 		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.raglingUpdate, EntityType.ENTITY_RAGLING)
 
 function mod:raglingDeath(entity)
-	if entity.Variant == 0 and entity:GetChampionColorIdx() ~= 15 then
-		local rags = Isaac.Spawn(200, 4246, 0, entity.Position, Vector.Zero, nil)
+	if IRFconfig.raglingRework == true and entity.Variant == 0 and entity:GetChampionColorIdx() ~= ChampionColor.PULSE_GREEN then
+		local rags = Isaac.Spawn(200, IRFentities.raglingRags, 0, entity.Position, Vector.Zero, nil)
 		if entity:IsChampion() then
 			rags:ToNPC():MakeChampion(1, entity:GetChampionColorIdx(), true)
 		end
@@ -106,7 +103,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.raglingDeath, EntityType.ENT
 
 -- Ragling Rags
 function mod:raglingRagsInit(entity)
-	if entity.Variant == 4246 then
+	if entity.Variant == IRFentities.raglingRags then
 		entity.ProjectileCooldown = Settings.Cooldown
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_STATUS_EFFECTS)
@@ -120,7 +117,7 @@ end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.raglingRagsInit, 200)
 
 function mod:raglingRagsUpdate(entity)
-	if entity.Variant == 4246 then
+	if entity.Variant == IRFentities.raglingRags then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
 
@@ -163,7 +160,7 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.raglingRagsUpdate, 200)
 
 function mod:raglingRagsDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 4246 then
+	if target.Variant == IRFentities.raglingRags then
 		return false
 	end
 end

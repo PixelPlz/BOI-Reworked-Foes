@@ -136,8 +136,8 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.slothProjectileUpdat
 function mod:championSlothReward(entity)
 	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_SLOTH and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
 		-- Spider Bite
-		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= 89 then
-			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, 89, false, true, false)
+		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= CollectibleType.COLLECTIBLE_SPIDER_BITE then
+			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_SPIDER_BITE, false, true, false)
 		
 		-- Pills
 		elseif entity.Variant == PickupVariant.PICKUP_TAROTCARD then

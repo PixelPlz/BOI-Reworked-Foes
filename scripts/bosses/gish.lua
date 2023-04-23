@@ -118,7 +118,7 @@ function mod:gishUpdate(entity)
 						entity:PlaySound(SoundEffect.SOUND_MONSTER_ROAR_1, 0.8, 0, false, 1)
 
 					-- Only spawn clots if there are less than the max amount
-					elseif decide == 1 and (Isaac.CountEntities(entity, EntityType.ENTITY_CLOTTY, 1, -1) < Settings.MaxClots or entity.SubType == 1) then
+					elseif entity.SubType ~= 1 and decide == 1 and Isaac.CountEntities(entity, EntityType.ENTITY_CLOTTY, 1, -1) < Settings.MaxClots then
 						data.state = States.Attacking
 
 					else
@@ -281,23 +281,13 @@ function mod:gishUpdate(entity)
 
 			if sprite:IsEventTriggered("Shoot") then
 				entity:PlaySound(SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8, 0, false, 1)
+				Isaac.Spawn(EntityType.ENTITY_CLOTTY, 1, 0, entity.Position, (target.Position - entity.Position):Normalized() * 10, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 
 				local params = ProjectileParams()
-				if entity.SubType == 0 then
-					Isaac.Spawn(EntityType.ENTITY_CLOTTY, 1, 0, entity.Position, (target.Position - entity.Position):Normalized() * 10, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
-
-					params.Color = tarBulletColor
-					params.Scale = 1.5
-					entity:FireBossProjectiles(10, target.Position, 3, params)
-				
-				elseif entity.SubType == 1 then
-					params.BulletFlags = (ProjectileFlags.DECELERATE | ProjectileFlags.BURST8)
-					params.Scale = 2.25
-					params.Acceleration = 1.075
-					params.FallingAccelModifier = -0.175
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * (Settings.ShotSpeed + 2), 0, params)
-					mod:shootEffect(entity, 3, Vector(0, -16), entity.SplatColor)
-				end
+				params.Color = tarBulletColor
+				params.Scale = 1.25
+				entity:FireBossProjectiles(12, target.Position, 3, params)
+				mod:shootEffect(entity, 3, Vector(0, -18), entity.SplatColor)
 			end
 
 			if sprite:GetFrame() == 51 then
