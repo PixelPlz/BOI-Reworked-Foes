@@ -17,23 +17,25 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blackBonyInit, EntityType.ENT
 function mod:blackBonyUpdate(entity)
 	local sprite = entity:GetSprite()
 	
-	if entity.FrameCount <= 1 and entity.SubType > 0 then
+	if entity.FrameCount <= 1 then
+		-- No bomb effects for friendly ones
 		if entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
 			entity.SubType = 0
-		end
+		
+		-- Bomb costumes
+		elseif entity.SubType > 0 then
+			local suffix = ""
+			if entity:IsChampion() then
+				suffix = "_champion"
+			end
+			-- No spark for cross and brimstone variants
+			if entity.SubType == 1 or entity.SubType == 6 then
+				sprite:ReplaceSpritesheet(2, "")
+			end
 
-		-- Bomb costume
-		local suffix = ""
-		if entity:IsChampion() then
-			suffix = "_champion"
+			sprite:ReplaceSpritesheet(1, "gfx/monsters/better/black boney/277.000_blackboney head_" .. entity.SubType .. suffix .. ".png")
+			sprite:LoadGraphics()
 		end
-		-- No spark for cross and brimstone variants
-		if entity.SubType == 1 or entity.SubType == 6 then
-			sprite:ReplaceSpritesheet(2, "")
-		end
-
-		sprite:ReplaceSpritesheet(1, "gfx/monsters/better/black boney/277.000_blackboney head_" .. entity.SubType .. suffix .. ".png")
-		sprite:LoadGraphics()
 	end
 
 

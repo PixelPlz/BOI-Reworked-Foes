@@ -18,6 +18,7 @@ local mod = BetterMonsters
 local Settings = {
 	Length = 19, -- Doesn't include head
 	ArmorHealth = 80,
+	TailMulti = 1.25,
 
 	BurrowTime = 30,
 	SegmentDelay = 5,
@@ -557,6 +558,11 @@ function mod:scolexDMG(target, damageAmount, damageFlags, damageSource, damageCo
 			elseif data.head then
 				-- Redirect damage from exposed segments to the head
 				if segment.I2 >= 2 then
+					-- Tail takes extra damage
+					if segment.GroupIdx == Settings.Length then
+						damageAmount = damageAmount * Settings.TailMulti
+					end
+
 					damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
 					data.head:TakeDamage(damageAmount, damageFlags, damageSource, 5)
 					data.head:SetColor(fakeDamageColor, 3, 10, true, true)
