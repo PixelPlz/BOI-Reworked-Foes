@@ -10,7 +10,7 @@ local Settings = {
 
 function mod:flamingGaperInit(entity)
 	if entity.Variant == 2 then
-		entity.ProjectileCooldown = math.random(Settings.Cooldown / 2, Settings.Cooldown)
+		entity.ProjectileCooldown = mod:Random(Settings.Cooldown / 2, Settings.Cooldown)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.flamingGaperInit, EntityType.ENTITY_GAPER)
@@ -19,23 +19,34 @@ function mod:flamingGaperUpdate(entity)
 	if entity.Variant == 2 then
 		local sprite = entity:GetSprite()
 
+		if not entity:GetData().wasFlamingGaper then
+			-- Bestiary fix
+			local sprite = entity:GetSprite()
+			sprite:ReplaceSpritesheet(5, "")
+			sprite:LoadGraphics()
 
+			entity:GetData().wasFlamingGaper = true
+		end
+
+
+		-- Regular form
 		if entity.I1 == 0 then
-			if not sprite:IsOverlayPlaying("HeadNew") and not sprite:IsOverlayPlaying("Ignite") then
-				sprite:PlayOverlay("HeadNew", true)
+			if not sprite:IsOverlayPlaying("Ignite") and not sprite:IsOverlayPlaying("Extinguish") then
+				mod:LoopingOverlay(sprite, "HeadNew")
 			end
 
 			if entity.ProjectileCooldown <= 0 then
+				-- Only ignite if it has a path to the player
 				if entity.Pathfinder:HasPathToPos(entity:GetPlayerTarget().Position, false) then
 					if not sprite:IsOverlayPlaying("Ignite") then
 						sprite:PlayOverlay("Ignite", true)
 					end
-					
+
+					-- Ignite
 					if sprite:GetOverlayFrame() == 8 then
 						entity.I1 = 1
 						entity.ProjectileCooldown = Settings.MoveTime
-						SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END)
-						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, 0, entity.Position, Vector.Zero, entity)
+						mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END)
 					end
 				end
 
@@ -44,21 +55,25 @@ function mod:flamingGaperUpdate(entity)
 			end
 
 
+		-- Ignited form
 		elseif entity.I1 == 1 then
 			entity.Velocity = entity.Velocity * Settings.SpeedMultiplier
-			if not sprite:IsOverlayPlaying("HeadFast") and not sprite:IsOverlayPlaying("Extinguish") then
-				sprite:PlayOverlay("HeadFast", true)
+
+			if not sprite:IsOverlayPlaying("Ignite") and not sprite:IsOverlayPlaying("Extinguish") then
+				mod:LoopingOverlay(sprite, "HeadFast")
 			end
-			
+			mod:EmberParticles(entity, Vector(0, -40))
+
 			if entity.ProjectileCooldown <= 0 then
 				if not sprite:IsOverlayPlaying("Extinguish") then
 					sprite:PlayOverlay("Extinguish", true)
 				end
-				
+
+				-- Extinguish
 				if sprite:GetOverlayFrame() == 6 then
 					entity.I1 = 0
 					entity.ProjectileCooldown = Settings.Cooldown
-					SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END, 0.6)
+					mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END, 0.6)
 				end
 			else
 				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
@@ -68,13 +83,71 @@ function mod:flamingGaperUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingGaperUpdate, EntityType.ENTITY_GAPER)
 
--- Turn regular gapers into flaming ones when burnt
+-- Turn regular Gapers into flaming ones when burnt
 function mod:gaperIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == 1 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
 		target:ToNPC():Morph(EntityType.ENTITY_GAPER, 2, 0, target:ToNPC():GetChampionColorIdx())
 		target:Update()
-		SFXManager():Play(SoundEffect.SOUND_FIREDEATH_HISS)
+		mod:PlaySound(nil, SoundEffect.SOUND_FIREDEATH_HISS)
 		return false
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.gaperIgnite, EntityType.ENTITY_GAPER)
+
+
+
+--[[ Brazier ]]--
+function mod:flamingGusherUpdate(entity)
+	local sprite = entity:GetSprite()
+
+	if entity.Variant == 2 then
+		mod:LoopingOverlay(sprite, "Fire", true)
+		mod:EmberParticles(entity, Vector(0, -28))
+
+		-- Shoot
+		if entity.ProjectileCooldown <= 0 then
+			local params = ProjectileParams()
+			params.Variant = ProjectileVariant.PROJECTILE_HUSH
+			params.Color = Color(1,1,0, 1, 0.4,0,0)
+			params.BulletFlags = (ProjectileFlags.FIRE | ProjectileFlags.FIRE_SPAWN)
+			params.Scale = 0.75
+			params.FallingAccelModifier = 0.175
+			entity:FireProjectiles(entity.Position, mod:RandomVector(5), 0, params)
+
+			mod:ShootEffect(entity, 5, Vector(0, -16), Color(1,1,1, 1, 0,0.25,0), 0.75, true)
+			entity.ProjectileCooldown = mod:Random(20, 40)
+
+		else
+			entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+		end
+
+
+	-- Turn Gushers and Pacers from Flaming Gapers into Braziers
+	elseif entity:GetData().wasFlamingGaper then
+		if 1 == 2 then -- Placeholder for config option
+			entity:Morph(EntityType.ENTITY_GUSHER, 2, 0, entity:GetChampionColorIdx())
+
+		else
+			local suffix = ""
+			if entity:IsChampion() then
+				suffix = "_champion"
+			end
+
+			sprite:ReplaceSpritesheet(0, "gfx/monsters/better/monster_000_flaming_bodies02" .. suffix .. ".png")
+			sprite:LoadGraphics()
+		end
+
+		entity:GetData().wasFlamingGaper = nil
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingGusherUpdate, EntityType.ENTITY_GUSHER)
+
+-- Turn regular Gushers into Braziers when burnt
+function mod:gusherIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if target.Variant ~= 2 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
+		target:ToNPC():Morph(EntityType.ENTITY_GUSHER, 2, 0, target:ToNPC():GetChampionColorIdx())
+		mod:PlaySound(nil, SoundEffect.SOUND_FIREDEATH_HISS)
+		return false
+	end
+end
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.gusherIgnite, EntityType.ENTITY_GUSHER)

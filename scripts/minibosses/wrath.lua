@@ -3,103 +3,95 @@ local mod = BetterMonsters
 
 
 function mod:wrathUpdate(entity)
-	if mod:CheckForRev() == false and ((entity.Variant == 0 and entity.SubType <= 1) or entity.Variant == 1) then
+	if mod:CheckValidMiniboss(entity) == true then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
-		local data = entity:GetData()
 
+		-- Fire effects for Burning Wrath
+		if entity.Variant == 0 and entity.SubType == 1 then
+			if entity.I2 == 0 then
+				mod:LoopingOverlay(sprite, "FireAppear", true)
+				if sprite:GetOverlayFrame() == 11 then
+					entity.I2 = 1
+				end
+
+			else
+				mod:LoopingOverlay(sprite, "Fire", true)
+				mod:EmberParticles(entity, Vector(0, -40))
+			end
+		end
+
+
+		-- Replace original attack for Super Wrath
+		if entity.Variant == 1 and entity.State == NpcState.STATE_ATTACK2 then
+			entity.State = NpcState.STATE_ATTACK3
 
 		-- Custom attack
-		if entity.State == NpcState.STATE_ATTACK2 then
-			-- Prevent Super Wrath from spamming the bombs
-			if entity.ProjectileCooldown <= 0 then
-				entity.State = NpcState.STATE_ATTACK3
-			else
-				entity.State = NpcState.STATE_MOVE
-				sprite:Play(data.lastAnim, true)
-			end
-
-
 		elseif entity.State == NpcState.STATE_ATTACK3 then
 			entity.Velocity = Vector.Zero
 
 			if sprite:GetFrame() == 4 then
-				-- Wrath bomber man bombs
-				if entity.Variant == 0 then
-					local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_NORMAL, 0, entity.Position, Vector.Zero, entity):ToBomb()
-					if entity.SubType == 0 then
-						bomb:AddTearFlags(TearFlags.TEAR_CROSS_BOMB)
-					elseif entity.SubType == 1 then
-						bomb:AddTearFlags(TearFlags.TEAR_BURN)
-					end
-					bomb.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
-
-
-				-- Super Wrath
-				elseif entity.Variant == 1 then
-					local vector = (target.Position - entity.Position)
-					local speed = entity.Position:Distance(target.Position) / 15
-					if speed > 12 then
-						speed = 12
-					end
-
-
-					local type = BombVariant.BOMB_NORMAL
-					local flags = TearFlags.TEAR_NORMAL
-
-					-- Make the second bomb special
-					if entity.I2 == 1 then
-						local choose = math.random(1, 5)
-						if choose == 1 then
-							flags = TearFlags.TEAR_BURN
-
-						elseif choose == 2 then
-							type = BombVariant.BOMB_SAD_BLOOD
-							flags = TearFlags.TEAR_SAD_BOMB
-
-						elseif choose == 3 then
-							flags = TearFlags.TEAR_POISON
-
-						elseif choose == 4 then
-							flags = TearFlags.TEAR_SCATTER_BOMB
-
-						elseif choose == 5 then
-							flags = TearFlags.TEAR_CROSS_BOMB
-						end
-					end
-
-
-					local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, type, 0, entity.Position + (vector:Normalized() * 20), vector:Normalized() * speed, entity):ToBomb()
-					bomb.PositionOffset = Vector(0, -38) -- 28 is the minimum for it to go over rocks
-					bomb:AddTearFlags(flags)
-					bomb.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
+				local vector = (target.Position - entity.Position):Normalized()
+				local speed = entity.Position:Distance(target.Position) / 15
+				if speed > 12 then
+					speed = 12
 				end
+
+				-- Choose bomb type
+				local type = BombVariant.BOMB_NORMAL
+				local flags = TearFlags.TEAR_NORMAL
+				local choose = mod:Random(1, 5)
+
+				-- Bomber Boy
+				if choose == 1 then
+					flags = TearFlags.TEAR_CROSS_BOMB
+
+				-- Scatter Bombs
+				elseif choose == 2 then
+					flags = TearFlags.TEAR_SCATTER_BOMB
+
+				-- Bob's Curse
+				elseif choose == 3 then
+					flags = TearFlags.TEAR_POISON
+
+				-- Hot Bombs
+				elseif choose == 4 then
+					flags = TearFlags.TEAR_BURN
+
+				-- Sad Bombs
+				elseif choose == 5 then
+					type = BombVariant.BOMB_SAD_BLOOD
+					flags = TearFlags.TEAR_SAD_BOMB
+				end
+
+				local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, type, 0, entity.Position + vector:Resized(20), vector:Resized(speed), entity):ToBomb()
+				bomb.PositionOffset = Vector(0, -38) -- 28 is the minimum for it to go over rocks
+				bomb:AddTearFlags(flags)
+				bomb.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 			end
 
-
-			-- Super Wrath attacks 2 times
 			if sprite:IsFinished("Attack") then
-				entity.I2 = entity.I2 + 1
-				if entity.I2 >= 2 or entity.Variant == 0 then
-					entity.I2 = 0
-					entity.State = NpcState.STATE_MOVE
-					entity.ProjectileCooldown = 10
-				else
-					sprite:Play("Attack", true)
-				end
+				entity.State = NpcState.STATE_MOVE
 			end
-
-
-		-- Cooldown
-		else
-			if entity.ProjectileCooldown > 0 then
-				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
-			end
-			data.lastAnim = sprite:GetAnimation()
 		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.wrathUpdate, EntityType.ENTITY_WRATH)
+
+function mod:wrathBombInit(bomb)
+	if bomb.SpawnerType == EntityType.ENTITY_WRATH and bomb.SpawnerEntity and mod:CheckValidMiniboss(bomb.SpawnerEntity) == true and bomb.SpawnerVariant == 0 then
+		-- Hot Bombs for champion Wrath
+		if bomb.SpawnerEntity.SubType == 1 then
+			bomb:AddTearFlags(TearFlags.TEAR_BURN)
+
+		-- Bomber Boy bombs for regular Wrath
+		else
+			bomb:AddTearFlags(TearFlags.TEAR_CROSS_BOMB)
+			bomb.Velocity = Vector.Zero
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_BOMB_INIT, mod.wrathBombInit, BombVariant.BOMB_NORMAL)
 
 -- Don't take damage from non-player explosions
 function mod:wrathDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)

@@ -4,7 +4,10 @@ local mod = BetterMonsters
 
 -- [[ Pin / Scolex / Frail ]]--
 function mod:pinInit(entity)
-	if IRFconfig.appearPins == true and entity.Variant < 3 and (not FiendFolio or entity.SubType ~= 2) and (not GBMd or entity.Variant > 0) and not entity.Parent and not entity.SpawnerEntity then
+	if IRFconfig.appearPins == true and entity.Variant < 3 -- Only if it's enabled and it's not Wormwood
+	and not entity.Parent and not entity.SpawnerEntity -- Only head
+	and (not FiendFolio or entity.SubType ~= 2) -- Not Fiend Folio Technopin
+	and (not GBMd or entity.Variant > 0) then -- Not the Greed Mode skin for Pin (it fucks with the animations for some reason)
 		local sprite = entity:GetSprite()
 
 		sprite:Play("Attack1", true)
@@ -46,7 +49,9 @@ function mod:pinPreUpdate(entity)
 
 
 	-- Dirt effect
-	if IRFconfig.noHiddenPins == true and entity.Variant < 3 and entity:IsFrame(6, 0) and not entity.Parent and entity.Visible == false then
+	if IRFconfig.noHiddenPins == true and entity.Variant < 3 -- Only if it's enabled and it's not Wormwood
+	and not entity.Parent and entity.Visible == false -- Only the head while its underground
+	and entity:IsFrame(6, 0) then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DIRT_PILE, 0, entity.Position, Vector.Zero, entity).SpriteScale = Vector(1.2, 1.2)
 	end
 end
@@ -77,8 +82,6 @@ function mod:momsHandPreUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.momsHandPreUpdate, EntityType.ENTITY_MOMS_HAND)
 
-
-
 --[[ Mom's Dead Hand ]]--
 function mod:momsDeadHandInit(entity)
 	if IRFconfig.appearMomsHands == true then
@@ -88,7 +91,6 @@ function mod:momsDeadHandInit(entity)
 	end
 
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-	entity.SplatColor = Color(0.25,0.25,0.25, 1)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.momsDeadHandInit, EntityType.ENTITY_MOMS_DEAD_HAND)
 
@@ -117,7 +119,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.polycephalusDirt, EntityType.ENT
 
 -- [[ The Stain ]]--
 function mod:stainDirt(entity)
-	if IRFconfig.noHiddenStain == true and entity.State == NpcState.STATE_MOVE and entity.I1 == 2 and entity:IsFrame(6, 0) then
+	if IRFconfig.noHiddenPoly == true and entity.State == NpcState.STATE_MOVE and entity.I1 == 2 and entity:IsFrame(6, 0) then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DIRT_PILE, 0, entity.Position, Vector.Zero, entity).SpriteScale = Vector(1.2, 1.2)
 	end
 end
@@ -152,7 +154,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.needleUpdate, EntityType.ENT
 function mod:dustParticles(entity)
 	if IRFconfig.noHiddenDust == true and entity.V1.X < 0.1 and entity:IsFrame(16, 0) then
 		for i = 1, 3 do
-			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.EMBER_PARTICLE, 0, entity.Position + Vector(0, -24) + (Vector.FromAngle(math.random(0, 359)) * 10), Vector.Zero, entity):GetSprite().Color = dustColor
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.EMBER_PARTICLE, 0, entity.Position + Vector(0, -24) + mod:RandomVector(10), Vector.Zero, entity):GetSprite().Color = IRFcolors.DustTrail
 		end
 	end
 end

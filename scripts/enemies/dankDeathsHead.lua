@@ -15,10 +15,11 @@ function mod:dankDeathsHeadUpdate(entity)
 
 		-- Moving
 		else
+			-- Slowly speed up after spawning
 			if entity.FrameCount >= 30 then
-				entity.Velocity = entity.Velocity:Normalized() * 9
+				entity.Velocity = entity.Velocity:Resized(10)
 			else
-				entity.Velocity = entity.Velocity:Normalized() * ((entity.FrameCount - 20) * 0.9)
+				entity.Velocity = entity.Velocity:Resized((entity.FrameCount - 20) * 1)
 			end
 
 			if entity:CollidesWithGrid() or entity.I2 == 1 then
@@ -27,27 +28,25 @@ function mod:dankDeathsHeadUpdate(entity)
 				sprite:Play("Bounce", true)
 
 				mod:QuickCreep(EffectVariant.CREEP_BLACK, entity, entity.Position, 1.6)
-				mod:shootEffect(entity, 2, Vector(0, -15), tarBulletColor, 1, true)
-				SFXManager():Play(SoundEffect.SOUND_GOOATTACH0, 0.6)
+				mod:ShootEffect(entity, 2, Vector(0, -15), IRFcolors.Tar, 1, true)
+				mod:PlaySound(nil, SoundEffect.SOUND_GOOATTACH0, 0.5)
 			end
 		end
-		
-		-- Fix wrong splat color
+
+		-- Splat color
 		if entity:HasMortalDamage() then
-			entity.SplatColor = Color(0,0,0, 1)
+			entity.SplatColor = IRFcolors.Tar
 		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.dankDeathsHeadUpdate, EntityType.ENTITY_DEATHS_HEAD)
 
 function mod:dankDeathsHeadCollide(entity, target, bool)
-	if entity.Variant == 1 and target.Type == entity.Type then
+	if entity.Variant == 1 and target.Type == entity.Type and target.Variant == entity.Variant then
 		entity:ToNPC().I2 = 1
 		entity.Velocity = (entity.Position - target.Position):Normalized()
 
-		if target.Variant == 1 and target.SubType == 0 then
-			target:ToNPC().I2 = 1
-		end
+		target:ToNPC().I2 = 1
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.dankDeathsHeadCollide, EntityType.ENTITY_DEATHS_HEAD)

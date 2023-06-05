@@ -36,8 +36,8 @@ function mod:carrionQueenUpdate(entity)
 					and room:CheckLine(target.Position, entity.Position, 0, 0, false, false) == true then
 						entity.State = NpcState.STATE_ATTACK
 						entity.V1 = Vector.FromAngle(chargeAngle)
-						entity:PlaySound(SoundEffect.SOUND_MONSTER_ROAR_0, 1, 0, false, 1)
 						entity.ProjectileCooldown = 30
+						mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_ROAR_0)
 					end
 				end
 			
@@ -48,7 +48,7 @@ function mod:carrionQueenUpdate(entity)
 		
 		-- Make her eat her own shit
 		elseif entity.State == NpcState.STATE_ATTACK then
-			local index = room:GetGridIndex(entity.Position + (entity.Velocity:Normalized() * (entity.Size * entity.SizeMulti)) + (entity.Velocity:Normalized() * 15))
+			local index = room:GetGridIndex(entity.Position + entity.Velocity:Resized(entity.Size * entity.SizeMulti) + entity.Velocity:Resized(15))
 			local grid = room:GetGridEntity(index)
 			if grid ~= nil and grid:GetType() == GridEntityType.GRID_POOP then
 				grid:Hurt(10)
@@ -78,7 +78,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.carrionQueenCollide, Enti
 -- Turn red poops into regular ones
 function mod:carrionQueenDeath(entity)
 	if entity.Variant == 2 and entity.I1 == 0 and entity.SubType == 0 and Isaac.CountEntities(nil, entity.Type, entity.Variant, -1) <= 1 then
-		mod:removeRedPoops()
+		mod:RemoveRedPoops()
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.carrionQueenDeath, EntityType.ENTITY_CHUB)

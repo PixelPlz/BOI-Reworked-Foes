@@ -7,7 +7,7 @@ function mod:psyTumorUpdate(entity)
 		local params = ProjectileParams()
 		params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.SMART)
 		params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
-		params.ChangeTimeout = 105
+		params.ChangeTimeout = 90
 
 		params.Acceleration = 1.1
 		params.FallingSpeedModifier = 1
@@ -15,7 +15,7 @@ function mod:psyTumorUpdate(entity)
 		params.Scale = 1.5
 
 		entity:FireProjectiles(entity.Position, Vector(5, 3), 9, params)
-		entity:PlaySound(SoundEffect.SOUND_WHEEZY_COUGH, 1.1, 0, false, 1)
+		mod:PlaySound(entity, SoundEffect.SOUND_WHEEZY_COUGH, 1.1)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.psyTumorUpdate, EntityType.ENTITY_PSY_TUMOR)

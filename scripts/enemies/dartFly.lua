@@ -20,7 +20,8 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.dartFlyInit, EntityType.ENTIT
 function mod:dartFlyUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
-	
+
+	-- Fix for FF Honeydrop spawns
 	sprite.FlipX = false
 
 
@@ -29,7 +30,7 @@ function mod:dartFlyUpdate(entity)
 		entity.Velocity = mod:StopLerp(entity.Velocity)
 		mod:LoopingAnim(sprite, "Fly")
 		sprite.Rotation = (target.Position - entity.Position):GetAngleDegrees() - 90
-		
+
 		if entity.ProjectileCooldown <= 0 then
 			entity.State = NpcState.STATE_ATTACK
 			sprite:Play("Dash", true)
@@ -43,9 +44,10 @@ function mod:dartFlyUpdate(entity)
 	elseif entity.State == NpcState.STATE_ATTACK then
 		if sprite:IsEventTriggered("Dash") then
 			entity.I1 = 1
-			entity.V1 = (target.Position - entity.Position):Normalized() * Settings.MoveSpeed
+			entity.V1 = (target.Position - entity.Position):Resized(Settings.MoveSpeed)
 		end
 
+		-- Moving
 		if entity.I1 == 1 then
 			entity.Velocity = entity.V1
 			sprite.Rotation = entity.Velocity:GetAngleDegrees() - 90
@@ -58,6 +60,7 @@ function mod:dartFlyUpdate(entity)
 				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 			end
 
+		-- Charge up
 		else
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 			sprite.Rotation = (target.Position - entity.Position):GetAngleDegrees() - 90

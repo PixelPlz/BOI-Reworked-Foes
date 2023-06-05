@@ -6,30 +6,32 @@ function mod:dankGlobinUpdate(entity)
 	if entity.Variant == 2 and entity.State == NpcState.STATE_IDLE then
 		local sprite = entity:GetSprite()
 
-
+		-- Projectiles
 		if sprite:IsEventTriggered("Shoot") then
 			local params = ProjectileParams()
-			params.Color = tarBulletColor
+			params.Color = IRFcolors.Tar
 			entity:FireProjectiles(entity.Position, Vector(10, 0), 7, params)
-			
+
 			for i, spider in pairs(Isaac.FindByType(EntityType.ENTITY_SPIDER, -1, -1, false, false)) do
 				if spider.SpawnerType == EntityType.ENTITY_GLOBIN and spider.SpawnerVariant == 2 then
 					spider:Remove()
 				end
 			end
 
+
+		-- Start / Stop moving
 		elseif sprite:IsEventTriggered("Move") then
 			entity.I1 = 1
 		elseif sprite:IsEventTriggered("Regen") then
 			entity.I1 = 0
 		end
 
-
+		-- Move towards the player
 		local place = entity:GetPlayerTarget().Position
 		if entity.I1 == 1 and entity.Pathfinder:HasPathToPos(place, false) then
-			entity.Pathfinder:FindGridPath(place, 0.85, 500, false)
+			entity.Pathfinder:FindGridPath(place, 5.5 / 6, 500, false)
 
-			if entity:IsFrame(4, 0) then
+			if entity:IsFrame(3, 0) then
 				mod:QuickCreep(EffectVariant.CREEP_BLACK, entity, entity.Position, 0.9)
 			end
 		end

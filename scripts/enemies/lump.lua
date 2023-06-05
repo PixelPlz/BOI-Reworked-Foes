@@ -12,25 +12,16 @@ function mod:lumpUpdate(entity)
 	local target = entity:GetPlayerTarget()
 	local room = Game():GetRoom()
 
-	
 	entity.Velocity = Vector.Zero
 
 	if sprite:IsEventTriggered("Sound") then
-		SFXManager():Play(SoundEffect.SOUND_MEAT_JUMPS, 0.85)
-	end
-
-	local function spriteFlipX()
-		if target.Position.X > entity.Position.X then
-			sprite.FlipX = true
-		else
-			sprite.FlipX = false
-		end
+		mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.85)
 	end
 
 
 	if entity.State == NpcState.STATE_IDLE then
 		mod:LoopingAnim(sprite, "Shake")
-		
+
 		-- Shoot if target is close enough
 		if entity.Position:Distance(target.Position) <= 220 and room:CheckLine(entity.Position, target.Position, 3, 0, false, false) then
 			entity.State = NpcState.STATE_ATTACK
@@ -41,7 +32,7 @@ function mod:lumpUpdate(entity)
 		if entity.StateFrame <= 0 then
 			entity.State = NpcState.STATE_STOMP
 			sprite:Play("Hide", true)
-		
+
 		else
 			entity.StateFrame = entity.StateFrame - 1
 		end
@@ -61,7 +52,7 @@ function mod:lumpUpdate(entity)
 
 	-- Go to position
 	elseif entity.State == NpcState.STATE_MOVE then
-		entity.V1 = target.Position + Vector.FromAngle(math.random(0, 359)) * math.random(200, 320)
+		entity.V1 = target.Position + mod:RandomVector(mod:Random(200, 300))
 		entity.V1 = room:FindFreePickupSpawnPosition(entity.V1, 40, true, false)
 
 		local minDistance = 160
@@ -74,7 +65,7 @@ function mod:lumpUpdate(entity)
 			entity.State = NpcState.STATE_JUMP
 			sprite:Play("Emerge", true)
 			entity.Visible = true
-			spriteFlipX()
+			mod:FlipTowardsTarget(entity, sprite)
 
 		else
 			entity.StateFrame = entity.StateFrame - 1
@@ -95,9 +86,9 @@ function mod:lumpUpdate(entity)
 	-- Attack
 	elseif entity.State == NpcState.STATE_ATTACK then
 		if sprite:IsEventTriggered("Shoot") then
-			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * 7.5, 2, ProjectileParams())
-			entity:PlaySound(SoundEffect.SOUND_MEATHEADSHOOT, 1, 0, false, 1)
-			spriteFlipX()
+			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(7.5), 2, ProjectileParams())
+			mod:PlaySound(entity, SoundEffect.SOUND_MEATHEADSHOOT)
+			mod:FlipTowardsTarget(entity, sprite)
 		end
 
 		if sprite:IsFinished("Spit") then
@@ -106,12 +97,13 @@ function mod:lumpUpdate(entity)
 		end
 	end
 
-	-- This is such a dumb variant why does it even exist
-	if (entity.SubType == 95 and entity.State == 0) then
+
+	-- FF waiting Lump (This is such a dumb variant why does it even exist...)
+	if (entity.SubType == 95 and entity.State == NpcState.STATE_INIT) then
 		entity.State = NpcState.STATE_IDLE
 		entity.StateFrame = 90
 	end
-	
+
 	if entity.FrameCount > 1 then
 		return true
 	end

@@ -7,7 +7,7 @@ local Settings = {
 	DashSpeed = 26,
 	DashCooldown = 30,
 
-	MaxGlobins = 5,
+	MaxGlobins = 4,
 	MinGlobins = 2,
 	CloneCount = 5,
 
@@ -17,6 +17,21 @@ local Settings = {
 
 
 
+function mod:conquestInit(entity)
+	-- Red Conquest clones
+	if entity.Variant == 1 and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
+		-- Only 5 of them can spawn
+		if Isaac.CountEntities(entity.SpawnerEntity, EntityType.ENTITY_WAR, 1, -1) >= Settings.CloneCount then
+			entity:Remove()
+
+		-- Appear horizontally to the target
+		else
+			entity.Position = Vector(entity.Position.X, entity.SpawnerEntity:ToNPC():GetPlayerTarget().Position.Y)
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.conquestInit, EntityType.ENTITY_WAR)
+
 function mod:conquestUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
@@ -24,7 +39,7 @@ function mod:conquestUpdate(entity)
 		-- Go to 2nd phase
 		if not entity.SpawnerEntity and entity.HitPoints <= entity.MaxHitPoints / 2 and entity.State ~= NpcState.STATE_ATTACK2 and not entity:GetData().wasDelirium then
 			-- Conquest without horse
-			local conquest = Isaac.Spawn(EntityType.ENTITY_WAR, 11, entity.SubType, entity.Position, (entity.Position - entity:GetPlayerTarget().Position):Normalized() * 20, entity):ToNPC()
+			local conquest = Isaac.Spawn(EntityType.ENTITY_WAR, 11, entity.SubType, entity.Position, (entity.Position - entity:GetPlayerTarget().Position):Resized(20), entity):ToNPC()
 			conquest.State = NpcState.STATE_APPEAR_CUSTOM
 			conquest.MaxHitPoints = entity.MaxHitPoints
 			conquest.HitPoints = entity.HitPoints
@@ -71,49 +86,30 @@ function mod:conquestUpdate(entity)
 
 		-- Red champion
 		if entity.SubType == 1 then
+			-- Don't go off-screen if there are too many Globins
 			if entity.State == NpcState.STATE_JUMP and sprite:GetFrame() == 0 then
 				if Isaac.CountEntities(entity, EntityType.ENTITY_GLOBIN, -1, -1) > Settings.MinGlobins then
 					entity.State = NpcState.STATE_ATTACK
 					sprite:Play("Attack1", true)
 				end
-			
+
+
+			-- Replace default projectile attack
 			elseif entity.State == NpcState.STATE_ATTACK then
 				entity.State = NpcState.STATE_ATTACK3
-			
+
+			-- Custom projectile attack
 			elseif entity.State == NpcState.STATE_ATTACK3 then
 				if sprite:GetFrame() == 5 then
-					entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_4, 1, 0, false, 1)
-
 					local params = ProjectileParams()
-					params.Scale = 1.45
-					params.FallingAccelModifier = 1.25
-					params.FallingSpeedModifier = math.random(-20, -10)
-					params.BulletFlags = ProjectileFlags.EXPLODE
-
-					for i = 0, 1 do
-						entity:FireProjectiles(entity.Position, Vector.FromAngle(math.random(0, 359)) * 7, 0, params)
-					end
-					
-					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 2, entity.Position, Vector.Zero, entity):ToEffect()
-					effect:GetSprite().Offset = Vector(0, -44)
-					effect.DepthOffset = entity.DepthOffset + 10
-					effect.SpriteScale = Vector(1.25, 1.25)
+					params.Scale = 1.25
+					entity:FireProjectiles(entity.Position, Vector(12, 6), 9, params)
+					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_4)
 				end
-				
-				if sprite:IsFinished("Attack1") then
+
+				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_MOVE
 				end
-			end
-		end
-
-
-		-- Red champion clones charge horizontally to their target instead of randomly and only 5 of them spawn
-		if entity.SpawnerEntity and entity.SpawnerType == EntityType.ENTITY_WAR and entity.SpawnerVariant == 1
-		and entity.SpawnerEntity.SubType == 1 and entity.State == NpcState.STATE_ATTACK2 and entity.FrameCount == 0 then
-			if Isaac.CountEntities(entity.SpawnerEntity, EntityType.ENTITY_WAR, 1, -1) >= Settings.CloneCount then
-				entity:Remove()
-			else
-				entity.Position = Vector(entity.Position.X, entity:GetPlayerTarget().Position.Y)
 			end
 		end
 	end
@@ -137,7 +133,7 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.conquestDMG, EntityType.ENT
 
 function mod:conquestCollide(entity, target, bool)
 	if target.Type == EntityType.ENTITY_WAR or target.Type == EntityType.ENTITY_GLOBIN then
-		-- Damage globins if charging
+		-- Damage Globins it charges into
 		if target.Type == EntityType.ENTITY_GLOBIN and target:ToNPC().State ~= NpcState.STATE_IDLE
 		and ((entity.Variant == 1 and entity.State == NpcState.STATE_ATTACK2) or (entity.Variant == 20 and entity.State == NpcState.STATE_MOVE)) then
 			target:TakeDamage(40, 0, EntityRef(entity), 30)
@@ -153,8 +149,9 @@ function mod:conquestLightBeamUpdate(effect)
 	if effect.SpawnerEntity and effect.SpawnerType == EntityType.ENTITY_WAR and effect.SpawnerEntity.SubType == 1 then
 		if Isaac.CountEntities(effect.SpawnerEntity, EntityType.ENTITY_GLOBIN, -1, -1) < Settings.MaxGlobins and effect.Position:Distance(Game():GetNearestPlayer(effect.Position).Position) >= 80 then
 			Isaac.Spawn(EntityType.ENTITY_GLOBIN, 0, 0, effect.Position, Vector.Zero, effect.SpawnerEntity)
-			SFXManager():Play(SoundEffect.SOUND_SUMMONSOUND, 0.75)
+			mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND, 0.75)
 		end
+
 		effect:Remove()
 	end
 end
@@ -170,10 +167,10 @@ function mod:conquestPreUpdate(entity)
 		local room = Game():GetRoom()
 
 
-		-- Conquest without horse
+		--[[ Conquest without horse ]]--
 		if entity.Variant == 11 then
 			if sprite:IsEventTriggered("Flap") then
-				SFXManager():Play(SoundEffect.SOUND_ANGEL_WING, 0.6)
+				mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_WING, 0.6)
 			end
 
 			-- Appear
@@ -181,24 +178,19 @@ function mod:conquestPreUpdate(entity)
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				if sprite:IsEventTriggered("Shoot") then
-					entity:PlaySound(SoundEffect.SOUND_MONSTER_ROAR_0, 0.9, 0, false, 1)
+					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_ROAR_0, 0.9)
 				end
-				if sprite:IsFinished("Appear") then
+				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_MOVE
 				end
 
 
 			-- Idle
 			elseif entity.State == NpcState.STATE_MOVE then
-				entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Normalized() * (Settings.MoveSpeed - entity.SubType), 0.25)
+				mod:ChasePlayer(entity, Settings.MoveSpeed, true)
 				mod:LoopingAnim(sprite, "Walk")
+				mod:FlipTowardsMovement(entity, sprite)
 
-				if entity.Velocity.X < 0 then
-					sprite.FlipX = true
-				elseif entity.Velocity.X > 0 then
-					sprite.FlipX = false
-				end
-				
 				if entity.ProjectileCooldown <= 0 then
 					entity.State = NpcState.STATE_ATTACK
 					sprite:Play("Attack", true)
@@ -212,7 +204,7 @@ function mod:conquestPreUpdate(entity)
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				if sprite:IsEventTriggered("Shoot") then
-					entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_4, 0.9, 0, false, 1)
+					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_4, 0.9)
 					local params = ProjectileParams()
 
 					if entity.SubType == 0 then
@@ -222,30 +214,20 @@ function mod:conquestPreUpdate(entity)
 
 					-- Red champion
 					elseif entity.SubType == 1 then
-						params.Scale = 1.45
-						params.FallingAccelModifier = 1.25
-						params.FallingSpeedModifier = math.random(-20, -10)
-						params.BulletFlags = ProjectileFlags.EXPLODE
-
-						for i = 0, 1 do
-							entity:FireProjectiles(entity.Position, Vector.FromAngle(math.random(0, 359)) * 7, 0, params)
-						end
-						
-						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 2, entity.Position, Vector.Zero, entity):ToEffect()
-						effect:GetSprite().Offset = Vector(0, -44)
-						effect.DepthOffset = entity.DepthOffset + 10
-						effect.SpriteScale = Vector(1.25, 1.25)
+						params.Scale = 1.25
+						entity:FireProjectiles(entity.Position, Vector(12, 8), 9, params)
 					end
 				end
 
-				if sprite:IsFinished("Attack") then
+				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_MOVE
 					entity.ProjectileCooldown = Settings.Cooldown
 				end
 			end
 
 
-		-- Horse
+
+		--[[ Horse ]]--
 		elseif entity.Variant == 20 then
 			-- Wait
 			if entity.State == NpcState.STATE_IDLE then
@@ -267,7 +249,6 @@ function mod:conquestPreUpdate(entity)
 			-- Dash
 			elseif entity.State == NpcState.STATE_MOVE then
 				if sprite:IsEventTriggered("Dash") then
-					entity:PlaySound(SoundEffect.SOUND_MONSTER_YELL_A, 0.9, 0, false, 1)
 					entity.I1 = 1
 					entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS_Y
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK)
@@ -275,10 +256,13 @@ function mod:conquestPreUpdate(entity)
 					entity.Mass = 0.1
 
 					if sprite.FlipX == false then
-						entity.V1 = Vector(1, 0)
+						--entity.V1 = Vector(1, 0)
 					elseif sprite.FlipX == true then
-						entity.V1 = Vector(-1, 0)
+						--entity.V1 = Vector(-1, 0)
 					end
+					entity.V1 = Vector(mod:GetSign(not sprite.FlipX), 0)
+
+					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_YELL_A, 0.9)
 				end
 
 				if entity.I1 == 0 then
@@ -292,8 +276,14 @@ function mod:conquestPreUpdate(entity)
 					if entity.SubType == 1 then
 						if room:IsPositionInRoom(entity.Position, 0) == true and entity:IsFrame(2, 0) then
 							local params = ProjectileParams()
+							params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
+							params.ChangeTimeout = 45
+							params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
+
 							params.Scale = 1.4
 							params.FallingSpeedModifier = 1
+							params.FallingAccelModifier = -0.2
+							params.HeightModifier = 10
 							entity:FireProjectiles(entity.Position, Vector.Zero, 0, params)
 						end
 					end

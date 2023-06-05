@@ -4,7 +4,8 @@ local Settings = {
 	MoveSpeed = 15,
 	SideRange = 20,
 	FrontRange = 220,
-	Cooldown = 5
+	Cooldown = 5,
+	CollisionDamage = 10
 }
 
 
@@ -20,7 +21,7 @@ function mod:pokyInit(entity)
 		local gridIndex = Game():GetRoom():GetGridIndex(entity.Position)
 		entity.TargetPosition = Game():GetRoom():GetGridPosition(gridIndex)
 
-		entity.ProjectileCooldown = 30
+		entity.ProjectileCooldown = 20
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.pokyInit, EntityType.ENTITY_POKY)
@@ -60,11 +61,11 @@ function mod:slideUpdate(entity)
 				else
 					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 				end
-			
+
 			-- Ready
 			elseif entity.I2 == 1 then
 				if sprite:IsEventTriggered("Sound") then
-					entity:PlaySound(SoundEffect.SOUND_GOOATTACH0, 0.6, 0, false, 1)
+					mod:PlaySound(entity, SoundEffect.SOUND_GOOATTACH0, 0.6)
 				end
 
 				if not sprite:IsPlaying("Wake") then
@@ -106,7 +107,7 @@ function mod:slideUpdate(entity)
 			for i, other in pairs(entitiesInPath) do
 				if (other.Type == entity.Type and other.Index ~= entity.Index) or other.Type == EntityType.ENTITY_WALL_HUGGER or other.Type == EntityType.ENTITY_GRUDGE then
 					entity.I1 = 1
-					SFXManager():Play(SoundEffect.SOUND_BONE_BOUNCE, 0.6, 0, false, 0.85)
+					mod:PlaySound(nil, SoundEffect.SOUND_BONE_BOUNCE, 0.6, 0.85)
 				end
 			end
 
@@ -119,7 +120,7 @@ function mod:slideUpdate(entity)
 			if entity.I1 == 1 then
 				entity.State = NpcState.STATE_STOMP
 				sprite:Play("Sleep", true)
-				SFXManager():Play(SoundEffect.SOUND_STONE_IMPACT, 0.75)
+				mod:PlaySound(nil, SoundEffect.SOUND_STONE_IMPACT, 0.75)
 
 				entity.V2 = entity.Position
 				entity.Velocity = Vector.Zero
@@ -143,7 +144,7 @@ function mod:slideUpdate(entity)
 		-- Returning
 		elseif entity.State == NpcState.STATE_JUMP then
 			if entity.Position:Distance(entity.TargetPosition) > 6 then
-				entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Normalized() * Settings.MoveSpeed / 2, 0.25)
+				entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Resized(Settings.MoveSpeed / 2), 0.25)
 				mod:LoopingAnim(sprite, "No-Spikes")
 
 			else
@@ -157,7 +158,7 @@ function mod:slideUpdate(entity)
 		end
 
 
-		if entity.FrameCount > 1 and entity.State ~= 16 then 
+		if entity.FrameCount > 1 and entity.State ~= NpcState.STATE_SPECIAL then 
 			-- Disable if a player has Flat File or all pressure plates are pressed
 			local hasFlatFile = false
 			for i = 0, Game():GetNumPlayers() - 1 do
@@ -190,7 +191,7 @@ function mod:slideCollision(entity, target, cock)
 
 			-- Hurt enemies (Horseman Head takes damage by default)
 			if target.Type >= 10 and target.Type ~= EntityType.ENTITY_HORSEMAN_HEAD then
-				target:TakeDamage(10, 0, EntityRef(entity), 0)
+				target:TakeDamage(Settings.CollisionDamage, 0, EntityRef(entity), 0)
 			end
 		end
 	end

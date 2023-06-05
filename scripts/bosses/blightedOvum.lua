@@ -17,7 +17,7 @@ local Settings = {
 
 function mod:blightedOvumInit(entity)
 	if entity.Variant == 2 or entity.Variant == 12 then
-		entity.ProjectileCooldown = math.random(Settings.Cooldown / 2, Settings.Cooldown * 2)
+		entity.ProjectileCooldown = mod:Random(Settings.Cooldown / 2, Settings.Cooldown * 2)
 
 		if entity.Variant == 2 then
 			entity.MaxHitPoints = Settings.NewHP
@@ -37,7 +37,7 @@ function mod:blightedOvumUpdate(entity)
 	local room = Game():GetRoom()
 
 
-	-- Big guy
+	--[[ Contusion ]]--
 	if entity.Variant == 2 then
 		if entity.State == NpcState.STATE_MOVE or entity.State == NpcState.STATE_ATTACK or entity.State == NpcState.STATE_ATTACK2 or entity.State == NpcState.STATE_ATTACK3 then
 			local speed = Settings.MoveSpeed
@@ -50,13 +50,13 @@ function mod:blightedOvumUpdate(entity)
 
 				-- Effect
 				if entity:IsFrame(2, 0) then
-					for i = 0, 2 do
-						local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, entity.Position, Vector.FromAngle(math.random(240, 300)), entity):ToEffect()
+					for i = 1, 3 do
+						local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, entity.Position, Vector.Zero, entity):ToEffect()
 						local scaler = math.random(70, 90) / 100
 						trail.SpriteScale = Vector(scaler, scaler)
-						trail.SpriteOffset = Vector(math.random(-9, 9), math.random(18, 26) * -1)
+						trail.SpriteOffset = Vector(math.random(-8, 8), math.random(20, 26) * -1)
 						trail.DepthOffset = entity.DepthOffset - 50
-						trail:GetSprite().Color = ghostTrailColor
+						trail:GetSprite().Color = IRFcolors.GhostTrail
 						trail:Update()
 					end
 				end
@@ -69,9 +69,10 @@ function mod:blightedOvumUpdate(entity)
 						if sprite:GetOverlayFrame() == 16 then
 							local params = ProjectileParams()
 							params.BulletFlags = ProjectileFlags.GHOST
-							entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * 10, 3, params)
-							mod:shootEffect(entity, 5, Vector(0, -30), Color(0,0,0, 0.5, 0.5,0.5,0.5))
-							entity:PlaySound(SoundEffect.SOUND_CUTE_GRUNT, 0.9, 0, false, 0.9)
+							entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(11), 3, params)
+
+							mod:ShootEffect(entity, 5, Vector(0, -30), Color(0,0,0, 0.5, 0.5,0.5,0.5))
+							mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT, 0.9, 0.9)
 
 						elseif sprite:GetOverlayFrame() == 31 then
 							entity.State = NpcState.STATE_MOVE
@@ -101,23 +102,7 @@ function mod:blightedOvumUpdate(entity)
 
 
 			-- Movement
-			if entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
-				speed = -speed
-			end
-
-			if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
-				entity.Pathfinder:MoveRandomly(false)
-			else
-				if entity.Pathfinder:HasPathToPos(target.Position) or entity.State == NpcState.STATE_ATTACK3 then
-					if room:CheckLine(entity.Position, target.Position, 0, 0, false, false) or entity.State == NpcState.STATE_ATTACK3 then
-						entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Normalized() * speed, 0.25)
-					else
-						entity.Pathfinder:FindGridPath(target.Position, speed / 6, 500, false)
-					end
-				else
-					entity.Velocity = mod:StopLerp(entity.Velocity)
-				end
-			end
+			mod:ChasePlayer(entity, speed, entity.State == NpcState.STATE_ATTACK3)
 
 			-- Animations
 			entity:AnimWalkFrame("WalkHori", "WalkVert", 0.1)
@@ -129,27 +114,27 @@ function mod:blightedOvumUpdate(entity)
 				if entity.State == NpcState.STATE_MOVE then
 					-- 2nd phase
 					if entity.I1 == 1 then
-						if math.random(0, 1) == 1 then
+						if mod:Random(1) == 1 then
 							entity.State = NpcState.STATE_ATTACK2
 						else
 							entity.State = NpcState.STATE_ATTACK3
 							entity.ProjectileCooldown = Settings.ChaseTime
 							entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
-							SFXManager():Play(SoundEffect.SOUND_BEAST_GHOST_DASH)
+							mod:PlaySound(entity, SoundEffect.SOUND_BEAST_GHOST_DASH)
 						end
 
 					-- 1st phase
 					else
 						entity.State = NpcState.STATE_ATTACK
 						entity.ProjectileCooldown = Settings.ChaseTime
-						entity:PlaySound(SoundEffect.SOUND_MONSTER_YELL_B, 0.8, 0, false, 1)
+						mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_YELL_B, 0.8)
 					end
 					
 				-- Chase
 				elseif entity.State == NpcState.STATE_ATTACK or (entity.State == NpcState.STATE_ATTACK3 and room:GetGridCollisionAtPos(entity.Position) == GridCollisionClass.COLLISION_NONE) then
 					if entity.State == NpcState.STATE_ATTACK3 then
 						entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
-						SFXManager():Play(SoundEffect.SOUND_BEAST_GHOST_DASH, 0.75, 0, false, 0.9)
+						mod:PlaySound(entity, SoundEffect.SOUND_BEAST_GHOST_DASH, 0.75, 0.9)
 					end
 
 					entity.State = NpcState.STATE_MOVE
@@ -172,8 +157,8 @@ function mod:blightedOvumUpdate(entity)
 
 					entity:BloodExplode()
 					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity)
-					SFXManager():Play(SoundEffect.SOUND_DEATH_BURST_LARGE)
-					SFXManager():Play(SoundEffect.SOUND_MEATY_DEATHS)
+					mod:PlaySound(nil, SoundEffect.SOUND_DEATH_BURST_LARGE)
+					mod:PlaySound(nil, SoundEffect.SOUND_MEATY_DEATHS)
 				end
 			end
 
@@ -193,18 +178,7 @@ function mod:blightedOvumUpdate(entity)
 
 		-- Run away
 		elseif entity.State == NpcState.STATE_IDLE then
-			local vector = room:FindFreePickupSpawnPosition(entity.Position + (Vector.FromAngle((entity.Position - target.Position):GetAngleDegrees() + math.random(-15, 15)) * 120), 40, true, false)
-
-			if entity.Position:Distance(vector) > 40 and entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) == false then
-				if room:CheckLine(entity.Position, vector, 0, 0, false, false) then
-					entity.Velocity = mod:Lerp(entity.Velocity, (vector - entity.Position):Normalized() * Settings.MoveSpeed, 0.25)
-				else
-					entity.Pathfinder:FindGridPath(vector, Settings.MoveSpeed / 6, 500, false)
-				end
-			else
-				entity.Pathfinder:MoveRandomly(false)
-			end
-			
+			mod:AvoidPlayer(entity, 160, Settings.MoveSpeed / 2, Settings.MoveSpeed)
 			entity:AnimWalkFrame("WalkHori", "WalkVert", 0.1)
 			mod:LoopingOverlay(sprite, "HeadHalf")
 		end
@@ -215,11 +189,12 @@ function mod:blightedOvumUpdate(entity)
 		end
 
 
-	-- Baby
+
+	--[[ Suture ]]--
 	elseif entity.Variant == 12 then
 		-- Transparency
 		if entity.I2 > 0 then
-			sprite.Color = Color(1,1,1, 0.5)
+			sprite.Color = IRFcolors.GhostTransparent
 			entity.I2 = entity.I2 - 1
 		else
 			sprite.Color = Color.Default
@@ -243,19 +218,10 @@ function mod:blightedOvumUpdate(entity)
 
 
 			-- Orbit parent
-			entity.StateFrame = entity.StateFrame + 4
-			if entity.StateFrame >= 360 then
-				entity.StateFrame = entity.StateFrame - 360
-			end
-			entity.Position = mod:Lerp(entity.Position, entity.Parent.Position + (Vector.FromAngle(entity.StateFrame) * 40), 0.25)
-			entity.Velocity = entity.Parent.Velocity
-			
+			mod:OrbitParent(entity, entity.Parent, 3.5, 30)
+
 			-- Face towards the player
-			if target.Position.X < entity.Position.X then
-				sprite.FlipX = true
-			else
-				sprite.FlipX = false
-			end
+			mod:FlipTowardsTarget(entity, sprite)
 
 
 			if entity.State == NpcState.STATE_MOVE then
@@ -273,12 +239,13 @@ function mod:blightedOvumUpdate(entity)
 				if sprite:IsEventTriggered("Shoot") then
 					local params = ProjectileParams()
 					params.BulletFlags = ProjectileFlags.GHOST
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * 13, 0, params)
-					mod:shootEffect(entity, 5, Vector(0, -20), Color(0,0,0, 0.5, 0.5,0.5,0.5))
-					entity:PlaySound(SoundEffect.SOUND_CUTE_GRUNT, 0.9, 0, false, 0.9)
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(12), 0, params)
+
+					mod:ShootEffect(entity, 5, Vector(0, -20), Color(0,0,0, 0.5, 0.5,0.5,0.5))
+					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT, 0.9, 0.9)
 				end
 
-				if sprite:IsFinished("Attack01") then
+				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_MOVE
 					entity.ProjectileCooldown = Settings.Cooldown
 				end
@@ -297,16 +264,16 @@ function mod:blightedOvumUpdate(entity)
 			if sprite:IsEventTriggered("Shoot") then
 				entity.I1 = 1
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-				SFXManager():Play(SoundEffect.SOUND_BEAST_GHOST_DASH)
+				mod:PlaySound(nil, SoundEffect.SOUND_BEAST_GHOST_DASH)
 			end
 
-			if sprite:IsFinished("Haunt") and entity.Parent then
+			if sprite:IsFinished() and entity.Parent then
 				entity.Parent:ToNPC().State = NpcState.STATE_SPECIAL
 				entity.Parent:GetSprite():PlayOverlay("Transition2", true)
 				entity.Parent:SetColor(Color(1,1,1, 1, 0.4,0.4,0.4), 8, 1, true, false)
 
 				entity.State = NpcState.STATE_IDLE
-				SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END, 1.1)
+				mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END, 1.1)
 			end
 
 		-- Haunting
@@ -335,7 +302,7 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.blightedOvumDMG, EntityType
 function mod:blightedOvumDeath(entity)
 	if entity.Variant == 12 then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ENEMY_GHOST, 2, entity.Position, Vector.Zero, entity)
-		SFXManager():Play(SoundEffect.SOUND_DEMON_HIT)
+		mod:PlaySound(nil, SoundEffect.SOUND_DEMON_HIT)
 
 		for i, e in pairs(Isaac.FindInRadius(entity.Position, 60, EntityPartition.ENEMY)) do
 			e:TakeDamage(40, 0, EntityRef(entity), 0)

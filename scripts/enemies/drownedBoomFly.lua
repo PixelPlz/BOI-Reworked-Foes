@@ -11,7 +11,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.drownedBoomFlyUpdate, Entity
 
 function mod:drownedBoomFlyDeath(entity)
 	if entity.Variant == 2 then
-		Game():BombExplosionEffects(entity.Position, 100, TearFlags.TEAR_NORMAL, Color(1,1,1, 1, 0,0,0.1), entity, 1, true, true, DamageFlag.DAMAGE_EXPLOSION)
+		Game():BombExplosionEffects(entity.Position, 40, TearFlags.TEAR_NORMAL, Color(1,1,1, 1, 0,0,0.1), entity, 1, true, true, DamageFlag.DAMAGE_EXPLOSION)
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BIG_SPLASH, 0, entity.Position, Vector.Zero, entity)
 
 		local params = ProjectileParams()
@@ -25,8 +25,12 @@ function mod:drownedBoomFlyDeath(entity)
 		params.Scale = 1.25
 		params.Variant = ProjectileVariant.PROJECTILE_TEAR
 
-		entity:FireProjectiles(entity.Position, Vector(8, 0), 8, params)
-		
+		-- Outer projectiles
+		for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, Vector(8, 0), 8, params)) do
+			projectile.CollisionDamage = 1
+		end
+
+		-- Center projectile
 		params.FallingAccelModifier = -0.2
 		params.Scale = 1.75
 		entity:FireProjectiles(entity.Position, Vector.Zero, 0, params)

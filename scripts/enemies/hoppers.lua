@@ -48,6 +48,10 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.flamingHopperInit, EntityType
 function mod:flamingHopperUpdate(entity)
 	local sprite = entity:GetSprite()
 
+	mod:EmberParticles(entity, Vector(0, -28), entity.SubType)
+
+
+	-- Attack after 3 jumps
 	if sprite:IsPlaying("Hop") then
 		if sprite:GetFrame() == 0 then
 			if entity.ProjectileCooldown <= 0 then
@@ -64,6 +68,7 @@ function mod:flamingHopperUpdate(entity)
 
 	-- Ground pound
 	elseif sprite:IsPlaying("Attack") then
+		-- Wind-up
 		if sprite:GetFrame() < 12 then
 			entity.Velocity = Vector.Zero
 		end
@@ -72,8 +77,33 @@ function mod:flamingHopperUpdate(entity)
 			entity.Velocity = Vector.Zero
 			entity.TargetPosition = entity.Position
 			entity.ProjectileCooldown = 3
-			mod:FireRing(entity)
+
+			local data = entity:GetData()
+			data.startFireRing = true
+			data.fireRingIndex = 0
+			data.fireRingDelay = 0
+
+			mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END, 1.1)
 		end
+
+		mod:FireRing(entity, 70, entity.SubType)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingHopperUpdate, EntityType.ENTITY_FLAMINGHOPPER)
+
+-- Turn regular hoppers into purple flaming ones when burnt by Mega Maw or other purple flaming hoppers
+function mod:hopperIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if target.Variant == 0 and
+	((damageSource.Type == EntityType.ENTITY_PROJECTILE and damageSource.Entity:ToProjectile():HasProjectileFlags(ProjectileFlags.FIRE))
+	or (damageSource.Type == EntityType.ENTITY_EFFECT and damageSource.Variant == EffectVariant.FIRE_JET and damageSource.Entity.SubType == 1)) then
+		target:ToNPC():Morph(EntityType.ENTITY_FLAMINGHOPPER, 0, 1, target:ToNPC():GetChampionColorIdx())
+		mod:PlaySound(nil, SoundEffect.SOUND_FIREDEATH_HISS)
+
+		local sprite = target:GetSprite()
+		sprite:Load("gfx/054.000_flaming hopper_purple.anm2")
+		sprite:LoadGraphics()
+
+		return false
+	end
+end
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.hopperIgnite, EntityType.ENTITY_HOPPER)

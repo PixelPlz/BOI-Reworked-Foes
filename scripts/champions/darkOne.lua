@@ -12,7 +12,7 @@ function mod:darkOneUpdate(entity)
 
 		-- Particles
 		if entity.I2 == 0 then
-			mod:smokeParticles(entity, Vector(0, -30), 15, Vector(100, 120), Color.Default, "effects/effect_088_darksmoke_black")
+			mod:SmokeParticles(entity, Vector(0, -30), 15, Vector(100, 120), Color.Default, "effects/effect_088_darksmoke_black")
 		end
 
 
@@ -29,13 +29,13 @@ function mod:darkOneUpdate(entity)
 			smoke.Color = smokeColor
 			smoke.Offset = Vector(0, -10)
 			SFXManager():Stop(SoundEffect.SOUND_FART)
-			
+
 			local poof = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 1, entity.Position, Vector.Zero, entity):GetSprite()
 			poof.Color = poofColor
 			poof.Offset = Vector(0, -10)
 			poof.Scale = Vector(0.85, 0.85)
 
-			SFXManager():Play(SoundEffect.SOUND_BLACK_POOF)
+			mod:PlaySound(nil, SoundEffect.SOUND_BLACK_POOF)
 		end
 
 
@@ -46,7 +46,7 @@ function mod:darkOneUpdate(entity)
 			end
 
 			if sprite:GetFrame() == 10 then
-				entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_0, 1, 0, false, 1)
+				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_0)
 
 			elseif sprite:GetFrame() == 36 then
 				data.darkened = true
@@ -68,8 +68,7 @@ function mod:darkOneUpdate(entity)
 			entity.State = NpcState.STATE_IDLE
 
 		elseif entity.State == NpcState.STATE_IDLE then
-			entity.Pathfinder:MoveRandomlyBoss(false)
-			entity.Velocity = entity.Velocity * 0.95
+			mod:WanderAround(entity, 2.25)
 			mod:LoopingAnim(sprite, "Walk")
 
 			if entity.ProjectileCooldown <= 0 then
@@ -86,7 +85,7 @@ function mod:darkOneUpdate(entity)
 			-- Teleport away
 			if entity.StateFrame == 0 then
 				if sprite:IsEventTriggered("Shoot") then
-					entity:PlaySound(SoundEffect.SOUND_MONSTER_ROAR_0, 1, 0, false, 1)
+					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_ROAR_0)
 				end
 
 				if sprite:GetFrame() == 27 then
@@ -107,11 +106,11 @@ function mod:darkOneUpdate(entity)
 					if target.Position.Y < room:GetTopLeftPos().Y + 60 then
 						highest = 1
 					end
-					entity.I1 = math.random(0, highest)
+					entity.I1 = mod:Random(highest)
 
 					-- Projectiles
 					if entity.I1 == 0 then
-						entity.V1 = target.Position + ((room:GetCenterPos() - target.Position):Normalized() * 240)
+						entity.V1 = target.Position + (room:GetCenterPos() - target.Position):Resized(240)
 
 					-- Charge
 					elseif entity.I1 == 1 then
@@ -123,7 +122,7 @@ function mod:darkOneUpdate(entity)
 						else
 							entity.V1 = posLeft
 						end
-					
+
 					-- Brimstone
 					elseif entity.I1 == 2 then
 						entity.V1 = Vector(target.Position.X, room:GetTopLeftPos().Y)
@@ -142,7 +141,7 @@ function mod:darkOneUpdate(entity)
 
 					sprite:Play("Darkness", true)
 					sprite:SetFrame(3)
-					entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_0, 1, 0, false, 1)
+					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_0)
 
 				else
 					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
@@ -163,17 +162,13 @@ function mod:darkOneUpdate(entity)
 					elseif entity.I1 == 1 then
 						entity.State = NpcState.STATE_ATTACK3
 						sprite:Play("Charge", true)
-						entity:PlaySound(SoundEffect.SOUND_MONSTER_YELL_A, 1, 0, false, 1)
+						mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_YELL_A)
 
 						entity.StateFrame = 0
 						entity.TargetPosition = entity.Position
 
 						-- Charge towards the target
-						if target.Position.X < entity.Position.X then
-							sprite.FlipX = true
-						else
-							sprite.FlipX = false
-						end
+						mod:FlipTowardsTarget(entity, sprite)
 
 					-- Brimstone
 					elseif entity.I1 == 2 then
@@ -190,10 +185,16 @@ function mod:darkOneUpdate(entity)
 		elseif entity.State == NpcState.STATE_ATTACK2 and sprite:IsEventTriggered("Shoot") then
 			local params = ProjectileParams()
 			params.Variant = ProjectileVariant.PROJECTILE_HUSH
-			params.Color = brimstoneBulletColor
+			params.Color = IRFcolors.BrimShot
 			params.Scale = 1.25
 			params.CircleAngle = 0
-			entity:FireProjectiles(Vector(entity.Position.X, room:GetBottomRightPos().Y - 1), Vector(11, 12), 9, params)
+			mod:FireProjectiles(entity, Vector(entity.Position.X, room:GetBottomRightPos().Y - 1), Vector(11, 12), 9, params, Color.Default)
+		end
+
+
+		-- Splat color
+		if entity:HasMortalDamage() then
+			entity.SplatColor = Color(0,0,0, 1)
 		end
 	end
 end

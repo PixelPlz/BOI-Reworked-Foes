@@ -3,6 +3,13 @@ local mod = BetterMonsters
 
 
 -- Uriel
+function mod:fallenUrielInit(entity)
+	if entity.Variant == 1 then
+		entity:GetSprite():Load("gfx/271.001_fallen uriel.anm2", true)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fallenUrielInit, EntityType.ENTITY_URIEL)
+
 function mod:fallenUrielUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
@@ -17,8 +24,8 @@ function mod:fallenUrielUpdate(entity)
 					entity.V2 = target.Position
 
 				elseif sprite:GetFrame() == 11 then
-					entity:FireProjectiles(entity.Position, (entity.V2 - entity.Position):Normalized() * 7.5, 4, ProjectileParams())
-					entity:PlaySound(SoundEffect.SOUND_THUMBS_DOWN, 0.6, 0, false, 1)
+					entity:FireProjectiles(entity.Position, (entity.V2 - entity.Position):Resized(7.5), 4, ProjectileParams())
+					mod:PlaySound(nil, SoundEffect.SOUND_THUMBS_DOWN, 0.6)
 				end
 			end
 
@@ -30,7 +37,7 @@ function mod:fallenUrielUpdate(entity)
 			end
 			if entity.State == NpcState.STATE_ATTACK3 and sprite:GetFrame() == 5 and not sprite:IsPlaying("Float") then
 				entity:SetColor(Color(1,1,1, 1, 0.7,0,0), 10, 1, true, false)
-				SFXManager():Play(SoundEffect.SOUND_LIGHTBOLT_CHARGE, 2)
+				mod:PlaySound(nil, SoundEffect.SOUND_LIGHTBOLT_CHARGE, 2)
 			end
 
 
@@ -44,10 +51,10 @@ function mod:fallenUrielUpdate(entity)
 				-- Shots
 				local params = ProjectileParams()
 				params.Variant = ProjectileVariant.PROJECTILE_HUSH
-				params.Color = brimstoneBulletColor
+				params.Color = IRFcolors.BrimShot
 				params.Scale = 1.25
 				params.CircleAngle = 0
-				entity:FireProjectiles(Vector(entity.Position.X, Game():GetRoom():GetBottomRightPos().Y - 1), Vector(11, 16), 9, params)
+				mod:FireProjectiles(entity, Vector(entity.Position.X, Game():GetRoom():GetBottomRightPos().Y - 1), Vector(11, 16), 9, params, Color.Default)
 			end
 
 			if sprite:IsFinished("LaserShot") and (not data.brim or not data.brim:Exists()) then
@@ -70,19 +77,19 @@ function mod:fallenUrielUpdate(entity)
 					laser_ent_pair.laser.DepthOffset = entity.DepthOffset + 100
 				end
 			end
-			
+
 			-- Shots
 			if entity.I2 == 1 then
 				if entity.ProjectileCooldown == 18 then
 					local params = ProjectileParams()
 					params.Spread = 1.2
-					entity:FireProjectiles(entity.Position, (entity.V2 - (entity.Position - Vector(0, 40))):Normalized() * 9, 5, params)
-					entity:PlaySound(SoundEffect.SOUND_THUMBS_DOWN, 0.6, 0, false, 1)
+					entity:FireProjectiles(entity.Position, (entity.V2 - (entity.Position - Vector(0, 40))):Resized(9), 5, params)
+					mod:PlaySound(nil, SoundEffect.SOUND_THUMBS_DOWN, 0.6)
 				end
 
 				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 			end
-			
+
 			if sprite:IsFinished("LaserShot") and entity.ProjectileCooldown <= 0 then
 				entity.State = NpcState.STATE_MOVE
 				entity.I1 = 0
@@ -96,6 +103,13 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.fallenUrielUpdate, EntityType.EN
 
 
 -- Gabriel
+function mod:fallenGabrielInit(entity)
+	if entity.Variant == 1 then
+		entity:GetSprite():Load("gfx/272.001_fallen gabriel.anm2", true)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fallenGabrielInit, EntityType.ENTITY_GABRIEL)
+
 function mod:fallenGabrielUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
@@ -106,9 +120,9 @@ function mod:fallenGabrielUpdate(entity)
 		if entity.State == NpcState.STATE_ATTACK then
 			if sprite:IsPlaying("SpreadShot") and sprite:GetFrame() == 10 then
 				local params = ProjectileParams()
-				params.CircleAngle = 0.1
+				params.CircleAngle = 0.2
 				entity:FireProjectiles(entity.Position, Vector(8, 12), 9, params)
-				entity:PlaySound(SoundEffect.SOUND_THUMBS_DOWN, 0.6, 0, false, 1)
+				mod:PlaySound(nil, SoundEffect.SOUND_THUMBS_DOWN, 0.6)
 			end
 
 
@@ -119,7 +133,7 @@ function mod:fallenGabrielUpdate(entity)
 			end
 			if entity.State == NpcState.STATE_ATTACK3 and sprite:GetFrame() == 5 and not sprite:IsPlaying("Float") then
 				entity:SetColor(Color(1,1,1, 1, 0.7,0,0), 10, 1, true, false)
-				SFXManager():Play(SoundEffect.SOUND_LIGHTBOLT_CHARGE, 2)
+				mod:PlaySound(nil, SoundEffect.SOUND_LIGHTBOLT_CHARGE, 2)
 			end
 
 
@@ -128,14 +142,13 @@ function mod:fallenGabrielUpdate(entity)
 			-- Laser swirls
 			if sprite:IsEventTriggered("Shoot") then
 				for i = 0, 2, 2 do
-					local swirl = Isaac.Spawn(EntityType.ENTITY_EFFECT, IRFentities.brimstoneSwirl, 1, entity.Position - Vector(0, 40) + (Vector.FromAngle(i * 90) * 10), Vector.FromAngle(i * 90) * 8, entity)
+					local swirl = Isaac.Spawn(EntityType.ENTITY_EFFECT, IRFentities.BrimstoneSwirl, 0, entity.Position - Vector(0, 40) + Vector.FromAngle(i * 90):Resized(10), Vector.FromAngle(i * 90):Resized(8), entity)
 					swirl.Parent = entity
 					swirl:GetSprite():Play("IdleQuick", true)
-					swirl:GetSprite().PlaybackSpeed = 0.9
 					data.brim = swirl
 				end
 
-				SFXManager():Play(SoundEffect.SOUND_LIGHTBOLT_CHARGE, 2)
+				mod:PlaySound(nil, SoundEffect.SOUND_LIGHTBOLT_CHARGE, 2)
 			end
 
 			if sprite:IsFinished("LaserShot") and (not data.brim or not data.brim:Exists()) then
@@ -150,10 +163,10 @@ function mod:fallenGabrielUpdate(entity)
 				for i = 0, 3 do
 					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 40), (i * 90) - 45, 20, Vector.Zero, entity), entity}
 					data.brim = laser_ent_pair.laser
-					
+
 					local params = ProjectileParams()
 					params.Spread = 1.2
-					entity:FireProjectiles(entity.Position - Vector(0, 20), Vector.FromAngle(i * 90) * 10, 2, params)
+					entity:FireProjectiles(entity.Position - Vector(0, 20), Vector.FromAngle(i * 90):Resized(10), 2, params)
 				end
 			end
 
@@ -172,13 +185,6 @@ function mod:gabrielCollision(entity, target, cock)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.gabrielCollision, EntityType.ENTITY_GABRIEL)
-
-function mod:fallenGabrielDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if damageSource.Type == EntityType.ENTITY_EFFECT and damageSource.SpawnerType == EntityType.ENTITY_GABRIEL then
-		return false
-	end
-end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.fallenGabrielDMG, EntityType.ENTITY_GABRIEL)
 
 
 
@@ -203,13 +209,7 @@ function mod:singleBrimstoneSwirlUpdate(effect)
 	-- Tracer, get starting position
 	if (sprite:IsPlaying("Idle") and sprite:GetFrame() == 30) or (sprite:IsPlaying("IdleQuick") and sprite:GetFrame() == 15) then
 		effect.TargetPosition = (target.Position - effect.Position):Normalized()
-		
-		local tracer = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.GENERIC_TRACER, 0, effect.Position + Vector(0, 20), Vector.Zero, entity):ToEffect()
-		tracer.LifeSpan = 15
-		tracer.Timeout = 1
-		tracer.TargetPosition = effect.TargetPosition
-		tracer:GetSprite().Color = Color(1,0,0, 0.25)
-		tracer.SpriteScale = Vector(2, 0)
+		mod:QuickTracer(effect, effect.TargetPosition:GetAngleDegrees(), Vector.Zero, 15, 1, 2)
 	end
 
 	-- Shoot laser
@@ -220,20 +220,10 @@ function mod:singleBrimstoneSwirlUpdate(effect)
 		local laser_ent_pair = {laser = EntityLaser.ShootAngle(1, effect.Position, effect.TargetPosition:GetAngleDegrees(), 15, Vector.Zero, spawner), spawner}
 		data.brim = laser_ent_pair.laser
 		data.brim.DisableFollowParent = true
-
-		-- Rotating laser
-		if effect.SubType == 1 then
-			local rotateDir = 1
-			if (target.Position - effect.Position):GetAngleDegrees() <= effect.TargetPosition:GetAngleDegrees() then
-				rotateDir = -1
-			end
-
-			data.brim:SetActiveRotation(0, rotateDir * 45, rotateDir * 1.1, false)
-		end
 	end
 
 	if sprite:IsFinished() then
 		effect:Remove()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.singleBrimstoneSwirlUpdate, IRFentities.brimstoneSwirl)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.singleBrimstoneSwirlUpdate, IRFentities.BrimstoneSwirl)

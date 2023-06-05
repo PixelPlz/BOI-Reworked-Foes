@@ -7,13 +7,11 @@ IRFconfig = {
 	noChapter1Nests  = true,
 	matriarchFistula = true,
 	envyRework 		 = true,
-	raglingRework 	 = true,
 	blackBonyBombs   = true,
 
 	-- Hidden enemy visuals
 	noHiddenPins  = true,
 	noHiddenPoly  = true,
-	noHiddenStain = true,
 	noHiddenDust  = true,
 	
 	-- Extra appear animations
@@ -114,20 +112,6 @@ if ModConfigMenu then
 	    end,
 	    Info = {"Envy's heads will bounce off of each other."}
   	})
-	-- Ragling rags
-	ModConfigMenu.AddSetting(category, "General", {
-    	Type = ModConfigMenu.OptionType.BOOLEAN,
-	    CurrentSetting = function()
-			return IRFconfig.raglingRework
-		end,
-	    Display = function()
-			return "Ragling rags: " .. (IRFconfig.raglingRework and "On" or "Off")
-		end,
-	    OnChange = function(bool)
-	    	IRFconfig.raglingRework = bool
-	    end,
-	    Info = {"Raglings will spawn 'Ragling rags' on death."}
-  	})
 	-- Black Bony bombs
 	ModConfigMenu.AddSetting(category, "General", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
@@ -171,19 +155,6 @@ if ModConfigMenu then
 		end,
 	    OnChange = function(bool)
 	    	IRFconfig.noHiddenPoly = bool
-	    end
-  	})
-	-- The Stain
-	ModConfigMenu.AddSetting(category, "Indicators", {
-    	Type = ModConfigMenu.OptionType.BOOLEAN,
-	    CurrentSetting = function()
-			return IRFconfig.noHiddenStain
-		end,
-	    Display = function()
-			return "The Stain: " .. (IRFconfig.noHiddenStain and "On" or "Off")
-		end,
-	    OnChange = function(bool)
-	    	IRFconfig.noHiddenStain = bool
 	    end
   	})
 	-- Dust

@@ -63,26 +63,31 @@ function mod:lokiiUpdate(entity)
 					data.brim:SetTimeout(1)
 				end
 			end
-			
-			
+
+
 			-- Movement types
+			-- Stay to the side of the player
 			if entity.StateFrame == 0 then
-				entity.TargetPosition = Vector(target.Position.X - Settings.PlayerDistance + ((entity.I1 - 1) * (Settings.PlayerDistance * 2)), target.Position.Y)
+				entity.TargetPosition = Vector(target.Position.X + (mod:GetSign(entity.I1 - 1) * Settings.PlayerDistance), target.Position.Y)
 				if entity.Position:Distance(entity.TargetPosition) > 8 then
-					entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Normalized() * Settings.MoveSpeed, 0.25)
+					entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Resized(Settings.MoveSpeed), 0.25)
 				end
-			
+
+			-- Stop
 			elseif entity.StateFrame == 1 then
 				entity.Velocity = mod:StopLerp(entity.Velocity)
-			
+
+			-- Move towards the player
 			elseif entity.StateFrame == 2 then
 				entity.Velocity = mod:Lerp(entity.Velocity, entity.V2 * Settings.HopSpeed, 0.25)
-			
+
+			-- Stay close to each other
 			elseif entity.StateFrame == 3 then
 				if entity.Position:Distance(pair.Position) > 100 then
-					entity.Velocity = mod:Lerp(entity.Velocity, (pair.Position - entity.Position):Normalized() * Settings.MoveSpeed, 0.25)
+					entity.Velocity = mod:Lerp(entity.Velocity, (pair.Position - entity.Position):Resized(Settings.MoveSpeed), 0.25)
 				end
-			
+
+			-- Pushed back from the laser
 			elseif entity.StateFrame == 4 then
 				entity.Velocity = -Vector.FromAngle(data.brim.AngleDegrees) * Settings.LaserSpeed
 			end
@@ -98,63 +103,66 @@ function mod:lokiiUpdate(entity)
 					if entity.Position:Distance(target.Position) <= 280 then
 						attackCount = 3
 					end
+					local attack = mod:Random(attackCount)
 
-					local attack = math.random(0, attackCount)
-
+					-- Teleport attack
 					if attack == 0 then
 						entity.State = NpcState.STATE_JUMP
 						sprite:Play("TeleportUp", true)
+						entity.StateFrame = 1
+
 						pair.State = NpcState.STATE_JUMP
 						pairSprite:Play("TeleportUp", true)
-						entity.StateFrame = 1
 						pair.StateFrame = 1
 
+					-- Hopping attack
 					elseif attack == 1 then
 						entity.State = NpcState.STATE_ATTACK
-						pair.State = NpcState.STATE_ATTACK
 						sprite:Play("HopAttack", true)
-						pairSprite:Play("HopAttack", true)
 						entity.StateFrame = 1
+
+						pair.State = NpcState.STATE_ATTACK
+						pairSprite:Play("HopAttack", true)
 						pair.StateFrame = 1
 
+					-- Fly volleyball
 					elseif attack == 2 then
 						entity.State = NpcState.STATE_SUMMON
 						sprite:Play("FlySummon", true)
 
+					-- Laser attack
 					elseif attack == 3 then
 						entity.State = NpcState.STATE_ATTACK2
 						sprite:Play("LaserAttack", true)
+
 						pair.State = NpcState.STATE_ATTACK2
 						pairSprite:Play("LaserAttack", true)
 					end
-					
+
 					entity.I2 = 0
 					pair.I2 = 0
 
 				else
 					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 				end
-			
-			
+
+
 			-- Teleport Attack
+			-- Teleport up
 			elseif entity.State == NpcState.STATE_JUMP then
 				if sprite:IsEventTriggered("Jump") then
 					entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 				end
 
-				if sprite:IsFinished("TeleportUp") then
+				if sprite:IsFinished() then
 					local room = Game():GetRoom()
 
-					local sideMulti = -1
-					if entity.I1 == 1 then
-						sideMulti = 1
-					end
-
-					entity.V1 = target.Position + Vector.FromAngle(target.Velocity:GetAngleDegrees() + (sideMulti * 90)) * Settings.TPdistance
+					local sideMulti = mod:GetSign(entity.I1 - 1) * -90
+					entity.V1 = target.Position + Vector.FromAngle(target.Velocity:GetAngleDegrees() + sideMulti):Resized(Settings.TPdistance)
 					entity.V1 = room:FindFreePickupSpawnPosition(entity.V1, 40, true, false)
 
 					if entity.V1:Distance(Game():GetNearestPlayer(entity.Position).Position) < 160 then
-						entity.V1 = target.Position + ((room:GetCenterPos() - target.Position):Normalized() * Settings.TPdistance)
+						entity.V1 = target.Position + (room:GetCenterPos() - target.Position):Resized(Settings.TPdistance)
 						entity.V1 = room:FindFreePickupSpawnPosition(entity.V1, 40, true, false)
 					end
 
@@ -162,17 +170,18 @@ function mod:lokiiUpdate(entity)
 					entity.State = NpcState.STATE_STOMP
 					sprite:Play("TeleportAttack", true)
 				end
-			
+
+			-- Teleport down
 			elseif entity.State == NpcState.STATE_STOMP then
 				if sprite:IsEventTriggered("Land") then
 					entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 
 				elseif sprite:IsEventTriggered("Shoot") then
-					entity:PlaySound(SoundEffect.SOUND_CUTE_GRUNT, 1, 0, false, 1)
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * (Settings.ShotSpeed - entity.I2), 3 + entity.I2, ProjectileParams())
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(Settings.ShotSpeed - entity.I2), 3 + entity.I2, ProjectileParams())
+					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
 				end
 
-				if sprite:IsFinished("TeleportAttack") then
+				if sprite:IsFinished() then
 					if entity.I2 < 1 then
 						entity.State = NpcState.STATE_JUMP
 						sprite:Play("TeleportUp", true)
@@ -184,38 +193,43 @@ function mod:lokiiUpdate(entity)
 						pair.ProjectileCooldown = Settings.Cooldown
 					end
 				end
-			
-			
+
+
 			-- Hopping attack
 			elseif entity.State == NpcState.STATE_ATTACK then
 				if sprite:IsEventTriggered("Jump") then
-					entity:PlaySound(SoundEffect.SOUND_CUTE_GRUNT, 1, 0, false, 1)
+					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
 					entity.V2 = (target.Position - entity.Position):Normalized()
 					entity.StateFrame = 2
 
 				elseif sprite:IsEventTriggered("Shoot") then
-					SFXManager():Play(SoundEffect.SOUND_ANIMAL_SQUISH, 1.25)
+					if entity.I1 == 1 then
+						mod:PlaySound(nil, SoundEffect.SOUND_ANIMAL_SQUISH, 1.35)
+					end
+					mod:ShootEffect(entity, 3, Vector(0, -12), Color.Default, 1, true)
+
 					entity.Velocity = Vector.Zero
 					entity.StateFrame = 1
 
+					-- + / X shots
 					if entity.I2 == 0 then
 						entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 4), 5 + entity.I1, ProjectileParams())
+
+					-- X / + shots
 					elseif entity.I2 == 1 then
 						entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 4), 8 - entity.I1, ProjectileParams())
+
+					-- 6 shots
 					elseif entity.I2 == 2 then
 						local params = ProjectileParams()
-						params.CircleAngle = 0.5 - ((entity.I1 - 1) * 0.5)
+						params.CircleAngle = (entity.I1 - 1) * 0.5
 						entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 6), 9, params)
 					end
-
-					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 3, entity.Position, Vector.Zero, entity)
-					effect.DepthOffset = entity.DepthOffset - 10
-					effect:GetSprite().Offset = Vector(0, -12)
 
 					entity.I2 = entity.I2 + 1
 				end
 				
-				if sprite:IsFinished("HopAttack") then
+				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
 					entity.ProjectileCooldown = Settings.Cooldown
 					pair.ProjectileCooldown = Settings.Cooldown
@@ -225,33 +239,31 @@ function mod:lokiiUpdate(entity)
 			-- Laser Attack
 			elseif entity.State == NpcState.STATE_ATTACK2 then
 				if sprite:IsEventTriggered("Jump") then
-					SFXManager():Play(SoundEffect.SOUND_ANIMAL_SQUISH, 1.25)
-					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 3, entity.Position, Vector.Zero, entity)
-					effect.DepthOffset = entity.DepthOffset - 10
-					effect:GetSprite().Offset = Vector(6 - ((entity.I1 - 1) * 12), -12)
-					effect.SpriteScale = Vector(0.75, 0.75)
-				
+					mod:PlaySound(nil, SoundEffect.SOUND_ANIMAL_SQUISH, 1.25)
+					mod:ShootEffect(entity, 3, Vector(mod:GetSign(entity.I1 - 1) * -8, -16), Color.Default, 0.75, true)
+
 				-- Stop moving
 				elseif sprite:IsEventTriggered("Land") then
 					entity.StateFrame = 1
-				
+
 				elseif sprite:IsEventTriggered("Shoot") then
-					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position, 0 + ((entity.I1 - 1) * 180), 16, Vector(12 - ((entity.I1 - 1) * 24), -18), entity), entity}
+					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position, (entity.I1 - 1) * 180, 16, Vector(mod:GetSign(entity.I1 - 1) * -12, -18), entity), entity}
 					data.brim = laser_ent_pair.laser
 					data.brim.DepthOffset = entity.DepthOffset - 10
 
 					-- Laser burst
 					if entity.I1 == 1 and entity.Position.Y <= pair.Position.Y + 20 and entity.Position.Y >= pair.Position.Y - 20 then
-						SFXManager():Play(SoundEffect.SOUND_HEARTOUT, 1.25)
+						mod:PlaySound(nil, SoundEffect.SOUND_HEARTOUT, 1.25)
+
 						local params = ProjectileParams()
 						params.Scale = 1.25
 						params.Variant = ProjectileVariant.PROJECTILE_HUSH
-						params.Color = brimstoneBulletColor
-						entity:FireProjectiles(entity.Position + Vector(entity.Position:Distance(pair.Position) / 2, 0), Vector(Settings.LaserBurstSpeed, 8), 8, params)
+						params.Color = IRFcolors.BrimShot
+						mod:FireProjectiles(entity, entity.Position + Vector(entity.Position:Distance(pair.Position) / 2, 0), Vector(Settings.LaserBurstSpeed, 8), 8, params, Color.Default)
 					end
 				end
 
-				-- Push back + brimstone ""collision""
+				-- Push back + brimstone "collision"
 				if data.brim then
 					if not data.brim:Exists() then
 						data.brim = nil
@@ -262,7 +274,7 @@ function mod:lokiiUpdate(entity)
 
 						-- If they collide
 						if entity.Position.Y <= pair.Position.Y + 20 and entity.Position.Y >= pair.Position.Y - 20 and pair:GetData().brim then
-							data.brim:SetMaxDistance((entity.Position + Vector(12 - ((entity.I1 - 1) * 24), 0)):Distance(pair.Position) / 2)
+							data.brim:SetMaxDistance((entity.Position + Vector(mod:GetSign(entity.I1 - 1) * -12, 0)):Distance(pair.Position) / 2)
 							entity.I2 = 1
 
 						else
@@ -280,7 +292,7 @@ function mod:lokiiUpdate(entity)
 					end
 				end
 
-				if sprite:IsFinished("LaserAttack") then
+				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
 					entity.ProjectileCooldown = Settings.Cooldown
 					pair.ProjectileCooldown = Settings.Cooldown
@@ -293,11 +305,11 @@ function mod:lokiiUpdate(entity)
 				entity.StateFrame = 1
 
 				if sprite:IsEventTriggered("Shoot") then
-					SFXManager():Play(SoundEffect.SOUND_SUMMONSOUND)
+					mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF01, 0, entity.Position, Vector.Zero, entity):GetSprite().Offset = Vector(0, -32)
 				end
 
-				if sprite:IsFinished("FlySummon") then
+				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_SUMMON2
 					sprite:Play("FlyThrow", true)
 					
@@ -307,37 +319,39 @@ function mod:lokiiUpdate(entity)
 						pair.StateFrame = 0
 					end
 				end
-			
+
 			-- Throw fly
 			elseif entity.State == NpcState.STATE_SUMMON2 then
 				entity.StateFrame = 1
 
 				if sprite:IsEventTriggered("Shoot") then
-					entity:PlaySound(SoundEffect.SOUND_CUTE_GRUNT, 1, 0, false, 1)
+					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
+
 					local fly = Isaac.Spawn(EntityType.ENTITY_BOOMFLY, 1, 0, entity.Position, Vector.Zero, entity):ToNPC()
 					fly.State = NpcState.STATE_SPECIAL
+					fly.StateFrame = Settings.MaxFlies
 
 					-- At target
 					if entity.I2 >= 1 then
-						fly.V2 = (target.Position - entity.Position):Normalized()
+						fly.V2 = (target.Position - entity.Position):Resized(Settings.FlySpeed)
 						entity.ProjectileCooldown = Settings.Cooldown
 						pair.ProjectileCooldown = Settings.Cooldown
 
 					-- At pair
 					else
-						fly.V2 = (pair.Position - entity.Position):Normalized()
+						fly.V2 = (pair.Position - entity.Position):Resized(Settings.FlySpeed)
 						pair.StateFrame = 1
 						entity.I2 = entity.I2 + 1
 					end
 				end
 
-				if sprite:IsFinished("FlyThrow") then
+				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
 				end
 
 			-- Wait for fly
 			elseif entity.State == NpcState.STATE_SUMMON3 then
-				if sprite:IsFinished("FlyWaitStart") then
+				if sprite:IsFinished() then
 					sprite:Play("FlyWaitLoop", true)
 				end
 			
@@ -345,10 +359,10 @@ function mod:lokiiUpdate(entity)
 			elseif entity.State == NpcState.STATE_SPECIAL then
 				entity.StateFrame = 1
 				if sprite:IsEventTriggered("Shoot") then
-					SFXManager():Play(SoundEffect.SOUND_MEAT_FEET_SLOW0)
+					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0)
 				end
 
-				if sprite:IsFinished("FlyCatch") then
+				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_SUMMON
 					sprite:Play("FlySummon", true)
 					sprite:SetFrame(99) -- Dumb way to do it
@@ -364,26 +378,24 @@ function mod:lokiiUpdate(entity)
 		else
 			-- Do angry animation
 			if entity.State == NpcState.STATE_APPEAR_CUSTOM then
-				if sprite:IsFinished("Angry") then
+				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
 				end
 				return true
 
 
-			-- Replace attacks
-			elseif entity.State == NpcState.STATE_ATTACK2 then
-				entity.State = NpcState.STATE_ATTACK4
+			-- Replace default attacks
+			elseif entity.State == NpcState.STATE_ATTACK2 or entity.State == NpcState.STATE_ATTACK3 then
+				entity.State = entity.State + 2
 
-			elseif entity.State == NpcState.STATE_ATTACK3 then
-				entity.State = NpcState.STATE_ATTACK5
-
-
+			-- Custom attacks
 			elseif entity.State == NpcState.STATE_ATTACK4 or entity.State == NpcState.STATE_ATTACK5 then
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				if sprite:IsEventTriggered("Shoot") then
-					entity:PlaySound(SoundEffect.SOUND_CUTE_GRUNT, 1, 0, false, 1)
-					SFXManager():Play(SoundEffect.SOUND_ANIMAL_SQUISH, 1.1)
+					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
+					mod:PlaySound(nil, SoundEffect.SOUND_ANIMAL_SQUISH, 1.1)
+					mod:ShootEffect(entity, 3, Vector(0, -12), Color.Default, 1, true)
 
 					-- Ground slam
 					if entity.State == NpcState.STATE_ATTACK4 then
@@ -392,7 +404,7 @@ function mod:lokiiUpdate(entity)
 						params.FallingSpeedModifier = 1
 						params.FallingAccelModifier = -0.075
 
-						if math.random(0, 1) == 1 then
+						if mod:Random(1) == 1 then
 							params.BulletFlags = ProjectileFlags.ORBIT_CW
 						else
 							params.BulletFlags = ProjectileFlags.ORBIT_CCW
@@ -402,28 +414,27 @@ function mod:lokiiUpdate(entity)
 					
 					-- Triple attack
 					elseif entity.State == NpcState.STATE_ATTACK5 then
+						-- + shots
 						if entity.I2 == 0 then
-							entity.I2 = entity.I2 + 1
 							entity:FireProjectiles(entity.Position, Vector(Settings.AngryShotSpeed, 4), 6, ProjectileParams())
-
-						elseif entity.I2 == 1 then
 							entity.I2 = entity.I2 + 1
+
+						-- 6 shots
+						elseif entity.I2 == 1 then
 							local params = ProjectileParams()
 							params.CircleAngle = 0
 							entity:FireProjectiles(entity.Position, Vector(Settings.AngryShotSpeed, 6), 9, params)
-						
+							entity.I2 = entity.I2 + 1
+
+						-- 8 shots
 						elseif entity.I2 == 2 then
-							entity.I2 = 0
 							entity:FireProjectiles(entity.Position, Vector(Settings.AngryShotSpeed, 8), 8, ProjectileParams())
+							entity.I2 = 0
 						end
 					end
-					
-					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 3, entity.Position, Vector.Zero, entity)
-					effect.DepthOffset = entity.DepthOffset - 10
-					effect:GetSprite().Offset = Vector(0, -12)
 				end
-				
-				if sprite:IsFinished(sprite:GetAnimation()) then
+
+				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
 				end
 			end
@@ -435,44 +446,15 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.lokiiUpdate, EntityType.ENTI
 
 
 -- Red boom fly ball
-function mod:redBoomFlyUpdate(entity)
-	if entity.Variant == 1 and entity.State == NpcState.STATE_SPECIAL and not entity:IsDead() and not entity:HasMortalDamage() then
-		local sprite = entity:GetSprite()
-		if not sprite:IsPlaying("Fly") then
-			sprite:Play("Fly", true)
-		end
-
-		entity.Velocity = entity.V2 * Settings.FlySpeed
-		entity.Mass = 0.1
-		entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-
-		-- Die / Return to regular state when hitting a wall
-		if entity:CollidesWithGrid() then
-			if Isaac.CountEntities(nil, EntityType.ENTITY_BOOMFLY, 1, -1) <= Settings.MaxFlies then
-				entity.State = NpcState.STATE_MOVE
-				entity:ClearEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-				entity.Mass = 7
-				SFXManager():Play(SoundEffect.SOUND_MEAT_FEET_SLOW0)
-
-			else
-				entity:TakeDamage(entity.MaxHitPoints * 2, 0, EntityRef(nil), 0)
-				entity.Velocity = Vector.Zero
-			end
-		end
-
-		return true
-	end
-end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.redBoomFlyUpdate, EntityType.ENTITY_BOOMFLY)
-
 function mod:redBoomFlyCollide(entity, target, bool)
 	if entity.Variant == 1 and target.Type == EntityType.ENTITY_LOKI and target.Variant == 1 then
 		if entity:ToNPC().State == NpcState.STATE_SPECIAL and target:ToNPC().State == NpcState.STATE_SUMMON3 and target:GetData().pair.Index == entity.SpawnerEntity.Index then
 			entity:Remove()
 			target:ToNPC().State = NpcState.STATE_SPECIAL
 			target:GetSprite():Play("FlyCatch", true)
-			target.Velocity = (target.Position - entity.Position):Normalized() * Settings.PushBack
+			target.Velocity = (target.Position - entity.Position):Resized(Settings.PushBack)
 		end
+
 		return true -- Ignore collision
 	end
 end

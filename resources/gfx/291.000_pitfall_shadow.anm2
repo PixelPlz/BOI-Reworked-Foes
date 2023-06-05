@@ -1,8 +1,8 @@
 <AnimatedActor>
-	<Info CreatedBy="Unknown" CreatedOn="2023. 04. 14. 12:29:42" Version="6" Fps="30"/>
+	<Info CreatedBy="Unknown" CreatedOn="2023. 05. 05. 19:12:47" Version="7" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="monsters\afterbirth\291.000_pitfall_shadow.png" Id="0"/>
+			<Spritesheet Path="monsters\better\291.000_pitfall_shadow.png" Id="0"/>
 		</Spritesheets>
 		<Layers>
 			<Layer Name="Hole" Id="0" SpritesheetId="0"/>
