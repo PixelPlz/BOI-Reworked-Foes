@@ -9,7 +9,7 @@ local Settings = {
 
 
 
-function fleshDeathHeadHeal(entity, big)
+local function fleshDeathHeadHeal(entity, big)
 	local data = entity:GetData()
 
 	local multiplier = 1
