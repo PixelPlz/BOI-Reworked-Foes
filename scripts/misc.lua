@@ -73,7 +73,7 @@ function mod:launchedBoomFlyUpdate(entity)
 				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0)
 
 			else
-				entity:TakeDamage(entity.MaxHitPoints * 2, 0, EntityRef(nil), 0)
+				entity:TakeDamage(entity.MaxHitPoints * 2, 0, EntityRef(entity), 0)
 				entity.Velocity = Vector.Zero
 			end
 		end
