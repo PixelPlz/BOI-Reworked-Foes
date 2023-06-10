@@ -129,14 +129,14 @@ function mod:editNormalProjectiles(projectile)
 
 
 	-- The Gate
-	elseif projectile.SpawnerType == EntityType.ENTITY_GATE and projectile.SpawnerEntity then
+	elseif projectile.SpawnerType == EntityType.ENTITY_GATE and projectile.SpawnerEntity and not projectile:GetData().dontChange then
 		-- Red champion
 		if projectile.SpawnerEntity.SubType == 1 then
 			projectile.CollisionDamage = 1
 
 		-- Fire projectiles for regular and black champion
 		else
-			local color = IRFcolors.RedFire
+			local color = Color.Default
 			-- Blue fires for black champion
 			if projectile.SpawnerEntity.SubType == 2 then
 				color = IRFcolors.BlueFire
@@ -144,6 +144,7 @@ function mod:editNormalProjectiles(projectile)
 
 			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_FIRE, color)
 			projectile:AddProjectileFlags(ProjectileFlags.FIRE)
+			projectile:ClearProjectileFlags(ProjectileFlags.HIT_ENEMIES)
 			sprite.Offset = Vector(0, 15)
 		end
 

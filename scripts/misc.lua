@@ -158,10 +158,18 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.monstro2Init, EntityType.ENTI
 -- Better Scythes
 function mod:scytheInit(entity)
 	if entity.Variant == 10 then
-		entity.Scale = 1.1
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 		entity.Mass = 0.1
-		mod:PlaySound(nil, SoundEffect.SOUND_TOOTH_AND_NAIL)
+		mod:PlaySound(nil, SoundEffect.SOUND_TOOTH_AND_NAIL, 0.9)
+
+		-- Get the parent's subtype
+		if entity.SubType == 0 and entity.SpawnerEntity and entity.SpawnerEntity.SubType > 0 then
+			entity.SubType = entity.SpawnerEntity.SubType
+		end
+
+		if entity.SubType == 1 then
+			entity.Scale = 1.1
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.scytheInit, EntityType.ENTITY_DEATH)
@@ -275,6 +283,30 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gurdyJrUpdate, EntityType.ENTITY
 
 
 
+--[[ Bone orbitals ]]--
+function mod:boneOrbitalInit(entity)
+	if entity.Variant == IRFentities.BoneOrbital then
+		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
+		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_BLOOD_SPLASH | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
+
+		-- Play random animation
+		entity:GetSprite():Play("Idle" .. math.random(0, 7), true)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.boneOrbitalInit, IRFentities.Type)
+
+function mod:boneOrbitalUpdate(entity)
+	if entity.Variant == IRFentities.BoneOrbital then
+		if mod:OrbitParent(entity, entity.Parent, 4, 30 - entity.SubType * 12) == false then
+			entity:Kill()
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.boneOrbitalUpdate, IRFentities.Type)
+
+
+
 --[[ Thrown Dip ]]--
 function mod:thrownDipUpdate(entity)
 	local data = entity:GetData()
@@ -372,19 +404,6 @@ function mod:megaMawDMG(target, damageAmount, damageFlags, damageSource, damageC
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.megaMawDMG, EntityType.ENTITY_MEGA_MAW)
-
-
-
---[[ Let the Gate do other attacks before spawning Leapers ]]--
-function mod:gateUpdate(entity)
-	local sprite = entity:GetSprite()
-
-	if entity.State == NpcState.STATE_SUMMON and sprite:GetFrame() == 0 and mod:Random(2) == 0 then
-		entity.State = NpcState.STATE_ATTACK2
-		SFXManager():Stop(SoundEffect.SOUND_MONSTER_GRUNT_4)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gateUpdate, EntityType.ENTITY_GATE)
 
 
 

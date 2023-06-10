@@ -254,12 +254,6 @@ function mod:conquestPreUpdate(entity)
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK)
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 					entity.Mass = 0.1
-
-					if sprite.FlipX == false then
-						--entity.V1 = Vector(1, 0)
-					elseif sprite.FlipX == true then
-						--entity.V1 = Vector(-1, 0)
-					end
 					entity.V1 = Vector(mod:GetSign(not sprite.FlipX), 0)
 
 					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_YELL_A, 0.9)

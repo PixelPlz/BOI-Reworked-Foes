@@ -51,8 +51,6 @@ IRFcolors.GreenBlood = Color(0.4,0.8,0.4, 1, 0,0.4,0)
 IRFcolors.SunBeam 	 = Color(1,1,1, 1, 0.3,0.3,0)
 IRFcolors.DustTrail  = Color(0.8,0.8,0.8, 0.8, 0.05,0.025,0);   IRFcolors.DustTrail:SetColorize(1,1,1, 1)
 IRFcolors.BlackBony  = Color(0.18,0.18,0.18, 1)
-
-IRFcolors.RedFire  = Color(1,1,1, 1, 0,-0.4,-0.4)
 IRFcolors.BlueFire = Color(0,0,0, 1, 0,0.75,1.5)
 
 IRFcolors.CorpseGreen 	   = Color(1,1,1, 1);   IRFcolors.CorpseGreen:SetColorize(0.6,1,0.3, 1)

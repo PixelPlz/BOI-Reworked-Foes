@@ -74,7 +74,21 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.grayMonstroUpdate, EntityType.EN
 
 
 --[[ Green Gurdy ]]--
-function mod:newGreenGurdySpawns(entity)
+function mod:gurdyUpdate(entity)
+	if entity.SubType == 1 and entity.State == NpcState.STATE_ATTACK and entity:GetSprite():GetFrame() == 0 then
+		-- Limit the amount of spawns
+		local enemyPoints = Isaac.CountEntities(nil, EntityType.ENTITY_ATTACKFLY, -1, -1)
+		+ Isaac.CountEntities(nil, EntityType.ENTITY_POOTER, 1, -1) * 1.5
+		+ Isaac.CountEntities(nil, EntityType.ENTITY_CHARGER, -1, -1) * 1.5
+
+		if enemyPoints >= 6.5 then
+			entity.State = NpcState.STATE_IDLE
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gurdyUpdate, EntityType.ENTITY_GURDY)
+
+function mod:greenGurdySpawns(entity)
 	if entity.SpawnerType == EntityType.ENTITY_GURDY and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1
 	and ((entity.Type == EntityType.ENTITY_POOTER and entity.Variant == 0) or entity.Type == EntityType.ENTITY_BOIL) then
 		local spawn = {entity.Type, entity.Variant}
@@ -82,6 +96,7 @@ function mod:newGreenGurdySpawns(entity)
 		-- Pooter to Super Pooter
 		if entity.Type == EntityType.ENTITY_POOTER then
 			spawn = {EntityType.ENTITY_POOTER, 1}
+
 		-- Boil to Charger
 		elseif entity.Type == EntityType.ENTITY_BOIL then
 			spawn = {EntityType.ENTITY_CHARGER, 0}
@@ -91,7 +106,7 @@ function mod:newGreenGurdySpawns(entity)
 		Isaac.Spawn(spawn[1], spawn[2], 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.newGreenGurdySpawns)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.greenGurdySpawns)
 
 
 
@@ -164,6 +179,8 @@ function mod:blackFrailUpdate(entity)
 						params.Variant = ProjectileVariant.PROJECTILE_FIRE
 						params.Color = IRFcolors.BlueFire
 						params.BulletFlags = ProjectileFlags.FIRE
+						params.HeightModifier = -40
+						params.FallingSpeedModifier = 6
 						entity:FireProjectiles(entity.Position + vector:Resized(10), vector:Rotated(mod:Random(-10, 10)):Resized(7), 0, params)
 					end
 
@@ -525,16 +542,6 @@ function mod:championMegaMawUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.championMegaMawUpdate, EntityType.ENTITY_MEGA_MAW)
-
-
-
---[[ Red Gate sound ]]--
-function mod:redGateUpdate(entity)
-	if entity.SubType == 1 and entity:GetSprite():IsEventTriggered("Shoot") then
-		mod:PlaySound(entity, SoundEffect.SOUND_FIRE_RUSH)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.redGateUpdate, EntityType.ENTITY_GATE)
 
 
 

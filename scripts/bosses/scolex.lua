@@ -84,7 +84,6 @@ function mod:scolexUpdate(entity)
 
 			-- Create new one
 			if hasDirt == false then
-				-- Vector(60, 140)
 				Isaac.Spawn(IRFentities.Type, IRFentities.DirtHelper, 0, entity.Position, Vector.Zero, entity):ToNPC().StateFrame = 10
 			end
 		end
@@ -94,7 +93,7 @@ function mod:scolexUpdate(entity)
 		if entity.State == NpcState.STATE_INIT then
 			-- Head
 			entity.GroupIdx = 0
-			entity.I1 = Settings.BurrowTime
+			entity.I1 = mod:Random(Settings.BurrowTime / 2, Settings.BurrowTime * 2)
 			data.zVelocity = 0
 			entity.ProjectileCooldown = 1
 

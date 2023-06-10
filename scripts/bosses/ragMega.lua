@@ -410,10 +410,13 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ragMegaUpdate, EntityType.ENTITY_RAG_MEGA)
 
 function mod:ragMegaDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	-- Reduced damage while curled up
 	if target.Variant == 0 and target:ToNPC().State == NpcState.STATE_ATTACK and target:ToNPC().StateFrame == 1 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
 		target:TakeDamage(damageAmount / 2, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+		target:SetColor(IRFcolors.ArmorFlash, 2, 0, false, false)
 		return false
-	
+
+	-- Rebirth pillar
 	elseif target.Variant == 2 then
 		return false
 	end
