@@ -435,7 +435,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.huskCollision, EntityType
 function mod:huskDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	-- Only take 10 damage from Boom Fly and Ticking Spider explosions
 	if target.Variant == 1 and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) and damageSource.SpawnerType == EntityType.ENTITY_DUKE and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
-		target:TakeDamage(10, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+		target:TakeDamage(math.min(damageAmount, 10), damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
 		return false
 	end
 end

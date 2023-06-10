@@ -42,13 +42,24 @@ function mod:flamingHopperInit(entity)
 	entity.MaxHitPoints = 10
 	entity.HitPoints = entity.MaxHitPoints
 	entity.ProjectileCooldown = 1
+
+	-- Purple variant
+	if entity.SubType == 1 then
+		local sprite = entity:GetSprite()
+		sprite:Load("gfx/054.000_flaming hopper_purple.anm2")
+		sprite:LoadGraphics()
+	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.flamingHopperInit, EntityType.ENTITY_FLAMINGHOPPER)
 
 function mod:flamingHopperUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	mod:EmberParticles(entity, Vector(0, -28), entity.SubType)
+	local color = nil
+	if entity.SubType >= 1 then
+		color = Color(0.6,0.6,0.6, 1, 0.3,0,0.6)
+	end
+	mod:EmberParticles(entity, Vector(0, -28), nil, color)
 
 
 	-- Attack after 3 jumps
@@ -71,7 +82,12 @@ function mod:flamingHopperUpdate(entity)
 		-- Wind-up
 		if sprite:GetFrame() < 12 then
 			entity.Velocity = Vector.Zero
+
+		-- Reset position offset (for the Gate's spawn)
+		elseif entity.PositionOffset.Y < 0 and sprite:GetFrame() == 25 then
+			entity.PositionOffset = Vector.Zero
 		end
+
 
 		if sprite:IsEventTriggered("Land") then
 			entity.Velocity = Vector.Zero

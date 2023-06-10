@@ -657,15 +657,20 @@ end
 
 
 -- Ember particles
-function mod:EmberParticles(entity, offset, color)
+function mod:EmberParticles(entity, offset, radiusModifier, color)
 	if entity:IsFrame(math.random(5, 10), 0) then
-		local pos = Vector(entity.Position.X + math.random(-10, 10), entity.Position.Y)
+		local radius = math.random(-10, 10)
+		if radiusModifier then
+			radius = math.random(-radiusModifier, radiusModifier)
+		end
+		local pos = Vector(entity.Position.X + radius, entity.Position.Y)
+
 		local ember = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.EMBER_PARTICLE, 0, pos, Vector.FromAngle(-90), entity)
 		ember.PositionOffset = offset * entity.Scale
 		ember.DepthOffset = entity.DepthOffset - 10
 
-		if color == 1 then
-			ember:GetSprite().Color = Color(0.6,0.6,0.6, 1, 0.3,0,0.6)
+		if color then
+			ember:GetSprite().Color = color
 		end
 	end
 end
@@ -804,7 +809,7 @@ end
 
 
 -- Print the color of an entity for debugging
-function mod:PrintColor(entity)
+function mod:PrintColors(entity)
 	local sprite = entity:GetSprite()
 	print()
 	print("entity color:  " .. entity.Color.R .. ", " .. entity.Color.G .. ", " .. entity.Color.B .. "  -  " .. entity.Color.RO .. ", " .. entity.Color.GO .. ", " .. entity.Color.BO)
