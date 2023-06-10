@@ -188,7 +188,7 @@ function mod:huskUpdate(entity)
 						fly:GetData().huskOrbitalGroup = 1
 						table.insert(data.orbitals[1], fly)
 
-						if SpawnerType == EntityType.ENTITY_ATTACKFLY then
+						if fly.SpawnerType == EntityType.ENTITY_ATTACKFLY then
 							fly:GetData().huskSpawn = true
 						end
 					end
