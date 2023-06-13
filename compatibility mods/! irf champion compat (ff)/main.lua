@@ -3,8 +3,8 @@ local mod = IRFcompatFF
 
 
 function mod:updateKrampusChampionId(isContinue)
-    if IRFkrampusChampID then
-		IRFkrampusChampID = 2
+    if BetterMonsters then
+		IRFentities.KrampusChampion = 2
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.updateKrampusChampionId)

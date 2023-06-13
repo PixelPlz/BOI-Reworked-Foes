@@ -94,7 +94,7 @@
 	</boss>
 	<boss id="68" variant="10">
 		<color suffix="_yellow" scale="0.85"/>
-		<color suffix="_cyan" />
+		<color anm2path="068.010_peep eye_cyan.anm2" />
 	</boss>
 	<!-- The Bloat -->
 	<boss id="68" variant="1">
@@ -339,19 +339,19 @@
 
 	<!-- Sloth -->
     <boss id="46" variant="0">
-		<color anm2path="046.000_sloth_grey.anm2" scale="1.1"/>
+		<color anm2path="046.000_sloth_grey.anm2" scale="1.15" hp="1.15"/>
 	</boss>
 	<!-- Lust -->
     <boss id="47" variant="0">
-		<color anm2path="047.000_lust_purple.anm2" scale="1.1"/>
+		<color anm2path="047.000_lust_purple.anm2" scale="1.15"/>
 	</boss>
 	<!-- Wrath -->
     <boss id="48" variant="0">
-		<color suffix="_grey" hp="0.9"/>
+		<color anm2path="048.000_wrath_grey.anm2" scale="1.15" hp="1.15"/>
 	</boss>
 	<!-- Gluttony -->
     <boss id="49" variant="0">
-		<color suffix="_green" scale="1.15" hp="1.15"/>
+		<color suffix="_green" scale="1.15"/>
 	</boss>
 	<!-- Greed -->
     <boss id="50" variant="0">
@@ -359,28 +359,28 @@
 	</boss>
 	<!-- Envy -->
     <boss id="51" variant="0">
-		<color suffix="_pink" scale="1.2" hp="0.9"/>
+		<color suffix="_pink" scale="1.15" hp="0.9"/>
 	</boss>
 	<boss id="51" variant="10">
-		<color suffix="_pink" scale="1.2" hp="0.9"/>
+		<color suffix="_pink" scale="1.15" hp="0.9"/>
 	</boss>
 	<boss id="51" variant="20">
-		<color suffix="_pink" scale="1.2" hp="0.9"/>
+		<color suffix="_pink" scale="1.15" hp="0.9"/>
 	</boss>
 	<boss id="51" variant="30">
-		<color suffix="_pink" scale="1.2" hp="0.9"/>
+		<color suffix="_pink" scale="1.15" hp="0.9"/>
 	</boss>
 	<!-- Pride -->
     <boss id="52" variant="0">
-		<color suffix="_yellow" hp="1.15"/>
+		<color suffix="_yellow" scale="1.15"/>
 	</boss>
 
 	<!-- Conquest -->
 	<boss id="65" variant="1">
-		<color suffix="_red" scale="1.15" hp="1.15"/>
+		<color suffix="_red" scale="1.15"/>
 	</boss>
 	<boss id="65" variant="11">
-		<color suffix="_red" scale="1.15" hp="1.15"/>
+		<color suffix="_red" scale="1.15"/>
 	</boss>
 	<boss id="65" variant="20">
 		<color suffix="_red" scale="1.15"/>
@@ -402,6 +402,6 @@
 	</boss>
 	<!-- Dark One -->
 	<boss id="267" variant="0">
-		<color suffix="_black" />
+		<color suffix="_black"/>
 	</boss>
 </bosscolors>
