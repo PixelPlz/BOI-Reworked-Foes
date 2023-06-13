@@ -3,12 +3,12 @@ local mod = BetterMonsters
 local Settings = {
 	NewHP = 3000,
 	SpawnDmgReduction = 60,
-	TransitionDmgReduction = 80,
+	TransitionDmgReduction = 90,
 
 	MoveSpeed = 4.75,
 	SoulSpeed = 3.75,
 
-	Cooldown = 90,
+	Cooldown = 60,
 	TearCooldown = 22,
 	FlyDelay = 60,
 
@@ -291,17 +291,20 @@ function mod:blueBabyUpdate(entity)
 
 			-- Choose an attack
 			if entity.ProjectileCooldown <= 0 then
-				local attack = mod:Random(1, 3)
+				local attacks = {1, 2, 3}
+				if data.lastAttack then
+					table.remove(attacks, data.lastAttack)
+				end
+
+				local attack = mod:RandomIndex(attacks)
 				if data.isSoul == true and attack ~= 2 then
 					soulGetIn()
-				end
-				if data.wasDelirium and entity.I1 == 3 and attack == 3 then
-					attack = mod:Random(1, 2)
 				end
 
 				entity.I2 = 0
 				entity.StateFrame = 0
 				data.damageReduction = 0
+				data.lastAttack = attack
 
 				if attack == 1 then
 					entity.State = NpcState.STATE_ATTACK
@@ -405,6 +408,7 @@ function mod:blueBabyUpdate(entity)
 				entity.I1 = entity.I1 + 1
 				data.spawnTimer = 0
 				data.shotCount = 1
+				data.lastAttack = nil
 				backToIdle()
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 				data.damageReduction = Settings.TransitionDmgReduction

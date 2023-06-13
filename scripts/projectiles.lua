@@ -91,13 +91,27 @@ function mod:editNormalProjectiles(projectile)
 
 		-- 2nd phase
 		elseif projectile.SpawnerEntity:ToNPC().I2 == 1 and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
-			projectile.Scale = 1.5
-			data.trailColor = Color.Default
-
 			-- Black champion (this is dumb)
 			if projectile.SpawnerEntity.SpawnerEntity and projectile.SpawnerEntity.SpawnerEntity.SubType == 1 then
-				projectile:ClearProjectileFlags(ProjectileFlags.BURST)
-				projectile:AddProjectileFlags(ProjectileFlags.EXPLODE)
+				if projectile.FrameCount <= 1 and projectile.Velocity:GetAngleDegrees() ~= 45 then
+					projectile:Remove()
+
+				else
+					projectile.Position = projectile.SpawnerEntity.Position
+					projectile.Velocity = Vector.Zero
+
+					projectile.Scale = 2
+					sprite.Color = IRFcolors.BlueFireShot
+
+					projectile:ClearProjectileFlags(ProjectileFlags.BURST)
+					projectile:AddProjectileFlags(ProjectileFlags.FIRE | ProjectileFlags.FIRE_WAVE_X)
+					projectile:AddFallingSpeed(2)
+				end
+
+			-- Default
+			else
+				projectile.Scale = 1.5
+				data.trailColor = Color.Default
 			end
 		end
 

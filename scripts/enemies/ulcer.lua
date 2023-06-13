@@ -20,7 +20,7 @@ function mod:ulcerUpdate(entity)
 			-- Spawn a Dip
 			if (entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) == true and Isaac.CountEntities(nil, EntityType.ENTITY_FAMILIAR, FamiliarVariant.DIP, -1) < 8)
 			or (entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) == false and entity.Pathfinder:HasPathToPos(target.Position, false) == true
-			and Isaac.CountEntities(entity, EntityType.ENTITY_DIP, -1, -1) <= 2 and Isaac.CountEntities(nil, EntityType.ENTITY_DIP, -1, -1) <= 5) then
+			and Isaac.CountEntities(entity, EntityType.ENTITY_DIP, -1, -1) <= 2 and Isaac.CountEntities(nil, EntityType.ENTITY_DIP, -1, -1) <= 4) then
 				mod:ThrowDip(entity.Position, entity, entity.Position + (target.Position - entity.Position):Resized(mod:Random(80, 120)), mod:Random(1), -20)
 
 			-- Shoot if there are too many Dips

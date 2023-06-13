@@ -4,44 +4,65 @@
 - The Husk has been reworked!
 - Blastocyst's biggest form has been reworked!
 - Drowned Chargers have been re-reworked!
-- Bone Knights now alert other knights into charging towards you and have also recieved new sprites!
+
+- Bone Knights now alert other knights into charging towards the player and have also recieved new sprites!
 - Added a config option to toggle Black Bonies having bomb effects
-- Flaming Gapers now spawn a unique Flaming Gusher
+- Flaming Gapers now spawn a unique Flaming Gusher enemy (can be toggled to only include a new sprite for them)
 - Camillo Jr. now works like his vanilla version but with a laser indicator and a cooldown between attacks
 - Drowned Hives spawn Drowned Chargers again and now create lingering projectiles on death
 - Raglings no longer create purple fires on death
+- Mega Maw's volley of shots is now homing
 - Mega Maw's fire projectiles can now ignite his Hoppers, turning them into purple Flaming Hoppers
+
+- Blue Larry Jr. now creates slippery tear creep
+- Golden Hollow now steals money from the player like other greedy enemies
+- Gray Monstro's attack is now a longer stream of projectiles instead of a single burst
+- Green Gurdy now spawns a new set of enemies
+- Black Frail now creates 4 diagonal lines of fire jets when jumping out of the ground instead of explosive shots
+- Black Frail now shoots streams of blue fires at the player instead of Brimstone lasers
+- Black Frail now shoots out bones that create blue fires on impact instead of spawning spiders
+- Black Death's Horse now always charges at the player horizontally
+- Black Death now spawns homing scythes instead of Red Maws
+- Blue Gemini now creates slippery tear creep
+- Green Gemini now creates green creep while charging
+- Black Mega Maw now shoots a homing projectile that splits into more homing projectiles on impact instead of a volley of shots
+- Green Cage now shoots out projectiles when hitting a wall during his roll
+- Green Cage's shockwaves are now replaced with 4 lines of creep that shoot out projectiles from them
+- Black Brownie now spawns Black Dingle on death instead of Dank Squirts
+
 - Danglers from Fiend Folio can now also collect coins like other greedy enemies
 - Seducers from Fiend Folio can now also heal when touching a player like Lust
 
 
+
 -- Balance changes --
 - Teratomar now shoots a spread of 5 shots instead of 4
-- Removed Brimstone Bomb variant for Black Bonies
-- Improved the fire ring attack for Flaming Fatties and Flaming Hoppers
+- Removed the Brimstone Bomb variant for Black Bonies
 - The Stain's tentacles now always spawn cardinally to the player
-- Reduced ???'s phase change damage reduction and increased his spawn damage reduction
-- ??? in his 3rd phase can no longer teleport to the corner closest to the player
 - Triachnid's stomp shots now have longer range and their shot speed depends on the amount of shots
 - Reduced the Forsaken's health from 400 to 350
 - Mr. Fred's Harlequin Baby attack no longer creates creep when hitting obstacles
 - Reduced Scolex body segment armor from 80 to 60 per segment
 - Angelic Babies no longer shoot projectiles when teleporting
 - Black Globin Heads spawned from the room layout no longer turn into full Black Globins
-- Mega Maw's volley of shots is now homing
-- Slightly reduced the spawning cooldown on Slides
+- Slightly reduced the initial cooldown on Slides
 - Psy Tumor lingering projectiles now disappear faster
 - Selfless Knights now move and shoot slightly faster
-- Ulcers no longer spawn Dips if there are 6 or more of them in the room
-- Reduced the spawning and max speed of Envy's heads
+- Ulcers no longer spawn Dips if there are 5 or more of them in the room
+- Reduced the initial and max speed of Envy's heads
 - Fallen Gabriel's Brimstone Swirls no longer rotate towards the player
-- Base coin healing for greedy enemies is now only 3% (this is multiplied by the coin's value)
+- Base coin healing for greedy enemies is now only 3% (this is multiplied by the coin's value) instead of 5%
 - Lust can no longer repeat any pill effects
 - Removed the telepills effect from Lust (and the Fool card effect for champion Lust)
 - Lust's lemon party effects are now larger and last longer
-- Lust now only heals 12% (24% for champion / Super) health with her healing effects instead of 15% (30% for champion / Super)
+- Lust now only heals 12% (24% for champion / Super) health with her healing effects instead of 15% (was 30% for champion / Super)
 - Super Wrath now only shoots a single special bomb instead of a regular and special one
-- The Gate can now performs his other attacks without Leapers being alive
+
+- Increased ???'s damage reduction after he spawns
+- Decreased ???'s cooldown between attacks
+- ??? can no longer perform the same attack multiple times in a row
+- ??? now only shoots one ring of homing shots after his boomerang tear attack
+- ??? can no longer teleport to the corner closest to the player during his teleport attack
 
 - All champion minibosses now have a consistent 15% size increase
 - Champion Sloth and champion Wrath now have a 15% health increase
@@ -52,36 +73,23 @@
 - Champion Wrath now slides his bomb towards the player like vanilla Wrath
 - Red Conquest now shoots a ring of 6 (8 in his second phase) shots instead of explosive shots
 - Reduced the number of Globins red Conquest can have active from 5 to 4
-- Increased purple Headless Horseman's Body's shot speed
-- Blue Larry Jr. now creates slippery tear creep
-- Golden Hollow now steals money from the player on hit
-- Gray Monstro's attack is now a longer stream of projectiles
-- New enemy spawns for Green Gurdy
-- Black Frail now shoots streams of blue fires at the player instead of brimstone
-- Black Frail now shoots out bones that create blue fires on impact instead of spawning spiders
-- Black Death's Horse now always charges at the player horizontally
-- Black Death now spawns homing scythes instead of Red Maws
-- Blue Gemini now creates slippery tear creep
-- Green Gemini now creates green creep while charging
-- Black Mega Maw now shoots a homing projectile that splits into more homing projectiles on impact instead of a volley of shots
-- Green Cage now shoots out projectiles when hitting a wall during his roll
-- Green Cage's shockwaves are now replaced with 4 lines of creep that shoot out projectiles from them
+- Increased the shot speed for purple Headless Horseman's Body
 - Pink Cage can no longer spawn Vises (they'd just die anyways)
-- Black Brownie now spawns Black Dingle on death instead of Dank Squirts
+
 
 
 -- Other changes --
 - New charred sprites for Flaming Gapers, Flaming Fatties and Flaming Hoppers
+- Fire rings from Flaming Fatties and Flaming Hoppers now work like the fire rings created by Redskulls
 - Improved Soft Host and Flesh Floast sprites
 - New sprites for Death's (the boss) scythes
 - Fallen Uriel and Fallen Gabriel now have a unique spawning animation
 - Skinnies that get turned into Crispies after they took their skin off will now have a unique sprite
-- ???'s Holy Orb now disappears if ??? dies while it's active
 - Cyan Peep's eyes now have unique sprites and an animation for when they're about to shoot
-- Improved sprites for Dark Balls
 - Improved projectile visuals for several enemies
 - New sounds and effects for several enemies
 - MANY code improvements (note for compatibility: all enums have also been changed)
+
 
 
 -- Fixes --
@@ -94,3 +102,4 @@
 - The Cage no longer has a hitbox before he visually lands
 - Fixed Sloth Heads from Fiend Folio turning into Black Globins
 - Fixed grid Hosts from Fiend Folio not turning into their fleshy variants when their skull is broken
+- ???'s Holy Orb now disappears if ??? dies while it's active

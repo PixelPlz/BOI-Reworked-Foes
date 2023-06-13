@@ -150,7 +150,7 @@ function mod:blackFrailUpdate(entity)
 				if sprite:IsFinished() then
 					entity.ProjectileCooldown = 2
 					data.attacking = true
-					data.attackTimer = 60
+					data.attackTimer = 50
 					data.attacksDone = 0
 					mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_START)
 					mod:PlaySound(entity, SoundEffect.SOUND_FIRE_RUSH, 0.9)
@@ -169,7 +169,7 @@ function mod:blackFrailUpdate(entity)
 				if data.attacking == true then
 					if data.attackTimer <= 0 then
 						data.attacking = false
-						data.attackTimer = 15
+						data.attackTimer = 10
 					else
 						data.attackTimer = data.attackTimer - 1
 					end
@@ -180,7 +180,7 @@ function mod:blackFrailUpdate(entity)
 						params.Color = IRFcolors.BlueFire
 						params.BulletFlags = ProjectileFlags.FIRE
 						params.HeightModifier = -40
-						params.FallingSpeedModifier = 6
+						params.FallingSpeedModifier = 5
 						entity:FireProjectiles(entity.Position + vector:Resized(10), vector:Rotated(mod:Random(-10, 10)):Resized(7), 0, params)
 					end
 
@@ -198,7 +198,7 @@ function mod:blackFrailUpdate(entity)
 						-- Continue
 						else
 							data.attacking = true
-							data.attackTimer = 60
+							data.attackTimer = 50
 							data.attacksDone = data.attacksDone + 1
 							mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_START)
 							mod:PlaySound(entity, SoundEffect.SOUND_FIRE_RUSH)
@@ -262,11 +262,19 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.blackFrailUpdate, EntityType.ENTITY_PIN)
 
 function mod:frailDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 2 and damageSource.SpawnerType == EntityType.ENTITY_PIN and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
+	if target.Variant == 2 and damageSource.SpawnerType == EntityType.ENTITY_PIN then
 		return false
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.frailDMG, EntityType.ENTITY_PIN)
+
+-- Turn fire waves into blue ones
+function mod:frailBlueFireJet(effect)
+	if effect.SpawnerType == EntityType.ENTITY_PIN and effect.SpawnerVariant == 2 and effect.SubType ~= 3 then
+		effect.SubType = 3
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.frailBlueFireJet, EffectVariant.FIRE_WAVE)
 
 
 

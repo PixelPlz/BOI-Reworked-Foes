@@ -51,7 +51,9 @@ IRFcolors.GreenBlood = Color(0.4,0.8,0.4, 1, 0,0.4,0)
 IRFcolors.SunBeam 	 = Color(1,1,1, 1, 0.3,0.3,0)
 IRFcolors.DustTrail  = Color(0.8,0.8,0.8, 0.8, 0.05,0.025,0);   IRFcolors.DustTrail:SetColorize(1,1,1, 1)
 IRFcolors.BlackBony  = Color(0.18,0.18,0.18, 1)
-IRFcolors.BlueFire = Color(0,0,0, 1, 0,0.75,1.5)
+
+IRFcolors.BlueFire 	   = Color(0,1,1, 1, -0.5,0.35,0.9);   IRFcolors.BlueFire:SetColorize(1,1,1, 1)
+IRFcolors.BlueFireShot = Color(1,1,1, 1, 0,0.6,1.2);     IRFcolors.BlueFireShot:SetColorize(1,1,1, 1)
 
 IRFcolors.CorpseGreen 	   = Color(1,1,1, 1);   IRFcolors.CorpseGreen:SetColorize(0.6,1,0.3, 1)
 IRFcolors.CorpseGreenTrail = Color(0,0,0, 1, 0.3,0.5,0.15)
@@ -67,7 +69,7 @@ IRFcolors.LostShot 		= Color(1,1,1, 0.75, 0.25,0.25,0.25)
 IRFcolors.HolyOrbShot 	= Color(1,1,1, 0.7, 0.4,0.4,0)
 
 IRFcolors.HushBlue 	   = Color(1,1,1, 1, 0,0.2,0.4)
-IRFcolors.HushDarkBlue = Color(0.6,0.6,0.6, 1, 0,0,0.1)
+IRFcolors.HushDarkBlue = Color(0.6,0.6,0.6, 1, 0,0,0.1) -- For Blue Boils
 IRFcolors.HushGreen    = Color(1,1,1, 1, 0.2,0.2,0)
 IRFcolors.HushOrange   = Color(1,1,1, 1, 0.4,0.2,0)
 IRFcolors.HushPink 	   = Color(1,1,1, 1, 0.2,0,0.2)

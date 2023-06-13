@@ -361,7 +361,7 @@ function mod:forsakenUpdate(entity)
 				trail.DepthOffset = entity.DepthOffset - 10
 
 				if entity.SubType == 1 then
-					trail:GetSprite().Color = IRFcolors.BlueFire
+					trail:GetSprite().Color = IRFcolors.BlueFireShot
 				else
 					trail:GetSprite().Color = Color(1,1,1, 0.5, 0.5,0,0)
 				end
@@ -568,7 +568,8 @@ function mod:forsakenUpdate(entity)
 
 				if entity.SubType == 0 then
 					entity.Velocity = Vector.Zero
-					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 50) + Vector.FromAngle(entity.I2 * 90):Resized(10), entity.I2 * 90, 20, Vector.Zero, entity), entity}
+					local angle = entity.I2 * 90
+					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 50) + Vector.FromAngle(angle):Resized(10), angle, 20, Vector.Zero, entity), entity}
 					data.brim = laser_ent_pair.laser
 
 					if data.facing == "Down" then

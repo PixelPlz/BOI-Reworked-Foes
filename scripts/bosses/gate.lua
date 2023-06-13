@@ -1,7 +1,7 @@
 local mod = BetterMonsters
 
 local Settings = {
-	Cooldown = 45,
+	Cooldown = 30,
 	DamageReduction = 20,
 	HeadSmashScreenShake = 14,
 
@@ -23,19 +23,22 @@ function mod:gateUpdate(entity)
 	entity.Velocity = Vector.Zero
 
 	-- Ember particles
-	local color = Color.Default
-	if entity.SubType == 2 then
-		color = Color(0,0.5,1, 1, -0.3,0.4,0.8)
+	if entity.SubType ~= 1 then
+		local color = Color.Default
+		if entity.SubType == 2 then
+			color = IRFcolors.BlueFire
+		end
+		mod:EmberParticles(entity, Vector(0, -math.random(110, 120)), 40, color)
 	end
-	mod:EmberParticles(entity, Vector(0, -math.random(110, 120)), 40, color)
 
 
 	-- Toggle damage reduction
 	if sprite:IsEventTriggered("Open") then
-		entity.I2 = 1
+		entity.ProjectileCooldown = 1
 		mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.5)
+
 	elseif sprite:IsEventTriggered("Close") then
-		entity.I2 = 0
+		entity.ProjectileCooldown = 0
 		mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.5)
 	end
 
@@ -46,17 +49,18 @@ function mod:gateUpdate(entity)
 	end
 
 	-- Cooldown between attacks
-	if entity.ProjectileCooldown > 0 then
-		entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+	if entity.SubType ~= 1 and entity.StateFrame > 0 then
+		entity.StateFrame = entity.StateFrame - 1
 		if entity.State ~= NpcState.STATE_SPECIAL and entity.State ~= NpcState.STATE_ATTACK3 then
 			entity.State = NpcState.STATE_IDLE
 		end
 
 
+	-- Summon attack
 	elseif entity.State == NpcState.STATE_SUMMON then
 		-- Don't have more than 3 Flaming Hoppers
-		if sprite:GetFrame() == 0 then
-			if Isaac.CountEntities(nil, EntityType.ENTITY_FLAMINGHOPPER, -1, -1) >= 3 then
+		if entity.SubType ~= 1 and sprite:GetFrame() == 0 then
+			if entity.SubType == 0 and Isaac.CountEntities(nil, EntityType.ENTITY_FLAMINGHOPPER, -1, -1) >= 3 then
 				entity.State = NpcState.STATE_ATTACK
 				SFXManager():Stop(SoundEffect.SOUND_MONSTER_GRUNT_4)
 
@@ -70,59 +74,132 @@ function mod:gateUpdate(entity)
 
 		-- Spawn
 		if sprite:IsEventTriggered("Shoot") then
-			-- Black champion blue fire bones
-			if entity.SubType == 2 then
-				local params = ProjectileParams()
-				params.Variant = ProjectileVariant.PROJECTILE_BONE
-				params.BulletFlags = (ProjectileFlags.FIRE | ProjectileFlags.BLUE_FIRE_SPAWN)
-				params.Scale = 1.5
-				params.Color = IRFcolors.BlackBony
-				params.FallingAccelModifier = 1.25
-				params.FallingSpeedModifier = -10
-				params.HeightModifier = -54
-				entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(entity.Position:Distance(target.Position) / 20), 0, params)
+			-- Red champion splort
+			if entity.SubType == 1 then
+				mod:PlaySound(nil, SoundEffect.SOUND_PLOP, 0.9) -- Fuck you Amy I'll include it if I want!
+				mod:PlaySound(nil, SoundEffect.SOUND_HEARTIN)
+				mod:ShootEffect(entity, 3, Vector(0, -56))
 
-				mod:PlaySound(nil, SoundEffect.SOUND_SCAMPER)
 
-			-- Flaming Hoppers
 			else
-				local hopper = Isaac.Spawn(EntityType.ENTITY_FLAMINGHOPPER, 0, 0, entity.Position + Vector(0, 1), Vector.Zero, entity):ToNPC()
-				hopper.State = NpcState.STATE_MOVE
-				hopper.TargetPosition = entity.Position + (target.Position - entity.Position):Resized(mod:Random(120, 200))
-				hopper.PositionOffset = Vector(0, -64)
+				-- Black champion blue fire bones
+				if entity.SubType == 2 then
+					local params = ProjectileParams()
+					params.Variant = ProjectileVariant.PROJECTILE_BONE
+					params.BulletFlags = (ProjectileFlags.FIRE | ProjectileFlags.BLUE_FIRE_SPAWN)
+					params.Scale = 1.5
+					params.Color = IRFcolors.BlackBony
+					params.FallingAccelModifier = 1.25
+					params.FallingSpeedModifier = -10
+					params.HeightModifier = -54
 
-				hopper.MaxHitPoints = Settings.HopperHealth
-				hopper.HitPoints = hopper.MaxHitPoints
+					for i = 0, 1 do
+						local pos = target.Position
+						if i == 1 then
+							pos = entity.Position + Vector.FromAngle(mod:Random(-20, 200)):Resized(mod:Random(80, 160))
+						end
+						entity:FireProjectiles(entity.Position, (pos - entity.Position):Resized(entity.Position:Distance(pos) / 20), 0, params)
+					end
 
-				local hopperSprite = hopper:GetSprite()
-				hopperSprite:Play("Attack", true)
-				hopperSprite:SetFrame(12)
+					mod:PlaySound(nil, SoundEffect.SOUND_SCAMPER)
 
-				mod:PlaySound(nil, SoundEffect.SOUND_ANIMAL_SQUISH)
+
+				-- Flaming Hoppers
+				else
+					local hopper = Isaac.Spawn(EntityType.ENTITY_FLAMINGHOPPER, 0, 0, entity.Position + Vector(0, 1), Vector.Zero, entity):ToNPC()
+					hopper.State = NpcState.STATE_MOVE
+					hopper.TargetPosition = entity.Position + (target.Position - entity.Position):Resized(mod:Random(120, 200))
+					hopper.PositionOffset = Vector(0, -64)
+
+					hopper.MaxHitPoints = Settings.HopperHealth
+					hopper.HitPoints = hopper.MaxHitPoints
+
+					local hopperSprite = hopper:GetSprite()
+					hopperSprite:Play("Attack", true)
+					hopperSprite:SetFrame(12)
+
+					mod:PlaySound(nil, SoundEffect.SOUND_ANIMAL_SQUISH)
+				end
+
+				mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END)
+			end
+		end
+
+
+		-- Pop goes the measle!
+		if entity.SubType == 1 and sprite:WasEventTriggered("Shoot") then
+			local params = ProjectileParams()
+			params.Scale = 1 + mod:Random(10, 50) * 0.01
+			params.FallingAccelModifier = 1.25
+			params.FallingSpeedModifier = -35
+			params.HeightModifier = -54
+
+			for i = 0, 1 do
+				local pos = target.Position + mod:RandomVector(mod:Random(150))
+				entity:FireProjectiles(entity.Position, (pos - entity.Position):Resized(entity.Position:Distance(pos) / 35), 0, params)
 			end
 
-			mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END)
+			-- Sound
+			if entity:IsFrame(2, 0) then
+				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.6)
+			end
 		end
 
 		if sprite:GetFrame() == 42 then -- Fucking why does IsFinished() not work...
-			entity.ProjectileCooldown = Settings.Cooldown
+			entity.StateFrame = Settings.Cooldown
 		end
 
 
-	-- Stop laser attack if there are other bosses alive
-	elseif entity.State == NpcState.STATE_ATTACK and sprite:GetFrame() == 0 then
-		local canDoAttack = true
-		for i, guy in pairs(Isaac.GetRoomEntities()) do
-			if guy:ToNPC() and guy:ToNPC():IsBoss() == true and guy.Type ~= entity.Type then
-				canDoAttack = false
-				break
+	-- Laser attack
+	elseif entity.State == NpcState.STATE_ATTACK then
+		-- Stop the attack if there are other bosses alive
+		if entity.SubType ~= 2 and sprite:GetFrame() == 0 then
+			local canDoAttack = true
+			for i, guy in pairs(Isaac.GetRoomEntities()) do
+				if guy:ToNPC() and guy:ToNPC():IsBoss() == true and guy.Type ~= entity.Type then
+					canDoAttack = false
+					break
+				end
 			end
-		end
 
-		if canDoAttack == false then
-			entity.State = NpcState.STATE_ATTACK3
-			sprite:Play("Raise", true)
-			SFXManager():Stop(SoundEffect.SOUND_MOUTH_FULL)
+			if canDoAttack == false then
+				entity.State = NpcState.STATE_ATTACK3
+				sprite:Play("Raise", true)
+				SFXManager():Stop(SoundEffect.SOUND_MOUTH_FULL)
+			end
+
+
+		-- Black champion flamethrower attack
+		elseif entity.SubType == 2 and sprite:IsPlaying("Shooting") then
+			-- Replace default attack
+			if entity.I1 ~= 2 then
+				entity.I1 = 2
+
+			else
+				-- Start
+				if sprite:IsEventTriggered("Shoot") then
+					mod:PlaySound(entity, SoundEffect.SOUND_GHOST_ROAR)
+					mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END)
+					sprite.PlaybackSpeed = 0.85 -- Yes I'm really gonna extend the duration by slowing down the animation, I don't care
+				end
+				-- Shooting
+				if sprite:WasEventTriggered("Shoot") and not sprite:WasEventTriggered("Close") and entity:IsFrame(2, 0) then
+					local params = ProjectileParams()
+					params.Variant = ProjectileVariant.PROJECTILE_FIRE
+					params.Color = IRFcolors.BlueFire
+					params.BulletFlags = ProjectileFlags.FIRE
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Rotated(mod:Random(-15, 15)):Resized(9), 0, params)
+				end
+				-- Stop
+				if sprite:IsEventTriggered("Close") then
+					sprite.PlaybackSpeed = 1
+				end
+
+				if sprite:GetFrame() == 30 then
+					entity.State = NpcState.STATE_IDLE
+					entity.StateFrame = Settings.Cooldown
+				end
+			end
 		end
 
 
@@ -130,13 +207,34 @@ function mod:gateUpdate(entity)
 	elseif entity.State == NpcState.STATE_ATTACK2 then
 		-- Sometimes do the skull raising attack instead
 		if sprite:IsPlaying("Charging") and sprite:GetFrame() == 0 and mod:Random(1) == 0 then
-			entity.State = NpcState.STATE_ATTACK3
-			sprite:Play("Raise", true)
+			if entity.SubType ~= 0 and mod:Random(1) == 0 then
+				-- Summon attack for red champion
+				if entity.SubType == 1 then
+					entity.State = NpcState.STATE_SUMMON
+				-- Laser attack for black champion
+				else
+					entity.State = NpcState.STATE_ATTACK
+				end
+
+			else
+				entity.State = NpcState.STATE_ATTACK3
+				sprite:Play("Raise", true)
+			end
 			SFXManager():Stop(SoundEffect.SOUND_LOW_INHALE)
 
 		-- Cooldown
 		elseif sprite:IsPlaying("Shooting") and sprite:GetFrame() == 30 then
-			entity.ProjectileCooldown = Settings.Cooldown
+			entity.StateFrame = Settings.Cooldown
+		end
+
+		-- Cringe red champion moment
+		if entity.SubType == 1 then
+			if sprite:IsEventTriggered("Open") and entity.I2 == 3 then
+				entity.I2 = mod:Random(2)
+
+			elseif sprite:IsEventTriggered("Shoot") then
+				mod:PlaySound(entity, SoundEffect.SOUND_FIRE_RUSH)
+			end
 		end
 
 
@@ -157,14 +255,20 @@ function mod:gateUpdate(entity)
 		elseif sprite:IsEventTriggered("Shoot") then
 			local params = ProjectileParams()
 
-			-- Black champion fire wave shots
-			if entity.SubType == 2 then
-				local blueFireColor = Color(1,1,1, 1, 0,0.6,1.2)
-				blueFireColor:SetColorize(1,1,1, 1)
+			-- Red champion blood shoots
+			if entity.SubType == 1 then
+				params.BulletFlags = entity.I1 == 0 and ProjectileFlags.ORBIT_CW or ProjectileFlags.ORBIT_CCW
+				params.TargetPosition = entity.Position
+				params.Scale = 1.75
+				params.FallingSpeedModifier = 1
+				params.FallingAccelModifier = -0.09
+				entity:FireProjectiles(entity.Position, Vector(9, 8), 9, params)
 
+			-- Black champion fire wave shots
+			elseif entity.SubType == 2 then
 				params.BulletFlags = (ProjectileFlags.FIRE | ProjectileFlags.FIRE_WAVE)
 				params.Scale = 2
-				params.Color = blueFireColor
+				params.Color = IRFcolors.BlueFireShot
 				params.FallingAccelModifier = 1.25
 				params.FallingSpeedModifier = -20
 				mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(entity.Position:Distance(target.Position) / 24), 0, params):GetData().dontChange = true
@@ -188,8 +292,16 @@ function mod:gateUpdate(entity)
 
 		-- Slam
 		elseif sprite:IsEventTriggered("Close") then
+			-- Red champion Projectiles
+			if entity.SubType == 1 then
+				local params = ProjectileParams()
+				params.Scale = 1.75
+				params.FallingSpeedModifier = 1
+				params.FallingAccelModifier = -0.1
+				entity:FireProjectiles(entity.Position, Vector(10, 14), 9, params)
+
 			-- Black champion fire waves
-			if entity.SubType == 2 then
+			elseif entity.SubType == 2 then
 				for i = 0, 3 do
 					local angle = 45 + i * 90
 					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_WAVE, 3, entity.Position + Vector.FromAngle(angle):Resized(20), Vector.Zero, entity):ToEffect().Rotation = angle
@@ -218,13 +330,8 @@ function mod:gateUpdate(entity)
 
 		if sprite:IsFinished() then
 			entity.State = NpcState.STATE_IDLE
-			entity.ProjectileCooldown = Settings.Cooldown
+			entity.StateFrame = Settings.Cooldown
 		end
-	end
-
-
-	if entity.SubType == 1 and entity:GetSprite():IsEventTriggered("Shoot") then
-		--mod:PlaySound(entity, SoundEffect.SOUND_FIRE_RUSH)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gateUpdate, EntityType.ENTITY_GATE)
@@ -237,7 +344,7 @@ function mod:gateDMG(target, damageAmount, damageFlags, damageSource, damageCoun
 
 
 	-- Stagger from explosions
-	elseif (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) and target:ToNPC().ProjectileDelay <= 0 and target:ToNPC().State ~= NpcState.STATE_ATTACK3 then
+	elseif target.SubType ~= 1 and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) and target:ToNPC().ProjectileDelay <= 0 and target:ToNPC().State ~= NpcState.STATE_ATTACK3 then
 		target:ToNPC().State = NpcState.STATE_SPECIAL
 		target:GetSprite():Play("Stagger", true)
 		target:ToNPC().ProjectileDelay = 120
@@ -247,7 +354,7 @@ function mod:gateDMG(target, damageAmount, damageFlags, damageSource, damageCoun
 
 
 	-- Reduced damage if skull is not raised
-	elseif target:ToNPC().I2 ~= 1 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+	elseif target.SubType ~= 1 and target:ToNPC().ProjectileCooldown ~= 1 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
 		local onePercent = damageAmount / 100
 		local reduction = onePercent * Settings.DamageReduction
 
@@ -265,6 +372,7 @@ function mod:gateCollide(entity, target, bool)
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.gateCollide, EntityType.ENTITY_GATE)
 
+
 -- Remove default spawns
 function mod:gateSpawns(entity)
 	if entity.SpawnerType == EntityType.ENTITY_GATE and (entity.Type == EntityType.ENTITY_LEAPER or entity.Type == EntityType.ENTITY_BIGSPIDER) then
@@ -273,6 +381,7 @@ function mod:gateSpawns(entity)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.gateSpawns)
 
+-- Turn fire waves into blue ones
 function mod:gateBlueFireJet(effect)
 	if effect.SpawnerType == EntityType.ENTITY_GATE and effect.SubType ~= 3 then
 		effect.SubType = 3
