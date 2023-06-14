@@ -1,6 +1,8 @@
 local mod = BetterMonsters
 local json = require("json")
 
+-- THIS WHOLE FILE SHOULD BE GONE AFTER DSS IS IMPLEMENTED, MOVE IRFCONFIG TO DSS SCRIPT OR CONSTANTS --
+
 IRFconfig = {
 	-- General
 	breakableHosts   = true,
@@ -8,6 +10,7 @@ IRFconfig = {
 	matriarchFistula = true,
 	envyRework 		 = true,
 	blackBonyBombs   = true,
+	burningGushers   = true,
 
 	-- Hidden enemy visuals
 	noHiddenPins  = true,
@@ -125,6 +128,20 @@ if ModConfigMenu then
 	    	IRFconfig.blackBonyBombs = bool
 	    end,
 	    Info = {"Black Bonies will spawn with random bomb effects."}
+  	})
+	-- Burning Gushers
+	ModConfigMenu.AddSetting(category, "General", {
+    	Type = ModConfigMenu.OptionType.BOOLEAN,
+	    CurrentSetting = function()
+			return IRFconfig.burningGushers
+		end,
+	    Display = function()
+			return "Unique Burning Gushers: " .. (IRFconfig.burningGushers and "On" or "Off")
+		end,
+	    OnChange = function(bool)
+	    	IRFconfig.burningGushers = bool
+	    end,
+	    Info = {"Gushers spawned by Flaming Gapers will have unique behaviour. (They will only have new sprites if turned off)"}
   	})
 
 

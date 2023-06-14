@@ -5,7 +5,7 @@ local Settings = {
 	DamageReduction = 20,
 	HeadSmashScreenShake = 14,
 
-	HopperHealth = 20
+	HopperHealth = 25
 }
 
 
@@ -54,13 +54,17 @@ function mod:gateUpdate(entity)
 		if entity.State ~= NpcState.STATE_SPECIAL and entity.State ~= NpcState.STATE_ATTACK3 then
 			entity.State = NpcState.STATE_IDLE
 		end
+		-- For black champion
+		if entity.SubType == 2 then
+			entity.I2 = 0
+		end
 
 
 	-- Summon attack
 	elseif entity.State == NpcState.STATE_SUMMON then
-		-- Don't have more than 3 Flaming Hoppers
-		if entity.SubType ~= 1 and sprite:GetFrame() == 0 then
-			if entity.SubType == 0 and Isaac.CountEntities(nil, EntityType.ENTITY_FLAMINGHOPPER, -1, -1) >= 3 then
+		if entity.SubType == 0 and sprite:GetFrame() == 0 then
+			-- Don't have more than 3 Flaming Hoppers
+			if Isaac.CountEntities(nil, EntityType.ENTITY_FLAMINGHOPPER, -1, -1) >= 3 then
 				entity.State = NpcState.STATE_ATTACK
 				SFXManager():Stop(SoundEffect.SOUND_MONSTER_GRUNT_4)
 
@@ -93,10 +97,12 @@ function mod:gateUpdate(entity)
 					params.FallingSpeedModifier = -10
 					params.HeightModifier = -54
 
-					for i = 0, 1 do
+					for i = 0, 3 do
 						local pos = target.Position
-						if i == 1 then
-							pos = entity.Position + Vector.FromAngle(mod:Random(-20, 200)):Resized(mod:Random(80, 160))
+						if i >= 1 then
+							local angleToCenter = (Game():GetRoom():GetCenterPos() - entity.Position):GetAngleDegrees()
+							local angle = mod:Random(angleToCenter - 100, angleToCenter + 100)
+							pos = entity.Position + Vector.FromAngle(angle):Resized(mod:Random(80, 160))
 						end
 						entity:FireProjectiles(entity.Position, (pos - entity.Position):Resized(entity.Position:Distance(pos) / 20), 0, params)
 					end
@@ -146,7 +152,12 @@ function mod:gateUpdate(entity)
 		end
 
 		if sprite:GetFrame() == 42 then -- Fucking why does IsFinished() not work...
-			entity.StateFrame = Settings.Cooldown
+			if entity.SubType == 2 then
+				entity.I2 = 1
+				entity.State = NpcState.STATE_ATTACK2
+			else
+				entity.StateFrame = Settings.Cooldown
+			end
 		end
 
 
@@ -180,7 +191,7 @@ function mod:gateUpdate(entity)
 				if sprite:IsEventTriggered("Shoot") then
 					mod:PlaySound(entity, SoundEffect.SOUND_GHOST_ROAR)
 					mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END)
-					sprite.PlaybackSpeed = 0.85 -- Yes I'm really gonna extend the duration by slowing down the animation, I don't care
+					sprite.PlaybackSpeed = 0.8 -- Yes I'm really gonna extend the duration by slowing down the animation, I don't care
 				end
 				-- Shooting
 				if sprite:WasEventTriggered("Shoot") and not sprite:WasEventTriggered("Close") and entity:IsFrame(2, 0) then
@@ -235,6 +246,9 @@ function mod:gateUpdate(entity)
 			elseif sprite:IsEventTriggered("Shoot") then
 				mod:PlaySound(entity, SoundEffect.SOUND_FIRE_RUSH)
 			end
+		
+		elseif entity.SubType == 2 and sprite:GetFrame() == 0 and entity.I2 ~= 1 then
+			entity.State = NpcState.STATE_SUMMON
 		end
 
 

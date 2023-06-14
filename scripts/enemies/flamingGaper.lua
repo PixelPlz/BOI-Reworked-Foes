@@ -124,7 +124,7 @@ function mod:flamingGusherUpdate(entity)
 
 	-- Turn Gushers and Pacers from Flaming Gapers into Braziers
 	elseif entity:GetData().wasFlamingGaper then
-		if 1 == 2 then -- Placeholder for config option
+		if IRFconfig.burningGushers == true then
 			entity:Morph(EntityType.ENTITY_GUSHER, 2, 0, entity:GetChampionColorIdx())
 
 		else
