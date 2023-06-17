@@ -12,8 +12,8 @@ IRFstartupStrings = {
 	"No, there will not be options to toggle everything.",
 	"I should get a job",
 	"All oiled up",
-	"Let me be clear Color(1,1,1, 0, 0,0,0)",
-	"Monstro rework when",
+	"Let me be clear Color(1,1,1, 0)",
+	"Monstro rework when??",
 	"Follow the turning coin",
 	"Today's lucky numbers:\n"
 	.. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)),
@@ -36,12 +36,10 @@ IRFstartupStrings = {
 }
 
 local StartupString = "Improved and Reworked Foes v3.0.0 Loaded"
-print(StartupString .. " - " .. IRFstartupStrings[math.random(#IRFstartupStrings)])
 Isaac.DebugString(StartupString)
+print(StartupString .. " - " .. IRFstartupStrings[math.random(#IRFstartupStrings)])
 
 
-
--- update the krampus champion id variable in the compat mod
 
 
 
@@ -60,7 +58,7 @@ local generalScripts = {
 	"utilities",
 	"bossHealthBars",
 	--"dss",
-	"configMenu",
+	"configMenu", -- REMOVE
 	"misc",
 	"projectiles",
 	"hiddenEnemies",
@@ -137,7 +135,7 @@ local bossScripts = {
 	"lokii",
 	"teratoma",
 	"blastocyst",
-	--"itLives",
+	"itLives",
 	"steven",
 	"blightedOvum",
 	--"fallen",

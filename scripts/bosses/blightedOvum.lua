@@ -190,6 +190,8 @@ function mod:blightedOvumUpdate(entity)
 
 
 
+
+
 	--[[ Suture ]]--
 	elseif entity.Variant == 12 then
 		-- Transparency

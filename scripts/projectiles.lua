@@ -133,7 +133,7 @@ function mod:editNormalProjectiles(projectile)
 
 
 	-- Mega Maw
-	elseif projectile.SpawnerType == EntityType.ENTITY_MEGA_MAW and projectile.SpawnerEntity then
+	elseif projectile.SpawnerType == EntityType.ENTITY_MEGA_MAW and projectile.SpawnerEntity and not projectile.SpawnerEntity:GetData().wasDelirium then
 		-- Red champion
 		if projectile.SpawnerEntity.SubType == 1 then
 			projectile.CollisionDamage = 1
@@ -143,7 +143,7 @@ function mod:editNormalProjectiles(projectile)
 
 
 	-- The Gate
-	elseif projectile.SpawnerType == EntityType.ENTITY_GATE and projectile.SpawnerEntity and not projectile:GetData().dontChange then
+	elseif projectile.SpawnerType == EntityType.ENTITY_GATE and projectile.SpawnerEntity and not projectile:GetData().dontChange and not projectile.SpawnerEntity:GetData().wasDelirium then
 		-- Red champion
 		if projectile.SpawnerEntity.SubType == 1 then
 			projectile.CollisionDamage = 1

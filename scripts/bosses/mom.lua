@@ -43,7 +43,6 @@ IRFmomSpawns = {
 
 
 
--- [[ Mom ]]--
 function mod:momInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 end
@@ -78,6 +77,7 @@ function mod:momUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.momUpdate, EntityType.ENTITY_MOM)
 
+-- New spawns
 function mod:newMomSpawns(entity)
 	if entity.SpawnerType == EntityType.ENTITY_MOM and entity.SpawnerEntity and (entity.SpawnerEntity.SubType == 1 or entity.SpawnerEntity.SubType == 3) and not entity:GetData().newMomSpawn then
 		entity:Remove()
