@@ -7,6 +7,9 @@ function mod:postGameStartedHPBars()
 		HPBars.BossIgnoreList["97.0"] = true -- Mask of Infamy
 		HPBars.BossIgnoreList["200.4102"] = true -- Forgotten Body
 		HPBars.BossIgnoreList["403.10"] = true -- Forsaken clone
+		HPBars.BossIgnoreList["904.0"] = function(entity) -- Siren revive
+			return entity:ToNPC().I2 > 0
+		end
 
 		-- Gish
 		HPBars.BossDefinitions["43.1"] = {

@@ -3,7 +3,7 @@ local mod = BetterMonsters
 local Settings = {
 	MoveSpeed = 5,
 
-	Cooldown = 90,
+	Cooldown = 60,
 	TearCooldown = 22,
 	TeleportCooldown = {90, 180},
 	SoundTimer = {120, 180},
@@ -192,7 +192,7 @@ function mod:hushBabyUpdate(entity)
 
 			if sprite:IsFinished() then
 				entity.I1 = entity.I1 + 1
-				entity.ProjectileCooldown = Settings.Cooldown
+				entity.ProjectileCooldown = Settings.Cooldown / 2
 				data.spawnTimer = 0
 				data.shotCount = 1
 				entity.State = NpcState.STATE_IDLE

@@ -1,4 +1,5 @@
 -- Reworks / Additions --
+- It Lives has been reworked!
 - C.H.A.D. has been reworked!
 - The Gate has been reworked!
 - The Husk has been reworked!
@@ -96,7 +97,6 @@
 - Fixed Portals and Flaming Gapers having missing layers in the Bestiary
 - Fixed Turdlings having the wrong hand sprites
 - Fixed some reworked enemies and bosses not moving as they should while feared or confused
-- (Hopefully) Fixed ???'s damage reduction never going away in some cases
 - Fixed Rag Mega not killing Raglings on death like in vanilla
 - Fixed Cod Worms not taking damage from Mom's Knife
 - The Cage no longer has a hitbox before he visually lands

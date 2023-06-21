@@ -303,7 +303,6 @@ function mod:blueBabyUpdate(entity)
 
 				entity.I2 = 0
 				entity.StateFrame = 0
-				data.damageReduction = 0
 				data.lastAttack = attack
 
 				if attack == 1 then
@@ -410,6 +409,7 @@ function mod:blueBabyUpdate(entity)
 				data.shotCount = 1
 				data.lastAttack = nil
 				backToIdle()
+				entity.ProjectileCooldown = Settings.Cooldown / 2
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 				data.damageReduction = Settings.TransitionDmgReduction
 			end
@@ -500,6 +500,7 @@ function mod:blueBabyUpdate(entity)
 									end
 								end
 							end
+							table.remove(corners, #corners)
 
 							local corner = mod:RandomIndex(corners)
 							entity.Position = room:FindFreePickupSpawnPosition(corner, 0, true, true)

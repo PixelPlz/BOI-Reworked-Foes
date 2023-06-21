@@ -522,3 +522,117 @@ function mod:evisCordUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.evisCordUpdate, EntityType.ENTITY_EVIS)
+
+
+
+--[[ Siren revive ]]--
+function mod:sirenUpdate(entity)
+	local sprite = entity:GetSprite()
+	local data = entity:GetData()
+
+
+	-- Can't instantly change state when spawning a new one otherwise it crashes the game
+	if data.revive then
+		entity.State = NpcState.STATE_SPECIAL
+		data.revive = nil
+
+		-- Remove skull
+		for i, skull in pairs(Isaac.FindByType(entity.Type, 1, -1, false, true)) do
+			if skull.Position:Distance(entity.Position) <= 1 then
+				skull:Remove()
+			end
+		end
+	end
+
+
+	-- Reviving
+	if entity.State == NpcState.STATE_SPECIAL then
+		-- Sike!
+		if sprite:GetFrame() == 30 then
+			entity.Visible = true
+			entity.Child.Parent = entity
+
+		elseif sprite:GetFrame() == 40 then
+			Game():GetRoom():PlayMusic()
+
+
+		-- Item visual + health
+		elseif sprite:IsEventTriggered("Sound") then
+			entity.I2 = 0
+			entity:ClearEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
+
+			-- Item effect
+			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HEART, 0, entity.Position, Vector.Zero, entity):ToEffect()
+			data.itemEffect = effect
+			effect:FollowParent(entity)
+			effect.DepthOffset = entity.DepthOffset + 1
+
+			local effectSprite = effect:GetSprite()
+			effectSprite.Offset = Vector(0, -60)
+			effectSprite:Load("gfx/005.100_collectible.anm2", true)
+			effectSprite:Play("PlayerPickupSparkle", true)
+
+			-- Heal + proper item sprite
+			if entity.Child.Variant == FamiliarVariant.DEAD_CAT then
+				entity.HitPoints = entity.MaxHitPoints / 10
+				effectSprite:ReplaceSpritesheet(1, "gfx/items/collectibles/collectibles_081_deadcat.png")
+			else
+				entity.HitPoints = entity.MaxHitPoints / 2
+				effectSprite:ReplaceSpritesheet(1, "gfx/items/collectibles/collectibles_011_1up.png")
+			end
+
+			effectSprite:LoadGraphics()
+
+
+		-- Get rid of the item visual
+		elseif sprite:GetFrame() == 75 then
+			data.itemEffect:Remove()
+			entity.Child.Parent = nil
+			entity.Child = nil
+		end
+	end
+
+
+	-- Do fake death if she charmed 1up or Dead Cat
+	if entity:HasMortalDamage() then
+		for i, minion in pairs(Isaac.FindByType(EntityType.ENTITY_SIREN_HELPER, -1, -1, false, true)) do
+			if minion.Parent.Index == entity.Index and minion.Target and (minion.Target.Variant == FamiliarVariant.DEAD_CAT or minion.Target.Variant == FamiliarVariant.ONE_UP) then
+				entity.I2 = 100
+				entity.Target = minion.Target
+				minion:Kill()
+				break
+			end
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.sirenUpdate, EntityType.ENTITY_SIREN)
+
+function mod:sirenDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if target:ToNPC().State == NpcState.STATE_SPECIAL and not target:GetSprite():WasEventTriggered("Sound") then
+		return false
+	end
+end
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.sirenDMG, EntityType.ENTITY_SIREN)
+
+-- Create new Siren from revive
+function mod:sirenDeath(entity)
+	if entity.I2 == 100 then
+		local newSiren = Isaac.Spawn(entity.Type, entity.Variant, entity.SubType, entity.Position, entity.Velocity, entity):ToNPC()
+		newSiren:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+		newSiren:GetData().revive = true
+		newSiren.I2 = 100
+		newSiren.Child = entity.Target
+
+		newSiren.Visible = false
+		newSiren.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+		newSiren:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
+
+		-- Remove heart drops
+		for i, heart in pairs(Isaac.FindByType(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_HEART, -1, false, false)) do
+			if heart.SpawnerEntity and heart.SpawnerEntity.Index == entity.Index then
+				heart:Remove()
+			end
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.sirenDeath, EntityType.ENTITY_SIREN)
