@@ -58,6 +58,7 @@
 - Lust's lemon party effects are now larger and last longer
 - Lust now only heals 12% (24% for champion / Super) health with her healing effects instead of 15% (was 30% for champion / Super)
 - Super Wrath now only shoots a single special bomb instead of a regular and special one
+- Decreased Hush Baby's cooldown between attacks
 
 - Increased ???'s damage reduction after he spawns
 - Decreased ???'s cooldown between attacks
@@ -80,7 +81,7 @@
 
 
 -- Other changes --
-- New charred sprites for Flaming Gapers, Flaming Fatties and Flaming Hoppers
+- New charred sprites for Flaming Gapers, Fatties and Hoppers to keep them consistent with other Burning Basement enemies
 - Fire rings from Flaming Fatties and Flaming Hoppers now work like the fire rings created by Redskulls
 - Improved Soft Host and Flesh Floast sprites
 - New sprites for Death's (the boss) scythes
@@ -100,6 +101,7 @@
 - Fixed Rag Mega not killing Raglings on death like in vanilla
 - Fixed Cod Worms not taking damage from Mom's Knife
 - The Cage no longer has a hitbox before he visually lands
+- ???'s Holy Orb now disappears if ??? dies while it's active
+
 - Fixed Sloth Heads from Fiend Folio turning into Black Globins
 - Fixed grid Hosts from Fiend Folio not turning into their fleshy variants when their skull is broken
-- ???'s Holy Orb now disappears if ??? dies while it's active

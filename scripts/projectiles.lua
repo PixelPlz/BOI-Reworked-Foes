@@ -116,6 +116,11 @@ function mod:editNormalProjectiles(projectile)
 		end
 
 
+	-- Blue Peep
+	elseif projectile.SpawnerType == EntityType.ENTITY_PEEP and projectile.SpawnerVariant == 0 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 then
+		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
+
+
 	-- Blastocyst
 	elseif projectile.SpawnerType == EntityType.ENTITY_BLASTOCYST_BIG or projectile.SpawnerType == EntityType.ENTITY_BLASTOCYST_MEDIUM or projectile.SpawnerType == EntityType.ENTITY_BLASTOCYST_SMALL then
 		sprite:ReplaceSpritesheet(0, "gfx/blastocyst projectile.png")

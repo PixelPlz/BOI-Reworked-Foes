@@ -135,7 +135,7 @@ local bossScripts = {
 	"lokii",
 	"teratoma",
 	"blastocyst",
-	"itLives",
+	--"itLives",
 	"steven",
 	"blightedOvum",
 	--"fallen",

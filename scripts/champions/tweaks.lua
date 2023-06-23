@@ -332,6 +332,7 @@ function mod:peepUpdate(entity)
 			else
 				entity.State = NpcState.STATE_SUMMON
 				sprite:Play("Attack02", true)
+				SFXManager():Stop(SoundEffect.SOUND_BOSS_LITE_SLOPPY_ROAR)
 			end
 		end
 
@@ -348,7 +349,7 @@ function mod:peepUpdate(entity)
 				if entity.ProjectileCooldown <= 0 then
 					entity.State = NpcState.STATE_ATTACK
 					sprite:Play("Shoot", true)
-					entity.ProjectileCooldown = 30
+					entity.ProjectileCooldown = 45
 				else
 					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 				end
@@ -369,14 +370,46 @@ function mod:peepUpdate(entity)
 				end
 			end
 
-		-- Set the subtype to 2 and load  the new animations
+		-- Set the subtype to 2 and load the new animations
 		elseif entity.SpawnerEntity and entity.SpawnerEntity.SubType == 2 then
 			entity.SubType = 2
-			entity.ProjectileCooldown = 30
+			entity.ProjectileCooldown = 45
 		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.peepUpdate, EntityType.ENTITY_PEEP)
+
+-- Cringe
+function mod:bluePeepEffectsUpdate(effect)
+	-- Fucking hate this shit why don't the piss effects have a spawner entity set
+	local change = false
+	if effect.Variant == EffectVariant.BLOOD_EXPLOSION then
+		for i, peep in pairs(Isaac.FindByType(EntityType.ENTITY_PEEP, 0, 2, false, false)) do
+			if peep:ToNPC().State == NpcState.STATE_SUMMON and peep.Position:Distance(effect.Position) <= 40 then
+				change = true
+			end
+		end
+	end
+
+	if effect.FrameCount <= 1 and ((effect.SpawnerType == EntityType.ENTITY_PEEP and effect.SpawnerVariant == 0 and effect.SpawnerEntity and effect.SpawnerEntity.SubType == 2) or change == true) then
+		local sprite = effect:GetSprite()
+
+		-- Creep
+		if effect.Variant == EffectVariant.CREEP_YELLOW then
+			local anim = sprite:GetAnimation()
+			sprite:Load("gfx/1000.022_creep (red).anm2", true)
+			sprite:Play(anim, true)
+
+			effect.Variant = EffectVariant.CREEP_SLIPPERY_BROWN
+			sprite.Color = IRFcolors.TearTrail
+
+		-- Effects
+		elseif effect.Variant == EffectVariant.POOF02 or effect.Variant == EffectVariant.BLOOD_EXPLOSION then
+			sprite.Color = IRFcolors.TearEffect
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.bluePeepEffectsUpdate)
 
 
 
