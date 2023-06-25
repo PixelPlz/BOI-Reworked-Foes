@@ -52,7 +52,7 @@ IRFcolors.GreenBlood = Color(0.4,0.8,0.4, 1, 0,0.4,0)
 IRFcolors.SunBeam 	 = Color(1,1,1, 1, 0.3,0.3,0)
 IRFcolors.DustTrail  = Color(0.8,0.8,0.8, 0.8, 0.05,0.025,0);   IRFcolors.DustTrail:SetColorize(1,1,1, 1)
 IRFcolors.BlackBony  = Color(0.18,0.18,0.18, 1)
-IRFcolors.Delirium   = Color(2.5,2.5,2.5, 1);   				IRFcolors.Delirium:SetColorize(1.25, 1, 1, 1)
+--IRFcolors.Delirium   = Color(2.5,2.5,2.5, 1);   				IRFcolors.Delirium:SetColorize(1.25, 1, 1, 1)
 
 IRFcolors.BlueFire 	   = Color(0,1,1, 1, -0.5,0.35,0.9);   IRFcolors.BlueFire:SetColorize(1,1,1, 1)
 IRFcolors.BlueFireShot = Color(1,1,1, 1, 0,0.6,1.2);   	   IRFcolors.BlueFireShot:SetColorize(1,1,1, 1)

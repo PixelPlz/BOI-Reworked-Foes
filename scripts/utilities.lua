@@ -340,19 +340,7 @@ function mod:MoveDiagonally(entity, speed)
 
 	-- Run away if feared
 	elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
-		-- Get nearest player
-		local dist = 9999
-		local nearest = nil
-
-		for i = 0, Game():GetNumPlayers() - 1 do
-			local player = Isaac.GetPlayer(i)
-
-			if player.Position:Distance(entity.Position) < dist then
-				dist = player.Position:Distance(entity.Position)
-				nearest = player
-			end
-		end
-
+		local nearest = Game():GetNearestPlayer(entity.Position)
 		entity.Velocity = mod:Lerp(entity.Velocity, (entity.Position - nearest.Position):Resized(speed * 2), 0.25)
 
 
@@ -385,20 +373,9 @@ function mod:AvoidPlayer(entity, radius, wanderSpeed, runSpeed, canFly)
 
 	-- Run away if there are players in radius
 	if #nearbyPlayers > 0 and not entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
-		-- Get nearest player
-		local dist = 9999
-		local nearest = nil
-
-		for i, player in pairs(nearbyPlayers) do
-			if player.Position:Distance(entity.Position) < dist then
-				dist = player.Position:Distance(entity.Position)
-				nearest = player
-			end
-		end
-
-
 		-- Get target position
 		local room = Game():GetRoom()
+		local nearest = Game():GetNearestPlayer(entity.Position)
 		local vector = (entity.Position - nearest.Position):Normalized()
 		local targetPos = entity.Position + vector:Resized(radius)
 

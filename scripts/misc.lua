@@ -550,17 +550,24 @@ function mod:sirenUpdate(entity)
 		-- Sike!
 		if sprite:GetFrame() == 30 then
 			entity.Visible = true
-			entity.Child.Parent = entity
 
+			-- Re-charm the reviver
+			local minion = Isaac.Spawn(EntityType.ENTITY_SIREN_HELPER, 0, 0, entity.Position, Vector.Zero, nil):ToNPC()
+			minion.Parent = entity
+			minion.Target = entity.Target
+			minion:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+
+			entity.Target.Parent = entity
+			entity.Target = nil
+
+
+		-- Restart boss music
 		elseif sprite:GetFrame() == 40 then
 			Game():GetRoom():PlayMusic()
 
 
 		-- Item visual + health
 		elseif sprite:IsEventTriggered("Sound") then
-			entity.I2 = 0
-			entity:ClearEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
-
 			-- Item effect
 			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HEART, 0, entity.Position, Vector.Zero, entity):ToEffect()
 			data.itemEffect = effect
@@ -573,22 +580,24 @@ function mod:sirenUpdate(entity)
 			effectSprite:Play("PlayerPickupSparkle", true)
 
 			-- Heal + proper item sprite
-			if entity.Child.Variant == FamiliarVariant.DEAD_CAT then
+			if entity.I1 == FamiliarVariant.DEAD_CAT then
 				entity.HitPoints = entity.MaxHitPoints / 10
 				effectSprite:ReplaceSpritesheet(1, "gfx/items/collectibles/collectibles_081_deadcat.png")
 			else
 				entity.HitPoints = entity.MaxHitPoints / 2
 				effectSprite:ReplaceSpritesheet(1, "gfx/items/collectibles/collectibles_011_1up.png")
 			end
-
 			effectSprite:LoadGraphics()
+
+			-- Reset back to normal
+			entity.I1 = 0
+			entity.I2 = 0
+			entity:ClearEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
 
 
 		-- Get rid of the item visual
 		elseif sprite:GetFrame() == 75 then
 			data.itemEffect:Remove()
-			entity.Child.Parent = nil
-			entity.Child = nil
 		end
 	end
 
@@ -620,8 +629,9 @@ function mod:sirenDeath(entity)
 		local newSiren = Isaac.Spawn(entity.Type, entity.Variant, entity.SubType, entity.Position, entity.Velocity, entity):ToNPC()
 		newSiren:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 		newSiren:GetData().revive = true
+		newSiren.Target = entity.Target
+		newSiren.I1 = newSiren.Target.Variant
 		newSiren.I2 = 100
-		newSiren.Child = entity.Target
 
 		newSiren.Visible = false
 		newSiren.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
@@ -636,3 +646,11 @@ function mod:sirenDeath(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.sirenDeath, EntityType.ENTITY_SIREN)
+
+-- Fix for revive familiars not going back to the player
+function mod:sirenHelperDeath(entity)
+	if entity.Target then
+		entity.Target.Parent = nil
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.sirenHelperDeath, EntityType.ENTITY_SIREN_HELPER)

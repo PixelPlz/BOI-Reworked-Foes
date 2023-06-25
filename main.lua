@@ -21,7 +21,7 @@ IRFflavorText = {
 	"The rat is coming.",
 	"Not for baby gamers",
 	"01101000 01101001 00100000 00111010 00101001",
-	"Reworked Foes? More like STINKY Foes!!",
+	"Reworked Foes? More like STINKY Foes",
 	"Hi YouTube!",
 	"Hi Twitch!",
 	"Also check out Improved Backdrops and Visuals!",

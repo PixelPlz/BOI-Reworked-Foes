@@ -50,8 +50,8 @@ local function Update(entity)
 
 		-- Bouncing
 		elseif entity.StateFrame == 1 then
-			mod:MoveDiagonally(entity, entity.V1.X)
 			entity.V1 = Vector(math.min(20, entity.V1.X + 0.1), 0)
+			mod:MoveDiagonally(entity, entity.V1.X)
 
 
 			-- Animation
@@ -143,5 +143,5 @@ local function Callbacks(entity, callback, input)
 	end
 end
 
--- Add boss to transformation list (for which Delirum phase, required boss ID, required boss variant, script to use)
+-- Add boss to transformation list (for which Delirium phase, required boss ID, required boss variant, script to use)
 mod:AddDeliriumForm(1, EntityType.ENTITY_BABY_PLUM, 0, Callbacks)

@@ -91,5 +91,5 @@ local function Callbacks(entity, callback, input)
 	end
 end
 
--- Add boss to transformation list (for which Delirum phase, required boss ID, required boss variant, script to use)
+-- Add boss to transformation list (for which Delirium phase, required boss ID, required boss variant, script to use)
 mod:AddDeliriumForm(1, type, variant, Callbacks)

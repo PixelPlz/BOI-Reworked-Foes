@@ -107,3 +107,4 @@ Version 3.0 - The Blood & Guts update!
 
 - Fixed Sloth Heads from Fiend Folio turning into Black Globins
 - Fixed grid Hosts from Fiend Folio not turning into their fleshy variants when their skull is broken
+- Fixed Mr. Mines shooting the wrong projectiles on The Future floor
