@@ -45,9 +45,7 @@ function mod:flamingHopperInit(entity)
 
 	-- Purple variant
 	if entity.SubType == 1 then
-		local sprite = entity:GetSprite()
-		sprite:Load("gfx/054.000_flaming hopper_purple.anm2")
-		sprite:LoadGraphics()
+		entity:GetSprite():Load("gfx/054.000_flaming hopper_purple.anm2")
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.flamingHopperInit, EntityType.ENTITY_FLAMINGHOPPER)
@@ -115,9 +113,7 @@ function mod:hopperIgnite(target, damageAmount, damageFlags, damageSource, damag
 		target:ToNPC():Morph(EntityType.ENTITY_FLAMINGHOPPER, 0, 1, target:ToNPC():GetChampionColorIdx())
 		mod:PlaySound(nil, SoundEffect.SOUND_FIREDEATH_HISS)
 
-		local sprite = target:GetSprite()
-		sprite:Load("gfx/054.000_flaming hopper_purple.anm2")
-		sprite:LoadGraphics()
+		target:GetSprite():Load("gfx/054.000_flaming hopper_purple.anm2")
 
 		return false
 	end

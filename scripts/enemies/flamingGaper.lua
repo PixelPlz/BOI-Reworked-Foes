@@ -16,16 +16,19 @@ end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.flamingGaperInit, EntityType.ENTITY_GAPER)
 
 function mod:flamingGaperUpdate(entity)
+	local data = entity:GetData()
+
+
 	if entity.Variant == 2 then
 		local sprite = entity:GetSprite()
 
-		if not entity:GetData().wasFlamingGaper then
+		if not data.wasFlamingGaper then
 			-- Bestiary fix
 			local sprite = entity:GetSprite()
 			sprite:ReplaceSpritesheet(5, "")
 			sprite:LoadGraphics()
 
-			entity:GetData().wasFlamingGaper = true
+			data.wasFlamingGaper = true
 		end
 
 
@@ -79,6 +82,11 @@ function mod:flamingGaperUpdate(entity)
 				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 			end
 		end
+
+
+	-- Extinguished Flaming Gaper
+	elseif entity.Variant == 1 and data.wasFlamingGaper then
+		data.wasFlamingGaper = nil
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingGaperUpdate, EntityType.ENTITY_GAPER)
@@ -119,6 +127,18 @@ function mod:flamingGusherUpdate(entity)
 
 		else
 			entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+		end
+
+		-- Dumb Fiend Folio Water TNT compatibility
+		if FiendFolio then											 -- FUCKING USE ENUMS!!
+			for i, water in pairs(Isaac.FindByType(EntityType.ENTITY_EFFECT, 7019, 0, false, false)) do
+				if water.Position:Distance(entity.Position) <= 80 then
+					entity:Morph(entity.Type, 1, 0, entity:GetChampionColorIdx())
+					mod:PlaySound(nil, SoundEffect.SOUND_FIREDEATH_HISS, 1, 1.5)
+					entity:TakeDamage(entity.MaxHitPoints / 5, 0, EntityRef(Game():GetNearestPlayer(water.Position)), 0)
+					break
+				end
+			end
 		end
 
 

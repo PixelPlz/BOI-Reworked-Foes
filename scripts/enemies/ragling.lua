@@ -30,7 +30,6 @@ function mod:raglingUpdate(entity)
 	-- Replace default attack
 	if entity.State == NpcState.STATE_ATTACK then
 		entity.State = NpcState.STATE_ATTACK2
-		sprite:Play("Attack", true)
 
 	-- Custom attack
 	elseif entity.State == NpcState.STATE_ATTACK2 then
@@ -64,7 +63,7 @@ function mod:raglingUpdate(entity)
 			mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
 		end
 
-		if sprite:IsFinished("Attack") then
+		if sprite:IsFinished() then
 			entity.State = NpcState.STATE_MOVE
 		end
 	end
@@ -97,7 +96,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.raglingUpdate, EntityType.ENTITY
 function mod:raglingDeath(entity)
 	if entity.Variant == 0 then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, 1, entity.Position, Vector.Zero, entity)
-		mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END)
+		mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END, 0.9)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.raglingDeath, EntityType.ENTITY_RAGLING)

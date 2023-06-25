@@ -17,7 +17,7 @@ local mod = BetterMonsters
 
 local Settings = {
 	Length = 19, -- Doesn't include head
-	ArmorHealth = 60,
+	ArmorHealth = 50,
 	TailMulti = 1.25,
 
 	BurrowTime = 30,

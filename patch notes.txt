@@ -1,5 +1,7 @@
+Version 3.0 - The Blood & Guts update!
+
 -- Reworks / Additions --
-- It Lives has been reworked!
+- It Lives has not been reworked yet! (give it some time)
 - C.H.A.D. has been reworked!
 - The Gate has been reworked!
 - The Husk has been reworked!
@@ -12,6 +14,7 @@
 - Camillo Jr. now works like his vanilla version but with a laser indicator and a cooldown between attacks
 - Drowned Hives spawn Drowned Chargers again and now create lingering projectiles on death
 - Raglings no longer create purple fires on death
+- Reverted Dart Fly rework
 - Mega Maw's volley of shots is now homing
 - Mega Maw's fire projectiles can now ignite his Hoppers, turning them into purple Flaming Hoppers
 
@@ -43,7 +46,7 @@
 - Triachnid's stomp shots now have longer range and their shot speed depends on the amount of shots
 - Reduced the Forsaken's health from 400 to 350
 - Mr. Fred's Harlequin Baby attack no longer creates creep when hitting obstacles
-- Reduced Scolex body segment armor from 80 to 60 per segment
+- Reduced the amount of damage required to break Scolex's armor from 80 to 50 per segment
 - Angelic Babies no longer shoot projectiles when teleporting
 - Black Globin Heads spawned from the room layout no longer turn into full Black Globins
 - Slightly reduced the initial cooldown on Slides
@@ -57,7 +60,6 @@
 - Removed the telepills effect from Lust (and the Fool card effect for champion Lust)
 - Lust's lemon party effects are now larger and last longer
 - Lust now only heals 12% (24% for champion / Super) health with her healing effects instead of 15% (was 30% for champion / Super)
-- Super Wrath now only shoots a single special bomb instead of a regular and special one
 - Decreased Hush Baby's cooldown between attacks
 
 - Increased ???'s damage reduction after he spawns
@@ -71,7 +73,7 @@
 - Champion Gluttony, champion Pride and red Conquest no longer have a 15% health increase
 - Champion Gluttony can now only have 4 Maggots spawned
 - Champion Lust now creates 5 sun beams instead of 4 with the Sun card
-- Champion Lust's High Priestess stomp now takes time to move to the player to give them more time to avoid it
+- Champion Lust's High Priestess stomp now takes more time to move to the player
 - Champion Wrath now slides his bomb towards the player like vanilla Wrath
 - Red Conquest now shoots a ring of 6 (8 in his second phase) shots instead of explosive shots
 - Reduced the number of Globins red Conquest can have active from 5 to 4

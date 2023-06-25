@@ -5,7 +5,6 @@ local mod = BetterMonsters
 function mod:wrathUpdate(entity)
 	if mod:CheckValidMiniboss(entity) == true then
 		local sprite = entity:GetSprite()
-		local target = entity:GetPlayerTarget()
 
 		-- Fire effects for Burning Wrath
 		if entity.Variant == 0 and entity.SubType == 1 then
@@ -19,59 +18,87 @@ function mod:wrathUpdate(entity)
 				mod:LoopingOverlay(sprite, "Fire", true)
 				mod:EmberParticles(entity, Vector(0, -40))
 			end
-		end
 
 
-		-- Replace original attack for Super Wrath
-		if entity.Variant == 1 and entity.State == NpcState.STATE_ATTACK2 then
-			entity.State = NpcState.STATE_ATTACK3
+		-- Super Wrath
+		elseif entity.Variant == 1 then
+			if entity.State == NpcState.STATE_MOVE or entity.State == NpcState.STATE_ATTACK then
+				entity:GetData().lastAnim = sprite:GetAnimation()
 
-		-- Custom attack
-		elseif entity.State == NpcState.STATE_ATTACK3 then
-			entity.Velocity = Vector.Zero
-
-			if sprite:GetFrame() == 4 then
-				local vector = (target.Position - entity.Position):Normalized()
-				local speed = entity.Position:Distance(target.Position) / 15
-				if speed > 12 then
-					speed = 12
+				-- Attack cooldown
+				if entity.StateFrame > 0 then
+					entity.StateFrame = entity.StateFrame - 1
 				end
 
-				-- Choose bomb type
-				local type = BombVariant.BOMB_NORMAL
-				local flags = TearFlags.TEAR_NORMAL
-				local choose = mod:Random(1, 5)
-
-				-- Bomber Boy
-				if choose == 1 then
-					flags = TearFlags.TEAR_CROSS_BOMB
-
-				-- Scatter Bombs
-				elseif choose == 2 then
-					flags = TearFlags.TEAR_SCATTER_BOMB
-
-				-- Bob's Curse
-				elseif choose == 3 then
-					flags = TearFlags.TEAR_POISON
-
-				-- Hot Bombs
-				elseif choose == 4 then
-					flags = TearFlags.TEAR_BURN
-
-				-- Sad Bombs
-				elseif choose == 5 then
-					type = BombVariant.BOMB_SAD_BLOOD
-					flags = TearFlags.TEAR_SAD_BOMB
+				-- Faster charge (yes, he can charge at you)
+				if entity.State == NpcState.STATE_ATTACK then
+					entity.V2 = entity.V2:Resized(1.5)
 				end
 
-				local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, type, 0, entity.Position + vector:Resized(20), vector:Resized(speed), entity):ToBomb()
-				bomb.PositionOffset = Vector(0, -38) -- 28 is the minimum for it to go over rocks
-				bomb:AddTearFlags(flags)
-				bomb.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
-			end
 
-			if sprite:IsFinished("Attack") then
-				entity.State = NpcState.STATE_MOVE
+			-- Replace original attack
+			elseif entity.State == NpcState.STATE_ATTACK2 then
+				if entity.StateFrame <= 0 then
+					entity.State = NpcState.STATE_ATTACK3
+					entity.I1 = 0
+				else
+					entity.State = NpcState.STATE_MOVE
+					sprite:Play(entity:GetData().lastAnim, true)
+				end
+
+
+			-- Custom attack
+			elseif entity.State == NpcState.STATE_ATTACK3 then
+				entity.Velocity = mod:StopLerp(entity.Velocity)
+
+				if sprite:GetFrame() == 4 then
+					local target = entity:GetPlayerTarget()
+					local vector = (target.Position - entity.Position):Normalized()
+					local speed = math.min(12, entity.Position:Distance(target.Position) / 15)
+
+					local type = BombVariant.BOMB_NORMAL
+					local flags = TearFlags.TEAR_NORMAL
+
+					-- Second bomb has bomb effects
+					if entity.I1 == 1 then
+						local choose = mod:Random(3)
+
+						-- Scatter Bombs
+						if choose == 0 then
+							flags = TearFlags.TEAR_SCATTER_BOMB
+
+						-- Bob's Curse
+						elseif choose == 1 then
+							flags = TearFlags.TEAR_POISON
+
+						-- Hot Bombs
+						elseif choose == 2 then
+							flags = TearFlags.TEAR_BURN
+
+						-- Sad Bombs
+						elseif choose == 3 then
+							type = BombVariant.BOMB_SAD_BLOOD
+							flags = TearFlags.TEAR_SAD_BOMB
+						end
+					end
+
+					local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, type, 0, entity.Position + vector:Resized(20), vector:Resized(speed), entity):ToBomb()
+					bomb.PositionOffset = Vector(0, -38) -- 28 is the minimum for it to go over rocks
+					bomb:AddTearFlags(flags)
+					bomb.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
+
+					entity.I1 = entity.I1 + 1
+				end
+
+				if sprite:IsFinished() then
+					-- Attack twice
+					if entity.I1 >= 2 then
+						entity.State = NpcState.STATE_MOVE
+						entity.StateFrame = 30
+					else
+						sprite:Play("Attack", true)
+					end
+				end
 			end
 		end
 	end

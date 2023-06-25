@@ -21,9 +21,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.skinnyInit, EntityType.ENTITY
 function mod:skinnyUpdate(entity)
 	if entity.Variant <= 1 then
 		local sprite = entity:GetSprite()
-		local data = entity:GetData()
 		local target = entity:GetPlayerTarget()
-
 		local speed = Settings.MoveSpeed
 
 
@@ -46,7 +44,7 @@ function mod:skinnyUpdate(entity)
 				end
 
 			else
-				mod:LoopingOverlay(sprite, "HeadFast")
+				mod:LoopingOverlay(sprite, "HeadAngry")
 
 				-- Creep
 				if entity.Variant == 0 and entity:IsFrame(4, 0) then
@@ -110,7 +108,7 @@ function mod:skinnyUpdate(entity)
 		-- Transition
 		if entity.State == NpcState.STATE_MOVE and entity.HitPoints <= ((entity.MaxHitPoints / 3) * 2) then
 			entity.State = NpcState.STATE_SPECIAL
-			sprite:PlayOverlay("Transition", true)
+			sprite:PlayOverlay("HeadTransition", true)
 		end
 
 

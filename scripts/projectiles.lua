@@ -193,7 +193,7 @@ function mod:editNormalProjectiles(projectile)
 	
 	
 	-- Mr. Mine
-	elseif projectile.SpawnerType == EntityType.ENTITY_MR_MINE then
+	elseif projectile.SpawnerType == EntityType.ENTITY_MR_MINE and (not TheFuture or TheFuture.Stage:IsStage() == false) then
 		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
 
 

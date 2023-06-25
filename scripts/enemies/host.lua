@@ -108,3 +108,20 @@ function mod:hostDMG(target, damageAmount, damageFlags, damageSource, damageCoun
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.hostDMG)
+
+
+
+-- The Future Flesh Floast
+function mod:postGameStartedTheFuture() -- The Future loads after Reworked Foes
+	if TheFuture then
+		-- Skin
+		TheFuture.StageSkins[EntityType.ENTITY_FLOATING_HOST .. " " .. 1] = {
+			{{0}, "gfx/monsters/reskins/859.001_flesh floatinghost_future"},
+		}
+		-- Projectiles
+		TheFuture.EnemyTearsToFuture[EntityType.ENTITY_FLOATING_HOST .. " " .. 1] = TheFuture.ColorPeriwinkle
+		-- Splat color
+		TheFuture.SplatColorsToFuture[EntityType.ENTITY_FLOATING_HOST .. " " .. 1] = TheFuture.ColorDankBlackReal
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.postGameStartedTheFuture)
