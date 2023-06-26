@@ -15,6 +15,7 @@ IRFentities = {
 	Type = 200,
 
 	Teratomar 	  = Isaac.GetEntityVariantByName("Teratomar"),
+	GiantSpike 	  = Isaac.GetEntityVariantByName("Giant Spike"),
 	Coffer 		  = Isaac.GetEntityVariantByName("Coffer"),
 	HushFlyAttack = Isaac.GetEntityVariantByName("Hush Fly Attack"),
 	BoneOrbital   = Isaac.GetEntityVariantByName("Enemy Bone Orbital"),
