@@ -4,7 +4,7 @@ local mod = BetterMonsters
 
 function mod:blackBonyInit(entity)
 	-- Get random bomb type
-	if IRFconfig.blackBonyBombs == true and entity.SubType == 0 then
+	if IRFConfig.blackBonyBombs == true and entity.SubType == 0 then
 		entity.SubType = mod:Random(1, 5)
 	end
 end

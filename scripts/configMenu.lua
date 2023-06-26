@@ -3,7 +3,7 @@ local json = require("json")
 
 -- THIS WHOLE FILE SHOULD BE GONE AFTER DSS IS IMPLEMENTED, MOVE IRFCONFIG TO DSS SCRIPT OR CONSTANTS --
 
-IRFconfig = {
+IRFConfig = {
 	-- General
 	breakableHosts   = true,
 	noChapter1Nests  = true,
@@ -34,7 +34,7 @@ function mod:postGameStarted()
     if mod:HasData() then
         local data = json.decode(mod:LoadData())
         for k, v in pairs(data) do
-            if IRFconfig[k] ~= nil then IRFconfig[k] = v end
+            if IRFConfig[k] ~= nil then IRFConfig[k] = v end
         end
     end
 end
@@ -42,7 +42,7 @@ mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.postGameStarted)
 
 -- Save settings
 function mod:preGameExit()
-	mod:SaveData(json.encode(IRFconfig))
+	mod:SaveData(json.encode(IRFConfig))
 end
 mod:AddCallback(ModCallbacks.MC_PRE_GAME_EXIT, mod.preGameExit)
 
@@ -63,13 +63,13 @@ if ModConfigMenu then
 	ModConfigMenu.AddSetting(category, "General", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.breakableHosts
+			return IRFConfig.breakableHosts
 		end,
 	    Display = function()
-			return "Breakable Hosts: " .. (IRFconfig.breakableHosts and "On" or "Off")
+			return "Breakable Hosts: " .. (IRFConfig.breakableHosts and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.breakableHosts = bool
+	    	IRFConfig.breakableHosts = bool
 	    end,
 		Info = {"Host armor will break if they get bombed or take more than their max HP in damage at once."}
   	})
@@ -77,13 +77,13 @@ if ModConfigMenu then
 	ModConfigMenu.AddSetting(category, "General", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.noChapter1Nests
+			return IRFConfig.noChapter1Nests
 		end,
 	    Display = function()
-			return "Replace Nests in Chapter 1: " .. (IRFconfig.noChapter1Nests and "On" or "Off")
+			return "Replace Nests in Chapter 1: " .. (IRFConfig.noChapter1Nests and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.noChapter1Nests = bool
+	    	IRFConfig.noChapter1Nests = bool
 	    end,
 	    Info = {"Nests in the first two floors will be replaced by easier Mullicocoons."}
   	})
@@ -91,13 +91,13 @@ if ModConfigMenu then
 	ModConfigMenu.AddSetting(category, "General", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.matriarchFistula
+			return IRFConfig.matriarchFistula
 		end,
 	    Display = function()
-			return "Matriarch Fistulas: " .. (IRFconfig.matriarchFistula and "On" or "Off")
+			return "Matriarch Fistulas: " .. (IRFConfig.matriarchFistula and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.matriarchFistula = bool
+	    	IRFConfig.matriarchFistula = bool
 	    end,
 	    Info = {"Better colors for Fistulas spawned by the Matriarch."}
   	})
@@ -105,13 +105,13 @@ if ModConfigMenu then
 	ModConfigMenu.AddSetting(category, "General", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.envyRework
+			return IRFConfig.envyRework
 		end,
 	    Display = function()
-			return "Envy rework: " .. (IRFconfig.envyRework and "On" or "Off")
+			return "Envy rework: " .. (IRFConfig.envyRework and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.envyRework = bool
+	    	IRFConfig.envyRework = bool
 	    end,
 	    Info = {"Envy's heads will bounce off of each other."}
   	})
@@ -119,13 +119,13 @@ if ModConfigMenu then
 	ModConfigMenu.AddSetting(category, "General", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.blackBonyBombs
+			return IRFConfig.blackBonyBombs
 		end,
 	    Display = function()
-			return "Black Bony bomb effects: " .. (IRFconfig.blackBonyBombs and "On" or "Off")
+			return "Black Bony bomb effects: " .. (IRFConfig.blackBonyBombs and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.blackBonyBombs = bool
+	    	IRFConfig.blackBonyBombs = bool
 	    end,
 	    Info = {"Black Bonies will spawn with random bomb effects."}
   	})
@@ -133,13 +133,13 @@ if ModConfigMenu then
 	ModConfigMenu.AddSetting(category, "General", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.burningGushers
+			return IRFConfig.burningGushers
 		end,
 	    Display = function()
-			return "Unique Burning Gushers: " .. (IRFconfig.burningGushers and "On" or "Off")
+			return "Unique Burning Gushers: " .. (IRFConfig.burningGushers and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.burningGushers = bool
+	    	IRFConfig.burningGushers = bool
 	    end,
 	    Info = {"Gushers spawned by Flaming Gapers will have unique behaviour. (They will only have new sprites if turned off)"}
   	})
@@ -152,39 +152,39 @@ if ModConfigMenu then
 	ModConfigMenu.AddSetting(category, "Indicators", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.noHiddenPins
+			return IRFConfig.noHiddenPins
 		end,
 	    Display = function()
-			return "Pin: " .. (IRFconfig.noHiddenPins and "On" or "Off")
+			return "Pin: " .. (IRFConfig.noHiddenPins and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.noHiddenPins = bool
+	    	IRFConfig.noHiddenPins = bool
 	    end
   	})
 	-- Polycephalus
 	ModConfigMenu.AddSetting(category, "Indicators", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.noHiddenPoly
+			return IRFConfig.noHiddenPoly
 		end,
 	    Display = function()
-			return "Polycephalus: " .. (IRFconfig.noHiddenPoly and "On" or "Off")
+			return "Polycephalus: " .. (IRFConfig.noHiddenPoly and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.noHiddenPoly = bool
+	    	IRFConfig.noHiddenPoly = bool
 	    end
   	})
 	-- Dust
 	ModConfigMenu.AddSetting(category, "Indicators", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.noHiddenDust
+			return IRFConfig.noHiddenDust
 		end,
 	    Display = function()
-			return "Dust: " .. (IRFconfig.noHiddenDust and "On" or "Off")
+			return "Dust: " .. (IRFConfig.noHiddenDust and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.noHiddenDust = bool
+	    	IRFConfig.noHiddenDust = bool
 	    end
   	})
 
@@ -197,39 +197,39 @@ if ModConfigMenu then
 	ModConfigMenu.AddSetting(category, "Indicators", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.appearPins
+			return IRFConfig.appearPins
 		end,
 	    Display = function()
-			return "Pin: " .. (IRFconfig.appearPins and "On" or "Off")
+			return "Pin: " .. (IRFConfig.appearPins and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.appearPins = bool
+	    	IRFConfig.appearPins = bool
 	    end
   	})
 	-- Mom's Hands
 	ModConfigMenu.AddSetting(category, "Indicators", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.appearMomsHands
+			return IRFConfig.appearMomsHands
 		end,
 	    Display = function()
-			return "Mom's Hands: " .. (IRFconfig.appearMomsHands and "On" or "Off")
+			return "Mom's Hands: " .. (IRFConfig.appearMomsHands and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.appearMomsHands = bool
+	    	IRFConfig.appearMomsHands = bool
 	    end
   	})
 	-- Needles
 	ModConfigMenu.AddSetting(category, "Indicators", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.appearNeedles
+			return IRFConfig.appearNeedles
 		end,
 	    Display = function()
-			return "Needles: " .. (IRFconfig.appearNeedles and "On" or "Off")
+			return "Needles: " .. (IRFConfig.appearNeedles and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.appearNeedles = bool
+	    	IRFConfig.appearNeedles = bool
 	    end
   	})
 
@@ -242,26 +242,26 @@ if ModConfigMenu then
 	ModConfigMenu.AddSetting(category, "Indicators", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.laserEyes
+			return IRFConfig.laserEyes
 		end,
 	    Display = function()
-			return "Eyes: " .. (IRFconfig.laserEyes and "On" or "Off")
+			return "Eyes: " .. (IRFConfig.laserEyes and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.laserEyes = bool
+	    	IRFConfig.laserEyes = bool
 	    end
   	})
 	-- Red Ghost
 	ModConfigMenu.AddSetting(category, "Indicators", {
     	Type = ModConfigMenu.OptionType.BOOLEAN,
 	    CurrentSetting = function()
-			return IRFconfig.laserRedGhost
+			return IRFConfig.laserRedGhost
 		end,
 	    Display = function()
-			return "Red Ghost: " .. (IRFconfig.laserRedGhost and "On" or "Off")
+			return "Red Ghost: " .. (IRFConfig.laserRedGhost and "On" or "Off")
 		end,
 	    OnChange = function(bool)
-	    	IRFconfig.laserRedGhost = bool
+	    	IRFConfig.laserRedGhost = bool
 	    end
   	})
 end

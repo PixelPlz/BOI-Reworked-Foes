@@ -18,7 +18,7 @@ IRFflavorText = {
 	"Today's lucky numbers:\n"
 	.. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)),
 	"Now 10% funnier!",
-	"The rat is coming.",
+	"The rat is coming.", --THATS ME!!!!!
 	"Not for baby gamers",
 	"01101000 01101001 00100000 00111010 00101001",
 	"Reworked Foes? More like STINKY Foes",
@@ -26,6 +26,7 @@ IRFflavorText = {
 	"Hi Twitch!",
 	"Also check out Improved Backdrops and Visuals!",
 	"Ruining Tainted Lost runs since 2022!",
+	"ratratrat was here!",
 }
 
 local flavorText = "The Blood & Guts update"
@@ -52,8 +53,7 @@ local generalScripts = {
 	"constants",
 	"utilities",
 	"bossHealthBars",
-	--"dss",
-	"configMenu", -- REMOVE
+	"dss.dssmenu",
 	"misc",
 	"projectiles",
 	"hiddenEnemies",

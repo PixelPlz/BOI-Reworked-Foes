@@ -23,7 +23,7 @@ function mod:eyeUpdate(entity)
 
 
 		-- Tracer
-		if IRFconfig.laserEyes == true and ((entity.Variant == 0 and sprite:GetFrame() == 1) or (entity.Variant == 1 and sprite:GetOverlayFrame() == 1)) then
+		if IRFConfig.laserEyes == true and ((entity.Variant == 0 and sprite:GetFrame() == 1) or (entity.Variant == 1 and sprite:GetOverlayFrame() == 1)) then
 			local pitch = 1.1
 			local xScale = 1
 			local offset = 20

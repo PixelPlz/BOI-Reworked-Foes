@@ -73,7 +73,7 @@ function mod:hostUpdate(entity)
 
 
 	-- Skull breaking
-	elseif IRFconfig.breakableHosts == true
+	elseif IRFConfig.breakableHosts == true
 	and (entity.Type == EntityType.ENTITY_HOST or entity.Type == EntityType.ENTITY_MOBILE_HOST or entity.Type == EntityType.ENTITY_FLOATING_HOST)
 	and (entity.Variant == 0 or (entity.Variant == 3 and entity.SubType ~= 40))
 	and (sprite:IsPlaying("Bombed") or sprite:IsOverlayPlaying("Bombed")) then
@@ -97,7 +97,7 @@ function mod:hostDMG(target, damageAmount, damageFlags, damageSource, damageCoun
 
 
 	-- Break the skull if it takes more or equal damage to its max health
-	elseif IRFconfig.breakableHosts == true
+	elseif IRFConfig.breakableHosts == true
 	and (target.Type == EntityType.ENTITY_HOST or target.Type == EntityType.ENTITY_MOBILE_HOST or target.Type == EntityType.ENTITY_FLOATING_HOST)
 	and damageAmount >= target.MaxHitPoints and target:ToNPC().State == NpcState.STATE_IDLE then
 		if target.Type == EntityType.ENTITY_MOBILE_HOST then

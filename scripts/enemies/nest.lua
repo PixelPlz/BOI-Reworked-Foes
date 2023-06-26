@@ -7,7 +7,7 @@ function mod:nestInit(entity)
 		local stage = Game():GetRoom():GetRoomConfigStage()
 
 		-- Only replace nests on chaper 1 floors
-		if IRFconfig.noChapter1Nests == true and ((stage > 0 and stage < 4) or (stage > 26 and stage < 29)) then
+		if IRFConfig.noChapter1Nests == true and ((stage > 0 and stage < 4) or (stage > 26 and stage < 29)) then
 			entity:Remove()
 			Isaac.Spawn(EntityType.ENTITY_MULLIGAN, IRFentities.Mullicocoon, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
 		else

@@ -45,7 +45,7 @@ function mod:scolexInit(entity)
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 
-		if IRFconfig.appearPins == false then
+		if IRFConfig.appearPins == false then
 			entity.Visible = false
 		end
 
@@ -97,8 +97,8 @@ function mod:scolexUpdate(entity)
 			data.zVelocity = 0
 			entity.ProjectileCooldown = 1
 
-			if IRFconfig.appearPins == true then
-				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.75)
+			if IRFConfig.appearPins == true then
+				moDSSConfignd(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.75)
 				entity.Visible = false
 			end
 

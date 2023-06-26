@@ -199,7 +199,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.peepEyeCollision, EntityT
 
 --[[ Fistula Scarred Womb skin ]]--
 local function fistulaScarredSkin(entity)
-	if IRFconfig.matriarchFistula == true and entity.Variant == 0 then
+	if IRFConfig.matriarchFistula == true and entity.Variant == 0 then
 		if entity.SubType == 0 and Game():GetRoom():GetBackdropType() == BackdropType.SCARRED_WOMB then
 			entity.SubType = 1000 -- The subtype that Matriarch fistula pieces use
 		end
@@ -471,7 +471,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.cageCollide, EntityType.E
 function mod:redGhostUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	if IRFconfig.laserRedGhost == true and entity.State == NpcState.STATE_ATTACK and sprite:GetFrame() == 0 then
+	if IRFConfig.laserRedGhost == true and entity.State == NpcState.STATE_ATTACK and sprite:GetFrame() == 0 then
 		local angle = 0
 		if sprite:GetAnimation() == "ShootDown" then
 			angle = 90
