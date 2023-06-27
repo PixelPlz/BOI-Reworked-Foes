@@ -78,6 +78,7 @@ local enemyScripts = {
 	"membrain",
 	"scarredParaBite",
 	"eye",
+	"giantSpike",
 	"nest",
 	"babyLongLegs",
 	"flamingFatty",

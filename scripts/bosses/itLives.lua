@@ -537,10 +537,11 @@ function mod:itLivesUpdate(entity)
 
 					if entity.I1 == 4 and mod:Random(1) == 1 then
 						entity.State = NpcState.STATE_ATTACK5
+						entity.StateFrame = mod:Random(3)
 					else
 						entity.State = NpcState.STATE_MOVE
+						entity.StateFrame = mod:Random(2)
 					end
-					entity.StateFrame = mod:Random(3)
 				end
 
 
@@ -564,7 +565,7 @@ function mod:itLivesUpdate(entity)
 							basePos = Vector(room:GetBottomRightPos().X + 140, room:GetCenterPos().Y + 20)
 							direction = 180
 
-						elseif entity.StateFrame >= 2 then
+						elseif entity.StateFrame == 2 then
 							iMin = -2
 							iMax = 2
 							distance = 110
@@ -652,20 +653,17 @@ function mod:itLivesUpdate(entity)
 						end
 					end
 
-					local randtwo = mod:Random(-3, 3)
 					for i = -3, 3 do
-						--if i ~= randtwo then
-							local pos = vertBasePos + Vector.FromAngle(vertDirection):Rotated(90):Resized(i * vertDistance)
+						local pos = vertBasePos + Vector.FromAngle(vertDirection):Rotated(90):Resized(i * vertDistance)
 
-							local shot = mod:FireProjectiles(entity, pos, Vector.FromAngle(vertDirection):Resized(4), 0, params)
-							shot:GetSprite():Load("gfx/blood cell projectile.anm2", true)
-							shot:GetSprite():Play("Idle", true)
-						--end
+						local shot = mod:FireProjectiles(entity, pos, Vector.FromAngle(vertDirection):Resized(4), 0, params)
+						shot:GetSprite():Load("gfx/blood cell projectile.anm2", true)
+						shot:GetSprite():Play("Idle", true)
 					end
-					
+
 					local fetusPos = Vector(entity.Position.X, room:GetTopLeftPos().Y + 20)
 					mod:FireProjectiles(entity, fetusPos, (target.Position - fetusPos):Resized(9), 0, baseProjectileParams, Color.Default)
-					entity.ProjectileDelay = 33
+					entity.ProjectileDelay = 35
 					entity.I2 = entity.I2 + 1
 				
 				else
@@ -943,6 +941,7 @@ function mod:itLivesProjectileUpdate(projectile)
 					sprite:Play("Burst", true)
 
 				elseif sprite:IsFinished() then
+					projectile:ClearProjectileFlags(ProjectileFlags.WIGGLE)
 					projectile:AddProjectileFlags(ProjectileFlags.BURST8)
 					projectile:Die()
 				end
@@ -958,157 +957,11 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.itLivesProjectileUpd
 -- Creep fix
 function mod:itLivesCreepUpdate(effect)
 	if effect.SpawnerEntity and effect.SpawnerEntity.SpawnerType == EntityType.ENTITY_MOMS_HEART and effect.SpawnerEntity.SpawnerVariant == 1 then
-		effect:GetSprite():Load("gfx/1000.022_creep (womb red).anm2", true)
+		local color = "red"
+		if Game():GetRoom():GetBackdropType() == BackdropType.WOMB then
+			color = "womb red"
+		end
+		effect:GetSprite():Load("gfx/1000.022_creep (" .. color .. ").anm2", true)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.itLivesCreepUpdate, EffectVariant.CREEP_GREEN)
-
-
-
--- Giant spike
-function mod:giantSpikeInit(entity)
-	if entity.Variant == IRFentities.GiantSpike then
-		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
-		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-
-		entity.State = NpcState.STATE_IDLE
-		entity:GetSprite():Play("Appear", true)
-
-		if mod:Random(1) == 1 then
-			entity:GetSprite().FlipX = true
-		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.giantSpikeInit, IRFentities.Type)
-
-function mod:giantSpikeUpdate(entity)
-	if entity.Variant == IRFentities.GiantSpike then
-		local sprite = entity:GetSprite()
-
-		-- Follow target if it's set
-		if entity.Target then
-			entity.Position = entity.Target.Position
-			entity.Velocity = entity.Target.Velocity
-			entity.DepthOffset = entity.Target.DepthOffset + 10
-		else
-			entity.Velocity = Vector.Zero
-		end
-
-		-- Don't get knocked back
-		if entity:HasEntityFlags(EntityFlag.FLAG_KNOCKED_BACK) then
-			entity:ClearEntityFlags(EntityFlag.FLAG_KNOCKED_BACK)
-		end
-
-
-		-- Retracted
-		if entity.State == NpcState.STATE_IDLE then
-			-- Appear
-			if entity.StateFrame == 0 then
-				if sprite:IsEventTriggered("Sound") then
-					for i = 1, 3 do
-						local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, entity.Position, mod:RandomVector(3), entity):ToEffect()
-						rocks:GetSprite():Play("rubble", true)
-						rocks.State = 2
-					end
-					mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.5)
-				end
-
-				if sprite:IsFinished() then
-					entity.StateFrame = 1
-				end
-
-			-- Waiting
-			elseif entity.StateFrame == 1 then
-				mod:LoopingAnim(sprite, "IdleRetracted")
-
-				if entity.I1 <= 0 then
-					entity.State = NpcState.STATE_ATTACK
-					sprite:Play("Extend", true)
-					entity.StateFrame = 0
-
-					-- Effects
-					for i = 1, 6 do
-						local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, entity.Position, mod:RandomVector(3), entity):ToEffect()
-						rocks:GetSprite():Play("rubble", true)
-						rocks.State = 2
-					end
-					mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_BURST_OUT, 0.75)
-
-				else
-					entity.I1 = entity.I1 - 1
-				end
-			end
-
-
-		-- Extended
-		elseif entity.State == NpcState.STATE_ATTACK then
-			-- Extend
-			if entity.StateFrame == 0 then
-				if sprite:IsEventTriggered("Extend") then
-					entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
-
-					-- Destroy any obstacles under the spike
-					local room = Game():GetRoom()
-					local gridEntity = room:GetGridEntityFromPos(entity.Position)
-
-					if gridEntity ~= nil and (gridEntity.CollisionClass == GridCollisionClass.COLLISION_SOLID or gridEntity:GetType() == GridEntityType.GRID_SPIDERWEB) then
-						gridEntity:Destroy(true)
-					end
-
-					-- Kill target
-					if entity.Target then
-						entity.Target:AddEntityFlags(EntityFlag.FLAG_EXTRA_GORE)
-						entity.Target:Kill()
-
-						local shooter = entity.Target
-						if entity.SpawnerEntity then
-							shooter = entity.SpawnerEntity
-						end
-						shooter:ToNPC():FireProjectiles(entity.Target.Position, Vector(8, 4), 6, ProjectileParams())
-
-						entity.Target = nil
-					end
-				end
-
-				if sprite:IsFinished() then
-					entity.StateFrame = 1
-					entity.CollisionDamage = 0
-				end
-
-			-- Waiting
-			elseif entity.StateFrame == 1 then
-				mod:LoopingAnim(sprite, "IdleExtended")
-
-				if entity.I2 <= 0 then
-					entity.State = NpcState.STATE_SUICIDE
-					sprite:Play("Retract", true)
-					entity.StateFrame = 0
-					mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.75)
-
-				else
-					entity.I2 = entity.I2 - 1
-				end
-			end
-
-
-		-- Disappear
-		elseif entity.State == NpcState.STATE_SUICIDE then
-			if sprite:IsEventTriggered("Retract") then
-				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-			end
-
-			if sprite:IsFinished() then
-				entity:Remove()
-			end
-		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.giantSpikeUpdate, IRFentities.Type)
-
-function mod:giantSpikeDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == IRFentities.GiantSpike then
-		return false
-	end
-end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.giantSpikeDMG, IRFentities.Type)

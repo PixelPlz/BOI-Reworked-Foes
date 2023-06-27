@@ -499,6 +499,7 @@ local exampledirectory = {
                 end,
                 tooltip = { strset = { 'show', 'indicator when', 'red ghosts', 'fire lasers' } }
             },
+			{ str = '', fsize = 3, nosel = true },
             dssmod.gamepadToggleButton,
             dssmod.menuKeybindButton,
             dssmod.paletteButton,

@@ -39,7 +39,7 @@
     </entity>
 
 	<!-- Giant spike -->
-	<entity anm2path="giant spike.anm2" baseHP="100" boss="0" champion="0" collisionDamage="2" collisionMass="100" collisionRadius="18" friction="1" id="200" name="Giant Spike" numGridCollisionPoints="0" portrait="24" reroll="false" shadowSize="0" shutdoors="false" stageHP="0" variant="4437">
+	<entity anm2path="giant spike.anm2" baseHP="100" boss="0" champion="0" collisionDamage="2" collisionMass="100" collisionRadius="18" friction="1" id="200" name="Giant Spike" numGridCollisionPoints="0" portrait="9" reroll="false" shadowSize="0" shutdoors="false" stageHP="0" variant="4437">
 		<gibs amount="6" blood="0" bone="0" dust="1" eye="0" gut="0" large="0" rock="1"/>
     </entity>
 
