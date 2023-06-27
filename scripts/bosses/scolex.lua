@@ -98,7 +98,7 @@ function mod:scolexUpdate(entity)
 			entity.ProjectileCooldown = 1
 
 			if IRFConfig.appearPins == true then
-				moDSSConfignd(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.75)
+				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.75)
 				entity.Visible = false
 			end
 

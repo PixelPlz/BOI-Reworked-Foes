@@ -13,8 +13,6 @@ local function Init(entity)
 
 	entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 	entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
-
-	entity.V1 = Vector(3, 0)
 end
 
 
@@ -45,6 +43,7 @@ local function Update(entity)
 			if sprite:IsEventTriggered("Shoot") then
 				entity.StateFrame = 1
 				entity.Velocity = Vector.FromAngle(135):Resized(3)
+				entity.V1 = Vector(3, 0)
 			end
 
 
