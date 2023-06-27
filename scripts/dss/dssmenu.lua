@@ -37,8 +37,6 @@ function DSSMenu:LoadSaveData()
             if IRFConfig[k] ~= nil then IRFConfig[k] = v end
         end
     end
-
-    return IRFConfig
 end
 mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, DSSMenu.LoadSaveData)
 
