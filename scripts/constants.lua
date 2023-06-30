@@ -35,6 +35,7 @@ IRFentities = {
 	HealingAura    = Isaac.GetEntityVariantByName("Healing Aura"),
 	HolyTracer 	   = Isaac.GetEntityVariantByName("Holy Tracer"),
 	BrimstoneSwirl = Isaac.GetEntityVariantByName("Single Brimstone Swirl"),
+	LoomingShadow  = Isaac.GetEntityVariantByName("Mom's Looming Shadow"),
 	--ShadowHelper   = Isaac.GetEntityVariantByName("Delirium Shadow Helper"),
 }
 
@@ -58,8 +59,8 @@ IRFcolors.BlackBony  = Color(0.18,0.18,0.18, 1)
 IRFcolors.BlueFire 	   = Color(0,1,1, 1, -0.5,0.35,0.9);   IRFcolors.BlueFire:SetColorize(1,1,1, 1)
 IRFcolors.BlueFireShot = Color(1,1,1, 1, 0,0.6,1.2);   	   IRFcolors.BlueFireShot:SetColorize(1,1,1, 1)
 
-IRFcolors.CorpseGreen 	   = Color(1,1,1, 1);   IRFcolors.CorpseGreen:SetColorize(0.6,1,0.3, 1)
-IRFcolors.CorpseGreenTrail = Color(0,0,0, 1, 0.3,0.5,0.15)
+IRFcolors.CorpseGreen 	   = Color(1,1,1, 1);   IRFcolors.CorpseGreen:SetColorize(0.75,1,0.5, 1)
+IRFcolors.CorpseGreenTrail = Color(0,0,0, 1, 0.15,0.25,0.07)
 IRFcolors.CorpseYellow 	   = Color(1,1,1, 1);   IRFcolors.CorpseYellow:SetColorize(2,2,1, 1)
 
 IRFcolors.PortalShot 	  = Color(0.6,0.5,0.8, 1, 0.1,0,0.2)

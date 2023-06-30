@@ -297,13 +297,14 @@ function mod:blueBabyUpdate(entity)
 				end
 
 				local attack = mod:RandomIndex(attacks)
+				data.lastAttack = attack
+
 				if data.isSoul == true and attack ~= 2 then
 					soulGetIn()
 				end
 
 				entity.I2 = 0
 				entity.StateFrame = 0
-				data.lastAttack = attack
 
 				if attack == 1 then
 					entity.State = NpcState.STATE_ATTACK

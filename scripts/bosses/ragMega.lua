@@ -241,6 +241,7 @@ function mod:ragMegaUpdate(entity)
 							local ball = data.balls[i]:ToNPC()
 							ball.State = NpcState.STATE_MOVE
 							ball.Velocity = (ball.Position - entity.Position):Resized(15)
+							mod:QuickTrail(ball, 0.1, IRFcolors.RagManPurple, 3)
 						end
 					end
 
@@ -277,6 +278,7 @@ function mod:ragMegaUpdate(entity)
 						for i = 1, #data.balls do
 							local ball = data.balls[i]:ToNPC()
 							ball.State = NpcState.STATE_JUMP
+							ball:GetData().spriteTrail:Remove()
 
 							-- Connector beam
 							local beam = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.KINETI_BEAM, 0, entity.Position, Vector.Zero, entity):ToEffect()
@@ -518,10 +520,19 @@ function mod:ragPlasmaUpdate(entity)
 			-- Slow down
 			elseif entity.State == NpcState.STATE_STOMP then
 				entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.1)
+
 			-- Go to parent
 			elseif entity.State == NpcState.STATE_JUMP then
 				entity.Velocity = mod:Lerp(entity.Velocity, (entity.Parent.Position - entity.Position):Resized(Settings.SuckSpeed), 0.1)
 			end
+
+
+			-- Sprite trail
+			local data = entity:GetData()
+			if data.spriteTrail then
+				data.spriteTrail.Velocity = entity.Position + Vector(0, -36) - data.spriteTrail.Position
+			end
+
 
 		else
 			entity:Kill()

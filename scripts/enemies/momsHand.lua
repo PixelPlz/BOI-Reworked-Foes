@@ -47,7 +47,7 @@ function mod:momsDeadHandUpdate(entity)
 
 		if bg == BackdropType.CORPSE or bg == BackdropType.CORPSE2 then
 			params.Color = IRFcolors.CorpseGreen
-		elseif not (bg == BackdropType.WOMB or bg == BackdropType.UTERO or bg == BackdropType.SCARRED_WOMB or bg == BackdropType.CORPSE3) then
+		elseif bg ~= BackdropType.WOMB and bg ~= BackdropType.UTERO and bg ~= BackdropType.SCARRED_WOMB and bg ~= BackdropType.CORPSE3 then
 			params.Variant = ProjectileVariant.PROJECTILE_ROCK
 		end
 

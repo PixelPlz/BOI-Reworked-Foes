@@ -55,6 +55,7 @@ function DSSMenu:SaveData()
 end
 mod:AddCallback(ModCallbacks.MC_PRE_GAME_EXIT, DSSMenu.SaveData)
 
+
 --Menu START!!!
 
 --boring variables
@@ -124,6 +125,9 @@ end
 local DSSInitializerFunction = require("scripts.dss.dssmenucore")
 local dssmod = DSSInitializerFunction(DSSModName, DSSCoreVersion, MenuProvider)
 
+include("scripts.dss.changelog")
+
+
 -- Adding a Menu
 local exampledirectory = {
     main = {
@@ -131,10 +135,16 @@ local exampledirectory = {
         buttons = {
             { str = 'resume game', action = 'resume' },
             { str = 'settings',    dest = 'settings' },
+			{ str = 'credits',     dest = 'credits' },
             dssmod.changelogsButton,
+
+			{ str = '', fsize = 3, nosel = true },
+			{ str = 'individual toggles', fsize = 2, nosel = true },
+			{ str = 'coming soon!', fsize = 2, nosel = true },
         },
         tooltip = dssmod.menuOpenToolTip
     },
+
     settings = {
         title = 'settings',
         buttons = {
@@ -506,8 +516,42 @@ local exampledirectory = {
             dssmod.menuHintButton,
             dssmod.menuBuzzerButton,
         }
-    }
+    },
+
+	credits = {
+        title = 'credits',
+        buttons = {
+            { str = '- pixelplz -', fsize = 3 },
+			{ str = 'original creator', fsize = 2, nosel = true },
+			{ str = 'coder', fsize = 2, nosel = true },
+			{ str = 'designer', fsize = 2, nosel = true },
+			{ str = 'spriter', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
+
+			{ str = '- ferpe -', fsize = 3 },
+			{ str = 'spriter and animator', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
+
+			{ str = '- witchamy -', fsize = 3 },
+			{ str = 'designer', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
+
+			{ str = '- kittenchilly -', fsize = 3 },
+			{ str = 'classic eternal flies', fsize = 2, nosel = true },
+			{ str = 'additional coding', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
+
+			{ str = '- ratratrat -', fsize = 3 },
+			{ str = 'menu and settings coder', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
+
+			{ str = '- sinbiscuit -', fsize = 3 },
+			{ str = 'compatibility help', fsize = 2, nosel = true },
+        },
+        tooltip = dssmod.menuOpenToolTip
+    },
 }
+
 
 local exampledirectorykey = {
     -- This is the initial item of the menu, generally you want to set it to your main item

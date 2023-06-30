@@ -12,7 +12,7 @@ function mod:giantSpikeInit(entity)
 		entity:GetSprite():Play("Appear", true)
 
 		entity.I1 = 20
-		entity.I2 = 10
+		entity.I2 = 15
 
 		if mod:Random(1) == 1 then
 			entity:GetSprite().FlipX = true
@@ -24,12 +24,15 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.giantSpikeInit, IRFentities.T
 function mod:giantSpikeUpdate(entity)
 	if entity.Variant == IRFentities.GiantSpike then
 		local sprite = entity:GetSprite()
+		local target = nil
 
 		-- Follow target if it's set
 		if entity.Target then
-			entity.Position = entity.Target.Position
-			entity.Velocity = entity.Target.Velocity
-			entity.DepthOffset = entity.Target.DepthOffset + 10
+			target = entity.Target
+
+			entity.Position = target.Position
+			entity.Velocity = target.Velocity
+			entity.DepthOffset = target.DepthOffset + 10
 		else
 			entity.Velocity = Vector.Zero
 		end
@@ -97,16 +100,12 @@ function mod:giantSpikeUpdate(entity)
 
 					-- Kill target
 					if entity.Target then
-						entity.Target:AddEntityFlags(EntityFlag.FLAG_EXTRA_GORE)
-						entity.Target:Kill()
-
-						local shooter = entity.Target
-						if entity.SpawnerEntity then
-							shooter = entity.SpawnerEntity
-						end
-						shooter:ToNPC():FireProjectiles(entity.Target.Position, Vector(8, 4), 6, ProjectileParams())
+						target:AddEntityFlags(EntityFlag.FLAG_EXTRA_GORE)
+						target:TakeDamage(target.MaxHitPoints * 2, (DamageFlag.DAMAGE_CRUSH | DamageFlag.DAMAGE_IGNORE_ARMOR), EntityRef(entity), 0)
+						target:ToNPC():FireProjectiles(target.Position, Vector(8, 4), 6, ProjectileParams())
 
 						entity.Target = nil
+						target = nil
 					end
 				end
 

@@ -1,29 +1,78 @@
-Version 3.0 - The Blood & Guts update!
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.0", [[
 
--- Reworks / Additions --
+{FSIZE2}Blood and Guts update!
+
+{FSIZE2}Reworks / Additions
+
 - Your future's past awaits...
+
 - C.H.A.D. has been reworked!
+
 - The Gate has been reworked!
+
 - The Husk has been reworked!
-- Blastocyst's biggest form has been reworked!
-- Drowned Chargers have been re-reworked!
 
-- The mod now uses a buit-in Dead Sea Scrolls menu for it's settings instead of Mod Config Menu
-- Bone Knights now alert other knights into charging towards the player and have also recieved new sprites!
-- Added a config option to toggle Black Bonies having bomb effects
-- Flaming Gapers now spawn a unique Flaming Gusher enemy (can be toggled to only include a new sprite for them)
-- Camillo Jr. now works like his vanilla version but with a laser indicator and a cooldown between attacks
-- Drowned Hives now spawn Drowned Chargers again and create lingering projectiles on death
-- Raglings no longer create purple fires on death
+- Blastocyst's biggest form
+has been reworked!
+
+- Drowned Chargers have been
+re-reworked!
+
+
+- The mod now uses a buit-in
+Dead Sea Scrolls menu
+(as you can tell)
+
+- Bone Knights now alert other knights
+into charging towards the player
+and have also recieved new sprites!
+
+- Added an option to toggle
+Black Bonies having bomb effects
+
+- Flaming Gapers now spawn
+a unique Flaming Gusher enemy
+(can be turned off)
+
+- Camillo Jr. now works like his
+vanilla version but with a laser indicator
+and a cooldown between attacks
+
+- Drowned Hives now spawn
+Drowned Chargers again and
+create lingering projectiles on death
+
+- Raglings no longer
+create purple fires on death
+
 - Reverted Dart Fly rework
-- Mega Maw's volley of shots is now homing
-- Mega Maw's fire projectiles can now ignite his Hoppers, turning them into purple Flaming Hoppers
 
-- Blue Larry Jr. now creates slippery tear creep
-- Golden Hollow now steals money from the player like other greedy enemies
-- Gray Monstro's attack is now a stream of projectiles instead of a single burst
-- Green Gurdy now spawns a new set of enemies
-- Black Frail now creates 4 diagonal lines of fire jets when jumping out of the ground instead of explosive shots
+- Mega Maw's volley of shots
+is now homing
+
+- Mega Maw's fire projectiles
+can now ignite his Hoppers,
+turning them into purple Flaming Hoppers
+
+
+- Blue Larry Jr. now creates
+slippery tear creep
+
+- Golden Hollow now steals money
+from the player like other greedy enemies
+
+- Gray Monstro's attack is now
+a stream of projectiles
+instead of a single burst
+
+- Green Gurdy now spawns
+a new set of enemies
+
+- Black Frail now creates
+4 diagonal lines of fire jets
+when jumping out of the ground
+instead of explosive shots
+
 - Black Frail now shoots streams of blue fires at the player instead of Brimstone lasers
 - Black Frail now shoots out bones that create blue fires on impact instead of spawning spiders
 - Black Death's Horse now always charges at the player horizontally
@@ -35,12 +84,15 @@ Version 3.0 - The Blood & Guts update!
 - Green Cage's shockwaves are now replaced with 4 lines of creep that shoot out projectiles from them
 - Black Brownie now spawns Black Dingle on death instead of Dank Squirts
 
+
 - Danglers from Fiend Folio can now also collect coins like other greedy enemies
 - Seducers from Fiend Folio can now also heal when touching a player like Lust
 
 
 
--- Balance changes --
+
+{FSIZE2}Balance changes
+
 - Teratomar now shoots a spread of 5 shots instead of 4
 - Removed the Brimstone Bomb variant for Black Bonies
 - The Stain's tentacles now always spawn cardinally to the player
@@ -63,11 +115,13 @@ Version 3.0 - The Blood & Guts update!
 - Lust now only heals 12% (24% for champion / Super) health with her healing effects instead of 15% (was 30% for champion / Super)
 - Decreased Hush Baby's cooldown between attacks
 
+
 - Increased ???'s damage reduction after he spawns
 - Decreased ???'s cooldown between attacks
 - ??? can no longer perform the same attack multiple times in a row
 - ??? now only shoots one ring of homing shots after his boomerang tear attack
 - ??? can no longer teleport to the corner closest to the player during his teleport attack
+
 
 - All champion minibosses now have a consistent 15% size increase
 - Champion Sloth and champion Wrath now have a 15% health increase
@@ -83,7 +137,9 @@ Version 3.0 - The Blood & Guts update!
 
 
 
--- Other changes --
+
+{FSIZE2}Other changes
+
 - Wrath's charge attack is now visually distinguishable and is faster than his walking speed instead of being slower
 - New charred sprites for Flaming Gapers, Fatties and Hoppers to keep them consistent with other Burning Basement enemies
 - Fire rings from Flaming Fatties and Flaming Hoppers now work like the fire rings created by Redskulls
@@ -99,7 +155,9 @@ Version 3.0 - The Blood & Guts update!
 
 
 
--- Fixes --
+
+{FSIZE2}Fixes
+
 - Fixed Portals and Flaming Gapers having missing layers in the Bestiary
 - Fixed Turdlings having the wrong hand sprites
 - Fixed some reworked enemies and bosses not moving as they should while feared or confused
@@ -108,6 +166,9 @@ Version 3.0 - The Blood & Guts update!
 - The Cage no longer has a hitbox before he visually lands
 - ???'s Holy Orb now disappears if ??? dies while it's active
 
+
 - Fixed Sloth Heads from Fiend Folio turning into Black Globins
 - Fixed grid Hosts from Fiend Folio not turning into their fleshy variants when their skull is broken
 - Fixed Mr. Mines shooting the wrong projectiles on The Future floor
+
+]])
