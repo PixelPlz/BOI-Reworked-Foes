@@ -35,7 +35,6 @@ IRFentities = {
 	HealingAura    = Isaac.GetEntityVariantByName("Healing Aura"),
 	HolyTracer 	   = Isaac.GetEntityVariantByName("Holy Tracer"),
 	BrimstoneSwirl = Isaac.GetEntityVariantByName("Single Brimstone Swirl"),
-	LoomingShadow  = Isaac.GetEntityVariantByName("Mom's Looming Shadow"),
 	--ShadowHelper   = Isaac.GetEntityVariantByName("Delirium Shadow Helper"),
 }
 

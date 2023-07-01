@@ -137,7 +137,7 @@ function mod:fallenGabrielUpdate(entity)
 			end
 
 
-		-- Rotating laser attack
+		-- Laser swirl attack
 		elseif entity.State == NpcState.STATE_ATTACK4 then
 			-- Laser swirls
 			if sprite:IsEventTriggered("Shoot") then

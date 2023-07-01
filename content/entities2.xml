@@ -119,5 +119,4 @@
 	<entity anm2path="healing aura.anm2" 			collisionDamage="0"  collisionMass="0" collisionRadius="0"  friction="1" subtype="0"  id="1000" name="Healing Aura" 		  numGridCollisionPoints="0" shadowSize="0" variant="868"/>
 	<entity anm2path="holy tracer.anm2" 			collisionDamage="0"  collisionMass="0" collisionRadius="0"  friction="1" subtype="0"  id="1000" name="Holy Tracer" 			  numGridCollisionPoints="0" shadowSize="0" variant="869"/>
 	<entity anm2path="1000.071_brimstoneswirl.anm2" collisionDamage="0"  collisionMass="0" collisionRadius="0"  friction="1" subtype="0"  id="1000" name="Single Brimstone Swirl" numGridCollisionPoints="0" shadowSize="0" variant="870"/>
-	<entity anm2path="looming shadow.anm2" 			collisionDamage="0"  collisionMass="0" collisionRadius="0"  friction="1" subtype="0"  id="1000" name="Mom's Looming Shadow"   numGridCollisionPoints="0" shadowSize="0" variant="871"/>
 </entities>
