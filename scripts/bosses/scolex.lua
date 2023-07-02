@@ -99,8 +99,8 @@ function mod:scolexUpdate(entity)
 
 			if IRFConfig.appearPins == true then
 				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.75)
-				entity.Visible = false
 			end
+			entity.Visible = false
 
 
 			-- Create all segments
@@ -302,7 +302,7 @@ function mod:scolexUpdate(entity)
 							-- Get fitting projectile
 							if bg == BackdropType.CORPSE or bg == BackdropType.CORPSE2 then
 								params.Color = IRFcolors.CorpseGreen
-							elseif not (bg == BackdropType.WOMB or bg == BackdropType.UTERO or bg == BackdropType.SCARRED_WOMB or bg == BackdropType.CORPSE3) then
+							elseif bg ~= BackdropType.WOMB and bg ~= BackdropType.UTERO and bg ~= BackdropType.SCARRED_WOMB and bg ~= BackdropType.CORPSE3 then
 								params.Variant = ProjectileVariant.PROJECTILE_ROCK
 							end
 

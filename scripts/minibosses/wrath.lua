@@ -6,44 +6,49 @@ function mod:wrathUpdate(entity)
 	if mod:CheckValidMiniboss(entity) == true then
 		local sprite = entity:GetSprite()
 
+		-- Better charge for all of them
+		if entity.State == NpcState.STATE_ATTACK then
+			mod:LoopingOverlay(sprite, "HeadAngry")
+			entity.V2 = entity.V2:Resized(1.5)
+
+		-- Head overlay
+		elseif entity.State == NpcState.STATE_MOVE then
+			mod:LoopingOverlay(sprite, "Head")
+
+		else
+			sprite:RemoveOverlay()
+		end
+
+
 		-- Fire effects for Burning Wrath
 		if entity.Variant == 0 and entity.SubType == 1 then
-			if entity.I2 == 0 then
-				mod:LoopingOverlay(sprite, "FireAppear", true)
-				if sprite:GetOverlayFrame() == 11 then
-					entity.I2 = 1
-				end
-
-			else
-				mod:LoopingOverlay(sprite, "Fire", true)
-				mod:EmberParticles(entity, Vector(0, -40))
-			end
+			mod:EmberParticles(entity, Vector(0, -40))
 
 
 		-- Super Wrath
 		elseif entity.Variant == 1 then
+			local data = entity:GetData()
+
 			if entity.State == NpcState.STATE_MOVE or entity.State == NpcState.STATE_ATTACK then
-				entity:GetData().lastAnim = sprite:GetAnimation()
+				data.lastAnim = sprite:GetAnimation()
+				data.lastHeadAnim = sprite:GetOverlayAnimation()
 
 				-- Attack cooldown
-				if entity.StateFrame > 0 then
-					entity.StateFrame = entity.StateFrame - 1
-				end
-
-				-- Faster charge (yes, he can charge at you)
-				if entity.State == NpcState.STATE_ATTACK then
-					entity.V2 = entity.V2:Resized(1.5)
+				if entity.ProjectileCooldown > 0 then
+					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 				end
 
 
 			-- Replace original attack
 			elseif entity.State == NpcState.STATE_ATTACK2 then
-				if entity.StateFrame <= 0 then
+				if entity.ProjectileCooldown <= 0 then
 					entity.State = NpcState.STATE_ATTACK3
 					entity.I1 = 0
+					sprite:RemoveOverlay()
 				else
 					entity.State = NpcState.STATE_MOVE
-					sprite:Play(entity:GetData().lastAnim, true)
+					sprite:Play(data.lastAnim, true)
+					sprite:PlayOverlay(data.lastHeadAnim, true)
 				end
 
 
@@ -94,7 +99,7 @@ function mod:wrathUpdate(entity)
 					-- Attack twice
 					if entity.I1 >= 2 then
 						entity.State = NpcState.STATE_MOVE
-						entity.StateFrame = 30
+						entity.ProjectileCooldown = 30
 					else
 						sprite:Play("Attack", true)
 					end

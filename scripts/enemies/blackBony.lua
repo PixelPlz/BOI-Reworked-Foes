@@ -1,11 +1,32 @@
 local mod = BetterMonsters
 
+IRFblackBonyTypes = {
+	{effect = TearFlags.TEAR_CROSS_BOMB,   sprite = "1", hasSpark = false},
+	{effect = TearFlags.TEAR_SCATTER_BOMB, sprite = "2"},
+	{effect = TearFlags.TEAR_POISON, 	   sprite = "3"},
+	{effect = TearFlags.TEAR_BURN, 		   sprite = "4", hasSpark = false},
+	{effect = TearFlags.TEAR_SAD_BOMB, 	   sprite = "5"},
+}
+
+-- effect can be either a function or a tear flag (if it's a function it won't explode by default)
+-- sprite format: gfx/monsters/better/black boney/277.000_blackboney head_YourCustomSpriteName.png
+-- hasSpark is true by default, can be left out
+function mod:AddBlackBonyType(effect, sprite, hasSpark)
+	local typeData = {
+		effect = effect,
+		sprite = sprite,
+		hasSpark = hasSpark
+	}
+	table.insert(IRFblackBonyTypes, typeData)
+end
+
+
 
 
 function mod:blackBonyInit(entity)
 	-- Get random bomb type
 	if IRFConfig.blackBonyBombs == true and entity.SubType == 0 then
-		entity.SubType = mod:Random(1, 5)
+		entity.SubType = mod:Random(1, #IRFblackBonyTypes)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blackBonyInit, EntityType.ENTITY_BLACK_BONY)
@@ -25,12 +46,12 @@ function mod:blackBonyUpdate(entity)
 				suffix = "_champion"
 			end
 
-			-- No spark for cross variant
-			if entity.SubType == 1 then
+			-- Remove bomb spark for some variants
+			if IRFblackBonyTypes[entity.SubType].hasSpark == false then
 				sprite:ReplaceSpritesheet(2, "")
 			end
 
-			sprite:ReplaceSpritesheet(1, "gfx/monsters/better/black boney/277.000_blackboney head_" .. entity.SubType .. suffix .. ".png")
+			sprite:ReplaceSpritesheet(1, "gfx/monsters/better/black boney/277.000_blackboney head_" .. IRFblackBonyTypes[entity.SubType].sprite .. suffix .. ".png")
 			sprite:LoadGraphics()
 		end
 	end
@@ -64,32 +85,18 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.blackBonyUpdate, EntityType.ENTITY_BLACK_BONY)
 
 function mod:blackBonyDeath(entity)
-	local flags = TearFlags.TEAR_NORMAL
+	local effect = IRFblackBonyTypes[entity.SubType].effect
 
-	-- Bomber Boy
-	if entity.SubType == 1 then
-		flags = TearFlags.TEAR_CROSS_BOMB
+	-- Custom effect
+	if type(effect) == "function" then
+		effect(entity)
 
-	-- Scatter Bombs
-	elseif entity.SubType == 2 then
-		flags = TearFlags.TEAR_SCATTER_BOMB
-
-	-- Bob's Curse
-	elseif entity.SubType == 3 then
-		flags = TearFlags.TEAR_POISON
-
-	-- Hot Bombs
-	elseif entity.SubType == 4 then
-		flags = TearFlags.TEAR_BURN
-
-	-- Sad Bombs
-	elseif entity.SubType == 5 then
-		flags = TearFlags.TEAR_SAD_BOMB
+	-- Bomb effect
+	else
+		local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_NORMAL, 0, entity.Position, Vector.Zero, entity):ToBomb()
+		bomb.Visible = false
+		bomb:AddTearFlags(effect)
+		bomb:SetExplosionCountdown(0)
 	end
-
-	local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_NORMAL, 0, entity.Position, Vector.Zero, entity):ToBomb()
-	bomb.Visible = false
-	bomb:AddTearFlags(flags)
-	bomb:SetExplosionCountdown(0)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.blackBonyDeath, EntityType.ENTITY_BLACK_BONY)

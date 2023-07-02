@@ -603,6 +603,26 @@ function mod:QuickTracer(spawner, angle, offset, fadeIn, fadeOut, width, color)
 end
 
 
+-- Sprite trail
+function mod:QuickTrail(parent, length, color, width)
+	if not parent:GetData().spriteTrail then
+		local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SPRITE_TRAIL, 0, parent.Position, Vector(0, parent.Height or parent.PositionOffset.Y), parent):ToEffect()
+		trail.Parent = parent
+
+		trail.MinRadius = length or 0.1
+		trail.Color = color or Color.Default
+
+		if width then
+			trail.SpriteScale = Vector.One * width
+		end
+
+		parent:GetData().spriteTrail = trail
+		trail:Update()
+		return trail
+	end
+end
+
+
 -- Smoke particles
 function mod:SmokeParticles(entity, offset, radius, scale, color, newSprite)
 	if entity:IsFrame(2, 0) then

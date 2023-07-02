@@ -75,7 +75,7 @@ function mod:editNormalProjectiles(projectile)
 	-- Dead Meat
 	elseif projectile.SpawnerType == EntityType.ENTITY_MEMBRAIN and projectile.SpawnerVariant == 2 then
 		sprite.Color = IRFcolors.CorpseGreen
-		data.trailColor = IRFcolors.CorpseGreenTrail
+		mod:QuickTrail(projectile, 0.1, IRFcolors.CorpseGreenTrail, projectile.Scale * 1.75)
 
 
 	-- The Frail
@@ -130,6 +130,7 @@ function mod:editNormalProjectiles(projectile)
 	-- Tube Worm
 	elseif projectile.SpawnerType == EntityType.ENTITY_ROUND_WORM and projectile.SpawnerVariant == 1 then
 		local bg = Game():GetRoom():GetBackdropType()
+
 		if bg == BackdropType.FLOODED_CAVES or bg == BackdropType.DOWNPOUR then
 			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
 		elseif bg == BackdropType.DROSS then
@@ -200,6 +201,18 @@ function mod:editNormalProjectiles(projectile)
 	-- Black Rag Man
 	elseif projectile.SpawnerType == EntityType.ENTITY_RAG_MAN and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 and not projectile:HasProjectileFlags(ProjectileFlags.SMART) then
 		projectile:AddProjectileFlags(ProjectileFlags.SMART)
+
+
+	-- Adult Leech
+	elseif projectile.SpawnerType == EntityType.ENTITY_ADULT_LEECH then
+		local bg = Game():GetRoom():GetBackdropType()
+
+		if bg == BackdropType.CORPSE or bg == BackdropType.CORPSE2 then
+			sprite.Color = IRFcolors.CorpseGreen
+		elseif bg ~= BackdropType.WOMB and bg ~= BackdropType.UTERO and bg ~= BackdropType.SCARRED_WOMB and bg ~= BackdropType.CORPSE3 then
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_ROCK)
+			projectile.Scale = 0.9
+		end
 
 
 	-- Cyst
@@ -300,32 +313,30 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.angelicFeatherUpdate
 function mod:projectileTrail(projectile)
 	local data = projectile:GetData()
 
+	-- Haemo particle trail
 	if data.trailColor and projectile:IsFrame(2, 0) then
-		for i = 0, 1 do
-			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, projectile.Position, Vector.Zero, projectile):ToEffect()
+		local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, projectile.Position, Vector.Zero, projectile):ToEffect()
+		trail.DepthOffset = projectile.DepthOffset - 10
 
-			local scaler = projectile.Scale * 0.65
-			-- Trail
-			if i == 1 then
-				scaler = projectile.Scale * (math.random(60, 70) / 100)
-				trail.Velocity = -projectile.Velocity:Resized(1.5)
-				trail.SpriteOffset = Vector(projectile.PositionOffset.X, projectile.Height * 0.65)
+		-- Trail behind the projectile
+		trail.Velocity = -projectile.Velocity:Resized(1.5)
+		trail.SpriteOffset = Vector(projectile.PositionOffset.X, projectile.Height * 0.65)
 
-			-- Back
-			else
-				trail:FollowParent(projectile)
-			end
+		-- Scale
+		local scaler = projectile.Scale * 0.55 + (math.random(-15, 15) / 100)
+		trail.SpriteScale = Vector(scaler, scaler)
 
-			trail.SpriteScale = Vector(scaler, scaler)
-			trail.DepthOffset = projectile.DepthOffset - 10
+		-- Custom offset
+		local c = data.trailColor
+		local colorOffset = math.random(-1, 1) * 0.06
+		trail:GetSprite().Color = Color(c.R,c.G,c.B, 1, c.RO + colorOffset, c.GO + colorOffset, c.BO + colorOffset)
 
-			-- Custom color
-			local c = data.trailColor
-			local colorOffset = math.random(-1, 1) * 0.06
-			trail:GetSprite().Color = Color(c.R,c.G,c.B, 1, c.RO + colorOffset, c.GO + colorOffset, c.BO + colorOffset)
+		trail:Update()
 
-			trail:Update()
-		end
+
+	-- Sprite trail
+	elseif data.spriteTrail then
+		data.spriteTrail.Velocity = projectile.Position + projectile.PositionOffset - data.spriteTrail.Position
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.projectileTrail)
