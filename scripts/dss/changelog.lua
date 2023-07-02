@@ -46,8 +46,6 @@ create lingering projectiles on death
 - Raglings no longer
 create purple fires on death
 
-- Reverted Dart Fly rework
-
 - Mega Maw's volley of shots
 is now homing
 

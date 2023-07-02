@@ -8,7 +8,7 @@ IRFblackBonyTypes = {
 	{effect = TearFlags.TEAR_SAD_BOMB, 	   sprite = "5"},
 }
 
--- effect can be either a function or a tear flag (if it's a function it won't explode by default)
+-- effect can be either a function or a tear flag (if it's a function it won't explode by default to allow for more flexible behaviour)
 -- sprite format: gfx/monsters/better/black boney/277.000_blackboney head_YourCustomSpriteName.png
 -- hasSpark is true by default, can be left out
 function mod:AddBlackBonyType(effect, sprite, hasSpark)
@@ -85,17 +85,26 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.blackBonyUpdate, EntityType.ENTITY_BLACK_BONY)
 
 function mod:blackBonyDeath(entity)
-	local effect = IRFblackBonyTypes[entity.SubType].effect
+	-- Special variants
+	if entity.SubType > 0 then
+		local effect = IRFblackBonyTypes[entity.SubType].effect
 
-	-- Custom effect
-	if type(effect) == "function" then
-		effect(entity)
+		-- Custom effect
+		if type(effect) == "function" then
+			effect(entity)
 
-	-- Bomb effect
+		-- Bomb effect
+		else
+			local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_NORMAL, 0, entity.Position, Vector.Zero, entity):ToBomb()
+			bomb.Visible = false
+			bomb:AddTearFlags(effect)
+			bomb:SetExplosionCountdown(0)
+		end
+
+	-- Default
 	else
 		local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_NORMAL, 0, entity.Position, Vector.Zero, entity):ToBomb()
 		bomb.Visible = false
-		bomb:AddTearFlags(effect)
 		bomb:SetExplosionCountdown(0)
 	end
 end

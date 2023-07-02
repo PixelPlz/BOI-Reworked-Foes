@@ -91,6 +91,7 @@ local enemyScripts = {
 	"psyTumor",
 	"fatBat",
 	"ragling",
+	"dartFly",
 	"blackBony",
 	"blackGlobin",
 	"megaClotty",

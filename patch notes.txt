@@ -15,7 +15,6 @@ Version 3.0 - The Blood & Guts update!
 - Camillo Jr. now works like his vanilla version but with a laser indicator and a cooldown between attacks
 - Drowned Hives now spawn Drowned Chargers again and create lingering projectiles on death
 - Raglings no longer create purple fires on death
-- Reverted Dart Fly rework
 - Mega Maw's volley of shots is now homing
 - Mega Maw's fire projectiles can now ignite his Hoppers, turning them into purple Flaming Hoppers
 
