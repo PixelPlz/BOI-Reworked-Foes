@@ -37,17 +37,14 @@ function DSSMenu:LoadSaveData()
             if IRFConfig[k] ~= nil then IRFConfig[k] = v end
         end
     end
+
+    for k, v in pairs(IRFDefaultConfig) do
+        if IRFConfig[k] == nil then
+            IRFConfig[k] = v
+        end
+    end
 end
 mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, DSSMenu.LoadSaveData)
-
---Get settings
-function DSSMenu:GetData()
-    if not IRFConfig then
-        IRFConfig = IRFDefaultConfig
-    end
-
-    return IRFConfig
-end
 
 --Save settings
 function DSSMenu:SaveData()
