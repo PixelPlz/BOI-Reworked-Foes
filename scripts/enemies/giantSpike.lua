@@ -11,7 +11,7 @@ function mod:giantSpikeInit(entity)
 		entity.State = NpcState.STATE_IDLE
 		entity:GetSprite():Play("Appear", true)
 
-		entity.I1 = 20
+		entity.I1 = 15
 		entity.I2 = 15
 
 		if mod:Random(1) == 1 then

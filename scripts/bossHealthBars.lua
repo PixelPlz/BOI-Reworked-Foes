@@ -122,7 +122,16 @@ function mod:postGameStartedHPBars()
 			sprite = path .. "chapter4/teratomar.png",
 			offset = Vector(-4, 0),
 		}
-		
+
+		-- It lives
+		HPBars.BossDefinitions["78.1"] = {
+			sprite = path .. "final/it_lives.png",
+			offset = Vector(-8, 0),
+			conditionalSprites = {
+				{function(entity) return entity:GetData().enraged == true end, path .. "final/it_lives_angy.png"}
+			},
+		}
+
 		-- Blighted Ovum
 		HPBars.BossDefinitions["79.2"] = {
 			sprite = path .. "chapter1/blighted_ovum.png",

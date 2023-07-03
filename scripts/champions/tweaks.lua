@@ -416,7 +416,7 @@ mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.bluePeepEffectsUpdate)
 --[[ Green Bloat ]]--
 function mod:bloatInit(entity)
 	-- Replace the eyes with Spitties
-	if entity.Variant == 11 and entity.SpawnerType == EntityType.ENTITY_PEEP and entity.SpawnerEntity.SubType == 1 then
+	if entity.Variant == 11 and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
 		entity:Remove()
 		Isaac.Spawn(EntityType.ENTITY_SPITTY, 0, 0, entity.Position, Vector.Zero, entity)
 	end
@@ -427,7 +427,7 @@ function mod:bloatUpdate(entity)
 	if entity.Variant == 1 and entity.SubType == 1 then
 		local sprite = entity:GetSprite()
 
-		-- Replace brimstone attack with chubber attack
+		-- Replace Brimstone attack with Chubber attack
 		if entity.State == NpcState.STATE_ATTACK2 or entity.State == NpcState.STATE_ATTACK3 then
 			entity.State = entity.State + 2
 			sprite:Play("AttackAlt01", true)
@@ -443,7 +443,7 @@ function mod:bloatUpdate(entity)
 				for i = -1, 1, 2 do
 					local angle = 90
 					if entity.State == NpcState.STATE_ATTACK5 then
-						angle = i * 180
+						angle = 90 + i * 90
 					end
 
 					local worm = Isaac.Spawn(EntityType.ENTITY_VIS, 22, 0, entity.Position + Vector(i * 16, 0), Vector.FromAngle(angle):Resized(20), entity)
@@ -456,9 +456,10 @@ function mod:bloatUpdate(entity)
 			end
 
 			if sprite:GetFrame() == 54 then
-				mod:PlaySound(SoundEffect.SOUND_MEAT_JUMPS)
+				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS)
 			end
-			if sprite:IsFinished("AttackAlt01") then
+
+			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
 			end
 		end

@@ -86,7 +86,7 @@ function mod:gluttonyUpdate(entity)
 
 					params.BulletFlags = (ProjectileFlags.ACID_RED | ProjectileFlags.EXPLODE)
 					params.Scale = 1.65
-					params.FallingAccelModifier = 1.25
+					params.FallingAccelModifier = 1.1
 					params.FallingSpeedModifier = mod:Random(10, 20) * -1
 
 					for i = 0, 1 do

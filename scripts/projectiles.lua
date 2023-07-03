@@ -75,7 +75,7 @@ function mod:editNormalProjectiles(projectile)
 	-- Dead Meat
 	elseif projectile.SpawnerType == EntityType.ENTITY_MEMBRAIN and projectile.SpawnerVariant == 2 then
 		sprite.Color = IRFcolors.CorpseGreen
-		mod:QuickTrail(projectile, 0.1, IRFcolors.CorpseGreenTrail, projectile.Scale * 1.75)
+		mod:QuickTrail(projectile, 0.1, IRFcolors.CorpseGreenTrail, projectile.Scale * 1.6)
 
 
 	-- The Frail
