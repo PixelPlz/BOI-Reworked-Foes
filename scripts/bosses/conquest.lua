@@ -147,7 +147,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.conquestCollide, EntityTy
 -- Red champion globins
 function mod:conquestLightBeamUpdate(effect)
 	if effect.SpawnerEntity and effect.SpawnerType == EntityType.ENTITY_WAR and effect.SpawnerEntity.SubType == 1 then
-		if Isaac.CountEntities(effect.SpawnerEntity, EntityType.ENTITY_GLOBIN, -1, -1) < Settings.MaxGlobins and effect.Position:Distance(Game():GetNearestPlayer(effect.Position).Position) >= 80 then
+		if Isaac.CountEntities(effect.SpawnerEntity, EntityType.ENTITY_GLOBIN, -1, -1) < Settings.MaxGlobins and effect.Position:Distance(Game():GetNearestPlayer(effect.Position).Position) >= 100 then
 			Isaac.Spawn(EntityType.ENTITY_GLOBIN, 0, 0, effect.Position, Vector.Zero, effect.SpawnerEntity)
 			mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND, 0.75)
 		end

@@ -3,7 +3,7 @@ local mod = BetterMonsters
 local Settings = {
 	FetusCooldown = 45,
 	GutsCooldown = 45,
-	SlamScreenShake = 14,
+	SlamScreenShake = 14
 }
 
 IRFitLivesSpawns = {
@@ -1283,10 +1283,9 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.itLivesHit, EntityType.ENTI
 
 
 
--- Burst projectiles
+-- Projectiles
 function mod:itLivesProjectileUpdate(projectile)
 	if projectile.SpawnerType == EntityType.ENTITY_MOMS_HEART and projectile.SpawnerVariant == 1 then
-		local sprite = projectile:GetSprite()
 		local data = projectile:GetData()
 
 		-- Burst projectile fix
@@ -1301,6 +1300,8 @@ function mod:itLivesProjectileUpdate(projectile)
 		-- Bursting cell
 		elseif data.splitTimer then
 			if data.splitTimer <= 0 then
+				local sprite = projectile:GetSprite()
+
 				if sprite:IsPlaying("IdleBurst") then
 					sprite:Play("Burst", true)
 

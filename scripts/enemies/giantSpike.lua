@@ -48,12 +48,21 @@ function mod:giantSpikeUpdate(entity)
 			-- Appear
 			if entity.StateFrame == 0 then
 				if sprite:IsEventTriggered("Sound") then
-					for i = 1, 3 do
-						local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, entity.Position, mod:RandomVector(3), entity):ToEffect()
+					-- Effects
+					for i = 1, 2 do
+						local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, entity.Position, mod:RandomVector(2), entity):ToEffect()
 						rocks:GetSprite():Play("rubble", true)
 						rocks.State = 2
 					end
 					mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.5)
+
+					-- Destroy any obstacles under the spike
+					local room = Game():GetRoom()
+					local gridEntity = room:GetGridEntityFromPos(entity.Position)
+
+					if gridEntity ~= nil and (gridEntity.CollisionClass == GridCollisionClass.COLLISION_SOLID or gridEntity:GetType() == GridEntityType.GRID_SPIDERWEB) then
+						gridEntity:Destroy(true)
+					end
 				end
 
 				if sprite:IsFinished() then
@@ -89,14 +98,6 @@ function mod:giantSpikeUpdate(entity)
 						rocks.State = 2
 					end
 					mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_BURST_OUT, 0.75)
-
-					-- Destroy any obstacles under the spike
-					local room = Game():GetRoom()
-					local gridEntity = room:GetGridEntityFromPos(entity.Position)
-
-					if gridEntity ~= nil and (gridEntity.CollisionClass == GridCollisionClass.COLLISION_SOLID or gridEntity:GetType() == GridEntityType.GRID_SPIDERWEB) then
-						gridEntity:Destroy(true)
-					end
 
 					-- Kill target
 					if entity.Target then

@@ -143,6 +143,7 @@ local bossScripts = {
 	--"turdlings",
 	--"dangle",
 	"gate",
+	"mamaGurdy",
 	"mrFred",
 	--"lamb",
 	"stain",

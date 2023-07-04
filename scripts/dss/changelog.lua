@@ -67,18 +67,8 @@ instead of a single burst
 - Green Gurdy now spawns
 a new set of enemies
 
-- Black Frail now creates
-4 diagonal lines of fire jets
-when jumping out of the ground
-instead of explosive shots
-
-- Black Frail now shoots
-streams of blue fires at the player
-instead of Brimstone lasers
-
-- Black Frail now shoots out
-bones that create blue fires on impact
-instead of spawning spiders
+- Black Frail has recieved
+improved attacks
 
 - Black Death's Horse now always
 charges at the player horizontally
