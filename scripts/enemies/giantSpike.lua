@@ -86,6 +86,10 @@ function mod:giantSpikeUpdate(entity)
 
 		-- Extended
 		elseif entity.State == NpcState.STATE_ATTACK then
+			-- Make enemies go around them
+			local gridIndex = room:GetGridIndex(entity.Position)
+			room:SetGridPath(gridIndex, 900)
+
 			-- Extend
 			if entity.StateFrame == 0 then
 				if sprite:IsEventTriggered("Extend") then
@@ -104,9 +108,6 @@ function mod:giantSpikeUpdate(entity)
 						target:AddEntityFlags(EntityFlag.FLAG_EXTRA_GORE)
 						target:TakeDamage(target.MaxHitPoints * 2, (DamageFlag.DAMAGE_CRUSH | DamageFlag.DAMAGE_IGNORE_ARMOR), EntityRef(entity), 0)
 						target:ToNPC():FireProjectiles(target.Position, Vector(8, 4), 6, ProjectileParams())
-
-						entity.Target = nil
-						target = nil
 					end
 				end
 
@@ -151,3 +152,10 @@ function mod:giantSpikeDMG(target, damageAmount, damageFlags, damageSource, dama
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.giantSpikeDMG, IRFentities.Type)
+
+function mod:giantSpikeCollide(entity, target, bool)
+	if entity.Variant == IRFentities.GiantSpike and entity.Target and target.Index == entity.Target.Index then
+		return true -- Ignore collision
+	end
+end
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.giantSpikeCollide, IRFentities.Type)

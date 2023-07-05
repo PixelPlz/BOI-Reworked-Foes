@@ -5,6 +5,7 @@ Version 3.0 - The Blood & Guts update!
 - C.H.A.D. has been reworked!
 - The Gate has been reworked!
 - The Husk has been reworked!
+- Mama Gurdy has been reworked!
 - Blastocyst's biggest form has been reworked!
 - Drowned Chargers have been re-reworked!
 
@@ -14,6 +15,7 @@ Version 3.0 - The Blood & Guts update!
 - Flaming Gapers now spawn a unique Flaming Gusher enemy (can be toggled to only include a new sprite for them)
 - Camillo Jr. now works like his vanilla version but with a laser indicator and a cooldown between attacks
 - Drowned Hives now spawn Drowned Chargers again and create lingering projectiles on death
+- Scarred Para-Bites now shoot regular projectiles instead of lingering projectiles
 - Raglings no longer create purple fires on death
 - Mega Maw's volley of shots is now homing
 - Mega Maw's fire projectiles can now ignite his Hoppers, turning them into purple Flaming Hoppers

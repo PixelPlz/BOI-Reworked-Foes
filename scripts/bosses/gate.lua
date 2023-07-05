@@ -116,6 +116,7 @@ function mod:gateUpdate(entity)
 					hopper.State = NpcState.STATE_MOVE
 					hopper.TargetPosition = entity.Position + (target.Position - entity.Position):Resized(mod:Random(120, 200))
 					hopper.PositionOffset = Vector(0, -64)
+					hopper.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 
 					hopper.MaxHitPoints = Settings.HopperHealth
 					hopper.HitPoints = hopper.MaxHitPoints

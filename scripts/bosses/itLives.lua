@@ -1,6 +1,7 @@
 local mod = BetterMonsters
 
 local Settings = {
+	HomunculusHealth = 50,
 	FetusCooldown = 45,
 	GutsCooldown = 45,
 	SlamScreenShake = 14
@@ -66,7 +67,7 @@ function mod:itLivesInit(entity)
 
 		-- It Lives' guts
 		if entity.SubType == 1 then
-			--entity:GetSprite():Load("gfx/078.010_it lives guts.anm2", true)
+			entity:GetSprite():Load("gfx/078.010_it lives guts.anm2", true)
 			entity.ProjectileCooldown = Settings.GutsCooldown
 
 			if entity.SpawnerEntity then
@@ -120,7 +121,7 @@ function mod:itLivesUpdate(entity)
 				local attack = mod:Random(1, 3)
 
 				if group == "enraged" then
-					local attacks = {1, 2, 3, 4}
+					local attacks = {1, 2, 3}
 					if data.lastAttack then
 						table.remove(attacks, data.lastAttack)
 					end
@@ -265,10 +266,12 @@ function mod:itLivesUpdate(entity)
 
 				-- Enrage
 				if data.phase == 4 then
+					entity.HitPoints = quarterHp
+
 					-- Come down first if retracted
 					if entity.State == NpcState.STATE_JUMP or entity.State == NpcState.STATE_SUMMON2 then
 						entity.State = NpcState.STATE_STOMP
-						sprite:Play("HeartComedown", true)
+						sprite:Play(animPrefix .. "HideBack", true)
 
 					elseif entity.State ~= NpcState.STATE_STOMP and entity.State ~= NpcState.STATE_IDLE then
 						entity.State = NpcState.STATE_IDLE
@@ -295,8 +298,9 @@ function mod:itLivesUpdate(entity)
 				-- Spawn Homunculi
 				if not data.homunculiSpawned then
 					for i = -1, 1, 2 do
-						local position = Vector(entity.Position.X + i * 160, room:GetTopLeftPos().Y + 80)
-						Isaac.Spawn(EntityType.ENTITY_HOMUNCULUS, 0, 0, room:FindFreePickupSpawnPosition(position, 0, true, true), Vector.Zero, entity)
+						local homo = Isaac.Spawn(EntityType.ENTITY_HOMUNCULUS, 0, 0, Vector(entity.Position.X + i * 140, room:GetTopLeftPos().Y + 40), Vector.Zero, entity)
+						homo.MaxHitPoints = Settings.HomunculusHealth
+						homo.HitPoints = homo.MaxHitPoints
 					end
 					mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 
@@ -337,7 +341,7 @@ function mod:itLivesUpdate(entity)
 						-- Summon enemies
 						elseif data.attackCounter == 2 then
 							guts.State = NpcState.STATE_SUMMON
-							guts:GetSprite():Play("HeartSummon", true)
+							guts:GetSprite():Play("ShootBoth", true)
 
 						-- Second attack
 						elseif data.attackCounter == 3 then
@@ -1009,30 +1013,24 @@ function mod:itLivesUpdate(entity)
 			if not entity.Parent or entity.Parent:IsDead() then
 				entity.State = NpcState.STATE_DEATH
 				sprite:Play("Death", true)
-				--entity:Kill()
-
 
 			else
 				local fetus = entity.Parent:ToNPC()
 
 
-				--[[ Functions ]]--
 				-- Get shoot positions
 				local function getShootPos(side)
-					local position = Vector(entity.Position.X, room:GetTopLeftPos().Y + 15)
+					local position = Vector(entity.Position.X, room:GetTopLeftPos().Y + 40)
 					local sign = mod:GetSign(side > 0)
-					return position + sign * Vector(120, 0)
+					return position + sign * Vector(135, 0)
 				end
 
-
-
-				--[[ Always active ]]--
 				-- Make enemies not go near the holes
 				for side = -1, 1, 2 do
-					for i = -1, 1 do
+					for i = 0, 1 do
 						for j = 0, 1 do
-							local startPos = getShootPos(side)
-							local gridPos = startPos + Vector(i * 40, j * 40)
+							local startPos = getShootPos(side) + Vector(0, -20)
+							local gridPos = startPos + Vector(i * side * 40, j * 40)
 							local grid = room:GetGridIndex(gridPos)
 							room:SetGridPath(grid, 900)
 						end
@@ -1040,10 +1038,9 @@ function mod:itLivesUpdate(entity)
 				end
 
 
-
 				--[[ Idle ]]--
 				if entity.State == NpcState.STATE_IDLE then
-					mod:LoopingAnim(sprite, "Heartbeat1")
+					mod:LoopingAnim(sprite, "Idle")
 
 					if fetus.State == NpcState.STATE_SUMMON2 then
 						if entity.ProjectileCooldown <= 0 then
@@ -1058,25 +1055,29 @@ function mod:itLivesUpdate(entity)
 							-- Rotating shots
 							if attack == 1 then
 								entity.State = NpcState.STATE_ATTACK
+								sprite:Play("ShootBothStart", true)
 								entity.I2 = mod:RandomSign()
 
 							-- Half rings of shots
 							elseif attack == 2 then
 								entity.State = NpcState.STATE_ATTACK2
+								sprite:Play("ShootLeft", true)
 
 							-- Pulsating shots
 							elseif attack == 3 then
 								entity.State = NpcState.STATE_ATTACK3
+								sprite:Play("ShootBoth", true)
 
 							-- Sweeping line of shots
 							elseif attack == 4 then
 								entity.State = NpcState.STATE_ATTACK4
+								sprite:Play("ShootBothStart", true)
 
 							-- Spreads of 5 shots
 							elseif attack == 5 then
 								entity.State = NpcState.STATE_ATTACK5
+								sprite:Play("ShootLeft", true)
 							end
-							sprite:Play("HeartSummon", true)
 
 						else
 							entity.ProjectileCooldown = entity.ProjectileCooldown - 1
@@ -1087,7 +1088,7 @@ function mod:itLivesUpdate(entity)
 
 				--[[ Summon ]]--
 				elseif entity.State == NpcState.STATE_SUMMON then
-					if sprite:GetFrame() == 5 then
+					if sprite:IsEventTriggered("Shoot") then
 						local spawnGroup = IRFitLivesSpawns.Guts[fetus:GetData().phase]
 						local selectedSpawn = mod:RandomIndex(spawnGroup)
 
@@ -1105,37 +1106,52 @@ function mod:itLivesUpdate(entity)
 
 				--[[ Rotating shots ]]--
 				elseif entity.State == NpcState.STATE_ATTACK then
-					mod:LoopingAnim(sprite, "HeartSummon")
-
-					if entity.ProjectileDelay <= 0 then
-						local params = baseProjectileParams
-
-						for i = -1, 1, 2 do
-							local pos = getShootPos(i)
-							params.CircleAngle = 0 + entity.I2 * entity.I1 * 0.3
-							fetus:FireProjectiles(pos, Vector(4, 4), 9, params)
+					-- Start
+					if entity.StateFrame == 0 then
+						if sprite:IsFinished() then
+							entity.StateFrame = 1
 						end
 
-						mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
+					-- Loop
+					elseif entity.StateFrame == 1 then
+						mod:LoopingAnim(sprite, "ShootBothLoop")
 
-						entity.I1 = entity.I1 + 1
-						entity.ProjectileDelay = 9
+						if entity.ProjectileDelay <= 0 then
+							local params = baseProjectileParams
 
-					else
-						entity.ProjectileDelay = entity.ProjectileDelay - 1
-					end
+							for i = -1, 1, 2 do
+								local pos = getShootPos(i)
+								params.CircleAngle = 0 + entity.I2 * entity.I1 * 0.3
+								fetus:FireProjectiles(pos, Vector(4, 4), 9, params)
+								mod:ShootEffect(entity, 2, (pos + Vector(0, -20) - entity.Position) * 0.65)
+							end
 
-					if entity.I1 >= 8 then
-						entity.State = NpcState.STATE_IDLE
+							mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
+
+							entity.I1 = entity.I1 + 1
+							entity.ProjectileDelay = 9
+
+						else
+							entity.ProjectileDelay = entity.ProjectileDelay - 1
+						end
+
+						if entity.I1 >= 8 then
+							entity.StateFrame = 2
+							sprite:Play("ShootBothEnd", true)
+						end
+
+					-- Stop
+					elseif entity.StateFrame == 2 then
+						if sprite:IsFinished() then
+							entity.State = NpcState.STATE_IDLE
+						end
 					end
 
 
 
 				--[[ Half rings of shots ]]--
 				elseif entity.State == NpcState.STATE_ATTACK2 then
-					mod:LoopingAnim(sprite, "HeartSummon")
-
-					if entity.ProjectileDelay <= 0 then
+					if sprite:IsEventTriggered("Shoot") then
 						local params = baseProjectileParams
 						params.FallingAccelModifier = -0.16
 
@@ -1145,32 +1161,43 @@ function mod:itLivesUpdate(entity)
 						end
 
 						mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
+						mod:ShootEffect(entity, 2, (pos + Vector(0, -20) - entity.Position) * 0.65)
 
 						entity.I1 = entity.I1 + 1
-						entity.ProjectileDelay = 12
-
-					else
-						entity.ProjectileDelay = entity.ProjectileDelay - 1
 					end
 
-					if entity.I1 >= 4 then
-						entity.State = NpcState.STATE_IDLE
+					if sprite:IsFinished() then
+						-- Do this 4 times
+						if entity.I1 >= 4 then
+							entity.State = NpcState.STATE_IDLE
+
+						else
+							-- Switch sides
+							local side = "Left"
+							if entity.I1 % 2 ~= 0 then
+								side = "Right"
+							end
+							sprite:Play("Shoot" .. side, true)
+						end
 					end
 
 
 
 				--[[ Pulsating shots ]]--
 				elseif entity.State == NpcState.STATE_ATTACK3 then
-					if sprite:GetFrame() == 5 then
+					if sprite:IsEventTriggered("Shoot") then
 						local params = baseProjectileParams
 						params.FallingAccelModifier = -0.18
 						params.BulletFlags = params.BulletFlags + ProjectileFlags.SINE_VELOCITY
 
 						for i = -1, 1, 2 do
+							local pos = getShootPos(i)
 							for j = 0, 7 do
-								fetus:FireProjectiles(getShootPos(i), Vector.FromAngle(20 + j * 20):Resized(3), 0, params)
+								fetus:FireProjectiles(pos, Vector.FromAngle(20 + j * 20):Resized(3), 0, params)
 							end
+							mod:ShootEffect(entity, 2, (pos + Vector(0, -20) - entity.Position) * 0.65)
 						end
+
 						mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
 					end
 
@@ -1182,56 +1209,79 @@ function mod:itLivesUpdate(entity)
 
 				--[[ Sweeping line of shots ]]--
 				elseif entity.State == NpcState.STATE_ATTACK4 then
-					mod:LoopingAnim(sprite, "HeartSummon")
-
-					if entity.ProjectileDelay <= 0 then
-						for i = -1, 1, 2 do
-							local pos = getShootPos(i)
-							local baseAngle = 90 - i * 45
-							fetus:FireProjectiles(pos, Vector.FromAngle(baseAngle + i * entity.I1 * 15):Resized(5), 0, baseProjectileParams)
+					-- Start
+					if entity.StateFrame == 0 then
+						if sprite:IsFinished() then
+							entity.StateFrame = 1
 						end
 
-						mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
+					-- Loop
+					elseif entity.StateFrame == 1 then
+						mod:LoopingAnim(sprite, "ShootBothLoop")
 
-						entity.I1 = entity.I1 + 1
-						entity.ProjectileDelay = 6
+						if entity.ProjectileDelay <= 0 then
+							for i = -1, 1, 2 do
+								local pos = getShootPos(i)
+								local baseAngle = 90 - i * 45
+								fetus:FireProjectiles(pos, Vector.FromAngle(baseAngle + i * entity.I1 * 15):Resized(5), 0, baseProjectileParams)
+								mod:ShootEffect(entity, 2, (pos + Vector(0, -20) - entity.Position) * 0.65)
+							end
 
-					else
-						entity.ProjectileDelay = entity.ProjectileDelay - 1
-					end
+							mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
 
-					if entity.I1 >= 7 then
-						entity.State = NpcState.STATE_IDLE
+							entity.I1 = entity.I1 + 1
+							entity.ProjectileDelay = 5
+
+						else
+							entity.ProjectileDelay = entity.ProjectileDelay - 1
+						end
+
+						if entity.I1 >= 7 then
+							entity.StateFrame = 2
+							sprite:Play("ShootBothEnd", true)
+						end
+
+					-- Stop
+					elseif entity.StateFrame == 2 then
+						if sprite:IsFinished() then
+							entity.State = NpcState.STATE_IDLE
+						end
 					end
 
 
 
 				--[[ Spreads of 5 shots ]]--
 				elseif entity.State == NpcState.STATE_ATTACK5 then
-					mod:LoopingAnim(sprite, "HeartSummon")
-
-					if entity.ProjectileDelay <= 0 then
+					if sprite:IsEventTriggered("Shoot") then
 						local pos = getShootPos(entity.I1 % 2)
 						fetus:FireProjectiles(pos, (target.Position - pos):Resized(5), 5, baseProjectileParams)
 
 						mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
+						mod:ShootEffect(entity, 2, (pos + Vector(0, -20) - entity.Position) * 0.65)
 
 						entity.I1 = entity.I1 + 1
-						entity.ProjectileDelay = 18
-
-					else
-						entity.ProjectileDelay = entity.ProjectileDelay - 1
 					end
 
-					if entity.I1 >= 2 then
-						entity.State = NpcState.STATE_IDLE
+					if sprite:IsFinished() then
+						-- Do this 2 times
+						if entity.I1 >= 2 then
+							entity.State = NpcState.STATE_IDLE
+
+						else
+							-- Switch sides
+							local side = "Left"
+							if entity.I1 % 2 ~= 0 then
+								side = "Right"
+							end
+							sprite:Play("Shoot" .. side, true)
+						end
 					end
 				end
 			end
 		end
 
 
-		if entity.FrameCount > 1 and (entity.Variant == 10 or not entity:HasMortalDamage()) then
+		if entity.FrameCount > 1 and not entity:HasMortalDamage() then
 			return true
 		end
 	end

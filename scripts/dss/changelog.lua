@@ -13,6 +13,8 @@ DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.0", [[
 
 - The Husk has been reworked!
 
+- Mama Gurdy has been reworked!
+
 - Blastocyst's biggest form
 has been reworked!
 
@@ -42,6 +44,10 @@ and a cooldown between attacks
 - Drowned Hives now spawn
 Drowned Chargers again and
 create lingering projectiles on death
+
+- Scarred Para-Bites now shoot
+regular projectiles
+instead of lingering projectiles
 
 - Raglings no longer
 create purple fires on death

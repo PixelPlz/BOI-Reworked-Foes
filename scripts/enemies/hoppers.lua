@@ -84,6 +84,7 @@ function mod:flamingHopperUpdate(entity)
 		-- Reset position offset (for the Gate's spawn)
 		elseif entity.PositionOffset.Y < 0 and sprite:GetFrame() == 25 then
 			entity.PositionOffset = Vector.Zero
+			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 		end
 
 
