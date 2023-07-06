@@ -10,8 +10,9 @@ Version 3.0 - The Blood & Guts update!
 - Drowned Chargers have been re-reworked!
 
 - The mod now uses a buit-in Dead Sea Scrolls menu for it's settings instead of Mod Config Menu
-- Bone Knights now alert other knights into charging towards the player and have also recieved new sprites!
 - Added a config option to toggle Black Bonies having bomb effects
+- The mod "Hush Fix" by hgrfff is now included. This mod fixes Hush spamming his attacks when on low HP and his lasers not getting slowed.
+- Bone Knights now alert other knights into charging towards the player and have also recieved new sprites!
 - Flaming Gapers now spawn a unique Flaming Gusher enemy (can be toggled to only include a new sprite for them)
 - Camillo Jr. now works like his vanilla version but with a laser indicator and a cooldown between attacks
 - Drowned Hives now spawn Drowned Chargers again and create lingering projectiles on death
@@ -98,13 +99,14 @@ Version 3.0 - The Blood & Guts update!
 
 
 -- Fixes --
+- Fixed Cod Worms not taking damage from Mom's Knife
+- Fixed some reworked enemies and bosses not moving as they should while feared or confused
+- The Cage no longer has a hitbox before he visually lands
 - Fixed Portals and Flaming Gapers having missing layers in the Bestiary
 - Fixed Turdlings having the wrong hand sprites
-- Fixed some reworked enemies and bosses not moving as they should while feared or confused
 - Fixed Rag Mega not killing his Raglings on death like in vanilla
-- Fixed Cod Worms not taking damage from Mom's Knife
-- The Cage no longer has a hitbox before he visually lands
 - ???'s Holy Orb now disappears if ??? dies while it's active
+- Fixed Homunculus and Begotten cord breaking sounds playing when they shouldn't
 
 - Fixed Sloth Heads from Fiend Folio turning into Black Globins
 - Fixed grid Hosts from Fiend Folio not turning into the proper fleshy variants when their skull is broken

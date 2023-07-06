@@ -1,6 +1,7 @@
 local mod = BetterMonsters
 
-local function stopSlidingAfterHop(entity)
+--[[ Hoppers / Trite / Leapers / Ministro / Pon ]]--
+function mod:stopSlidingAfterHop(entity)
 	local sprite = entity:GetSprite()
 
 	if (entity.Type == EntityType.ENTITY_HOPPER and entity.Variant == 3 and sprite:IsEventTriggered("Land")) or (sprite:IsPlaying("Hop") and sprite:GetFrame() == 22) then
@@ -8,32 +9,10 @@ local function stopSlidingAfterHop(entity)
 		entity.TargetPosition = entity.Position
 	end
 end
-
-
-
---[[ Hoppers / Trites ]]--
-function mod:hopperUpdate(entity)
-	stopSlidingAfterHop(entity)
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hopperUpdate, EntityType.ENTITY_HOPPER)
-
---[[ Leapers ]]--
-function mod:leaperUpdate(entity)
-	stopSlidingAfterHop(entity)
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.leaperUpdate, EntityType.ENTITY_LEAPER)
-
---[[ Ministro ]]--
-function mod:ministroUpdate(entity)
-	stopSlidingAfterHop(entity)
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ministroUpdate, EntityType.ENTITY_MINISTRO)
-
---[[ Pon ]]--
-function mod:ponUpdate(entity)
-	stopSlidingAfterHop(entity)
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ponUpdate, EntityType.ENTITY_PON)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.stopSlidingAfterHop, EntityType.ENTITY_HOPPER)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.stopSlidingAfterHop, EntityType.ENTITY_LEAPER)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.stopSlidingAfterHop, EntityType.ENTITY_MINISTRO)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.stopSlidingAfterHop, EntityType.ENTITY_PON)
 
 
 
@@ -53,6 +32,10 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.flamingHopperInit, EntityType
 function mod:flamingHopperUpdate(entity)
 	local sprite = entity:GetSprite()
 
+	mod:stopSlidingAfterHop(entity)
+
+
+	-- Ember particles
 	local color = nil
 	if entity.SubType >= 1 then
 		color = Color(0.6,0.6,0.6, 1, 0.3,0,0.6)
@@ -61,17 +44,11 @@ function mod:flamingHopperUpdate(entity)
 
 
 	-- Attack after 3 jumps
-	if sprite:IsPlaying("Hop") then
-		if sprite:GetFrame() == 0 then
-			if entity.ProjectileCooldown <= 0 then
-				sprite:Play("Attack", true)
-			else
-				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
-			end
-
-		elseif sprite:GetFrame() == 22 then
-			entity.Velocity = Vector.Zero
-			entity.TargetPosition = entity.Position
+	if sprite:IsPlaying("Hop") and sprite:GetFrame() == 0 then
+		if entity.ProjectileCooldown <= 0 then
+			sprite:Play("Attack", true)
+		else
+			entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 		end
 
 
@@ -87,7 +64,7 @@ function mod:flamingHopperUpdate(entity)
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 		end
 
-
+		-- Fire ring
 		if sprite:IsEventTriggered("Land") then
 			entity.Velocity = Vector.Zero
 			entity.TargetPosition = entity.Position

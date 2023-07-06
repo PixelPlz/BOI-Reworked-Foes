@@ -1,10 +1,10 @@
 local mod = BetterMonsters
 
 local Settings = {
-	HomunculusHealth = 50,
+	NewHealth = 1000,
+	HomunculusHealth = 48,
 	FetusCooldown = 45,
-	GutsCooldown = 45,
-	SlamScreenShake = 14
+	GutsCooldown = 45
 }
 
 IRFitLivesSpawns = {
@@ -50,6 +50,9 @@ IRFitLivesSpawns = {
 function mod:itLivesInit(entity)
 	-- Fetus
 	if entity.Variant == 1 then
+		entity.MaxHitPoints = Settings.NewHealth
+		entity.HitPoints = entity.MaxHitPoints
+
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity.TargetPosition = entity.Position
@@ -203,7 +206,7 @@ function mod:itLivesUpdate(entity)
 				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity)
 				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
 				mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.1)
-				Game():ShakeScreen(Settings.SlamScreenShake)
+				Game():ShakeScreen(14)
 				Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
 			end
 
@@ -265,7 +268,7 @@ function mod:itLivesUpdate(entity)
 				data.phase = data.phase + 1
 
 				-- Enrage
-				if data.phase == 4 then
+				if data.phase == 4 and not data.wasDelirium then
 					entity.HitPoints = quarterHp
 
 					-- Come down first if retracted
@@ -306,6 +309,11 @@ function mod:itLivesUpdate(entity)
 
 					data.homunculiSpawned = true
 					entity.ProjectileCooldown = Settings.FetusCooldown
+
+					-- Delirium fix
+					if data.wasDelirium then
+						data.phase = 5 - math.ceil(entity.HitPoints / (entity.MaxHitPoints / 4))
+					end
 				end
 
 
@@ -314,6 +322,12 @@ function mod:itLivesUpdate(entity)
 				-- Attack
 				if entity.ProjectileCooldown <= 0 then
 					resetVariables()
+
+					-- FUCK YOU FUCK YOU FUCK YOU
+					if data.wasDelirium then
+						data.attackCounter = 3 - (animPrefix - 1)
+					end
+
 
 					-- Enraged
 					if data.phase == 4 then
@@ -1011,11 +1025,26 @@ function mod:itLivesUpdate(entity)
 		elseif entity.Variant == 10 then
 			-- Die without a parent
 			if not entity.Parent or entity.Parent:IsDead() then
-				entity.State = NpcState.STATE_DEATH
-				sprite:Play("Death", true)
+				if data.wasDelirium then
+					entity:Remove()
+				else
+					entity.State = NpcState.STATE_DEATH
+					sprite:Play("Death", true)
+				end
 
 			else
 				local fetus = entity.Parent:ToNPC()
+
+				-- Delirium fix
+				data.wasDelirium = fetus:GetData().wasDelirium
+
+				if entity.FrameCount <= 1 and data.wasDelirium then
+					sprite:Load("gfx/078.010_it lives guts.anm2", true)
+					for i = 0, sprite:GetLayerCount() do
+						sprite:ReplaceSpritesheet(i, "gfx/bosses/afterbirthplus/deliriumforms/classic/boss_78_it lives guts.png")
+					end
+					sprite:LoadGraphics()
+				end
 
 
 				-- Get shoot positions
@@ -1023,6 +1052,11 @@ function mod:itLivesUpdate(entity)
 					local position = Vector(entity.Position.X, room:GetTopLeftPos().Y + 40)
 					local sign = mod:GetSign(side > 0)
 					return position + sign * Vector(135, 0)
+				end
+
+				-- Create shoot effects in the correct position
+				local function doShootEffect(pos)
+					return mod:ShootEffect(entity, 2, (pos + Vector(0, -20) - entity.Position) * 0.65)
 				end
 
 				-- Make enemies not go near the holes
@@ -1123,7 +1157,7 @@ function mod:itLivesUpdate(entity)
 								local pos = getShootPos(i)
 								params.CircleAngle = 0 + entity.I2 * entity.I1 * 0.3
 								fetus:FireProjectiles(pos, Vector(4, 4), 9, params)
-								mod:ShootEffect(entity, 2, (pos + Vector(0, -20) - entity.Position) * 0.65)
+								doShootEffect(pos)
 							end
 
 							mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
@@ -1161,7 +1195,7 @@ function mod:itLivesUpdate(entity)
 						end
 
 						mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
-						mod:ShootEffect(entity, 2, (pos + Vector(0, -20) - entity.Position) * 0.65)
+						doShootEffect(pos)
 
 						entity.I1 = entity.I1 + 1
 					end
@@ -1195,7 +1229,7 @@ function mod:itLivesUpdate(entity)
 							for j = 0, 7 do
 								fetus:FireProjectiles(pos, Vector.FromAngle(20 + j * 20):Resized(3), 0, params)
 							end
-							mod:ShootEffect(entity, 2, (pos + Vector(0, -20) - entity.Position) * 0.65)
+							doShootEffect(pos)
 						end
 
 						mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
@@ -1224,7 +1258,7 @@ function mod:itLivesUpdate(entity)
 								local pos = getShootPos(i)
 								local baseAngle = 90 - i * 45
 								fetus:FireProjectiles(pos, Vector.FromAngle(baseAngle + i * entity.I1 * 15):Resized(5), 0, baseProjectileParams)
-								mod:ShootEffect(entity, 2, (pos + Vector(0, -20) - entity.Position) * 0.65)
+								doShootEffect(pos)
 							end
 
 							mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
@@ -1257,7 +1291,7 @@ function mod:itLivesUpdate(entity)
 						fetus:FireProjectiles(pos, (target.Position - pos):Resized(5), 5, baseProjectileParams)
 
 						mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
-						mod:ShootEffect(entity, 2, (pos + Vector(0, -20) - entity.Position) * 0.65)
+						doShootEffect(pos)
 
 						entity.I1 = entity.I1 + 1
 					end

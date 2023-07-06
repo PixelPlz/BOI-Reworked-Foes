@@ -198,7 +198,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.peepEyeCollision, EntityT
 
 
 --[[ Fistula Scarred Womb skin ]]--
-local function fistulaScarredSkin(entity)
+function mod:fistulaScarredSkin(entity)
 	if IRFConfig.matriarchFistula == true and entity.Variant == 0 then
 		if entity.SubType == 0 and Game():GetRoom():GetBackdropType() == BackdropType.SCARRED_WOMB then
 			entity.SubType = 1000 -- The subtype that Matriarch fistula pieces use
@@ -211,21 +211,9 @@ local function fistulaScarredSkin(entity)
 		end
 	end
 end
-
-function mod:fistulaBigInit(entity)
-	fistulaScarredSkin(entity)
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fistulaBigInit, EntityType.ENTITY_FISTULA_BIG)
-
-function mod:fistulaMediumInit(entity)
-	fistulaScarredSkin(entity)
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fistulaMediumInit, EntityType.ENTITY_FISTULA_MEDIUM)
-
-function mod:fistulaSmallInit(entity)
-	fistulaScarredSkin(entity)
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fistulaSmallInit, EntityType.ENTITY_FISTULA_SMALL)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fistulaScarredSkin, EntityType.ENTITY_FISTULA_BIG)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fistulaScarredSkin, EntityType.ENTITY_FISTULA_MEDIUM)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fistulaScarredSkin, EntityType.ENTITY_FISTULA_SMALL)
 
 
 
@@ -355,21 +343,65 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gurglingsUpdate, EntityType.ENTI
 
 
 --[[ Homunculus, Begotten chain break ]]--
-function mod:homunculusChainBreak(entity)
-	if entity.Variant == 10 then
-		mod:PlaySound(nil, SoundEffect.SOUND_MEATY_DEATHS, 0.65)
-		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 1, entity.Position, Vector.Zero, entity)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_ENTITY_REMOVE, mod.homunculusChainBreak, EntityType.ENTITY_HOMUNCULUS)
+function mod:homunculusUpdate(entity)
+	if entity.Variant == 0 then
+		local data = entity:GetData()
 
-function mod:begottenChainBreak(entity)
-	if entity.Variant == 10 then
-		mod:PlaySound(nil, SoundEffect.SOUND_CHAIN_BREAK, 0.65)
-		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CHAIN_GIB, 0, entity.Position, mod:RandomVector(), entity):GetSprite().Color = Color(0.75,0.75,0.75, 1)
+		-- Get all cord segments
+		if not data.cordSegments then
+			data.cordSegments = {}
+
+			for i, segment in pairs(Isaac.FindByType(entity.Type, 10, -1, false, false)) do
+				if segment.Parent and segment.Parent.Index == entity.Index then
+					table.insert(data.cordSegments, segment)
+				end
+			end
+
+
+		-- Detached
+		elseif (entity.State == NpcState.STATE_ATTACK or entity:HasMortalDamage()) and entity.I2 == 0 then
+			entity.I2 = 1
+			mod:PlaySound(nil, SoundEffect.SOUND_MEATY_DEATHS)
+
+			-- Blood effects
+			for i, segment in pairs(data.cordSegments) do
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 1, segment.Position, Vector.Zero, entity).SpriteOffset = Vector(0, -20)
+			end
+			data.cordSegments = nil
+		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_ENTITY_REMOVE, mod.begottenChainBreak, EntityType.ENTITY_BEGOTTEN)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.homunculusUpdate, EntityType.ENTITY_HOMUNCULUS)
+
+function mod:begottenUpdate(entity)
+	if entity.Variant == 0 then
+		local data = entity:GetData()
+
+		-- Get all cord segments
+		if not data.cordSegments then
+			data.cordSegments = {}
+
+			for i, segment in pairs(Isaac.FindByType(entity.Type, 10, -1, false, false)) do
+				if segment.Parent and segment.Parent.Index == entity.Index then
+					table.insert(data.cordSegments, segment)
+				end
+			end
+
+
+		-- Detached
+		elseif (entity.State == NpcState.STATE_ATTACK or entity:HasMortalDamage()) and entity.I2 == 0 then
+			entity.I2 = 1
+			mod:PlaySound(nil, SoundEffect.SOUND_CHAIN_BREAK)
+
+			-- Chain gibs
+			for i, segment in pairs(data.cordSegments) do
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CHAIN_GIB, 0, segment.Position, mod:RandomVector(), entity):GetSprite().Color = Color(0.75,0.75,0.75, 1)
+			end
+			data.cordSegments = nil
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.begottenUpdate, EntityType.ENTITY_BEGOTTEN)
 
 
 
@@ -485,6 +517,70 @@ function mod:redGhostUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.redGhostUpdate, EntityType.ENTITY_RED_GHOST)
+
+
+
+--[[ Hush fixes ]]--
+function mod:hushInit(entity)
+	entity:GetData().hushFix = {
+		lastState = 0,
+		animation = "Idle"
+	}
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.hushInit, EntityType.ENTITY_HUSH)
+
+function mod:hushUpdate(entity)
+	local sprite = entity:GetSprite()
+	local data = entity:GetData()
+
+	-- Chill state
+	if entity.State == 80085 then
+		if sprite:IsFinished(data.hushFix.animation) then
+			if (string.match(data.hushFix.animation, "FaceVanish")) then
+				data.hushFix.animation = "FaceAppearDown"
+				sprite:Play(data.hushFix.animation, true)
+
+			elseif data.hushFix.animation == "LaserLoop" then
+				data.hushFix.animation = "LaserEnd"
+				sprite:Play(data.hushFix.animation, true)
+
+			else
+				sprite:Play("Wiggle", true)
+			end
+		end
+
+		if entity.StateFrame <= 0 then
+			entity.State = NpcState.STATE_IDLE
+		else
+			entity.StateFrame = entity.StateFrame -1
+		end
+
+
+	-- Chill tf out
+	elseif entity.State == NpcState.STATE_IDLE and data.hushFix.lastState ~= NpcState.STATE_IDLE
+	and entity.HitPoints / math.max(entity.MaxHitPoints, 0.001) < .5
+	and entity.HitPoints / math.max(entity.MaxHitPoints, 0.001) > .01 then
+		entity.State = 80085
+		entity.StateFrame = 45
+		data.hushFix.animation = sprite:GetAnimation()
+	end
+
+	data.hushFix.lastState = entity.State
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hushUpdate, EntityType.ENTITY_HUSH)
+
+function mod:hushLaserUpdate(effect)
+	local room = Game():GetRoom()
+
+	if room:HasSlowDown() or room:GetBrokenWatchState() == 1 then
+		local baseLength = 8.4
+		local drowsyMult = 0.513
+
+		local targetLength = baseLength * (effect.Target:ToPlayer().MoveSpeed or 1) * drowsyMult
+		effect.Velocity = effect.Velocity:Resized(targetLength)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.hushLaserUpdate, EffectVariant.HUSH_LASER)
 
 
 

@@ -25,7 +25,7 @@ function mod:slothUpdate(entity)
 
 						-- Attack flies
 						if entity.SubType == 0 then
-							Isaac.Spawn(EntityType.ENTITY_ATTACKFLY, 0, 0, entity.Position + vector * 20, spawnVector * 7, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+							Isaac.Spawn(EntityType.ENTITY_ATTACKFLY, 0, 0, entity.Position + vector * 20, spawnVector * 4, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 						-- Spiders
 						elseif entity.SubType == 1 then
 							EntityNPC.ThrowSpider(entity.Position, entity, entity.Position + spawnVector * mod:Random(120, 160), false, -10)

@@ -12,107 +12,136 @@ function mod:mamaGurdyUpdate(entity)
 	if entity.Variant == 0 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
+		local room = Game():GetRoom()
+
+		local shootPos = entity.Position + Vector(0, 15)
 
 
 		-- Replace default projectile attacks
 		if entity.State == NpcState.STATE_ATTACK then
 			if sprite:GetFrame() == 0 then
-				entity.I1 = mod:Random(10, 11)
+				if entity:GetData().wasDelirium then
+					entity.I1 = 10
+				else
+					entity.I1 = mod:Random(10, 11)
+				end
 			end
 
 			-- Spike trap attack
 			if entity.I1 == 11 then
 				entity.State = NpcState.STATE_ATTACK5
+				sprite:Play("Attack2", true)
 				entity.I1 = 0
+				entity.I2 = 0
 				entity.ProjectileCooldown = 0
-
-				-- Spawn spike walls on both sides
-				for i = -1, 1, 2 do
-					local basePos = Vector(target.Position.X + i * 120, room:GetTopLeftPos().Y + 20)
-
-					for j = 0, room:GetGridHeight() - 3 do
-						local pos = basePos + Vector(0, j * 40)
-
-						if room:IsPositionInRoom(pos, 10) then
-							local flip = false
-							if i == 1 then
-								flip = true
-							end
-							Isaac.Spawn(IRFentities.Type, IRFentities.GiantSpike, 0, pos, Vector.Zero, entity):GetSprite().FlipX = flip
-						end
-					end
-				end
+				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR)
 
 
-			-- Custom projectile attack
+			-- Bouncing shots
 			elseif sprite:IsEventTriggered("Shoot") then
-				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF)
+				local params = ProjectileParams()
+				params.Scale = 1.75
+				params.Color = IRFcolors.PukeOrange
+				params.FallingSpeedModifier = 1
+				params.FallingAccelModifier = -0.13
 
-				-- Bouncing shots
-				if entity.I1 == 10 then
-					local params = ProjectileParams()
-					params.Scale = 1.75
-					params.Color = IRFcolors.PukeOrange
-					params.FallingSpeedModifier = 1
-					params.FallingAccelModifier = -0.13
+				entity:FireProjectiles(shootPos, (target.Position - shootPos):Resized(9), 5, params)
 
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(9), 5, params)
-
-					params.Spread = 0.77
-					params.BulletFlags = ProjectileFlags.BOUNCE
-					for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(7), 4, params)) do
-						mod:QuickTrail(projectile, 0.09, Color(0.64,0.4,0.16, 1), projectile.Scale * 1.6)
-					end
-
-				-- Burst shots
-				elseif entity.I1 == 11 then
-					local params = ProjectileParams()
-					params.BulletFlags = (ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.CHANGE_VELOCITY_AFTER_TIMEOUT)
-					params.ChangeFlags = ProjectileFlags.BURST
-					params.ChangeVelocity = 10
-					params.ChangeTimeout = 40
-					params.Scale = 2
-					params.Acceleration = 1.04
-					params.FallingAccelModifier = -0.2
-					mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(9), 3, params, Color.Default)
+				params.Spread = 0.77
+				params.BulletFlags = ProjectileFlags.BOUNCE
+				for i, projectile in pairs(mod:FireProjectiles(entity, shootPos, (target.Position - shootPos):Resized(7), 4, params)) do
+					mod:QuickTrail(projectile, 0.09, Color(0.64,0.4,0.16, 1), projectile.Scale * 1.6)
 				end
+
+				mod:ShootEffect(entity, 4, Vector(0, 8), IRFcolors.PukeOrange)
+				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF)
 			end
 
 
 		-- Spike trap attack
 		elseif entity.State == NpcState.STATE_ATTACK5 then
-			if sprite:IsEventTriggered("Shoot") then
-				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF)
-			end
+			-- Slam the ground
+			if entity.I2 == 0 then
+				-- Spawn spike walls on both sides
+				if sprite:IsEventTriggered("Shoot") then
+					-- Effects
+					Game():ShakeScreen(8)
+					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
+					mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.1)
 
-			if sprite:WasEventTriggered("Shoot") and not sprite:WasEventTriggered("ShootStop") then
-				if entity.ProjectileCooldown <= 0 then
-					local params = ProjectileParams()
-					params.Scale = 1.5
-					params.Color = IRFcolors.PukeOrange
-					params.FallingSpeedModifier = 1
-					params.FallingAccelModifier = -0.13
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(7), 5 - entity.I1, params)
-					entity.ProjectileCooldown = 6
-					entity.I1 = entity.I1 + 1
+					for i = -1, 1, 2 do
+						-- Effects
+						local handPos = entity.Position + Vector(i * 140, 40)
+						Game():MakeShockwave(handPos, 0.035, 0.025, 10)
+						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, handPos, Vector.Zero, entity).DepthOffset = entity.DepthOffset + 10
 
-				else
-					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+						-- Spike walls
+						local basePos = Vector(target.Position.X + i * 120, room:GetTopLeftPos().Y + 20)
+						for j = 0, room:GetGridHeight() - 3 do
+							local pos = basePos + Vector(0, j * 40)
+
+							-- Don't spawn them out of bounds
+							if room:IsPositionInRoom(pos, 10) then
+								local spike = Isaac.Spawn(IRFentities.Type, IRFentities.GiantSpike, 0, pos, Vector.Zero, entity):ToNPC()
+								spike.State = NpcState.STATE_ATTACK
+								spike:GetSprite():Play("Extend", true)
+								spike:GetSprite().FlipX = i == 1
+								spike.I2 = 90
+							end
+						end
+					end
+				end
+
+				if sprite:IsFinished() then
+					entity.I2 = 1
+					sprite:Play("Shoot", true)
+				end
+
+			-- Shoot
+			elseif entity.I2 == 1 then
+				if sprite:IsEventTriggered("Shoot") then
+					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF)
+				end
+
+				-- Only shoot 3 spreads
+				if sprite:WasEventTriggered("Shoot") and entity.I1 < 3 then
+					if entity.ProjectileCooldown <= 0 then
+						local params = ProjectileParams()
+						params.Scale = 1.5
+						params.Color = IRFcolors.PukeOrange
+						params.FallingSpeedModifier = 1
+						params.FallingAccelModifier = -0.13
+						entity:FireProjectiles(shootPos, (target.Position - shootPos):Resized(7), 5 - entity.I1, params)
+						mod:ShootEffect(entity, 4, Vector(0, 8), IRFcolors.PukeOrange)
+
+						entity.ProjectileCooldown = 5
+						entity.I1 = entity.I1 + 1
+
+					else
+						entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+					end
+				end
+
+				if sprite:IsFinished() then
+					entity.State = NpcState.STATE_IDLE
+					entity.StateFrame = Settings.Cooldown
 				end
 			end
 
-			if sprite:IsFinished() then
-				entity.State = NpcState.STATE_IDLE
-				entity.StateFrame = Settings.Cooldown
-			end
 
-
-		-- Stay hidden if there are worms alive
+		-- Off-screen / Puke attack
 		elseif entity.State == NpcState.STATE_ATTACK3 then
+			-- Set starting spike cooldown
 			if sprite:IsPlaying("Attack1") and sprite:GetFrame() == 2 then
 				entity.ProjectileDelay = Settings.Cooldown / 2
+
+			-- Puke effects
+			elseif sprite:IsPlaying("Puke") and sprite:WasEventTriggered("Shoot") and entity:IsFrame(5, 0) and not sprite:WasEventTriggered("BloodStop") and sprite:GetFrame() < 65 then
+				mod:ShootEffect(entity, 4, Vector(0, 8), IRFcolors.PukeOrange)
 			end
 
+
+			-- Stay hidden if there are worms alive
 			if entity.I1 > 1 then
 				if Isaac.CountEntities(entity, EntityType.ENTITY_PARA_BITE, -1, -1) > 0 then
 					entity.I1 = 4 -- Doesn't do anything
@@ -180,7 +209,10 @@ function mod:mamaGurdySpawns(entity)
 				end
 
 				local pos = Game():GetRoom():FindFreePickupSpawnPosition(entity.Position, 0, true, false)
-				Isaac.Spawn(EntityType.ENTITY_PARA_BITE, variant, 0, pos, Vector.Zero, spawner)
+				local worm = Isaac.Spawn(EntityType.ENTITY_PARA_BITE, variant, 0, pos, Vector.Zero, spawner):ToNPC()
+				worm:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+				worm.State = NpcState.STATE_SPECIAL
+				worm:GetSprite():Play("DigOut", true)
 			end
 
 			mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)

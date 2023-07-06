@@ -41,6 +41,16 @@ function mod:giantSpikeUpdate(entity)
 		if entity:HasEntityFlags(EntityFlag.FLAG_KNOCKED_BACK) then
 			entity:ClearEntityFlags(EntityFlag.FLAG_KNOCKED_BACK)
 		end
+		
+		
+		-- Destroy any obstacles under the spike
+		local function clearGridHere()
+			local gridEntity = Game():GetRoom():GetGridEntityFromPos(entity.Position)
+
+			if gridEntity ~= nil and (gridEntity.CollisionClass == GridCollisionClass.COLLISION_SOLID or gridEntity:GetType() == GridEntityType.GRID_SPIDERWEB) then
+				gridEntity:Destroy(true)
+			end
+		end
 
 
 		-- Retracted
@@ -54,15 +64,9 @@ function mod:giantSpikeUpdate(entity)
 						rocks:GetSprite():Play("rubble", true)
 						rocks.State = 2
 					end
-					mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.5)
+					mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.4)
 
-					-- Destroy any obstacles under the spike
-					local room = Game():GetRoom()
-					local gridEntity = room:GetGridEntityFromPos(entity.Position)
-
-					if gridEntity ~= nil and (gridEntity.CollisionClass == GridCollisionClass.COLLISION_SOLID or gridEntity:GetType() == GridEntityType.GRID_SPIDERWEB) then
-						gridEntity:Destroy(true)
-					end
+					clearGridHere()
 				end
 
 				if sprite:IsFinished() then
@@ -101,7 +105,7 @@ function mod:giantSpikeUpdate(entity)
 						rocks:GetSprite():Play("rubble", true)
 						rocks.State = 2
 					end
-					mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_BURST_OUT, 0.75)
+					mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_BURST_OUT, 0.6)
 
 					-- Kill target
 					if entity.Target then
@@ -109,6 +113,8 @@ function mod:giantSpikeUpdate(entity)
 						target:TakeDamage(target.MaxHitPoints * 2, (DamageFlag.DAMAGE_CRUSH | DamageFlag.DAMAGE_IGNORE_ARMOR), EntityRef(entity), 0)
 						target:ToNPC():FireProjectiles(target.Position, Vector(8, 4), 6, ProjectileParams())
 					end
+
+					clearGridHere()
 				end
 
 				if sprite:IsFinished() then
@@ -135,7 +141,7 @@ function mod:giantSpikeUpdate(entity)
 		elseif entity.State == NpcState.STATE_SUICIDE then
 			if sprite:IsEventTriggered("Retract") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.75)
+				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.6)
 			end
 
 			if sprite:IsFinished() then

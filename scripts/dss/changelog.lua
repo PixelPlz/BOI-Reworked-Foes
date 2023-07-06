@@ -26,12 +26,18 @@ re-reworked!
 Dead Sea Scrolls menu
 (as you can tell)
 
+- Added an option to toggle
+Black Bonies having bomb effects
+
+- The mod "Hush Fix" by hgrfff
+is now included.
+This mod fixes Hush spamming his
+attacks when on low HP and his
+lasers not getting slowed.
+
 - Bone Knights now alert other knights
 into charging towards the player
 and have also recieved new sprites!
-
-- Added an option to toggle
-Black Bonies having bomb effects
 
 - Flaming Gapers now spawn
 a unique Flaming Gusher enemy
@@ -298,27 +304,31 @@ all enums have also been changed)
 
 {FSIZE2}Fixes
 
+- Fixed Cod Worms not taking
+damage from Mom's Knife
+
+- Fixed some reworked enemies and
+bosses not moving as they should
+while feared or confused
+
+- The Cage no longer has a hitbox
+before he visually lands
+
 - Fixed Portals and Flaming Gapers
 having missing layers in the Bestiary
 
 - Fixed Turdlings having
 the wrong hand sprites
 
-- Fixed some reworked enemies and
-bosses not moving as they should
-while feared or confused
-
 - Fixed Rag Mega not killing his
 Raglings on death like in vanilla
 
-- Fixed Cod Worms not taking
-damage from Mom's Knife
-
-- The Cage no longer has a hitbox
-before he visually lands
-
 - ???'s Holy Orb now disappears
 if ??? dies while it's active
+
+- Fixed Homunculus and Begotten
+cord breaking sounds playing
+when they shouldn't
 
 
 - Fixed Sloth Heads from Fiend Folio

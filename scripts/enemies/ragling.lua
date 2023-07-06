@@ -20,11 +20,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.raglingInit, EntityType.ENTIT
 function mod:raglingUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	-- Better jumping
-	if sprite:IsPlaying("Hop") and sprite:GetFrame() == 22 then
-		entity.Velocity = Vector.Zero
-		entity.TargetPosition = entity.Position
-	end
+	mod:stopSlidingAfterHop(entity)
 
 
 	-- Replace default attack

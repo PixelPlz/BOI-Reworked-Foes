@@ -136,7 +136,7 @@ local exampledirectory = {
             dssmod.changelogsButton,
 
 			{ str = '', fsize = 3, nosel = true },
-			{ str = 'individual toggles', fsize = 2, nosel = true },
+			{ str = 'more toggles', fsize = 2, nosel = true },
 			{ str = 'coming soon!', fsize = 2, nosel = true },
         },
         tooltip = dssmod.menuOpenToolTip
@@ -533,17 +533,26 @@ local exampledirectory = {
 			{ str = 'designer', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
+			{ str = '- ratratrat -', fsize = 3 },
+			{ str = 'menu and settings coder', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
+
 			{ str = '- kittenchilly -', fsize = 3 },
 			{ str = 'classic eternal flies', fsize = 2, nosel = true },
 			{ str = 'additional coding', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
-			{ str = '- ratratrat -', fsize = 3 },
-			{ str = 'menu and settings coder', fsize = 2, nosel = true },
+			{ str = '- nevernamed -', fsize = 3 },
+			{ str = 'thumbnail artist', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- sinbiscuit -', fsize = 3 },
 			{ str = 'compatibility help', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
+
+			{ str = '- hgrfff -', fsize = 3 },
+			{ str = 'hush fixes', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
         },
         tooltip = dssmod.menuOpenToolTip
     },
