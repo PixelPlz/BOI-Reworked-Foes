@@ -14,6 +14,11 @@ local Settings = {
 function mod:skinnyInit(entity)
 	if entity.Variant <= 1 then
 		entity.I2 = math.random(Settings.SoundTimer[1], Settings.SoundTimer[2])
+
+		-- Overwrite HoneyVee's Rotty animations
+		if entity.Variant == 1 then
+			entity:GetSprite():Load("gfx/226.001_rotty - Copy.anm2", true)
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.skinnyInit, EntityType.ENTITY_SKINNY)

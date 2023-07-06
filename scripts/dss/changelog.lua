@@ -30,7 +30,7 @@ Dead Sea Scrolls menu
 Black Bonies having bomb effects
 
 - The mod "Hush Fix" by hgrfff
-is now included.
+is now also included.
 This mod fixes Hush spamming his
 attacks when on low HP and his
 lasers not getting slowed.
@@ -330,6 +330,11 @@ if ??? dies while it's active
 cord breaking sounds playing
 when they shouldn't
 
+
+- Fixed Rotties not working properly
+when HoneyVee's Monster Resprites mod
+is installed (for now it just overrides
+that mod's version, sorry!)
 
 - Fixed Sloth Heads from Fiend Folio
 turning into Black Globins

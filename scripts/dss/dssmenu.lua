@@ -136,7 +136,7 @@ local exampledirectory = {
             dssmod.changelogsButton,
 
 			{ str = '', fsize = 3, nosel = true },
-			{ str = 'more toggles', fsize = 2, nosel = true },
+			{ str = 'more options', fsize = 2, nosel = true },
 			{ str = 'coming soon!', fsize = 2, nosel = true },
         },
         tooltip = dssmod.menuOpenToolTip
@@ -519,7 +519,7 @@ local exampledirectory = {
         title = 'credits',
         buttons = {
             { str = '- pixelplz -', fsize = 3 },
-			{ str = 'original creator', fsize = 2, nosel = true },
+			{ str = 'mod creator', fsize = 2, nosel = true },
 			{ str = 'coder', fsize = 2, nosel = true },
 			{ str = 'designer', fsize = 2, nosel = true },
 			{ str = 'spriter', fsize = 2, nosel = true },

@@ -11,7 +11,7 @@ Version 3.0 - The Blood & Guts update!
 
 - The mod now uses a buit-in Dead Sea Scrolls menu for it's settings instead of Mod Config Menu
 - Added a config option to toggle Black Bonies having bomb effects
-- The mod "Hush Fix" by hgrfff is now included. This mod fixes Hush spamming his attacks when on low HP and his lasers not getting slowed.
+- The mod "Hush Fix" by hgrfff is now also included. This mod fixes Hush spamming his attacks when on low HP and his lasers not getting slowed.
 - Bone Knights now alert other knights into charging towards the player and have also recieved new sprites!
 - Flaming Gapers now spawn a unique Flaming Gusher enemy (can be toggled to only include a new sprite for them)
 - Camillo Jr. now works like his vanilla version but with a laser indicator and a cooldown between attacks
@@ -38,6 +38,8 @@ Version 3.0 - The Blood & Guts update!
 - Danglers from Fiend Folio can now also collect coins like other greedy enemies
 - Seducers from Fiend Folio can now also heal when touching a player like Lust
 - Added support for custom Black Bony variants (check the scripts/enemies/blackBony.lua file on how to do it)
+
+- New workshop thumbnail by Nevernamed!
 
 
 
@@ -108,6 +110,7 @@ Version 3.0 - The Blood & Guts update!
 - ???'s Holy Orb now disappears if ??? dies while it's active
 - Fixed Homunculus and Begotten cord breaking sounds playing when they shouldn't
 
+- Fixed Rotties not working properly when HoneyVee's Monster Resprites mod is installed (for now it just overrides that mod's version, sorry!)
 - Fixed Sloth Heads from Fiend Folio turning into Black Globins
 - Fixed grid Hosts from Fiend Folio not turning into the proper fleshy variants when their skull is broken
 - Fixed Mr. Mines shooting the wrong projectiles on The Future floor

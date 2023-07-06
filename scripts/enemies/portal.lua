@@ -6,7 +6,9 @@ local Settings = {
 	ShotSpeed = 10
 }
 
-IRFportalSpawns = { -- Corresponds to the values from Game():GetRoom():GetRoomConfigStage()
+-- Example on how to add custom spawns:
+-- table.insert( IRFportalSpawns[10], {CoolMod.EpicWombEnemy, 21} )
+IRFportalSpawns = { -- Corresponds to the IDs in stages.xml
 	{ -- Basement
 		{EntityType.ENTITY_GAPER, 1},
 		{EntityType.ENTITY_HORF, 0},

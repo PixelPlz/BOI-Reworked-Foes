@@ -7,6 +7,8 @@ local Settings = {
 	GutsCooldown = 45
 }
 
+-- Example on how to add custom spawns:
+-- table.insert( IRFitLivesSpawns.Fetus[1], {CoolMod.EpicEnemy, 21} )
 IRFitLivesSpawns = {
 	Fetus = {
 		{ -- 100% - 75%
@@ -280,6 +282,16 @@ function mod:itLivesUpdate(entity)
 						entity.State = NpcState.STATE_IDLE
 					end
 				end
+			end
+
+
+			-- Heartbeat effect
+			if entity:IsFrame(50 - math.min(3, data.phase - 1) * 10, 0) then
+				local sound = SoundEffect.SOUND_HEARTBEAT
+				if data.phase >= 3 then
+					sound = SoundEffect.SOUND_HEARTBEAT_FASTER
+				end
+				mod:PlaySound(nil, sound, 0.85)
 			end
 
 

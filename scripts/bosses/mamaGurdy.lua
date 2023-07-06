@@ -37,7 +37,7 @@ function mod:mamaGurdyUpdate(entity)
 				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR)
 
 
-			-- Bouncing shots
+			-- Bouncing shots attack
 			elseif sprite:IsEventTriggered("Shoot") then
 				local params = ProjectileParams()
 				params.Scale = 1.75
@@ -64,7 +64,6 @@ function mod:mamaGurdyUpdate(entity)
 			if entity.I2 == 0 then
 				-- Spawn spike walls on both sides
 				if sprite:IsEventTriggered("Shoot") then
-					-- Effects
 					Game():ShakeScreen(8)
 					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
 					mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.1)
@@ -111,7 +110,7 @@ function mod:mamaGurdyUpdate(entity)
 						params.Color = IRFcolors.PukeOrange
 						params.FallingSpeedModifier = 1
 						params.FallingAccelModifier = -0.13
-						entity:FireProjectiles(shootPos, (target.Position - shootPos):Resized(7), 5 - entity.I1, params)
+						entity:FireProjectiles(shootPos, (target.Position - shootPos):Resized(6.5), 5 - entity.I1, params)
 						mod:ShootEffect(entity, 4, Vector(0, 8), IRFcolors.PukeOrange)
 
 						entity.ProjectileCooldown = 5
@@ -220,12 +219,3 @@ function mod:mamaGurdySpawns(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.mamaGurdySpawns)
-
--- Burst projectile fix
-function mod:mamaGurdyProjectileUpdate(projectile)
-	if projectile.SpawnerType == EntityType.ENTITY_MAMA_GURDY and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
-		projectile:Die()
-		mod:PlaySound(nil, SoundEffect.SOUND_DEATH_BURST_SMALL)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.mamaGurdyProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)
