@@ -11,17 +11,18 @@ local Settings = {
 --[[ Big ]]--
 function mod:bigTeratomaUpdate(entity)
 	if entity.Variant == 1 and entity:IsDead() then
-		local center = Isaac.Spawn(200, IRFentities.teratomar, 0, entity.Position, Vector.Zero, entity):ToNPC()
+		local center = Isaac.Spawn(IRFentities.Type, IRFentities.Teratomar, 0, entity.Position, Vector.Zero, entity):ToNPC()
 		local data = center:GetData()
-		
+
 		-- Orbiting chunks
 		data.chunks = {}
+
 		for i = 1, 3 do
 			local chunk = Isaac.Spawn(EntityType.ENTITY_FISTULA_MEDIUM, 1, 0, entity.Position, Vector.Zero, entity):ToNPC()
 			data.chunks[i] = chunk
 			chunk.Parent = center
 			chunk:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
-			chunk.V2 = Vector(2, 80) -- Rotation speed / Distance from parent
+			chunk.V1 = Vector(70, 0)
 
 			mod:QuickCord(center, chunk, "teratomar")
 		end
@@ -33,6 +34,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.bigTeratomaUpdate, EntityTyp
 
 --[[ Medium ]]--
 function mod:mediumTeratomaUpdate(entity)
+	-- Orbit parent
 	if entity.Variant == 1 and entity.Parent then
 		if entity.Parent:IsDead() then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
@@ -40,34 +42,18 @@ function mod:mediumTeratomaUpdate(entity)
 		else
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
-		end
-		
 
-		-- Get offset
-		local siblingCount = 0
-		for i, sibling in pairs(Isaac.FindByType(entity.Type, entity.Variant, -1, false, true)) do
-			if sibling:HasCommonParentWithEntity(entity) then
-				sibling:ToNPC().I2 = i
-				siblingCount = siblingCount + 1
-			end
+			mod:OrbitParent(entity, entity.Parent, 2, entity.V1.X)
 		end
-
-		-- Orbit parent
-		entity.V1 = Vector(((360 / siblingCount) * entity.I2), entity.V1.Y + entity.V2.X) -- Rotation offset / Current rotation
-		if entity.V1.Y >= 360 then
-			entity.V1 = Vector(entity.V1.X, entity.V1.Y - 360)
-		end
-		entity.Position = mod:Lerp(entity.Position, entity.Parent.Position + (Vector.FromAngle(entity.V1.X + entity.V1.Y) * entity.V2.Y), 0.1)
-		entity.Velocity = entity.Parent.Velocity
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.mediumTeratomaUpdate, EntityType.ENTITY_FISTULA_MEDIUM)
 
 
 
---[[ Look Teratomar it's you! ]]--
+--[[ Look Teratomar, it's you! ]]--
 function mod:teratomarInit(entity)
-	if entity.Variant == IRFentities.teratomar then
+	if entity.Variant == IRFentities.Teratomar then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
@@ -76,30 +62,21 @@ function mod:teratomarInit(entity)
 		entity.SplatColor = Color(0.15,0,0, 1, 0.13,0.13,0.13)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.teratomarInit, 200)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.teratomarInit, IRFentities.Type)
 
 function mod:teratomarUpdate(entity)
-	if entity.Variant == IRFentities.teratomar then
+	if entity.Variant == IRFentities.Teratomar then
 		local sprite = entity:GetSprite()
 		local data = entity:GetData()
 		local target = entity:GetPlayerTarget()
 
 
 		-- Move diagonally
-		local xV = Settings.MoveSpeed
-		local yV = Settings.MoveSpeed
-		if entity.Velocity.X < 0 then
-			xV = xV * -1
-		end
-		if entity.Velocity.Y < 0 then
-			yV = yV * -1
-		end
-		entity.Velocity = mod:Lerp(entity.Velocity, Vector(xV, yV), 0.1)
-
+		mod:MoveDiagonally(entity, Settings.MoveSpeed)
 
 		if entity.State == NpcState.STATE_MOVE then
 			mod:LoopingAnim(sprite, "Idle")
-			
+
 			if entity.ProjectileCooldown <= 0 then
 				entity.State = NpcState.STATE_ATTACK
 				sprite:Play("Attack", true)
@@ -107,15 +84,25 @@ function mod:teratomarUpdate(entity)
 				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 			end
 
+
 		-- Shoot
 		elseif entity.State == NpcState.STATE_ATTACK then
 			if sprite:IsEventTriggered("Shoot") then
 				local params = ProjectileParams()
 				params.Variant = ProjectileVariant.PROJECTILE_BONE
-				entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * Settings.ShotSpeed, 4, params)
-				entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_2, 1.1, 0, false, 1)
+
+				for i,projectile in pairs(mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(Settings.ShotSpeed), 5, params)) do
+					local projectileSprite = projectile:GetSprite()
+					projectileSprite:Load("gfx/002.002_tooth tear.anm2", true)
+					projectileSprite:Play("Tooth4Move", true)
+
+					projectileSprite:ReplaceSpritesheet(0, "gfx/tooth_shot_teratoma.png")
+					projectileSprite:LoadGraphics()
+				end
+
+				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_2, 1.1)
 			end
-			
+
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
 				entity.ProjectileCooldown = Settings.Cooldown
@@ -140,10 +127,10 @@ function mod:teratomarUpdate(entity)
 			-- Gradually increase orbit distance
 			if #data.chunks > 0 then
 				for i = 1, #data.chunks do
-					data.chunks[i]:ToNPC().V2 = Vector(2, 80 + (entity.MaxHitPoints - entity.HitPoints))
+					data.chunks[i]:ToNPC().V1 = Vector(70 + (entity.MaxHitPoints - entity.HitPoints) / 2, 0)
 				end
 			end
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.teratomarUpdate, 200)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.teratomarUpdate, IRFentities.Type)

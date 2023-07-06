@@ -1,31 +1,37 @@
 local mod = BetterMonsters
 
 local Settings = {
-	CoinHealPercentage = 5,
+	CoinHealPercentage = 3,
 	CoinCollectRange = 20,
-	CoinMagnetRange = 40
+	CoinMagnetRange = 40,
+	CoinMagnetSpeed = 15
 }
 
 
 
--- Function for making greedy enemies collect coins
-function mod:greedCollect(entity)
-	-- Don't pick up coins in greed mode
-	if not Game():IsGreedMode() then
+--[[ Function to make greedy enemies collect coins ]]--
+function mod:CollectCoins(entity)
+	-- Don't pick up coins in greed mode or if the entity is dead / not fully spawned
+	if not Game():IsGreedMode() and entity.FrameCount > 20 and not entity:IsDead() then
 		for _, pickup in pairs(Isaac.FindInRadius(entity.Position, Settings.CoinMagnetRange, EntityPartition.PICKUP)) do
-			if not entity:IsDead() and pickup.Variant == PickupVariant.PICKUP_COIN and not pickup:ToPickup():IsShopItem() and pickup:ToPickup():CanReroll() == true and not pickup:GetData().greedRobber then
+			if pickup.Variant == PickupVariant.PICKUP_COIN and pickup.SubType ~= CoinSubType.COIN_STICKYNICKEL -- Don't try to pick up sticky nickels
+			and pickup:ToPickup():CanReroll() == true -- Don't try to pick up coins that haven't finished spawning
+			and not pickup:GetData().greedRobber then
+				-- In collecting range
 				if (entity.Position - pickup.Position):Length() <= Settings.CoinCollectRange then
-					pickup:GetData().greedRobber = entity:ToNPC()
+					pickup:GetData().greedRobber = entity
+					pickup.Velocity = Vector.Zero
 
-				elseif Game():GetRoom():CheckLine(entity.Position, pickup.Position, 0, 0, false, false) and pickup.SubType ~= CoinSubType.COIN_STICKYNICKEL then
-					pickup.Position = mod:Lerp(pickup.Position, entity.Position, 0.2)
+				-- Not behind obstacles
+				elseif Game():GetRoom():CheckLine(entity.Position, pickup.Position, 0, 0, false, false) then
+					pickup.Velocity = mod:Lerp(pickup.Velocity, (entity.Position - pickup.Position):Resized(Settings.CoinMagnetSpeed), 0.25)
 				end
 			end
 		end
 	end
 end
 
-function mod:greedRobPickup(entity)
+function mod:CollectedCoin(entity)
 	local data = entity:GetData()
 	local sprite = entity:GetSprite()
 
@@ -34,9 +40,9 @@ function mod:greedRobPickup(entity)
 	if data.greedRobber then
 		if not sprite:IsPlaying("Collect") then
 			sprite:Play("Collect", true)
-			data.greedRobbed = true
+			data.greedCollected = true
 			data.greedRobber:SetColor(Color(1,1,1, 1, 0.5,0.5,0), 5, 1, true, false)
-			
+
 			-- Proper coin values
 			local multiplier = 1
 			if entity.SubType == CoinSubType.COIN_NICKEL or entity.SubType == CoinSubType.COIN_STICKYNICKEL then
@@ -51,7 +57,7 @@ function mod:greedRobPickup(entity)
 			data.greedRobber:AddHealth((data.greedRobber.MaxHitPoints / 100) * Settings.CoinHealPercentage * multiplier)
 
 			-- Add to Coffer coin projectiles
-			if data.greedRobber.Type == EntityType.ENTITY_KEEPER and data.greedRobber.Variant == IRFentities.coffer then
+			if data.greedRobber.Type == EntityType.ENTITY_KEEPER and data.greedRobber.Variant == IRFentities.Coffer then
 				data.greedRobber.I1 = data.greedRobber.I1 + multiplier
 			end
 		end
@@ -59,57 +65,56 @@ function mod:greedRobPickup(entity)
 		data.greedRobber = nil
 	end
 
-
 	-- Remove the coin
-	if data.greedRobbed and sprite:IsPlaying("Collect") and sprite:GetFrame() == 4 then
+	if data.greedCollected and sprite:IsPlaying("Collect") and sprite:GetFrame() >= 4 then
 		entity:PlayPickupSound()
 		entity:Remove()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, mod.greedRobPickup, PickupVariant.PICKUP_COIN)
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, mod.CollectedCoin, PickupVariant.PICKUP_COIN)
 
 
 
--- Greed
+--[[ Greed ]]--
 function mod:greedUpdate(entity)
-	if mod:CheckForRev() == false and ((entity.Variant == 0 and entity.SubType <= 1) or entity.Variant == 1) then
+	if mod:CheckValidMiniboss(entity) == true then
 		local sprite = entity:GetSprite()
 
-		if entity.State == NpcState.STATE_ATTACK or entity.State == NpcState.STATE_ATTACK3 then
-			if sprite:GetFrame() == 5 then
-				entity:PlaySound(SoundEffect.SOUND_BLOODSHOOT, 1, 0, false, 1)
+		if entity.State == NpcState.STATE_ATTACK then
+			-- Replace default attack for champion
+			if entity.SubType == 1 and (sprite:IsPlaying("Attack01Down") or sprite:IsPlaying("Attack01Hori") or sprite:IsPlaying("Attack01Up")) then
+				entity.State = NpcState.STATE_ATTACK3
+
+			-- Make them not silent while shooting
+			elseif sprite:GetFrame() == 5 then
+				mod:PlaySound(entity, SoundEffect.SOUND_BLOODSHOOT)
 			end
 
-			-- Custom champion attack
-			if entity.State == NpcState.STATE_ATTACK then
-				if entity.SubType == 1 and (sprite:IsPlaying("Attack01Down") or sprite:IsPlaying("Attack01Hori") or sprite:IsPlaying("Attack01Up")) then
-					entity.State = NpcState.STATE_ATTACK3
-				end
 
-			elseif entity.State == NpcState.STATE_ATTACK3 then
-				if sprite:GetFrame() == 4 then
-					
-					local params = ProjectileParams()
-					params.Variant = ProjectileVariant.PROJECTILE_COIN
-					params.BulletFlags = ProjectileFlags.EXPLODE
-					params.Scale = 1.25
-					entity:FireProjectiles(entity.Position, entity.V1:Normalized() * 8, 1, params)
-				end
+		-- Custom champion attack
+		elseif entity.State == NpcState.STATE_ATTACK3 then
+			if sprite:GetFrame() == 5 then
+				local params = ProjectileParams()
+				params.Variant = ProjectileVariant.PROJECTILE_COIN
+				params.BulletFlags = ProjectileFlags.EXPLODE
+				params.Scale = 1.25
+				entity:FireProjectiles(entity.Position, entity.V1:Resized(8), 1, params)
+				mod:PlaySound(entity, SoundEffect.SOUND_ULTRA_GREED_SPIT, 0.75)
+			end
 
-				if sprite:IsFinished(sprite:GetAnimation()) then
-					entity.State = NpcState.STATE_MOVE
-				end
+			if sprite:IsFinished() then
+				entity.State = NpcState.STATE_MOVE
 			end
 		end
 
 
 		-- Unique death for champion Greed
 		if entity.SubType == 1 and entity:HasMortalDamage() then
-			SFXManager():Play(SoundEffect.SOUND_ULTRA_GREED_COIN_DESTROY)
+			mod:PlaySound(nil, SoundEffect.SOUND_ULTRA_GREED_COIN_DESTROY)
 
 			-- Particles
 			for i = 0, 7 do
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.GOLD_PARTICLE, 0, entity.Position, Vector.FromAngle(math.random(0, 359)) * math.random(1, 5), entity)
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.GOLD_PARTICLE, 0, entity.Position, mod:RandomVector(mod:Random(1, 5)), entity)
 			end
 
 			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF01, 0, entity.Position, Vector.Zero, entity):GetSprite()
@@ -119,7 +124,7 @@ function mod:greedUpdate(entity)
 		end
 	end
 
-	mod:greedCollect(entity)
+	mod:CollectCoins(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.greedUpdate, EntityType.ENTITY_GREED)
 
@@ -137,20 +142,20 @@ function mod:greedHit(target, damageAmount, damageFlags, damageSource, damageCou
 		local player = target:ToPlayer()
 
 		-- Remove bombs
-		local amount = math.min(player:GetNumBombs(), math.random(1, 2))
+		local amount = math.min(player:GetNumBombs(), mod:Random(1, 2))
 		player:AddBombs(-amount)
 
 		if amount > 1 then
-			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_BOMB, BombSubType.BOMB_NORMAL, player.Position, Vector.FromAngle(math.random(0, 359)) * math.random(4, 6), nil)
+			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_BOMB, BombSubType.BOMB_NORMAL, player.Position, mod:RandomVector(mod:Random(4, 6)), nil)
 		end
 
 
 		-- Remove keys
-		local amount = math.min(player:GetNumKeys(), math.random(1, 2))
+		local amount = math.min(player:GetNumKeys(), mod:Random(1, 2))
 		player:AddKeys(-amount)
 
 		if amount > 1 then
-			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_KEY, KeySubType.KEY_NORMAL, player.Position, Vector.FromAngle(math.random(0, 359)) * math.random(4, 6), nil)
+			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_KEY, KeySubType.KEY_NORMAL, player.Position, mod:RandomVector(mod:Random(4, 6)), nil)
 		end
 	end
 end
@@ -166,31 +171,49 @@ mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championGreedReward, Picku
 
 
 
--- Coffer / Keeper
-function mod:cofferReplace(entity)
+--[[ Replace Greed's Hoppers ]]--
+function mod:greedHopperReplace(entity)
 	if entity.Variant == 0 and entity.SubType == 0 and entity.SpawnerType == EntityType.ENTITY_GREED then
-		entity:Remove() -- Properly sets their stage HP
+		entity:Remove() -- Properly sets their stage HP this way
 
-		if entity.SpawnerEntity.SubType == 0 then
-			Isaac.Spawn(EntityType.ENTITY_KEEPER, IRFentities.coffer, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):Update()
-
-		elseif entity.SpawnerEntity.SubType == 1 then
+		-- Champion Greed coins
+		if entity.SpawnerEntity.SubType == 1 then
 			local coin = Isaac.Spawn(EntityType.ENTITY_ULTRA_COIN, 2, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
+			coin:ToNPC().Scale = 0.85
 			coin:Update()
-			coin:ToNPC().Scale = 0.9
+			mod:PlaySound(nil, SoundEffect.SOUND_ULTRA_GREED_PULL_SLOT, 0.8)
+
+		-- Regular Greed Coffers
+		else
+			Isaac.Spawn(EntityType.ENTITY_KEEPER, IRFentities.Coffer, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):Update()
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.cofferReplace, EntityType.ENTITY_HOPPER)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.greedHopperReplace, EntityType.ENTITY_HOPPER)
 
+
+
+--[[ Coffer / Keeper ]]--
 function mod:cofferUpdate(entity)
 	local sprite = entity:GetSprite()
+	
+	-- For both
+	mod:CollectCoins(entity)
 
-	if entity.Variant == IRFentities.coffer then
-		-- Go towards coins
-		if not Game():IsGreedMode() then
-			for _, pickup in pairs(Isaac.FindInRadius(entity.Position, 120, EntityPartition.PICKUP)) do
-				if not entity:IsDead() and pickup.Variant == PickupVariant.PICKUP_COIN and not pickup:ToPickup():IsShopItem() and pickup:ToPickup():CanReroll() == true then
+	if sprite:IsPlaying("JumpDown") and sprite:GetFrame() == 22 then
+		entity.Velocity = Vector.Zero
+		entity.TargetPosition = entity.Position
+	end
+
+
+	-- For Coffers
+	if entity.Variant == IRFentities.Coffer then
+		-- Follow the turning coin
+		if not Game():IsGreedMode() and not entity:IsDead() then
+			for _, pickup in pairs(Isaac.FindInRadius(entity.Position, Settings.CoinMagnetRange * 3, EntityPartition.PICKUP)) do
+				if pickup.Variant == PickupVariant.PICKUP_COIN and pickup.SubType ~= CoinSubType.COIN_STICKYNICKEL -- Don't try to pick up sticky nickels
+				and pickup:ToPickup():CanReroll() == true -- Don't try to pick up coins that haven't finished spawning
+				and not pickup:GetData().greedRobber then
 					entity.Target = pickup
 				end
 			end
@@ -199,34 +222,25 @@ function mod:cofferUpdate(entity)
 		-- Prevent them from shooting
 		entity.ProjectileCooldown = 3
 	end
-
-
-	-- Also for keepers
-	mod:greedCollect(entity)
-
-	if sprite:IsPlaying("JumpDown") and sprite:GetFrame() == 22 then
-		entity.Velocity = Vector.Zero
-		entity.TargetPosition = entity.Position
-	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.cofferUpdate, EntityType.ENTITY_KEEPER)
 
 function mod:cofferDeath(entity)
-	if entity.Variant == IRFentities.coffer and entity.I1 > 0 then
+	if entity.Variant == IRFentities.Coffer and entity.I1 > 0 then
 		local target = entity:GetPlayerTarget()
 		local params = ProjectileParams()
 		params.Variant = ProjectileVariant.PROJECTILE_COIN
-		
+
 		if entity.I1 == 1 then
-			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * 8, 0, params)
+			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(8), 0, params)
 
 		elseif entity.I1 == 3 then
 			for i = 0, 2 do
-				entity:FireProjectiles(entity.Position, Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees() + (i * 120)) * 8, 0, params)
+				entity:FireProjectiles(entity.Position, Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees() + (i * 120)):Resized(8), 0, params)
 			end
 
 		elseif entity.I1 == 4 then
-			entity:FireProjectiles(entity.Position, Vector(8, 4), math.random(6, 7), params)
+			entity:FireProjectiles(entity.Position, Vector(8, 4), mod:Random(6, 7), params)
 
 		elseif entity.I1 >= 8 then
 			entity:FireProjectiles(entity.Position, Vector(8, 8), 8, params)
@@ -240,26 +254,23 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.cofferDeath, EntityType.ENTI
 
 
 
+--[[ Other greedy enemies ]]--
 -- Hanger
 function mod:hangerUpdate(entity)
-	mod:greedCollect(entity)
+	mod:CollectCoins(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hangerUpdate, EntityType.ENTITY_HANGER)
 
-
-
 -- Greed Gaper
 function mod:greedGaperUpdate(entity)
-	mod:greedCollect(entity)
+	mod:CollectCoins(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.greedGaperUpdate, EntityType.ENTITY_GREED_GAPER)
-
-
 
 -- Fiend Folio Dangler
 function mod:danglerUpdate(entity)
 	if FiendFolio then
-		mod:greedCollect(entity)
+		mod:CollectCoins(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.danglerUpdate, 610)

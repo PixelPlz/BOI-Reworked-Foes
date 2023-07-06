@@ -35,7 +35,7 @@ function mod:stevenUpdate(entity)
 			entity.Position = room:FindFreePickupSpawnPosition(pos, 0, true, false)
 			entity:SetColor(Color(1,1,1, 1, 1,1,1), 5, 1, true, false)
 
-			SFXManager():Play(SoundEffect.SOUND_STATIC)
+			mod:PlaySound(nil, SoundEffect.SOUND_STATIC)
 			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BIG_SPLASH, 2, entity.Position, Vector.Zero, entity).DepthOffset = entity.DepthOffset + 10
 			mod:QuickCreep(EffectVariant.CREEP_STATIC, entity, entity.Position, 1.5)
 
@@ -44,7 +44,7 @@ function mod:stevenUpdate(entity)
 				data.child.Position = room:FindFreePickupSpawnPosition(childPos, 0, true, true)
 				data.child:SetColor(Color(1,1,1, 1, 1,1,1), 5, 1, true, false)
 				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BIG_SPLASH, 2, data.child.Position, Vector.Zero, data.child).DepthOffset = data.child.DepthOffset + 10
-				
+
 				-- Prevent steven baby from shooting right after teleporting
 				data.child:ToNPC().ProjectileCooldown = 30
 				if data.child:ToNPC().State == NpcState.STATE_ATTACK then

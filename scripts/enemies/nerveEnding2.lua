@@ -21,14 +21,14 @@ function mod:nerveEnding2Update(entity)
 		local data = entity:GetData()
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
-		
-		
+
 		entity.Velocity = Vector.Zero
-		
+
+
 		-- Idle
 		if entity.State == NpcState.STATE_IDLE then
 			mod:LoopingAnim(sprite, "Idle")
-			
+
 			if entity.ProjectileCooldown <= 0 then
 				-- Attack if in range
 				if Game():GetRoom():CheckLine(entity.Position, target.Position, 3, 0, false, false) then
@@ -68,7 +68,7 @@ function mod:nerveEnding2Update(entity)
 		-- Attack
 		elseif entity.State == NpcState.STATE_ATTACK then
 			if sprite:IsEventTriggered("Sound") then
-				SFXManager():Play(SoundEffect.SOUND_WHIP)
+				mod:PlaySound(nil, SoundEffect.SOUND_WHIP)
 
 			elseif sprite:IsEventTriggered("Hit") then				
 				local hurt = false
@@ -92,12 +92,12 @@ function mod:nerveEnding2Update(entity)
 						end
 					end
 				end
-				
+
 				-- On succesful hit
 				if hurt == true then
 					target:TakeDamage(2, 0, EntityRef(entity), 0)
-					target.Velocity = target.Velocity + (Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees()) * Settings.WhipStrength)
-					SFXManager():Play(SoundEffect.SOUND_WHIP_HIT)
+					target.Velocity = target.Velocity + (target.Position - entity.Position):Resized(Settings.WhipStrength)
+					mod:PlaySound(nil, SoundEffect.SOUND_WHIP_HIT)
 				end
 			end
 

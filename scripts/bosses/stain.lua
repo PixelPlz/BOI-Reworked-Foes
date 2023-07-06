@@ -18,7 +18,7 @@ function mod:stainInit(entity)
 
 		entity.State = NpcState.STATE_SPECIAL
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-		
+
 		if entity.SpawnerEntity and entity.SpawnerEntity:GetData().wasDelirium then
 			sprite:ReplaceSpritesheet(1, "gfx/bosses/afterbirthplus/deliriumforms/afterbirth/thestain.png")
 			sprite:LoadGraphics()
@@ -41,15 +41,15 @@ function mod:stainUpdate(entity)
 		if entity.State == NpcState.STATE_ATTACK and entity.I1 == 1 then
 			entity.State = NpcState.STATE_ATTACK4
 			sprite:Play("Attack1Begin", true)
-			entity:PlaySound(SoundEffect.SOUND_MONSTER_ROAR_0, 0.9, 0, false, 1)
-		
+			mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_ROAR_0)
+
 		elseif entity.State == NpcState.STATE_ATTACK4 then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
 			if sprite:IsEventTriggered("Shoot") then
-				SFXManager():Play(SoundEffect.SOUND_MAGGOT_ENTER_GROUND)
+				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND)
 			end
-			
+
 			if sprite:IsFinished("Attack1Begin") then
 				entity.State = NpcState.STATE_ATTACK5
 				entity.ProjectileCooldown = 10
@@ -67,18 +67,24 @@ function mod:stainUpdate(entity)
 			-- Spawn tentacles
 			if entity.StateFrame < 3 then
 				if entity.ProjectileCooldown <= 0 then
+					local directions = {0, 90, 180, 270}
+
 					for i = 0, 1 do
-						local pos = Game():GetRoom():FindFreePickupSpawnPosition((target.Position + Vector.FromAngle(math.random(0, 3) * 90) * 100), 80, true, false)
+						local choice = math.random(1, #directions)
+						local direction = directions[choice]
+						table.remove(directions, choice)
+
+						local pos = Game():GetRoom():FindFreePickupSpawnPosition(target.Position + Vector.FromAngle(direction):Resized(100), 40, true, false)
 						local tentacle = Isaac.Spawn(EntityType.ENTITY_STAIN, 10, entity.SubType, pos, Vector.Zero, entity)
 						tentacle.Parent = entity
 
 						for i = 0, 5 do
-							local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, tentacle.Position, Vector.FromAngle(math.random(0, 359)) * 3, entity):ToEffect()
+							local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, tentacle.Position, mod:RandomVector(3), entity):ToEffect()
 							rocks:GetSprite():Play("rubble", true)
 							rocks.State = 2
 						end
 					end
-					SFXManager():Play(SoundEffect.SOUND_ROCK_CRUMBLE)
+					mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE)
 
 					entity.ProjectileCooldown = 40
 					entity.StateFrame = entity.StateFrame + 1
@@ -92,6 +98,21 @@ function mod:stainUpdate(entity)
 				entity.State = NpcState.STATE_ATTACK4
 				sprite:Play("Attack1End", true)
 			end
+
+
+		-- Extra sounds
+		-- For bullet hell attack
+		elseif entity.State == NpcState.STATE_ATTACK2 then
+			if (entity.I1 == 1 or entity.I1 == 4) and entity.StateFrame == 0 then
+				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_YELL_B)
+
+			elseif sprite:IsEventTriggered("Shoot") then
+				mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT, 1, 1, 5)
+			end
+
+		-- For summoning
+		elseif entity.State == NpcState.STATE_SUMMON and sprite:IsEventTriggered("Summon") then
+			mod:PlaySound(entity, SoundEffect.SOUND_WEIRD_WORM_SPIT)
 		end
 	end
 end
@@ -120,14 +141,7 @@ function mod:stainTentacleUpdate(entity)
 			-- Get whip direction
 			if sprite:IsFinished("Appear") then
 				local angleDegrees = (target.Position - entity.Position):GetAngleDegrees()
-				local facing = "Left"
-				if angleDegrees > -45 and angleDegrees < 45 then
-					facing = "Right"
-				elseif angleDegrees >= 45 and angleDegrees <= 135 then
-					facing = "Down"
-				elseif angleDegrees < -45 and angleDegrees > -135 then
-					facing = "Up"
-				end
+				local facing = mod:GetDirectionString(angleDegrees)
 				sprite:Play("Swing" .. facing, true)
 
 			-- Remove self after burrowing
@@ -142,12 +156,13 @@ function mod:stainTentacleUpdate(entity)
 
 			if sprite:IsEventTriggered("Start") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
-				entity:PlaySound(SoundEffect.SOUND_SKIN_PULL, 1, 0, false, 1)
+				mod:PlaySound(nil, SoundEffect.SOUND_SKIN_PULL)
+
 			elseif sprite:IsEventTriggered("Stop") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 
 			elseif sprite:IsEventTriggered("Sound") then
-					SFXManager():Play(SoundEffect.SOUND_WHIP)
+				mod:PlaySound(nil, SoundEffect.SOUND_WHIP)
 
 			elseif sprite:IsEventTriggered("Hit") then				
 				local hurt = false
@@ -171,12 +186,12 @@ function mod:stainTentacleUpdate(entity)
 						end
 					end
 				end
-				
+
 				-- On succesful hit
 				if hurt == true then
 					target:TakeDamage(2, 0, EntityRef(entity.Parent), 0)
-					target.Velocity = target.Velocity + (Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees()) * Settings.WhipStrength)
-					SFXManager():Play(SoundEffect.SOUND_WHIP_HIT)
+					target.Velocity = target.Velocity + (target.Position - entity.Position):Resized(Settings.WhipStrength)
+					mod:PlaySound(nil, SoundEffect.SOUND_WHIP_HIT)
 				end
 			end
 

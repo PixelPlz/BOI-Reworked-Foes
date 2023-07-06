@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="vinh" CreatedOn="2022-11-14 19:10:47" Version="3" Fps="30"/>
+	<Info CreatedBy="vinh" CreatedOn="2023. 05. 31. 17:13:39" Version="5" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="monsters\better\forgotten bone orbital.png" Id="0"/>

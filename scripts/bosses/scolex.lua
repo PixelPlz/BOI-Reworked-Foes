@@ -7,7 +7,7 @@ local mod = BetterMonsters
 
 -- ProjectileCooldown - Cooldown for attack in jumps
 -- ProjectileDelay - How much time should pass after jumping for the attack
--- StateFrame - Extra state
+-- StateFrame - Secondary state
 
 -- V1 - Armor health (X only)
 -- V2 - Where this segment landed / jumped out
@@ -17,7 +17,7 @@ local mod = BetterMonsters
 
 local Settings = {
 	Length = 19, -- Doesn't include head
-	ArmorHealth = 80,
+	ArmorHealth = 50,
 	TailMulti = 1.25,
 
 	BurrowTime = 30,
@@ -45,7 +45,7 @@ function mod:scolexInit(entity)
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 
-		if IRFconfig.appearPins == false then
+		if IRFConfig.appearPins == false then
 			entity.Visible = false
 		end
 
@@ -72,7 +72,7 @@ function mod:scolexUpdate(entity)
 			local hasDirt = false
 
 			-- Update existing one
-			for i, dirt in pairs(Isaac.FindByType(200, IRFentities.dirtHelper, -1, false, false)) do
+			for i, dirt in pairs(Isaac.FindByType(IRFentities.Type, IRFentities.DirtHelper, -1, false, false)) do
 				if dirt.Position:Distance(entity.V2) <= 20 then
 					dirt.Position = entity.V2
 					dirt:ToNPC().StateFrame = 10
@@ -84,8 +84,7 @@ function mod:scolexUpdate(entity)
 
 			-- Create new one
 			if hasDirt == false then
-				-- Vector(60, 140)
-				Isaac.Spawn(200, IRFentities.dirtHelper, 0, entity.Position, Vector.Zero, entity):ToNPC().StateFrame = 10
+				Isaac.Spawn(IRFentities.Type, IRFentities.DirtHelper, 0, entity.Position, Vector.Zero, entity):ToNPC().StateFrame = 10
 			end
 		end
 
@@ -94,14 +93,14 @@ function mod:scolexUpdate(entity)
 		if entity.State == NpcState.STATE_INIT then
 			-- Head
 			entity.GroupIdx = 0
-			entity.I1 = Settings.BurrowTime
+			entity.I1 = mod:Random(Settings.BurrowTime / 2, Settings.BurrowTime * 2)
 			data.zVelocity = 0
 			entity.ProjectileCooldown = 1
 
-			if IRFconfig.appearPins == true then
-				SFXManager():Play(SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.75)
-				entity.Visible = false
+			if IRFConfig.appearPins == true then
+				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.75)
 			end
+			entity.Visible = false
 
 
 			-- Create all segments
@@ -127,7 +126,7 @@ function mod:scolexUpdate(entity)
 
 				-- Body segments
 				else
-					local anim = "Body" .. tostring(math.random(1, 3))
+					local anim = "Body" .. tostring(mod:Random(1, 3))
 					local middle = math.floor(Settings.Length / 2)
 
 					-- Second to last one has its shell broken
@@ -175,7 +174,7 @@ function mod:scolexUpdate(entity)
 
 						-- Effects
 						for i = 0, 5 do
-							local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, entity.Position, Vector.FromAngle(math.random(0, 359)) * 3, entity):ToEffect()
+							local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, entity.Position, mod:RandomVector(3), entity):ToEffect()
 							local rockSprite = rocks:GetSprite()
 
 							rocks.State = 2
@@ -186,7 +185,7 @@ function mod:scolexUpdate(entity)
 							rockSprite:ReplaceSpritesheet(0, "gfx/grid/rocks_womb.png")
 							rockSprite:LoadGraphics()
 						end
-						SFXManager():Play(SoundEffect.SOUND_ROCK_CRUMBLE, 0.9)
+						mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.9)
 					end
 				end
 			end
@@ -222,11 +221,11 @@ function mod:scolexUpdate(entity)
 				-- Head
 				if entity.GroupIdx == 0 then
 					if entity.StateFrame ~= 2 then
-						entity.TargetPosition = target.Position + (entity.Position - target.Position):Normalized() * 120
+						entity.TargetPosition = target.Position + (entity.Position - target.Position):Resized(120)
 					end
 
 					if room:CheckLine(entity.Position, entity.TargetPosition, 0, 0, false, false) then
-						entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Normalized() * Settings.MoveSpeed, 0.25)
+						entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Resized(Settings.MoveSpeed), 0.25)
 					else
 						entity.Pathfinder:FindGridPath(entity.TargetPosition, Settings.MoveSpeed / 6, 0, false)
 					end
@@ -238,7 +237,7 @@ function mod:scolexUpdate(entity)
 						local distance = entity.Size * 0.85
 
 						if entity.Position:Distance(entity.Parent.Position) > distance then
-							entity.Position = mod:Lerp(entity.Position, entity.Parent.Position + (entity.Position - entity.Parent.Position):Normalized() * distance, 0.25)
+							entity.Position = mod:Lerp(entity.Position, entity.Parent.Position + (entity.Position - entity.Parent.Position):Resized(distance), 0.25)
 						end
 
 					-- Go to where the parent jumped out from
@@ -256,7 +255,8 @@ function mod:scolexUpdate(entity)
 				-- Jump out
 				if entity.I1 <= 0 and (entity.StateFrame ~= 2 or (entity.Position:Distance(entity.TargetPosition) < 40 or entity.GroupIdx > 0)) then
 					entity.State = NpcState.STATE_JUMP
-					entity.V2 = entity.Position + entity.Velocity
+					entity.V2 = entity.Position
+					entity.Velocity = Vector.Zero
 					entity.PositionOffset = Vector(0, Settings.BurrowHeight)
 
 					entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
@@ -275,7 +275,7 @@ function mod:scolexUpdate(entity)
 						if entity.GroupIdx == 0 or entity.GroupIdx == Settings.Length then
 							delay = Settings.AttackDelay * 2
 						else
-							delay = math.random(Settings.AttackDelay, Settings.AttackDelay * 4)
+							delay = mod:Random(Settings.AttackDelay, Settings.AttackDelay * 4)
 						end
 
 					-- Steering jump
@@ -292,7 +292,7 @@ function mod:scolexUpdate(entity)
 
 					-- Dig effects
 					if entity.GroupIdx == 0 then
-						SFXManager():Play(SoundEffect.SOUND_MAGGOT_BURST_OUT, 0.65)
+						mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_BURST_OUT, 0.65)
 
 						-- Long and steering jump projectiles
 						if entity.StateFrame == 2 or entity.StateFrame == 3 then
@@ -301,8 +301,8 @@ function mod:scolexUpdate(entity)
 
 							-- Get fitting projectile
 							if bg == BackdropType.CORPSE or bg == BackdropType.CORPSE2 then
-								params.Color = corpseGreenBulletColor
-							elseif not (bg == BackdropType.WOMB or bg == BackdropType.UTERO or bg == BackdropType.SCARRED_WOMB or bg == BackdropType.CORPSE3) then
+								params.Color = IRFcolors.CorpseGreen
+							elseif bg ~= BackdropType.WOMB and bg ~= BackdropType.UTERO and bg ~= BackdropType.SCARRED_WOMB and bg ~= BackdropType.CORPSE3 then
 								params.Variant = ProjectileVariant.PROJECTILE_ROCK
 							end
 
@@ -311,7 +311,7 @@ function mod:scolexUpdate(entity)
 							else
 								entity:FireBossProjectiles(15, Vector.Zero, 2, params)
 							end
-							SFXManager():Play(SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 0.75)
+							mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 0.75)
 						end
 					end
 
@@ -327,7 +327,7 @@ function mod:scolexUpdate(entity)
 				if entity.State == NpcState.STATE_ATTACK then
 					if sprite:IsEventTriggered("Shoot") then
 						local params = ProjectileParams()
-						mod:shootEffect(entity, 2, Vector(0, entity.PositionOffset.Y * 0.225))
+						mod:ShootEffect(entity, 2, Vector(0, entity.PositionOffset.Y * 0.225))
 
 						-- Head
 						if entity.GroupIdx == 0 then
@@ -335,7 +335,7 @@ function mod:scolexUpdate(entity)
 							params.HeightModifier = entity.PositionOffset.Y * 0.65
 
 							entity:FireBossProjectiles(15, target.Position, 3, params)
-							entity:PlaySound(SoundEffect.SOUND_BOSS_LITE_HISS, 0.9, 0, false, 1)
+							mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_HISS, 0.9)
 
 						-- Tail
 						else
@@ -347,9 +347,9 @@ function mod:scolexUpdate(entity)
 								params.FallingSpeedModifier = -15
 								params.BulletFlags = (ProjectileFlags.EXPLODE | ProjectileFlags.ACID_RED)
 
-								local offset = math.random(0, 359)
+								local offset = mod:Random(359)
 								for i = 0, 2 do
-									entity:FireProjectiles(entity.Position, Vector.FromAngle(offset + 120 * i) * 6, 0, params)
+									mod:FireProjectiles(entity, entity.Position, Vector.FromAngle(offset + 120 * i):Resized(6), 0, params, Color.Default)
 								end
 
 							-- Regular jump
@@ -359,7 +359,7 @@ function mod:scolexUpdate(entity)
 								entity:FireProjectiles(entity.Position, Vector(10, 8), 8, params)
 							end
 
-							entity:PlaySound(SoundEffect.SOUND_MEATHEADSHOOT, 1.25, 0, false, 1)
+							mod:PlaySound(entity, SoundEffect.SOUND_MEATHEADSHOOT, 1.25)
 						end
 					end
 
@@ -397,10 +397,10 @@ function mod:scolexUpdate(entity)
 							params.FallingSpeedModifier = 1
 							params.FallingAccelModifier = -0.1 - (entity.Position:Distance(target.Position) / params.HeightModifier / shotSpeed) -- Can't decide if this is smart or stupid
 							params.Color = Color(1,1,1, 1, 0.25,0,0)
-							entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * shotSpeed, 0, params)
+							entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(shotSpeed), 0, params)
 
-							entity:PlaySound(SoundEffect.SOUND_BLOODSHOOT, 1, 0, false, 1)
-							mod:shootEffect(entity, 2, Vector(0, entity.PositionOffset.Y * 0.225))
+							mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
+							mod:ShootEffect(entity, 2, Vector(0, entity.PositionOffset.Y * 0.225))
 						end
 
 					else
@@ -432,14 +432,14 @@ function mod:scolexUpdate(entity)
 				if entity.GroupIdx == 0 then
 					-- Steering jump
 					if entity.StateFrame == 3 then
-						entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Normalized() * (Settings.MoveSpeed + 1), 0.2)
+						entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Resized(Settings.MoveSpeed + 1), 0.2)
 
 					-- Long and regular jump
 					else
 						local speed = Settings.MoveSpeed
 						-- Long jump
 						if entity.StateFrame == 2 then
-							speed = Settings.MoveSpeed + 5
+							speed = Settings.MoveSpeed + 5.5
 						end
 
 						entity.Velocity = mod:Lerp(entity.Velocity, entity.TargetPosition * speed, 0.25)
@@ -466,13 +466,13 @@ function mod:scolexUpdate(entity)
 						end
 
 						if entity.Position:Distance(entity.Parent.Position) > distance then
-							entity.Position = mod:Lerp(entity.Position, entity.Parent.Position + (entity.Position - entity.Parent.Position):Normalized() * distance, step)
+							entity.Position = mod:Lerp(entity.Position, entity.Parent.Position + (entity.Position - entity.Parent.Position):Resized(distance), step)
 						end
 					end
 
 					-- Creep from fully cracked segments
-					if entity.GroupIdx < Settings.Length and entity.I2 == 2 and entity:IsFrame(math.random(8, 16), 0) then
-						mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 0.9, math.random(30, 60))
+					if entity.GroupIdx < Settings.Length and entity.I2 == 2 and entity:IsFrame(mod:Random(8, 16), 0) then
+						mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 0.9, mod:Random(30, 60))
 					end
 				end
 
@@ -490,7 +490,7 @@ function mod:scolexUpdate(entity)
 
 					-- Head
 					if entity.GroupIdx == 0 then
-						SFXManager():Play(SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.75)
+						mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.75)
 
 						-- Longer burrow time after long jump
 						if entity.StateFrame == 2 then
@@ -499,13 +499,13 @@ function mod:scolexUpdate(entity)
 
 						-- Attacks
 						if entity.ProjectileCooldown <= 0 then
-							entity.StateFrame = math.random(1, 3)
+							entity.StateFrame = mod:Random(1, 3)
 							entity.ProjectileCooldown = Settings.Cooldown
 
 							-- Long jump
 							if entity.StateFrame == 2 then
-								local posLeft = Vector(room:GetTopLeftPos().X, target.Position.Y)
-								local posRight = Vector(room:GetBottomRightPos().X, target.Position.Y)
+								local posLeft = Vector(room:GetTopLeftPos().X + 20, target.Position.Y)
+								local posRight = Vector(room:GetBottomRightPos().X - 20, target.Position.Y)
 
 								if entity.Position:Distance(posLeft) > entity.Position:Distance(posRight) then
 									entity.TargetPosition = posRight
@@ -514,7 +514,7 @@ function mod:scolexUpdate(entity)
 									entity.TargetPosition = posLeft
 									entity.ProjectileDelay = 1
 								end
-								entity.TargetPosition = room:FindFreePickupSpawnPosition(entity.TargetPosition, 40, false, false)
+								entity.TargetPosition = room:FindFreeTilePosition(entity.TargetPosition, 40)
 
 								-- Longer burrow time before long jump
 								entity.I1 = Settings.BurrowTime * 3
@@ -565,12 +565,12 @@ function mod:scolexDMG(target, damageAmount, damageFlags, damageSource, damageCo
 
 					damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
 					data.head:TakeDamage(damageAmount, damageFlags, damageSource, 5)
-					data.head:SetColor(fakeDamageColor, 3, 10, true, true)
+					data.head:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
 
 				-- Damage the shell
 				else
 					segment.V1 = Vector(math.max(0, segment.V1.X - damageAmount), 0)
-					data.head:SetColor(Color(1,1,1, 1, 0.25,0.25,0.25), 3, 10, true, true)
+					data.head:SetColor(IRFcolors.ArmorFlash, 2, 0, false, true)
 				end
 
 				return false
@@ -581,7 +581,9 @@ end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.scolexDMG, EntityType.ENTITY_PIN)
 
 function mod:scolexCollision(entity, target, bool)
-	if entity.PositionOffset.Y <= -44 and (target.Type == EntityType.ENTITY_PLAYER or target.Type == EntityType.ENTITY_FAMILIAR or target.Type == EntityType.ENTITY_BOMB) then
+	-- Jump over the player
+	if entity.Variant == 1 and entity.PositionOffset.Y <= -44
+	and (target.Type == EntityType.ENTITY_PLAYER or target.Type == EntityType.ENTITY_FAMILIAR or target.Type == EntityType.ENTITY_BOMB) then
 		return true -- Ignore collision
 	end
 end
@@ -591,7 +593,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.scolexCollision, EntityTy
 
 -- Dirt helper
 function mod:dirtHelperInit(entity)
-	if entity.Variant == IRFentities.dirtHelper then
+	if entity.Variant == IRFentities.DirtHelper then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
@@ -600,10 +602,10 @@ function mod:dirtHelperInit(entity)
 		entity:GetSprite():Play("Ground", true)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.dirtHelperInit, 200)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.dirtHelperInit, IRFentities.Type)
 
 function mod:dirtHelperUpdate(entity)
-	if entity.Variant == IRFentities.dirtHelper then
+	if entity.Variant == IRFentities.DirtHelper then
 		local sprite = entity:GetSprite()
 
 		entity.Velocity = Vector.Zero
@@ -627,11 +629,11 @@ function mod:dirtHelperUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.dirtHelperUpdate, 200)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.dirtHelperUpdate, IRFentities.Type)
 
 function mod:dirtHelperDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == IRFentities.dirtHelper then
+	if target.Variant == IRFentities.DirtHelper then
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.dirtHelperDMG, 200)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.dirtHelperDMG, IRFentities.Type)

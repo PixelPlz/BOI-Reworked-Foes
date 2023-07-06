@@ -1,5 +1,4 @@
 local mod = BetterMonsters
-IRFkrampusChampID = 1
 
 
 
@@ -13,24 +12,29 @@ function mod:fallenUpdate(entity)
 		if entity.SpawnerType == EntityType.ENTITY_FALLEN then
 			entity.Velocity = entity.Velocity * 0.975
 
-			-- Goat double attack
+			-- Replace default projectile attack
 			if entity.State == NpcState.STATE_ATTACK then
 				entity.State = NpcState.STATE_ATTACK5
 				sprite:Play("Attack1", true)
 
+			-- Custom projectile attack
 			elseif entity.State == NpcState.STATE_ATTACK5 then
+				-- V shot
 				if sprite:IsEventTriggered("Shoot") then
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * 10, 1, ProjectileParams())
-					entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_2, 1, 0, false, 1)
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(10), 1, ProjectileParams())
+					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_2)
+
+				-- Triple shot
 				elseif sprite:IsEventTriggered("Shoot2") then
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * 10, 2, ProjectileParams())
-					entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_1, 1, 0, false, 1)
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(10), 2, ProjectileParams())
+					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_1)
 				end
-				
+
 				if sprite:IsFinished("Attack1") then
 					entity.State = NpcState.STATE_MOVE
 				end
-			
+
+			-- Skip brimstone attack
 			elseif entity.State == NpcState.STATE_ATTACK2 then
 				entity.I1 = entity.I1 + 1
 				if entity.I1 >= 120 then
@@ -38,7 +42,6 @@ function mod:fallenUpdate(entity)
 					entity.I1 = 0
 				end
 
-			-- Skip brimstone attack
 			elseif entity.State == NpcState.STATE_ATTACK3 then
 				entity.State = NpcState.STATE_MOVE
 			end
@@ -62,18 +65,19 @@ function mod:fallenUpdate(entity)
 
 
 	-- Krampus
-	elseif entity.Variant == 1 and entity.SubType == IRFkrampusChampID then
+	elseif entity.Variant == 1 and entity.SubType == IRFentities.KrampusChampion then
 		-- Replace brimstone attack
 		if sprite:IsEventTriggered("StartShoot") then
 			entity.I2 = 1
 			entity.ProjectileCooldown = 0
 			entity.StateFrame = 0
-			SFXManager():Play(SoundEffect.SOUND_BLOOD_LASER, 1.1, 0, false, 1)
+			mod:PlaySound(nil, SoundEffect.SOUND_BLOOD_LASER, 1.1)
 
 		elseif sprite:IsEventTriggered("StopShoot") then
 			entity.I2 = 0
 		end
 
+		-- Shooting
 		if entity.I2 == 1 then
 			if entity.ProjectileCooldown <= 0 then
 				entity.ProjectileCooldown = 3

@@ -1,9 +1,12 @@
 local mod = BetterMonsters
 
 local Settings = {
-	NewHealth = 400,
+	NewHealth = 350,
 	Cooldown = 90,
 	TransparencyTimer = 10,
+
+	HideSpeed = 1.5,
+	WanderSpeed = 2.25,
 
 	SpitBaseTime = 30,
 	MoveSpeed = 5,
@@ -74,7 +77,8 @@ function mod:forsakenUpdate(entity)
 	-- Toggle collision
 	if sprite:IsEventTriggered("FadeOut") and entity.State ~= NpcState.STATE_SUMMON then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-		SFXManager():Play(SoundEffect.SOUND_BEAST_GHOST_DASH, 0.8)
+		mod:PlaySound(nil, SoundEffect.SOUND_BEAST_GHOST_DASH, 0.8)
+
 	elseif sprite:IsEventTriggered("FadeIn") then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 	end
@@ -83,9 +87,9 @@ function mod:forsakenUpdate(entity)
 	-- Particles
 	local color = Color.Default
 	if entity.SubType == 0 then
-		color = Color(0,0,0, 0.35, 0.5,0.5,0.5)
+		color = IRFcolors.GhostTrail
 	end
-	mod:smokeParticles(entity, Vector(0, -40), 25, Vector(100, 120), color)
+	mod:SmokeParticles(entity, Vector(0, -40), 25, Vector(100, 120), color)
 
 
 	-- Bony phase
@@ -110,11 +114,11 @@ function mod:forsakenUpdate(entity)
 				end
 				for i = 0, 2 do
 					local angle = (target.Position - entity.Position):GetAngleDegrees() + (i * 120) - 60
-					local position = entity.Position + (Vector.FromAngle(angle) * 80)
+					local position = entity.Position + Vector.FromAngle(angle):Resized(80)
 					Isaac.Spawn(summonType, 0, 0, room:FindFreePickupSpawnPosition(position, 0, true, true), Vector.Zero, entity)
 				end
 
-				SFXManager():Play(SoundEffect.SOUND_SUMMONSOUND)
+				mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 			end
 
 			if sprite:IsFinished() then
@@ -123,16 +127,15 @@ function mod:forsakenUpdate(entity)
 
 		-- Stay invincible while the Bonies are alive
 		elseif entity.StateFrame == 2 then
-			entity.Pathfinder:MoveRandomlyBoss(false)
-			entity.Velocity = entity.Velocity * 0.925
+			mod:WanderAround(entity, Settings.HideSpeed)
 			mod:LoopingAnim(sprite, "Faded")
 
 			-- Transparency
 			if entity.I2 > 0 then
-				sprite.Color = Color(1,1,1, 0.5)
+				sprite.Color = IRFcolors.GhostTransparent
 				entity.I2 = entity.I2 - 1
 			else
-				sprite.Color = Color(1,1,1, 1)
+				sprite.Color = Color.Default
 			end
 
 
@@ -145,7 +148,7 @@ function mod:forsakenUpdate(entity)
 			if Isaac.CountEntities(entity, checkType, -1, -1) <= 0 then
 				entity.StateFrame = 3
 				sprite:Play("FadeInAngry", true)
-				sprite.Color = Color(1,1,1, 1)
+				sprite.Color = Color.Default
 			end
 
 		-- Go to idle state
@@ -153,7 +156,7 @@ function mod:forsakenUpdate(entity)
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
 			if sprite:IsEventTriggered("Shoot") then
-				entity:PlaySound(SoundEffect.SOUND_THE_FORSAKEN_LAUGH, 2, 0, false, 1)
+				mod:PlaySound(entity, SoundEffect.SOUND_THE_FORSAKEN_LAUGH, 2)
 			end
 
 			if sprite:IsFinished() then
@@ -164,8 +167,7 @@ function mod:forsakenUpdate(entity)
 
 	-- Idle
 	elseif entity.State == NpcState.STATE_IDLE then
-		entity.Pathfinder:MoveRandomlyBoss(false)
-		entity.Velocity = entity.Velocity * 0.95
+		mod:WanderAround(entity, Settings.WanderSpeed)
 		mod:LoopingAnim(sprite, "Idle")
 
 		-- Choose an attack
@@ -187,8 +189,8 @@ function mod:forsakenUpdate(entity)
 			entity.I2 = 0
 			entity.StateFrame = 0
 
-			entity:PlaySound(SoundEffect.SOUND_THE_FORSAKEN_LAUGH, 2, 0, false, 1)
-			local attack = math.random(1, 3)
+			mod:PlaySound(entity, SoundEffect.SOUND_THE_FORSAKEN_LAUGH, 2)
+			local attack = mod:Random(1, 3)
 
 			-- Rotating brimstone attack
 			if attack == 1 then
@@ -201,7 +203,7 @@ function mod:forsakenUpdate(entity)
 			elseif attack == 2 then
 				entity.State = NpcState.STATE_ATTACK2
 				sprite:Play("FadeIn", true)
-				local offset = math.random(0, 359)
+				local offset = mod:Random(359)
 
 				for i = 0, 2 do
 					local index = 2 - i
@@ -210,15 +212,15 @@ function mod:forsakenUpdate(entity)
 					-- Get positions
 					-- Black champions orbit the player
 					if entity.SubType == 1 then
-						position = target.Position + (Vector.FromAngle((120 * index) + entity.V1.Y) * entity.V2.Y)
+						position = target.Position + Vector.FromAngle((120 * index) + entity.V1.Y):Resized(entity.V2.Y)
 
 					-- In a circle around the player
 					else
-						position = target.Position + (Vector.FromAngle(offset + (i * 120)) * 200)
+						position = target.Position + Vector.FromAngle(offset + (i * 120)):Resized(200)
 						position = room:FindFreePickupSpawnPosition(position, 0, true, true)
 
 						if position:Distance(Game():GetNearestPlayer(position).Position) < 80 then
-							position = target.Position + ((room:GetCenterPos() - target.Position):Normalized() * 200)
+							position = target.Position + (room:GetCenterPos() - target.Position):Resized(200)
 							position = room:FindFreePickupSpawnPosition(position, 0, true, true)
 						end
 					end
@@ -309,22 +311,23 @@ function mod:forsakenUpdate(entity)
 	-- Rotating brimstone attack
 	elseif entity.State == NpcState.STATE_ATTACK then
 		entity.Velocity = mod:StopLerp(entity.Velocity)
+		entity.Position = mod:Lerp(entity.Position, room:GetCenterPos(), 0.25)
 
 		-- Appear
 		if entity.StateFrame == 0 then
 			if sprite:IsFinished() then
 				entity.StateFrame = 1
 				sprite:Play("BlastStart", true)
-				entity:PlaySound(SoundEffect.SOUND_LOW_INHALE, 1.25, 0, false, 1)
+				mod:PlaySound(entity, SoundEffect.SOUND_LOW_INHALE, 1.25)
 			end
 
 		-- Charge up lasers
 		elseif entity.StateFrame == 1 then
 			if sprite:IsEventTriggered("Shoot") then
-				entity:PlaySound(SoundEffect.SOUND_THE_FORSAKEN_SCREAM, 2, 0, false, 1)
+				mod:PlaySound(entity, SoundEffect.SOUND_THE_FORSAKEN_SCREAM, 2)
 
 				if entity.SubType == 1 then
-					SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_START, 1.1)
+					mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_START, 1.1)
 				end
 			end
 
@@ -333,10 +336,7 @@ function mod:forsakenUpdate(entity)
 				entity.ProjectileDelay = Settings.BrimShotDelay - (entity.SubType * Settings.BrimShotDelay)
 
 				-- Rotation direction
-				entity.I2 = 1
-				if math.random(0, 1) == 1 then
-					entity.I2 = -1
-				end
+				entity.I2 = mod:RandomSign()
 
 				if entity.SubType == 0 then
 					for i = 0, 2 do
@@ -354,14 +354,14 @@ function mod:forsakenUpdate(entity)
 
 			-- Particles
 			if entity:IsFrame(2, 0) then
-				local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, entity.Position, Vector.FromAngle(math.random(0, 359)) * 7, entity):ToEffect()
+				local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, entity.Position, mod:RandomVector(8), entity):ToEffect()
 				local scaler = math.random(70, 90) / 100
 				trail.SpriteScale = Vector(scaler, scaler)
-				trail.SpriteOffset = Vector(0, -35) + (trail.Velocity:Normalized() * 20)
+				trail.SpriteOffset = Vector(0, -35) + trail.Velocity:Resized(20)
 				trail.DepthOffset = entity.DepthOffset - 10
 
 				if entity.SubType == 1 then
-					trail:GetSprite().Color = Color(0,0,0, 0.5, 0,0.75,1.5)
+					trail:GetSprite().Color = IRFcolors.BlueFireShot
 				else
 					trail:GetSprite().Color = Color(1,1,1, 0.5, 0.5,0,0)
 				end
@@ -379,7 +379,7 @@ function mod:forsakenUpdate(entity)
 				-- Champion fires
 				if entity.SubType == 1 then
 					params.Variant = ProjectileVariant.PROJECTILE_FIRE
-					params.Color = Color(0,0,0, 1, 0,0.75,1.5)
+					params.Color = IRFcolors.BlueFire
 					params.BulletFlags = ProjectileFlags.FIRE
 					params.CircleAngle = entity.I1 * (entity.I2 * 35)
 					entity:FireProjectiles(entity.Position, Vector(8, 4), 9, params)
@@ -390,11 +390,11 @@ function mod:forsakenUpdate(entity)
 				-- Regular
 				else
 					params.Variant = ProjectileVariant.PROJECTILE_HUSH
-					params.Color = brimstoneBulletColor
+					params.Color = IRFcolors.BrimShot
 					params.Scale = 1.25
-					entity:FireProjectiles(entity.Position, Vector(8, 8), 8, params)
+					mod:FireProjectiles(entity, entity.Position, Vector(8, 8), 8, params, Color.Default)
 
-					entity:PlaySound(SoundEffect.SOUND_FIRE_RUSH, 0.8, 0, false, 1)
+					mod:PlaySound(entity, SoundEffect.SOUND_FIRE_RUSH, 0.8)
 					entity.ProjectileDelay = Settings.BrimShotDelay
 				end
 
@@ -408,7 +408,7 @@ function mod:forsakenUpdate(entity)
 				sprite:Play("BlastEnd", true)
 
 				if entity.SubType == 1 then
-					SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END, 1.1)
+					mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END, 1.1)
 				end
 			end
 
@@ -428,7 +428,7 @@ function mod:forsakenUpdate(entity)
 			if entity.V1.Y >= 360 then
 				entity.V1 = Vector(entity.V1.X, entity.V1.Y - 360)
 			end
-			entity.Position = mod:Lerp(entity.Position, target.Position + (Vector.FromAngle(entity.V1.X + entity.V1.Y) * entity.V2.Y), 0.1)
+			entity.Position = mod:Lerp(entity.Position, target.Position + Vector.FromAngle(entity.V1.X + entity.V1.Y):Resized(entity.V2.Y), 0.1)
 			entity.Velocity = target.Velocity
 
 		else
@@ -452,7 +452,7 @@ function mod:forsakenUpdate(entity)
 				else
 					sprite:Play("Shoot", true)
 				end
-				entity:PlaySound(SoundEffect.SOUND_MOUTH_FULL, 1, 0, false, 1)
+				mod:PlaySound(entity, SoundEffect.SOUND_MOUTH_FULL)
 
 			else
 				entity.I2 = entity.I2 - 1
@@ -465,16 +465,16 @@ function mod:forsakenUpdate(entity)
 				params.Variant = ProjectileVariant.PROJECTILE_BONE
 				
 				if entity.SubType == 0 then
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * (11 - entity.I1), 3 + entity.I1, params)
+					mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(11 - entity.I1), 3 + entity.I1, params, IRFcolors.GhostTrail)
 
 				elseif entity.SubType == 1 then
-					params.BulletFlags = ProjectileFlags.BLUE_FIRE_SPAWN
-					params.Scale = 1.6
-					params.Color = Color(0.4,0.4,0.4, 1)
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * (12 - entity.I1), 0, params)
+					params.BulletFlags = (ProjectileFlags.FIRE | ProjectileFlags.BLUE_FIRE_SPAWN)
+					params.Scale = 1.5
+					params.Color = IRFcolors.BlackBony
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(11), 0, params)
 				end
 
-				entity:PlaySound(SoundEffect.SOUND_GHOST_SHOOT, 1.25, 0, false, 1)
+				mod:PlaySound(entity, SoundEffect.SOUND_GHOST_SHOOT, 1.25)
 			end
 
 			-- Finish attack
@@ -487,7 +487,7 @@ function mod:forsakenUpdate(entity)
 					if entity.SubType == 1 then
 						entity.StateFrame = 3
 						sprite:Play("FadeIn", true)
-						entity:PlaySound(SoundEffect.SOUND_THE_FORSAKEN_LAUGH, 2, 0, false, 1)
+						mod:PlaySound(entity, SoundEffect.SOUND_THE_FORSAKEN_LAUGH, 2)
 
 						entity.Position = room:FindFreePickupSpawnPosition(room:GetCenterPos(), 0, true, true)
 						entity.Velocity = Vector.Zero
@@ -526,7 +526,7 @@ function mod:forsakenUpdate(entity)
 
 			-- Move to position
 			if entity.Position:Distance(moveto) > 10 then
-				entity.Velocity = mod:Lerp(entity.Velocity, (moveto - entity.Position):Normalized() * speed, 0.25)
+				entity.Velocity = mod:Lerp(entity.Velocity, (moveto - entity.Position):Resized(speed), 0.25)
 			else
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 			end
@@ -540,7 +540,7 @@ function mod:forsakenUpdate(entity)
 		if entity.StateFrame == 0 then
 			if sprite:IsFinished() then
 				entity.StateFrame = 1
-				entity:PlaySound(SoundEffect.SOUND_LOW_INHALE, 1.5, 0, false, 1)
+				mod:PlaySound(entity, SoundEffect.SOUND_LOW_INHALE, 1.5)
 
 				if data.facing == "Left" or data.facing == "Right" then
 					sprite:Play("BlastStartSide", true)
@@ -556,16 +556,9 @@ function mod:forsakenUpdate(entity)
 		elseif entity.StateFrame == 1 then
 			if sprite:IsEventTriggered("Shoot") then
 				if entity.SubType == 1 then
-					SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_START, 1.1)
-
+					mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_START, 1.1)
 				else
-					local tracer = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.GENERIC_TRACER, 0, entity.Position - Vector(0, 50), Vector.Zero, entity):ToEffect()
-					tracer.LifeSpan = 15
-					tracer.Timeout = 1
-					tracer.TargetPosition = Vector.FromAngle(entity.I2 * 90)
-					tracer:GetSprite().Color = Color(1,0,0, 0.25)
-					tracer.SpriteScale = Vector(2, 0)
-					tracer:FollowParent(entity)
+					mod:QuickTracer(entity, entity.I2 * 90, Vector(0, -50), 15, 1, 2)
 				end
 			end
 
@@ -575,14 +568,15 @@ function mod:forsakenUpdate(entity)
 
 				if entity.SubType == 0 then
 					entity.Velocity = Vector.Zero
-					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 50) + (Vector.FromAngle(entity.I2 * 90) * 10), entity.I2 * 90, 20, Vector.Zero, entity), entity}
+					local angle = entity.I2 * 90
+					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 50) + Vector.FromAngle(angle):Resized(10), angle, 20, Vector.Zero, entity), entity}
 					data.brim = laser_ent_pair.laser
 
 					if data.facing == "Down" then
 						data.brim.DepthOffset = entity.DepthOffset + 60
 					end
 				end
-				entity:PlaySound(SoundEffect.SOUND_GHOST_ROAR, 1.75, 0, false, 1)
+				mod:PlaySound(entity, SoundEffect.SOUND_GHOST_ROAR, 1.75)
 			end
 
 		-- Shooting laser
@@ -597,10 +591,9 @@ function mod:forsakenUpdate(entity)
 				if entity.ProjectileDelay <= 0 then
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_FIRE
-					params.Color = Color(0,0,0, 1, 0,0.75,1.5)
+					params.Color = IRFcolors.BlueFire
 					params.BulletFlags = ProjectileFlags.FIRE
-					params.CircleAngle = entity.I1 * (entity.I2 * 35)
-					entity:FireProjectiles(entity.Position - Vector(0, 18) + (Vector.FromAngle(entity.I2 * 90) * 10), Vector.FromAngle(entity.I2 * 90 + math.random(-5, 5)) * 9, 0, params)
+					entity:FireProjectiles(entity.Position - Vector(0, 18) + Vector.FromAngle(entity.I2 * 90):Resized(10), Vector.FromAngle(entity.I2 * 90 + mod:Random(-5, 5)):Resized(9), 0, params)
 
 					entity.I1 = entity.I1 + 1
 					entity.ProjectileDelay = 3
@@ -620,7 +613,7 @@ function mod:forsakenUpdate(entity)
 				end
 
 				if entity.SubType == 1 then
-					SFXManager():Play(SoundEffect.SOUND_FLAMETHROWER_END, 1.1)
+					mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END, 1.1)
 				end
 			end
 
@@ -637,7 +630,7 @@ function mod:forsakenUpdate(entity)
 				else
 					entity.StateFrame = 4
 					sprite:Play("FadeIn", true)
-					entity:PlaySound(SoundEffect.SOUND_THE_FORSAKEN_LAUGH, 2, 0, false, 1)
+					mod:PlaySound(nil, SoundEffect.SOUND_THE_FORSAKEN_LAUGH, 2)
 					entity.Position = room:FindFreePickupSpawnPosition(room:GetCenterPos(), 0, true, true)
 					entity.Velocity = Vector.Zero
 				end
@@ -685,9 +678,10 @@ function mod:forsakenDMG(target, damageAmount, damageFlags, damageSource, damage
 
 	-- Clones
 	elseif target.Variant == 10 and target.Parent then
-		target.Parent:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 5)
 		if target.HitPoints - damageAmount <= 0 then
 			return false
+		else
+			target.Parent:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 5)
 		end
 	end
 end

@@ -4,8 +4,8 @@ local mod = BetterMonsters
 
 function mod:blisterInit(entity)
 	if entity.Variant == 0 and entity.SubType == 0 then
-		entity.StateFrame = math.random(15, 45)
-		entity.ProjectileCooldown = math.random(1, 2)
+		entity.StateFrame = mod:Random(15, 45)
+		entity.ProjectileCooldown = mod:Random(1, 2)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blisterInit, EntityType.ENTITY_BLISTER)
@@ -41,22 +41,22 @@ function mod:blisterUpdate(entity)
 				entity.I1 = 1
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
-				entity.TargetPosition = entity.Position + (Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees() + math.random(-60, 60)) * math.random(80, 120))
+				entity.TargetPosition = entity.Position + (target.Position - entity.Position):Rotated(mod:Random(-60, 60)):Resized(mod:Random(80, 120))
 				entity.TargetPosition = Game():GetRoom():FindFreePickupSpawnPosition(entity.TargetPosition, 0, true, false)
-			
+
 			elseif sprite:IsEventTriggered("Land") then
 				entity.I1 = 0
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
-				entity:PlaySound(SoundEffect.SOUND_MEAT_IMPACTS, 1, 0, false, 1)
+				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_IMPACTS)
 			end
 
 			if entity.I1 == 1 then
-				entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Normalized() * (entity.TargetPosition:Distance(entity.Position) / 6), 0.25)
+				entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Resized(entity.TargetPosition:Distance(entity.Position) / 6), 0.25)
 			else
 				entity.Velocity = Vector.Zero
 			end
-			
+
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
 				entity.StateFrame = 30
@@ -75,26 +75,26 @@ function mod:blisterUpdate(entity)
 			elseif sprite:IsEventTriggered("Stop") then
 				entity.I1 = 0
 			end
-			
+
 			if entity.I1 == 1 and entity:IsFrame(2, 0) then
 				entity.I2 = entity.I2 + 1
 
 				local params = ProjectileParams()
-				params.Scale = 1 + (math.random(0, 5) * 0.1)
-				params.Color = skyBulletColor
+				params.Scale = 1 + (mod:Random(5) * 0.1)
+				params.Color = IRFcolors.WhiteShot
 				params.FallingAccelModifier = 1.5
 				params.FallingSpeedModifier = -25
-				
-				local vector = entity.V1 + ((entity.V1 - entity.Position):Normalized() * (20 * entity.I2))
-				entity:FireProjectiles(entity.Position, Vector.FromAngle((vector - entity.Position):GetAngleDegrees() + math.random(-10, 10)) * (entity.Position:Distance(vector) / 20), 0, params)
-				entity:PlaySound(SoundEffect.SOUND_BOSS2_BUBBLES, 0.8, 0, false, 1)
-				mod:shootEffect(entity, 1, Vector(0, -25), skyBulletColor)
+
+				local vector = entity.V1 + (entity.V1 - entity.Position):Resized(20 * entity.I2)
+				entity:FireProjectiles(entity.Position, (vector - entity.Position):Rotated(mod:Random(-10, 10)):Resized(entity.Position:Distance(vector) / 20), 0, params)
+				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.8)
+				mod:ShootEffect(entity, 1, Vector(0, -25), IRFcolors.WhiteShot)
 			end
-			
+
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
 				entity.StateFrame = 30
-				entity.ProjectileCooldown = 2
+				entity.ProjectileCooldown = mod:Random(1, 3)
 			end
 		end
 

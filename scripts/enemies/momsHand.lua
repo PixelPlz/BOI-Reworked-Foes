@@ -7,7 +7,8 @@ function mod:momsHandUpdate(entity)
 	-- Go to previous room if Isaac is grabbed
 	if entity.State == NpcState.STATE_SPECIAL and entity.I1 == 1 then
 		if entity.StateFrame == 1 then
-			entity:PlaySound(SoundEffect.SOUND_MOM_VOX_EVILLAUGH, 1, 0, false, 1)
+			mod:PlaySound(entity, SoundEffect.SOUND_MOM_VOX_EVILLAUGH)
+
 		elseif entity.StateFrame == 25 then
 			Game():StartRoomTransition(Game():GetLevel():GetPreviousRoomIndex(), -1, RoomTransitionAnim.FADE, nil, -1)
 		end
@@ -24,13 +25,14 @@ function mod:momsDeadHandUpdate(entity)
 	-- Replace appear sound
 	if SFXManager():IsPlaying(SoundEffect.SOUND_MOM_VOX_EVILLAUGH) then
 		SFXManager():Stop(SoundEffect.SOUND_MOM_VOX_EVILLAUGH)
-		SFXManager():Play(SoundEffect.SOUND_MOTHERSHADOW_APPEAR)
+		mod:PlaySound(entity, SoundEffect.SOUND_MOTHERSHADOW_APPEAR)
 	end
+
 
 	if sprite:IsEventTriggered("Land") then
 		-- Remove default rock waves
 		for i, rockWave in pairs(Isaac.FindByType(EntityType.ENTITY_EFFECT, EffectVariant.CRACKWAVE, -1, false, false)) do
-			if rockWave.SpawnerType == EntityType.ENTITY_MOMS_DEAD_HAND and rockWave.SpawnerEntity and rockWave.SpawnerEntity.Index == entity.Index then
+			if rockWave.SpawnerEntity and rockWave.SpawnerEntity.Index == entity.Index then
 				rockWave:Remove()
 			end
 		end
@@ -44,8 +46,8 @@ function mod:momsDeadHandUpdate(entity)
 		local bg = Game():GetRoom():GetBackdropType()
 
 		if bg == BackdropType.CORPSE or bg == BackdropType.CORPSE2 then
-			params.Color = corpseGreenBulletColor
-		elseif not (bg == BackdropType.WOMB or bg == BackdropType.UTERO or bg == BackdropType.SCARRED_WOMB or bg == BackdropType.CORPSE3) then
+			params.Color = IRFcolors.CorpseGreen
+		elseif bg ~= BackdropType.WOMB and bg ~= BackdropType.UTERO and bg ~= BackdropType.SCARRED_WOMB and bg ~= BackdropType.CORPSE3 then
 			params.Variant = ProjectileVariant.PROJECTILE_ROCK
 		end
 

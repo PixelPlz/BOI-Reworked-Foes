@@ -9,6 +9,7 @@ function mod:babyLongLegsUpdate(entity)
 	entity.Velocity = entity.Velocity * 0.85
 
 	if entity.State == NpcState.STATE_ATTACK then
+		-- Get types to check for / spawn
 		local checkType = EntityType.ENTITY_SPIDER
 		local checkVariant = 0
 		local spawnType = EntityType.ENTITY_BOIL
@@ -28,7 +29,8 @@ function mod:babyLongLegsUpdate(entity)
 				entity.State = NpcState.STATE_MOVE
 			end
 		end
-		
+
+
 		-- Swap spawns
 		if entity:GetSprite():IsEventTriggered("Lay") then
 			for i, stuff in pairs(Isaac.FindByType(checkType, checkVariant, -1, false, false)) do
@@ -36,10 +38,10 @@ function mod:babyLongLegsUpdate(entity)
 					stuff:Remove()
 				end
 			end
-			
+
 			Isaac.Spawn(spawnType, spawnVariant, 0, entity.Position, Vector.Zero, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SPIDER_EXPLOSION, 0, entity.Position, Vector.Zero, entity):GetSprite().Color = Color(1,1,1, 1, 1,1,1)
-			
+
 			if entity.Variant == 0 then
 				mod:QuickCreep(EffectVariant.CREEP_WHITE, entity, entity.Position, 1.5)
 			end

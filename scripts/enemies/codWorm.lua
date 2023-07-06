@@ -23,7 +23,7 @@ function mod:codWormUpdate(entity)
 
 	entity.Velocity = Vector.Zero
 	if sprite:IsEventTriggered("Dig") then
-		SFXManager():Play(SoundEffect.SOUND_MEAT_JUMPS, 0.9)
+		mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.9)
 	end
 
 	-- Idle
@@ -43,7 +43,7 @@ function mod:codWormUpdate(entity)
 		if sprite:IsEventTriggered("Dig") then
 			entity.I1 = 1
 		end
-		if sprite:IsFinished("DigOut") then
+		if sprite:IsFinished() then
 			entity.State = NpcState.STATE_ATTACK
 			sprite:Play("Attack", true)
 		end
@@ -51,9 +51,9 @@ function mod:codWormUpdate(entity)
 	-- Attack
 	elseif entity.State == NpcState.STATE_ATTACK then
 		if sprite:IsEventTriggered("Shoot") then
-			entity:PlaySound(SoundEffect.SOUND_WORM_SPIT, 1.2, 0, false, 1)
-			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * (Settings.ShotSpeed - (entity.I2 * 2)), 3 + (entity.I2 * 2), ProjectileParams())
-			mod:shootEffect(entity, 5, Vector(1, -22), Color(1,1,1, 0.7), 0.8)
+			mod:PlaySound(entity, SoundEffect.SOUND_WORM_SPIT, 1.2)
+			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(Settings.ShotSpeed - (entity.I2 * 2)), 3 + (entity.I2 * 2), ProjectileParams())
+			mod:ShootEffect(entity, 5, Vector(1, -22), Color(1,1,1, 0.7))
 		end
 
 		if sprite:IsFinished("Attack") then
@@ -66,7 +66,7 @@ function mod:codWormUpdate(entity)
 			end
 		end
 
-	
+
 	-- Popped out
 	elseif entity.State == NpcState.STATE_MOVE then
 		mod:LoopingAnim(sprite, "PulseOut")
@@ -97,13 +97,23 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.codWormUpdate, EntityType.ENTITY_COD_WORM)
 
 function mod:codWormDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target:ToNPC().State == NpcState.STATE_IDLE and target.FrameCount > 20 then
-		target:ToNPC().State = NpcState.STATE_JUMP
-		target:ToNPC():GetSprite():Play("DigOut", true)
-		target:ToNPC().I2 = 1
+	local entity = target:ToNPC()
+
+	if entity.State == NpcState.STATE_IDLE and entity.FrameCount > 20 then
+		entity.State = NpcState.STATE_JUMP
+		entity:GetSprite():Play("DigOut", true)
+		entity.I2 = 1
 	end
-	if target:ToNPC().I1 == 0 then
+	if entity.I1 == 0 then
 		return false
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.codWormDMG, EntityType.ENTITY_COD_WORM)
+
+-- Fix them not taking damage from Mom's Knife (Why do I even have to do this to begin with?)
+function mod:codWormCollide(entity, target, bool)
+	if target.Type == EntityType.ENTITY_KNIFE and target.Variant == 0 then
+		entity:TakeDamage(target.CollisionDamage, 0, EntityRef(target.Parent), 5)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.codWormCollide, EntityType.ENTITY_COD_WORM)

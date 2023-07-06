@@ -32,12 +32,14 @@ local States = {
 function mod:gishInit(entity)
 	if entity.Variant == 1 then
 		entity:GetData().state = States.Appear
-		entity.ProjectileCooldown = (Settings.MoveTime / 3) * 2
-		
+		entity.ProjectileCooldown = Settings.MoveTime / 2
+
 		-- Hera's Whippers (kinky)
 		if entity.SubType == 1 then
 			for i = -1, 1, 2 do
-				Isaac.Spawn(EntityType.ENTITY_WHIPPER, 0, 43, entity.Position + Vector(i * 50, 0), Vector.Zero, entity)
+				local position = entity.Position + Vector(i * 60, 0)
+				local altarScamp = Isaac.Spawn(EntityType.ENTITY_WHIPPER, 0, 0, Game():GetRoom():FindFreePickupSpawnPosition(position, 0, true, true), Vector.Zero, entity)
+				altarScamp:GetSprite():Load("gfx/834.000_altar scamp.anm2", true)
 			end
 		end
 	end
@@ -54,17 +56,7 @@ function mod:gishUpdate(entity)
 		if entity.SubType == 1 then
 			creepType = EffectVariant.CREEP_WHITE
 			sprite.PlaybackSpeed = 1.1
-			entity.SplatColor = skyBulletColor
-		end
-
-
-		-- Function for facing towards target
-		local function spriteFlipX()
-			if target.Position.X > entity.Position.X then
-				sprite.FlipX = true
-			else
-				sprite.FlipX = false
-			end
+			entity.SplatColor = IRFcolors.WhiteShot
 		end
 
 
@@ -84,38 +76,21 @@ function mod:gishUpdate(entity)
 					mod:QuickCreep(creepType, entity, entity.Position, 1.75)
 				end
 			end
-			if entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
-				speed = -speed
-			end
 
-			-- Movement
-			if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
-				entity.Pathfinder:MoveRandomly(false)
-			else
-				if entity.Pathfinder:HasPathToPos(target.Position) then
-					if Game():GetRoom():CheckLine(entity.Position, target.Position, 0, 0, false, false) then
-						entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Normalized() * speed, 0.25)
-					else
-						entity.Pathfinder:FindGridPath(target.Position, speed / 6, 500, false)
-					end
-				else
-					data.state = States.BigJump
-				end
-			end
-
+			mod:ChasePlayer(entity, speed)
 			mod:LoopingAnim(sprite, anim)
-			spriteFlipX()
+			mod:FlipTowardsMovement(entity, sprite, true)
 
 			-- Decide attack
 			if entity.ProjectileCooldown <= 0 then
 				if data.state == States.Moving then
-					local decide = math.random(0, 2)
+					local decide = mod:Random(2)
 					entity.I1 = 0
 
 					if decide == 0 and not data.wasDelirium then
 						data.state = States.Running
 						entity.ProjectileCooldown = Settings.RunTime
-						entity:PlaySound(SoundEffect.SOUND_MONSTER_ROAR_1, 0.8, 0, false, 1)
+						mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_ROAR_1, 0.8)
 
 					-- Only spawn clots if there are less than the max amount
 					elseif entity.SubType ~= 1 and decide == 1 and Isaac.CountEntities(entity, EntityType.ENTITY_CLOTTY, 1, -1) < Settings.MaxClots then
@@ -141,9 +116,9 @@ function mod:gishUpdate(entity)
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 
-				spriteFlipX()
-				SFXManager():Play(SoundEffect.SOUND_MEAT_JUMPS)
-				entity:PlaySound(SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8, 0, false, 1)
+				mod:FlipTowardsMovement(entity, sprite, true)
+				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS)
+				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
 
 			elseif sprite:IsEventTriggered("Land") then
 				entity.I2 = 0
@@ -164,18 +139,18 @@ function mod:gishUpdate(entity)
 				local params = ProjectileParams()
 				
 				if entity.SubType == 0 then
-					params.Color = tarBulletColor
+					params.Color = IRFcolors.Tar
 					params.Scale = 1.5
 					entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 0), 8, params)
 					
 					if data.state == States.Land then
-						params.CircleAngle = 0.41
+						params.CircleAngle = 0.4
 						params.Scale = 1.75
 						entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed - 5, 8), 9, params)
 					end
 				
 				elseif entity.SubType == 1 and data.state == States.Land then
-					params.Color = skyBulletColor
+					params.Color = IRFcolors.WhiteShot
 					params.FallingAccelModifier = 0.05
 
 					for i = 0, 2 do
@@ -204,12 +179,15 @@ function mod:gishUpdate(entity)
 				else
 					entity.Velocity = mod:StopLerp(entity.Velocity)
 				end
+
 				mod:LoopingAnim(sprite, "Attack")
 
 				if sprite:IsEventTriggered("Jump") then
 					entity.V1 = (target.Position - entity.Position):Normalized()
+					mod:FlipTowardsTarget(entity, sprite, true)
+
 				elseif sprite:IsEventTriggered("Land") then
-					SFXManager():Play(SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.6)
+					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.6)
 
 					if entity.SubType == 1 then
 						if entity.I1 + 1 < Settings.JumpCount then
@@ -217,7 +195,7 @@ function mod:gishUpdate(entity)
 						end
 
 						local params = ProjectileParams()
-						params.Color = skyBulletColor
+						params.Color = IRFcolors.WhiteShot
 						params.Scale = 1.5
 						entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 0), 6 + entity.I1, params)
 					end
@@ -237,6 +215,7 @@ function mod:gishUpdate(entity)
 			elseif data.state == States.BigJump then
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 				mod:LoopingAnim(sprite, "JumpUp")
+				mod:FlipTowardsMovement(entity, sprite, true)
 
 				if sprite:GetFrame() == 14 then
 					data.state = States.Land
@@ -245,7 +224,8 @@ function mod:gishUpdate(entity)
 			-- Land
 			elseif data.state == States.Land then
 				if entity.I2 == 1 and sprite:GetFrame() < 24 then
-					entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Normalized() * Settings.AirSpeed, 0.25)
+					mod:ChasePlayer(entity, Settings.AirSpeed, true)
+
 				else
 					local multiplier = 0.25
 					if entity.I2 == 1 then
@@ -253,11 +233,13 @@ function mod:gishUpdate(entity)
 					end
 					entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, multiplier)
 				end
+
 				mod:LoopingAnim(sprite, "JumpDown")
+				mod:FlipTowardsMovement(entity, sprite, true)
 
 				if sprite:IsEventTriggered("Land") then
 					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position + Vector(12, -32), Vector.Zero, entity):GetSprite().Color = entity.SplatColor
-					SFXManager():Play(SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.2)
+					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.2)
 				end
 
 				if sprite:GetFrame() == 61 then
@@ -277,17 +259,17 @@ function mod:gishUpdate(entity)
 		elseif data.state == States.Attacking then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 			mod:LoopingAnim(sprite, "Taunt")
-			spriteFlipX()
+			mod:FlipTowardsTarget(entity, sprite, true)
 
 			if sprite:IsEventTriggered("Shoot") then
-				entity:PlaySound(SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8, 0, false, 1)
-				Isaac.Spawn(EntityType.ENTITY_CLOTTY, 1, 0, entity.Position, (target.Position - entity.Position):Normalized() * 10, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8)
+				Isaac.Spawn(EntityType.ENTITY_CLOTTY, 1, 0, entity.Position, (target.Position - entity.Position):Resized(10), entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 
 				local params = ProjectileParams()
-				params.Color = tarBulletColor
+				params.Color = IRFcolors.Tar
 				params.Scale = 1.25
 				entity:FireBossProjectiles(12, target.Position, 3, params)
-				mod:shootEffect(entity, 3, Vector(0, -18), entity.SplatColor)
+				mod:ShootEffect(entity, 3, Vector(0, -18), entity.SplatColor)
 			end
 
 			if sprite:GetFrame() == 51 then
@@ -295,8 +277,8 @@ function mod:gishUpdate(entity)
 				entity.ProjectileCooldown = Settings.MoveTime
 			end
 		end
-		
-		
+
+
 		if entity.FrameCount > 1 then
 			return true
 

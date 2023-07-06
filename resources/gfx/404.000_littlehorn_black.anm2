@@ -1,10 +1,10 @@
 <AnimatedActor>
-	<Info CreatedBy="Unknown" CreatedOn="2023. 04. 14. 2:39:19" Version="16" Fps="30"/>
+	<Info CreatedBy="Unknown" CreatedOn="2023. 05. 05. 19:13:19" Version="17" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="bosses\afterbirth\littlehorn_black.png" Id="0"/>
 			<Spritesheet Path="bosses\afterbirth\littlehorn_black_eyes.png" Id="1"/>
-			<Spritesheet Path="monsters\afterbirth\291.000_pitfall_shadow.png" Id="2"/>
+			<Spritesheet Path="monsters\better\291.000_pitfall_shadow.png" Id="2"/>
 		</Spritesheets>
 		<Layers>
 			<Layer Name="Main" Id="0" SpritesheetId="0"/>

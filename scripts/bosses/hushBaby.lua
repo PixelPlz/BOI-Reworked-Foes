@@ -3,7 +3,7 @@ local mod = BetterMonsters
 local Settings = {
 	MoveSpeed = 5,
 
-	Cooldown = 90,
+	Cooldown = 60,
 	TearCooldown = 22,
 	TeleportCooldown = {90, 180},
 	SoundTimer = {120, 180},
@@ -29,7 +29,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.hushBabyInit, EntityType.ENTI
 
 function mod:hushBabyUpdate(entity)
 	if entity:GetSprite():IsEventTriggered("Flap") then
-		SFXManager():Play(SoundEffect.SOUND_ANGEL_WING, 0.75)
+		mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_WING, 0.75)
 	end
 
 
@@ -64,7 +64,7 @@ function mod:hushBabyUpdate(entity)
 		if entity.State == NpcState.STATE_IDLE then
 			mod:LoopingAnim(sprite, math.max(1, entity.I1) .. "Idle")
 			if entity.I1 == 3 then
-				entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Normalized() * Settings.MoveSpeed, 0.25)
+				mod:ChasePlayer(entity, Settings.MoveSpeed, true)
 			else
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 			end
@@ -72,8 +72,8 @@ function mod:hushBabyUpdate(entity)
 
 			if entity.I1 <= 1 then
 				if data.soundTimer <= 0 then
-					entity:PlaySound(SoundEffect.SOUND_SCARED_WHIMPER, 1, 0, false, 1)
-					data.soundTimer = math.random(Settings.SoundTimer[1], Settings.SoundTimer[2])
+					mod:PlaySound(entity, SoundEffect.SOUND_SCARED_WHIMPER)
+					data.soundTimer = mod:Random(Settings.SoundTimer[1], Settings.SoundTimer[2])
 				else
 					data.soundTimer = data.soundTimer - 1
 				end
@@ -95,20 +95,20 @@ function mod:hushBabyUpdate(entity)
 						if entity.I1 == 1 then
 							mode = 2
 						end
-						params.Color = Color(1,1,1, 1, 0.2,0.2,0)
+						params.Color = IRFcolors.HushGreen
 
-						entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Normalized() * (9 - entity.I1), mode, params)
+						entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(9 - entity.I1), mode, params)
 
 					else
-						params.Color = Color(1,1,1, 1, 0,0.2,0.4)
+						params.Color = IRFcolors.HushBlue
 						for i = -1, 1, 2 do
-							entity:FireProjectiles(entity.Position + ((target.Position - entity.Position):Normalized():Rotated(i * 90) * 8), (target.Position - entity.Position):Normalized() * 10, 0, params)
+							entity:FireProjectiles(entity.Position + (target.Position - entity.Position):Resized(8):Rotated(i * 90), (target.Position - entity.Position):Resized(10), 0, params)
 						end
 					end
 
 					data.tearCooldown = Settings.TearCooldown
 					data.shotCount = data.shotCount + 1
-					SFXManager():Play(SoundEffect.SOUND_TEARS_FIRE)
+					mod:PlaySound(nil, SoundEffect.SOUND_TEARS_FIRE)
 
 				else
 					data.tearCooldown = data.tearCooldown - 1
@@ -118,7 +118,7 @@ function mod:hushBabyUpdate(entity)
 				-- Teleport
 				if data.teleportTimer <= 0 then
 					entity.State = NpcState.STATE_JUMP
-					data.teleportTimer = math.random(Settings.TeleportCooldown[1], Settings.TeleportCooldown[2])
+					data.teleportTimer = mod:Random(Settings.TeleportCooldown[1], Settings.TeleportCooldown[2])
 
 					if entity.I1 == 3 then
 						sprite:Play("3FBAttack3", true)
@@ -136,10 +136,11 @@ function mod:hushBabyUpdate(entity)
 					entity.ProjectileCooldown = Settings.Cooldown
 					data.tearCooldown = Settings.TearCooldown
 
-					local attack = math.random(1, 2)
+					local attackCount = 2
 					if entity.I1 == 3 and Isaac.CountEntities(entity, EntityType.ENTITY_HUSH_GAPER, -1, -1) <= 4 then
-						attack = math.random(1, 3)
+						attackCount = 3
 					end
+					local attack = mod:Random(1, attackCount)
 
 
 					if attack == 3 then
@@ -155,7 +156,7 @@ function mod:hushBabyUpdate(entity)
 
 						entity.I2 = 0
 						entity.StateFrame = 0
-						entity.V1 = Vector(math.random(10, 100) * 0.01, 0)
+						entity.V1 = Vector(mod:Random(10, 100) * 0.01, 0)
 
 						if entity.I1 == 2 then
 							sprite:Play("2Attack", true)
@@ -180,18 +181,18 @@ function mod:hushBabyUpdate(entity)
 
 				-- 1st to 2nd phase
 				if entity.I1 == 1 then
-					SFXManager():Play(SoundEffect.SOUND_HOLY)
+					mod:PlaySound(nil, SoundEffect.SOUND_HOLY)
 
 				-- 2nd to 3rd phase
 				elseif entity.I1 == 2 then
-					SFXManager():Play(SoundEffect.SOUND_SUPERHOLY)
+					mod:PlaySound(nil, SoundEffect.SOUND_SUPERHOLY)
 					entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 				end
 			end
 
 			if sprite:IsFinished() then
 				entity.I1 = entity.I1 + 1
-				entity.ProjectileCooldown = Settings.Cooldown
+				entity.ProjectileCooldown = Settings.Cooldown / 2
 				data.spawnTimer = 0
 				data.shotCount = 1
 				entity.State = NpcState.STATE_IDLE
@@ -204,19 +205,19 @@ function mod:hushBabyUpdate(entity)
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
 			if sprite:IsEventTriggered("Shoot") or sprite:IsFinished("3FBAttack3") then
-				local position = target.Position + (target.Velocity:Normalized() * 240)
+				local position = target.Position + target.Velocity:Resized(240)
 				if room:IsPositionInRoom(position, 0) == false or target.Velocity:Length() <= 0.1 then
-					position = target.Position + ((room:GetCenterPos() - target.Position):Normalized() * 240)
+					position = target.Position + (room:GetCenterPos() - target.Position):Resized(240)
 				end
 				entity.Position = room:FindFreePickupSpawnPosition(position, 40, true, false)
 
 			elseif sprite:IsEventTriggered("TeleportUp") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-				SFXManager():Play(SoundEffect.SOUND_HELL_PORTAL2, 1.2)
+				mod:PlaySound(nil, SoundEffect.SOUND_HELL_PORTAL2, 1.2)
 			
 			elseif sprite:IsEventTriggered("TeleportDown") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
-				SFXManager():Play(SoundEffect.SOUND_HELL_PORTAL1, 1.2)
+				mod:PlaySound(nil, SoundEffect.SOUND_HELL_PORTAL1, 1.2)
 			end
 
 			if sprite:IsFinished("3FBAttack3") then
@@ -236,12 +237,15 @@ function mod:hushBabyUpdate(entity)
 				if sprite:IsEventTriggered("Shoot") then
 					-- Fly attack
 					if entity.State == NpcState.STATE_ATTACK then
+						local sign = mod:RandomSign()
+
 						for i = 0, 3 do
-							local fly = Isaac.Spawn(200, IRFentities.forgottenBody + 1, 0, entity.Position, Vector.Zero, entity):ToNPC()
+							local fly = Isaac.Spawn(IRFentities.Type, IRFentities.HushFlyAttack, 0, entity.Position, Vector.Zero, entity):ToNPC()
 							fly.Parent = entity
 							fly.TargetPosition = entity.Position
 							fly.StateFrame = i
 							fly.I1 = 100
+							fly.V2 = Vector(sign * fly.V2.X, fly.V2.Y)
 						end
 					
 					-- Orbiting shots
@@ -251,7 +255,7 @@ function mod:hushBabyUpdate(entity)
 						params.FallingSpeedModifier = 1
 						params.FallingAccelModifier = -0.09
 						params.CircleAngle = entity.V1.X
-						params.Color = Color(1,1,1, 1, 0.4,0.2,0)
+						params.Color = IRFcolors.HushOrange
 						params.TargetPosition = entity.Position
 
 						params.BulletFlags = ProjectileFlags.ORBIT_CCW
@@ -259,7 +263,8 @@ function mod:hushBabyUpdate(entity)
 						params.BulletFlags = ProjectileFlags.ORBIT_CW
 						entity:FireProjectiles(entity.Position, Vector(7, 12), 9, params)
 					end
-					entity:PlaySound(SoundEffect.SOUND_THUMBSUP, 0.6, 0, false, 1)
+
+					mod:PlaySound(nil, SoundEffect.SOUND_THUMBSUP, 0.6)
 				end
 
 				if sprite:IsFinished() then
@@ -293,11 +298,11 @@ function mod:hushBabyUpdate(entity)
 					-- Sawtooth wiggle shots
 					else
 						params.BulletFlags = ProjectileFlags.TRIANGLE
-						params.Color = Color(1,1,1, 1, 0.4,0.2,0)
+						params.Color = IRFcolors.HushOrange
 						entity:FireProjectiles(entity.Position, Vector(12, 6), 9, params)
 					end
 
-					entity:PlaySound(SoundEffect.SOUND_THUMBS_DOWN, 0.6, 0, false, 1)
+					mod:PlaySound(nil, SoundEffect.SOUND_THUMBS_DOWN, 0.6)
 					entity.I2 = entity.I2 + 1
 				end
 
@@ -325,7 +330,7 @@ function mod:hushBabyUpdate(entity)
 				-- 3rd phase
 				elseif entity.I1 == 3 then
 					if sprite:IsEventTriggered("Shoot") then
-						SFXManager():Play(SoundEffect.SOUND_POWERUP2, 0.9)
+						mod:PlaySound(nil, SoundEffect.SOUND_POWERUP2, 0.9)
 					end
 
 					if sprite:IsFinished("3FBAttack4Start") or sprite:IsPlaying("3FBAttack4Loop") then
@@ -360,13 +365,13 @@ function mod:hushBabyUpdate(entity)
 
 			if sprite:IsEventTriggered("Shoot") then
 				for i = 0, 3 do
-					local gaper = Isaac.Spawn(EntityType.ENTITY_HUSH_GAPER, 0, 0, entity.Position + (Vector.FromAngle(i * 90) * 50), Vector.Zero, entity):ToNPC()
+					local gaper = Isaac.Spawn(EntityType.ENTITY_HUSH_GAPER, 0, 0, entity.Position + Vector.FromAngle(i * 90):Resized(50), Vector.Zero, entity):ToNPC()
 					gaper:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 					gaper.State = NpcState.STATE_SPECIAL
 					gaper:GetSprite():Play("JumpOut", true)
 					gaper.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 				end
-				SFXManager():Play(SoundEffect.SOUND_SUMMONSOUND)
+				mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 			end
 
 			if sprite:IsFinished() then
@@ -414,7 +419,7 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.hushBabyDMG, EntityType.ENT
 
 --[[ Circling fly attack ]]--
 function mod:hushFlyAttackInit(entity)
-	if entity.Variant == IRFentities.forgottenBody + 1 then
+	if entity.Variant == IRFentities.HushFlyAttack then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
 		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
@@ -426,39 +431,46 @@ function mod:hushFlyAttackInit(entity)
 		entity.Scale = 1.25
 		local sprite = entity:GetSprite()
 		sprite:Play("Fly", true)
-		sprite:ReplaceSpritesheet(0, "gfx/monsters/afterbirth/monster_010_fly_hush_" .. math.random(1, 3) .. ".png")
+		sprite:ReplaceSpritesheet(0, "gfx/monsters/afterbirth/monster_010_fly_hush_" .. mod:Random(1, 3) .. ".png")
 		sprite:LoadGraphics()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.hushFlyAttackInit, 200)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.hushFlyAttackInit, IRFentities.Type)
 
 function mod:hushFlyAttackUpdate(entity)
-	if entity.Variant == IRFentities.forgottenBody + 1 then
+	if entity.Variant == IRFentities.HushFlyAttack then
 		if entity.Parent and entity.I1 > 0 then
 			-- Orbit spawn position
 			entity.V1 = Vector((90 * entity.StateFrame), entity.V1.Y + entity.V2.X) -- Rotation offset / Current rotation
+
 			if entity.V1.Y >= 360 then
 				entity.V1 = Vector(entity.V1.X, entity.V1.Y - 360)
+			elseif entity.V1.Y < 0 then
+				entity.V1 = Vector(entity.V1.X, entity.V1.Y + 360)
 			end
-			entity.Position = mod:Lerp(entity.Position, entity.TargetPosition + (Vector.FromAngle(entity.V1.X + entity.V1.Y) * entity.V2.Y), 0.1)
+
+			entity.Position = mod:Lerp(entity.Position, entity.TargetPosition + Vector.FromAngle(entity.V1.X + entity.V1.Y):Resized(entity.V2.Y), 0.1)
 			entity.Velocity = Vector.Zero
 
 
+			-- Increase distance
 			entity.V2 = Vector(entity.V2.X, entity.V2.Y + 9)
 			entity.I1 = entity.I1 - 1
 
+
+			-- Projectiles
 			if entity.FrameCount >= 8 and entity:IsFrame(4, 0) then
 				local params = ProjectileParams()
 				params.Variant = ProjectileVariant.PROJECTILE_HUSH
-				params.Color = Color(1,1,1, 1, 0.2,0,0.2)
+				params.Color = IRFcolors.HushPink
 				params.FallingSpeedModifier = 1
 				params.FallingAccelModifier = -0.2
-				
+
 				params.BulletFlags = ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT
 				params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
 				params.ChangeTimeout = 120
 
-				entity.Parent:ToNPC():FireProjectiles(entity.Position, Vector.Zero, 0, params)
+				entity:FireProjectiles(entity.Position, Vector.Zero, 0, params)
 			end
 
 		else
@@ -466,16 +478,16 @@ function mod:hushFlyAttackUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hushFlyAttackUpdate, 200)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hushFlyAttackUpdate, IRFentities.Type)
 
 function mod:hushFlyAttackDeath(entity)
-	if entity.Variant == IRFentities.forgottenBody + 1 then
+	if entity.Variant == IRFentities.HushFlyAttack then
 		local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FLY_EXPLOSION, 1, entity.Position, Vector.Zero, entity):GetSprite()
 		effect:Load("gfx/296.000_hush fly.anm2", true)
 		effect:Play("Die", true)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.hushFlyAttackDeath, 200)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.hushFlyAttackDeath, IRFentities.Type)
 
 
 
@@ -485,7 +497,7 @@ function mod:hushGaperUpdate(entity)
 		entity.Velocity = Vector.Zero
 
 		if entity:GetSprite():IsEventTriggered("Jump") then
-			SFXManager():Play(SoundEffect.SOUND_SKIN_PULL, 0.9)
+			mod:PlaySound(nil, SoundEffect.SOUND_SKIN_PULL, 0.9)
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 		end
 	end

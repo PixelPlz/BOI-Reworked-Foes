@@ -1,0 +1,2 @@
+If you would like to update your Basement Renovator's icons to match that of Reworked Foes, copy and paste the resources here into your Basement Renovator folder's root.
+Replace any images it warns you about.

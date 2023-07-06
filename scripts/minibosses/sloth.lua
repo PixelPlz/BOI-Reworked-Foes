@@ -1,110 +1,92 @@
 local mod = BetterMonsters
 
-local Settings = {
-	SuperSlothShots = 2,
-	ShotSpeed = 7,
-	FlyAngle = 15,
-	FlySpeed = 8,
-	SpiderCount = 5
-}
-
 
 
 function mod:slothUpdate(entity)
-	if mod:CheckForRev() == false and ((entity.Variant == 0 and entity.SubType <= 1) or entity.Variant == 1) then
+	if mod:CheckValidMiniboss(entity) == true then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
 
-		-- Custom attacks
+		-- Replace default attacks
 		if entity.State == NpcState.STATE_ATTACK or entity.State == NpcState.STATE_ATTACK2 then
 			entity.State = entity.State + 2
 
-		elseif entity.State == NpcState.STATE_ATTACK3 or entity.State == NpcState.STATE_ATTACK4 then
+
+		-- Enemy spawning attack
+		elseif entity.State == NpcState.STATE_ATTACK3 then
 			if sprite:GetFrame() == 4 then
-				local vector = (target.Position - entity.Position)
-				
-				-- Spawn
-				if entity.State == NpcState.STATE_ATTACK3 then
-					entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_2, 1, 0, false, 1)
+				local vector = (target.Position - entity.Position):Normalized()
+				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_2)
 
-					-- Flies / spiders
-					if entity.Variant == 0 then
-						for i = -1, 1, 2 do
-							local flyVector = Vector.FromAngle(vector:GetAngleDegrees() + i * Settings.FlyAngle)
-							
-							if entity.SubType == 0 then
-								Isaac.Spawn(EntityType.ENTITY_ATTACKFLY, 0, 0, entity.Position + (vector:Normalized() * 20), flyVector * Settings.FlySpeed, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
-							elseif entity.SubType == 1 then
-								EntityNPC.ThrowSpider(entity.Position, entity, entity.Position + (flyVector * math.random(120, 160)), false, -10)
-							end
+				-- Flies / spiders
+				if entity.Variant == 0 then
+					for i = -1, 1, 2 do
+						local spawnVector = Vector.FromAngle(vector:GetAngleDegrees() + i * 15)
+
+						-- Attack flies
+						if entity.SubType == 0 then
+							Isaac.Spawn(EntityType.ENTITY_ATTACKFLY, 0, 0, entity.Position + vector * 20, spawnVector * 4, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+						-- Spiders
+						elseif entity.SubType == 1 then
+							EntityNPC.ThrowSpider(entity.Position, entity, entity.Position + spawnVector * mod:Random(120, 160), false, -10)
 						end
-
-					-- Chargers
-					elseif entity.Variant == 1 then
-						local chargeVector = Vector.Zero
-						if vector:GetAngleDegrees() > -45 and vector:GetAngleDegrees() < 45 then
-							chargeVector = Vector(1, 0)
-						elseif vector:GetAngleDegrees() >= 45 and vector:GetAngleDegrees() <= 135 then
-							chargeVector = Vector(0, 1)
-						elseif vector:GetAngleDegrees() < -45 and vector:GetAngleDegrees() > -135 then
-							chargeVector = Vector(0, -1)
-						else
-							chargeVector = Vector(-1, 0)
-						end
-
-						local maggot = Isaac.Spawn(EntityType.ENTITY_CHARGER, 0, 0, entity.Position + (chargeVector * 20), chargeVector, entity):ToNPC()
-						maggot.State = NpcState.STATE_ATTACK
-						maggot.V1 = chargeVector
-						maggot:PlaySound(SoundEffect.SOUND_MAGGOTCHARGE, 1, 0, false, 1)
 					end
 
+				-- Chargers
+				elseif entity.Variant == 1 then
+					local chargeVector = mod:ClampVector(vector, 90)
 
-				-- Shoot
-				elseif entity.State == NpcState.STATE_ATTACK4 then
-					entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_4, 1, 0, false, 1)
-
-					local params = ProjectileParams()
-					if entity.SubType == 0 then
-						params.FallingAccelModifier = 1.25
-						params.FallingSpeedModifier = -20
-						params.BulletFlags = ProjectileFlags.EXPLODE
-						params.Color = greenBulletColor
-						params.Scale = 1.5
-						entity:FireProjectiles(entity.Position, vector:Normalized() * Settings.ShotSpeed, 0, params)
-					
-					elseif entity.SubType == 1 then
-						params.Color = skyBulletColor
-						params.FallingAccelModifier = 0.5
-						params.Scale = 1.1
-						params.VelocityMulti = 1.1
-						entity:FireBossProjectiles(8, target.Position, 4, params)
-					end
+					local maggot = Isaac.Spawn(EntityType.ENTITY_CHARGER, 0, 0, entity.Position + chargeVector * 20, chargeVector, entity):ToNPC()
+					maggot.State = NpcState.STATE_ATTACK
+					maggot.V1 = chargeVector
+					mod:PlaySound(maggot, SoundEffect.SOUND_MAGGOTCHARGE)
 				end
 			end
 
+			if sprite:IsFinished() then
+				entity.State = NpcState.STATE_MOVE
+			end
 
-			-- Super Sloth shoots 2 times
-			if sprite:IsFinished("Attack") or (entity.Variant == 1 and sprite:GetFrame() == 18 and entity.I2 < Settings.SuperSlothShots - 1 and entity.State == NpcState.STATE_ATTACK4) then
-				entity.I2 = entity.I2 + 1
 
-				if entity.Variant == 0 or entity.State == NpcState.STATE_ATTACK3 or entity.I2 >= Settings.SuperSlothShots then
-					entity.I2 = 0
-					entity.State = NpcState.STATE_MOVE
+		-- Projectile attack
+		elseif entity.State == NpcState.STATE_ATTACK4 then
+			if sprite:GetFrame() == 4 then
+				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_4)
+
+				local params = ProjectileParams()
+				-- White champion
+				if entity.SubType == 1 then
+					params.Color = IRFcolors.WhiteShot
+					params.Scale = 1.1
+					entity:FireBossProjectiles(9, target.Position, 7, params):GetData().whiteSlothCreep = true
 
 				else
+					params.FallingAccelModifier = 1.25
+					params.FallingSpeedModifier = -20
+					params.BulletFlags = ProjectileFlags.EXPLODE
+					params.Color = IRFcolors.Ipecac
+					params.Scale = 1.5
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(7), 0, params)
+				end
+			end
+
+			if sprite:IsFinished() or (entity.Variant == 1 and entity.I1 == 0 and sprite:GetFrame() == 19) then
+				-- Super Sloth shoots twice
+				if entity.Variant == 1 and entity.I1 == 0 then
 					sprite:Play("Attack", true)
-					if target.Position.X < entity.Position.X then
-						sprite.FlipX = true
-					else
-						sprite.FlipX = false
-					end
+					entity.I1 = entity.I1 + 1
+					mod:FlipTowardsTarget(entity, sprite)
+
+				else
+					entity.State = NpcState.STATE_MOVE
+					entity.I1 = 0
 				end
 			end
 		end
 
 
-		if entity.SubType == 1 and entity:HasMortalDamage() then
-			entity.SplatColor = skyBulletColor
+		if entity:HasMortalDamage() and entity.SubType == 1 then
+			entity.SplatColor = IRFcolors.WhiteShot
 		end
 	end
 end

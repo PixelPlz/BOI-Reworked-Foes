@@ -20,7 +20,7 @@ function mod:megaClottyUpdate(entity)
 		entity:FireProjectiles(entity.Position, Vector(10, 0), mode, ProjectileParams())
 
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity).SpriteScale = Vector(entity.Scale * 0.75, entity.Scale * 0.75)
-		SFXManager():Play(SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.75)
+		mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.75)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.megaClottyUpdate, EntityType.ENTITY_MEGA_CLOTTY)

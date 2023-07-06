@@ -7,6 +7,9 @@ function mod:postGameStartedHPBars()
 		HPBars.BossIgnoreList["97.0"] = true -- Mask of Infamy
 		HPBars.BossIgnoreList["200.4102"] = true -- Forgotten Body
 		HPBars.BossIgnoreList["403.10"] = true -- Forsaken clone
+		HPBars.BossIgnoreList["904.0"] = function(entity) -- Siren revive
+			return entity:ToNPC().I2 == 100
+		end
 
 		-- Gish
 		HPBars.BossDefinitions["43.1"] = {
@@ -119,7 +122,16 @@ function mod:postGameStartedHPBars()
 			sprite = path .. "chapter4/teratomar.png",
 			offset = Vector(-4, 0),
 		}
-		
+
+		-- It lives
+		HPBars.BossDefinitions["78.1"] = {
+			sprite = path .. "final/it_lives.png",
+			offset = Vector(-8, 0),
+			conditionalSprites = {
+				{function(entity) return entity:GetData().enraged == true end, path .. "final/it_lives_angy.png"}
+			},
+		}
+
 		-- Blighted Ovum
 		HPBars.BossDefinitions["79.2"] = {
 			sprite = path .. "chapter1/blighted_ovum.png",

@@ -7,9 +7,9 @@ function mod:nestInit(entity)
 		local stage = Game():GetRoom():GetRoomConfigStage()
 
 		-- Only replace nests on chaper 1 floors
-		if IRFconfig.noChapter1Nests == true and ((stage > 0 and stage < 4) or (stage > 26 and stage < 29)) then
+		if IRFConfig.noChapter1Nests == true and ((stage > 0 and stage < 4) or (stage > 26 and stage < 29)) then
 			entity:Remove()
-			Isaac.Spawn(EntityType.ENTITY_MULLIGAN, IRFentities.mullicocoon, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
+			Isaac.Spawn(EntityType.ENTITY_MULLIGAN, IRFentities.Mullicocoon, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
 		else
 			entity:Morph(EntityType.ENTITY_HIVE, 40, 0, entity:GetChampionColorIdx())
 		end
@@ -21,10 +21,10 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.nestInit, EntityType.ENTITY_N
 
 --[[ Mullicocoon ]]--
 function mod:mullicocoonInit(entity)
-	if entity.Variant == IRFentities.mullicocoon then
-		local offset = math.random(0, 359)
+	if entity.Variant == IRFentities.Mullicocoon then
+		local offset = mod:Random(359)
 		for i = 1, 3 do
-			local spider = Isaac.Spawn(EntityType.ENTITY_SPIDER, 0, 0, entity.Position + (Vector.FromAngle(offset + (i * 120)) * math.random(10, 30)), Vector.Zero, entity)
+			local spider = Isaac.Spawn(EntityType.ENTITY_SPIDER, 0, 0, entity.Position + Vector.FromAngle(offset + (i * 120)):Resized(mod:Random(10, 30)), Vector.Zero, entity)
 			spider:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 			spider.Target = entity
 		end
@@ -33,27 +33,27 @@ end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.mullicocoonInit, EntityType.ENTITY_MULLIGAN)
 
 function mod:mullicocoonDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == IRFentities.mullicocoon and damageSource.Type == EntityType.ENTITY_SPIDER then
+	if target.Variant == IRFentities.Mullicocoon and damageSource.Type == EntityType.ENTITY_SPIDER then
 		return false
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.mullicocoonDMG, EntityType.ENTITY_MULLIGAN)
 
 function mod:mullicocoonCollide(entity, target, bool)
-	if entity.Variant == IRFentities.mullicocoon and target.Type == EntityType.ENTITY_SPIDER then
+	if entity.Variant == IRFentities.Mullicocoon and target.Type == EntityType.ENTITY_SPIDER then
 		return true -- Ignore collision
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.mullicocoonCollide, EntityType.ENTITY_MULLIGAN)
 
 function mod:mullicocoonDeath(entity)
-	if entity.Variant == IRFentities.mullicocoon then
-		SFXManager():Play(SoundEffect.SOUND_BOIL_HATCH, 0.8)
-		
+	if entity.Variant == IRFentities.Mullicocoon then
+		mod:PlaySound(nil, SoundEffect.SOUND_BOIL_HATCH, 0.8)
+
 		for i = 1, 3 do
 			local checkType = EntityType.ENTITY_FLY
 			local spawnType = EntityType.ENTITY_SWARM_SPIDER
-			
+
 			if i == 2 then
 				checkType = EntityType.ENTITY_ATTACKFLY
 				spawnType = EntityType.ENTITY_SPIDER
@@ -61,9 +61,9 @@ function mod:mullicocoonDeath(entity)
 				checkType = EntityType.ENTITY_POOTER
 				spawnType = EntityType.ENTITY_BIGSPIDER
 			end
-			
+
 			for j, spawn in pairs(Isaac.FindByType(checkType, -1, -1, false, false)) do
-				if spawn.SpawnerType == EntityType.ENTITY_MULLIGAN and spawn.SpawnerVariant == IRFentities.mullicocoon then
+				if spawn.SpawnerType == EntityType.ENTITY_MULLIGAN and spawn.SpawnerVariant == IRFentities.Mullicocoon then
 					spawn:Remove()
 					Isaac.Spawn(spawnType, 0, 0, entity.Position, Vector.Zero, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 				end
@@ -89,7 +89,7 @@ function mod:nestUpdate(entity)
 			end
 			-- Spawn a spider
 			if sprite:GetOverlayFrame() == 5 then
-				EntityNPC.ThrowSpider(entity.Position, entity, entity.Position + ((entity:GetPlayerTarget().Position - entity.Position):Normalized() * math.random(40, 80)), false, -6)
+				EntityNPC.ThrowSpider(entity.Position, entity, entity.Position + (entity:GetPlayerTarget().Position - entity.Position):Resized(mod:Random(40, 80)), false, -6)
 			end
 		end
 	end
@@ -98,8 +98,8 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.nestUpdate, EntityType.ENTITY_HI
 
 function mod:nestDeath(entity)
 	if entity.Variant == 40 then
-		SFXManager():Play(SoundEffect.SOUND_BOIL_HATCH, 0.8)
-		
+		mod:PlaySound(nil, SoundEffect.SOUND_BOIL_HATCH, 0.8)
+
 		for i = 1, 3 do
 			local checkType = EntityType.ENTITY_FLY
 			local spawnType = EntityType.ENTITY_SWARM_SPIDER

@@ -6,7 +6,10 @@ local Settings = {
 
 	MoveSpeed = 2.5,
 	BallSpeed = 7,
-	SuckSpeed = 9
+	SuckSpeed = 18,
+
+	OrbitDistance = 30,
+	MaxOrbitDistance = 150,
 }
 
 
@@ -23,17 +26,17 @@ function mod:ragMegaInit(entity)
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-		entity.SplatColor = ragManBloodColor
+		entity.SplatColor = IRFcolors.RagManBlood
 
 		-- Spawn the plasmas
 		entity:GetData().balls = {}
 		for i = 1, 3 do
-			local plasma = Isaac.Spawn(200, IRFentities.ragPlasma, 0, entity.Position, Vector.Zero, entity)
+			local plasma = Isaac.Spawn(IRFentities.Type, IRFentities.RagPlasma, 0, entity.Position, Vector.Zero, entity)
 			plasma.Parent = entity
 			entity:GetData().balls[i] = plasma
 		end
-	
-	
+
+
 	-- Rebirth pillar
 	elseif entity.Variant == 2 then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
@@ -42,7 +45,7 @@ function mod:ragMegaInit(entity)
 
 		entity:GetSprite():Play("Rebirth Pillar", true)
 		entity.State = NpcState.STATE_SPECIAL
-		SFXManager():Play(SoundEffect.SOUND_LIGHTBOLT_CHARGE, 1.25)
+		mod:PlaySound(nil, SoundEffect.SOUND_LIGHTBOLT_CHARGE, 1.25)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ragMegaInit, EntityType.ENTITY_RAG_MEGA)
@@ -57,7 +60,7 @@ function mod:ragMegaUpdate(entity)
 			local data = entity:GetData()
 
 			mod:LoopingOverlay(sprite, "Rags", true)
-			
+
 			-- Remove plasmas from the list if they don't exist
 			for i = 1, #data.balls do
 				local ball = data.balls[i]
@@ -77,15 +80,7 @@ function mod:ragMegaUpdate(entity)
 
 			-- Move diagonally
 			elseif entity.I1 == 1 then
-				local xV = Settings.MoveSpeed
-				local yV = Settings.MoveSpeed
-				if entity.Velocity.X < 0 then
-					xV = xV * -1
-				end
-				if entity.Velocity.Y < 0 then
-					yV = yV * -1
-				end
-				entity.Velocity = mod:Lerp(entity.Velocity, Vector(xV, yV), 0.1)
+				mod:MoveDiagonally(entity, Settings.MoveSpeed)
 			end
 
 
@@ -93,6 +88,7 @@ function mod:ragMegaUpdate(entity)
 			if entity.State == NpcState.STATE_INIT then
 				if sprite:IsFinished("Appear") or data.wasDelirium then
 					entity.State = NpcState.STATE_MOVE
+					entity.Velocity = Vector.FromAngle(45 + mod:Random(3) * 90)
 				end
 
 
@@ -119,7 +115,7 @@ function mod:ragMegaUpdate(entity)
 					for i, ragling in pairs(Isaac.FindByType(EntityType.ENTITY_RAGLING, 1, -1, false, true)) do
 						if ragling.Parent and ragling.Parent.Index == entity.Index then
 							totalRaglings = totalRaglings + 1
-							
+
 							-- If dead
 							if ragling:ToNPC().State == NpcState.STATE_SPECIAL then
 								deadRaglings = deadRaglings + 1
@@ -132,7 +128,7 @@ function mod:ragMegaUpdate(entity)
 					if totalRaglings >= 2 and deadRaglings <= 0 then
 						attackCount = 2
 					end
-					local attack = math.random(1, attackCount)
+					local attack = mod:Random(1, attackCount)
 
 					-- First attack is always a ragling
 					if not data.wasDelirium and entity.ProjectileDelay == -1 then
@@ -143,15 +139,15 @@ function mod:ragMegaUpdate(entity)
 					if attack == 1 then
 						entity.State = NpcState.STATE_ATTACK
 						sprite:Play("Cover", true)
-						entity:PlaySound(SoundEffect.SOUND_RAGMAN_3, 1.25, 0, false, 1)
-						SFXManager():Play(SoundEffect.SOUND_SKIN_PULL)
+						mod:PlaySound(entity, SoundEffect.SOUND_RAGMAN_3, 1.25)
+						mod:PlaySound(nil, SoundEffect.SOUND_SKIN_PULL)
 
 					elseif attack == 2 then
 						entity.State = NpcState.STATE_ATTACK2
 						sprite:Play("Push", true)
 
 					elseif attack == 3 then
-						if totalRaglings < 2 and (deadRaglings <= 0 or math.random(0, 1) == 1) then
+						if totalRaglings < 2 and (deadRaglings <= 0 or mod:Random(1) == 1) then
 							entity.State = NpcState.STATE_SUMMON2
 							sprite:Play("Summon", true)
 						else
@@ -168,11 +164,11 @@ function mod:ragMegaUpdate(entity)
 			-- Re-summon plasmas
 			elseif entity.State == NpcState.STATE_SUMMON then
 				if sprite:IsEventTriggered("Shoot") then
-					entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_4, 1.25, 0, false, 1)
-					SFXManager():Play(SoundEffect.SOUND_REDLIGHTNING_ZAP, 1.2)
+					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_4, 1.25)
+					mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP, 1.2)
 
 					for i = 1, 3 do
-						local plasma = Isaac.Spawn(200, IRFentities.ragPlasma, 0, entity.Position, Vector.Zero, entity)
+						local plasma = Isaac.Spawn(IRFentities.Type, IRFentities.RagPlasma, 0, entity.Position, Vector.Zero, entity)
 						plasma.Parent = entity
 						data.balls[i] = plasma
 					end
@@ -203,7 +199,7 @@ function mod:ragMegaUpdate(entity)
 				-- Covered
 				elseif entity.StateFrame == 1 then
 					mod:LoopingAnim(sprite, "Covered")
-					
+
 					if entity.I2 >= 240 or #data.balls < 1 then
 						entity.StateFrame = 2
 						sprite:Play("Uncover", true)
@@ -212,7 +208,7 @@ function mod:ragMegaUpdate(entity)
 						-- Return plasmas to idle state
 						for i = 1, #data.balls do
 							data.balls[i]:ToNPC().State = NpcState.STATE_IDLE
-							data.balls[i]:ToNPC().V2 = Vector(2, 60)
+							data.balls[i]:ToNPC().V1 = Vector(Settings.OrbitDistance, 0)
 						end
 
 					else
@@ -222,9 +218,9 @@ function mod:ragMegaUpdate(entity)
 				-- Uncover
 				elseif entity.StateFrame == 2 then
 					if sprite:IsEventTriggered("Sound") then
-						SFXManager():Play(SoundEffect.SOUND_SKIN_PULL)
+						mod:PlaySound(nil, SoundEffect.SOUND_SKIN_PULL)
 					elseif sprite:IsEventTriggered("Shoot") then
-						entity:PlaySound(SoundEffect.SOUND_RAGMAN_1, 1.25, 0, false, 1)
+						mod:PlaySound(entity, SoundEffect.SOUND_RAGMAN_1, 1.25)
 					end
 
 					if sprite:IsFinished() then
@@ -238,28 +234,29 @@ function mod:ragMegaUpdate(entity)
 				-- Push away
 				if entity.StateFrame == 0 then
 					if sprite:IsEventTriggered("Shoot") then
-						entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_4, 1.25, 0, false, 1)
-						SFXManager():Play(SoundEffect.SOUND_REDLIGHTNING_ZAP, 1.2)
+						mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_4, 1.25)
+						mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP, 1.2)
 
 						for i = 1, #data.balls do
 							local ball = data.balls[i]:ToNPC()
 							ball.State = NpcState.STATE_MOVE
-							ball.Velocity = (ball.Position - entity.Position):Normalized() * 15
+							ball.Velocity = (ball.Position - entity.Position):Resized(15)
+							mod:QuickTrail(ball, 0.1, IRFcolors.RagManPurple, 3)
 						end
 					end
-					
+
 					if sprite:IsFinished() then
 						entity.StateFrame = 1
 					end
-				
+
 				-- Wait
 				elseif entity.StateFrame == 1 then
 					mod:LoopingAnim(sprite, "Idle")
-					
+
 					if #data.balls < 1 then
 						entity.State = NpcState.STATE_MOVE
 					end
-					
+
 					if entity.I2 >= 60 then
 						entity.StateFrame = 2
 						sprite:Play("SuckStart", true)
@@ -274,13 +271,14 @@ function mod:ragMegaUpdate(entity)
 					else
 						entity.I2 = entity.I2 + 1
 					end
-				
+
 				-- Start sucking
 				elseif entity.StateFrame == 2 then
 					if sprite:IsFinished() then
 						for i = 1, #data.balls do
 							local ball = data.balls[i]:ToNPC()
 							ball.State = NpcState.STATE_JUMP
+							ball:GetData().spriteTrail:Remove()
 
 							-- Connector beam
 							local beam = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.KINETI_BEAM, 0, entity.Position, Vector.Zero, entity):ToEffect()
@@ -289,20 +287,18 @@ function mod:ragMegaUpdate(entity)
 
 							beam.Target = ball
 							ball.Child = beam
-
 							beam.DepthOffset = entity.DepthOffset + ball.DepthOffset
-							beam.SpriteOffset = Vector(0, -18)
 						end
 
 						entity.StateFrame = 3
-						entity:PlaySound(SoundEffect.SOUND_LOW_INHALE, 1.25, 0, false, 0.95)
-						SFXManager():Play(SoundEffect.SOUND_BISHOP_HIT, 1.5)
+						mod:PlaySound(entity, SoundEffect.SOUND_LOW_INHALE, 1.25, 0.95)
+						mod:PlaySound(nil, SoundEffect.SOUND_BISHOP_HIT, 1.5)
 					end
-				
+
 				-- Gobble them balls
 				elseif entity.StateFrame == 3 then
 					mod:LoopingAnim(sprite, "SuckLoop")
-					
+
 					for i = 1, #data.balls do
 						if data.balls[i] then
 							-- Consume ball
@@ -312,15 +308,15 @@ function mod:ragMegaUpdate(entity)
 									ball.Child:Remove()
 								end
 								ball:Remove()
-								
+
 								entity:AddHealth(4)
 								entity:SetColor(Color(1,1,1, 1, 0.35,0.1,0.35), 10, 1, true, false)
-								SFXManager():Play(SoundEffect.SOUND_PORTAL_SPAWN, 1.35)
+								mod:PlaySound(nil, SoundEffect.SOUND_PORTAL_SPAWN, 1.35)
 								entity.I2 = entity.I2 + 1
 							end
 						end
 					end
-					
+
 					-- Shoot if all balls are gobbled / go to idle state if no balls are consumed
 					if #data.balls < 1 then
 						entity.StateFrame = 4
@@ -330,7 +326,7 @@ function mod:ragMegaUpdate(entity)
 							sprite:Play("No Balls", true)
 						end
 					end
-				
+
 				-- Shoot
 				elseif entity.StateFrame == 4 then
 					if sprite:IsEventTriggered("Shoot") then
@@ -340,34 +336,36 @@ function mod:ragMegaUpdate(entity)
 						params.FallingSpeedModifier = 1
 						params.FallingAccelModifier = 0
 						entity:FireBossProjectiles(5 * entity.I2, target.Position, 0, params)
-						entity:PlaySound(SoundEffect.SOUND_RAGMAN_4, 1.25, 0, false, 1)
+						mod:PlaySound(entity, SoundEffect.SOUND_RAGMAN_4, 1.25)
 					end
 
 					if sprite:IsFinished() then
 						entity.State = NpcState.STATE_MOVE
 					end
 				end
-			
-			
+
+
 			-- Summon ragling
 			elseif entity.State == NpcState.STATE_SUMMON2 then
 				if sprite:IsEventTriggered("Shoot") then
-					entity:PlaySound(SoundEffect.SOUND_RAGMAN_1, 1.25, 0, false, 1)
+					mod:PlaySound(entity, SoundEffect.SOUND_RAGMAN_1, 1.25)
 
 					local ragling = Isaac.Spawn(EntityType.ENTITY_RAGLING, 1, 0, entity.Position, Vector.Zero, entity):ToNPC()
 					local ragSprite = ragling:GetSprite()
 
 					ragling.Parent = entity
 					ragling.State = NpcState.STATE_MOVE
-					ragling.TargetPosition = entity.Position + ((target.Position - entity.Position):Normalized() * 240)
 					ragSprite:Play("Hop", true)
 					ragSprite:SetFrame(4)
+
+					local pos = entity.Position + (target.Position - entity.Position):Resized(240)
+					ragling.TargetPosition = Game():GetRoom():GetClampedPosition(pos, 0)
 				end
 
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_MOVE
 				end
-			
+
 			-- Revive ragling
 			elseif entity.State == NpcState.STATE_ATTACK3 then
 				entity.I1 = 0
@@ -384,7 +382,7 @@ function mod:ragMegaUpdate(entity)
 
 				-- Revive
 				elseif sprite:IsEventTriggered("Shoot") then
-					entity:PlaySound(SoundEffect.SOUND_RAGMAN_2, 1.25, 0, false, 1)
+					mod:PlaySound(entity, SoundEffect.SOUND_RAGMAN_2, 1.25)
 					entity.Child:ToNPC().State = NpcState.STATE_APPEAR_CUSTOM
 					entity.Child = nil
 				end
@@ -393,95 +391,93 @@ function mod:ragMegaUpdate(entity)
 					entity.State = NpcState.STATE_MOVE
 				end
 			end
-		
-		
+
+
 		-- Rebirth pillar
 		elseif entity.Variant == 2 then
 			entity.Velocity = Vector.Zero
 
 			if sprite:IsEventTriggered("Shoot") then
-				SFXManager():Play(SoundEffect.SOUND_REDLIGHTNING_ZAP_STRONG, 1.25)
-				SFXManager():Play(SoundEffect.SOUND_SUMMONSOUND)
+				mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP_STRONG, 1.25)
+				mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 			end
 			if sprite:IsFinished() then
 				entity:Remove()
 			end
 		end
-		
+
 		return true
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ragMegaUpdate, EntityType.ENTITY_RAG_MEGA)
 
 function mod:ragMegaDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	-- Reduced damage while curled up
 	if target.Variant == 0 and target:ToNPC().State == NpcState.STATE_ATTACK and target:ToNPC().StateFrame == 1 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
 		target:TakeDamage(damageAmount / 2, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+		target:SetColor(IRFcolors.ArmorFlash, 2, 0, false, false)
 		return false
-	
+
+	-- Rebirth pillar
 	elseif target.Variant == 2 then
 		return false
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ragMegaDMG, EntityType.ENTITY_RAG_MEGA)
 
+function mod:ragMegaDeath(entity)
+	if entity.Variant == 0 then
+		for i, ragling in pairs(Isaac.FindByType(EntityType.ENTITY_RAGLING, 1, -1, false, true)) do
+			ragling:Kill()
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.ragMegaDeath, EntityType.ENTITY_RAG_MEGA)
+
 
 
 --[[ Plasmas ]]--
 function mod:ragPlasmaInit(entity)
-	if entity.Variant == IRFentities.ragPlasma then
+	if entity.Variant == IRFentities.RagPlasma then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
 
-		entity.V2 = Vector(2, 60) -- Rotation speed / Distance from parent
+		entity.V1 = Vector(Settings.OrbitDistance, 0) -- Distance from parent
 		entity.State = NpcState.STATE_IDLE
-		entity.SplatColor = ragManPsyColor
+		entity.SplatColor = IRFcolors.RagManPurple
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ragPlasmaInit, 200)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ragPlasmaInit, IRFentities.Type)
 
 function mod:ragPlasmaUpdate(entity)
-	if entity.Variant == IRFentities.ragPlasma then
+	if entity.Variant == IRFentities.RagPlasma then
 		if entity.Parent then
 			local sprite = entity:GetSprite()
 
 			-- Orbit parent
 			if entity.State == NpcState.STATE_IDLE or entity.State == NpcState.STATE_ATTACK then
 				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
-
-				-- Get offset
-				local siblingCount = 0
-				for i, sibling in pairs(Isaac.FindByType(entity.Type, entity.Variant, -1, false, true)) do
-					if sibling:HasCommonParentWithEntity(entity) and sibling:ToNPC().State == entity.State then
-						sibling:ToNPC().StateFrame = i
-						siblingCount = siblingCount + 1
-					end
-				end
-
-				entity.V1 = Vector(((360 / siblingCount) * entity.StateFrame), entity.V1.Y + entity.V2.X) -- Rotation offset / Current rotation
-				if entity.V1.Y >= 360 then
-					entity.V1 = Vector(entity.V1.X, entity.V1.Y - 360)
-				end
-				entity.Position = mod:Lerp(entity.Position, entity.Parent.Position + (Vector.FromAngle(entity.V1.X + entity.V1.Y) * entity.V2.Y), 0.1)
-				entity.Velocity = entity.Parent.Velocity
+				mod:OrbitParent(entity, entity.Parent, 2, entity.V1.X)
 
 
 				-- Curled up attack
 				if entity.State == NpcState.STATE_ATTACK then
 					-- Increase / decrease orbit distance
 					if entity.I1 == 0 then
-						if entity.V2.Y < 180 then
-							entity.V2 = Vector(entity.V2.X, entity.V2.Y + 1)
+						if entity.V1.X < Settings.MaxOrbitDistance then
+							entity.V1 = Vector(entity.V1.X + 1, 0)
 						else
 							entity.I1 = 1
 						end
 
 					elseif entity.I1 == 1 then
-						if entity.V2.Y > 60 then
-							entity.V2 = Vector(entity.V2.X, entity.V2.Y - 1)
+						if entity.V1.X > Settings.OrbitDistance then
+							entity.V1 = Vector(entity.V1.X - 1, 0)
 						else
 							entity.I1 = 0
 						end
 					end
+
 
 					-- Shoot
 					if entity.I2 == 0 then
@@ -500,10 +496,10 @@ function mod:ragPlasmaUpdate(entity)
 							params.Variant = ProjectileVariant.PROJECTILE_HUSH
 							params.Scale = 1.65
 							params.BulletFlags = (ProjectileFlags.SMART | ProjectileFlags.NO_WALL_COLLIDE)
-							entity:FireProjectiles(entity.Position, (entity.Parent:ToNPC():GetPlayerTarget().Position - entity.Parent.Position):Normalized() * 9, 0, params)
-							SFXManager():Play(SoundEffect.SOUND_REDLIGHTNING_ZAP_STRONG, 1.1)
+							mod:FireProjectiles(entity, entity.Position, (entity.Parent:ToNPC():GetPlayerTarget().Position - entity.Parent.Position):Resized(9), 0, params, IRFcolors.RagManPurple)
+							mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP_STRONG)
 						end
-						
+
 						if sprite:IsFinished("Shoot") then
 							entity.I2 = 0
 							entity.ProjectileCooldown = 40
@@ -518,37 +514,37 @@ function mod:ragPlasmaUpdate(entity)
 			-- Move diagonally
 			elseif entity.State == NpcState.STATE_MOVE then
 				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
-
-				local xV = Settings.BallSpeed
-				local yV = Settings.BallSpeed
-				if entity.Velocity.X < 0 then
-					xV = xV * -1
-				end
-				if entity.Velocity.Y < 0 then
-					yV = yV * -1
-				end
-				entity.Velocity = mod:Lerp(entity.Velocity, Vector(xV, yV), 0.1)
+				mod:MoveDiagonally(entity, Settings.BallSpeed)
 
 
 			-- Slow down
 			elseif entity.State == NpcState.STATE_STOMP then
 				entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.1)
+
 			-- Go to parent
 			elseif entity.State == NpcState.STATE_JUMP then
-				entity.Velocity = mod:Lerp(entity.Velocity, (entity.Parent.Position - entity.Position):Normalized() * (Settings.SuckSpeed * 2), 0.1)
+				entity.Velocity = mod:Lerp(entity.Velocity, (entity.Parent.Position - entity.Position):Resized(Settings.SuckSpeed), 0.1)
 			end
+
+
+			-- Sprite trail
+			local data = entity:GetData()
+			if data.spriteTrail then
+				data.spriteTrail.Velocity = entity.Position + Vector(0, -36) - data.spriteTrail.Position
+			end
+
 
 		else
 			entity:Kill()
-			SFXManager():Play(SoundEffect.SOUND_REDLIGHTNING_ZAP_BURST, 0.9)
+			mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP_BURST, 0.8)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ragPlasmaUpdate, 200)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ragPlasmaUpdate, IRFentities.Type)
 
 function mod:ragPlasmaDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == IRFentities.ragPlasma then
+	if target.Variant == IRFentities.RagPlasma then
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ragPlasmaDMG, 200)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ragPlasmaDMG, IRFentities.Type)

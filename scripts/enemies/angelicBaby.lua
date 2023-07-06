@@ -24,48 +24,44 @@ function mod:angelicBabyUpdate(entity)
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
 
-
+		-- New projectile attack
 		if sprite:IsEventTriggered("Attack") then
-			entity.Velocity = (entity.Position - target.Position):Normalized() * Settings.PushBackSpeed
-			entity:PlaySound(SoundEffect.SOUND_CUTE_GRUNT, 1, 0, false, 1.05)
-			SFXManager():Play(SoundEffect.SOUND_ANGEL_WING, 1.2)
+			entity.Velocity = (entity.Position - target.Position):Resized(Settings.PushBackSpeed)
+			mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT, 1, 1.05)
+			mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_WING)
 
 			-- Helix feather shots
 			local params = ProjectileParams()
-			params.Variant = IRFentities.featherProjectile
+			params.Variant = IRFentities.FeatherProjectile
 			params.FallingAccelModifier = -0.15
 			params.ChangeTimeout = 21
 			params.CurvingStrength = 0.0075
 
-			params.BulletFlags = (ProjectileFlags.CURVE_LEFT | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.NO_WALL_COLLIDE)
-			params.ChangeFlags = (ProjectileFlags.CURVE_RIGHT | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.NO_WALL_COLLIDE)
-			entity:FireProjectiles(entity.Position, Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees() + 45) * Settings.FeatherShotSpeed, 0, params)
-			
-			params.BulletFlags = (ProjectileFlags.CURVE_RIGHT | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.NO_WALL_COLLIDE)
-			params.ChangeFlags = (ProjectileFlags.CURVE_LEFT | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.NO_WALL_COLLIDE)
-			entity:FireProjectiles(entity.Position, Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees() - 45) * Settings.FeatherShotSpeed, 0, params)
+			for i = -1, 1, 2 do
+				local left = (ProjectileFlags.CURVE_LEFT | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.NO_WALL_COLLIDE)
+				local right = (ProjectileFlags.CURVE_RIGHT | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.NO_WALL_COLLIDE)
+
+				if i == -1 then
+					params.BulletFlags = right
+					params.ChangeFlags = left
+				else
+					params.BulletFlags = left
+					params.ChangeFlags = right
+				end
+
+				entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Rotated(i * 45):Resized(Settings.FeatherShotSpeed), 0, params)
+			end
 
 
+		-- Crack the sky beam on teleport
 		elseif sprite:IsEventTriggered("Jump") then
-			SFXManager():Play(SoundEffect.SOUND_HELL_PORTAL2, 0.8)
+			mod:PlaySound(nil, SoundEffect.SOUND_HELL_PORTAL2, 0.8)
 			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACK_THE_SKY, 2, entity.TargetPosition, Vector.Zero, entity).DepthOffset = entity.DepthOffset - 10
 		end
 
-
+		-- Stop them from moving while teleporting
 		if sprite:IsPlaying("Vanish2") then
 			entity.Velocity = Vector.Zero
-
-			if sprite:GetFrame() == 2 then
-				local params = ProjectileParams()
-				params.Variant = ProjectileVariant.PROJECTILE_HUSH
-				params.Color = Color(1,1,1, 1, 0.25,0.25,0.25)
-				params.FallingAccelModifier = -0.15
-				params.BulletFlags = ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT
-				params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
-				params.ChangeTimeout = 12
-
-				entity:FireProjectiles(entity.Position, Vector(Settings.LightShotSpeed, 0), 6, params)
-			end
 		end
 	end
 end

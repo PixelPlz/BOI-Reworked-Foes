@@ -4,7 +4,7 @@ local Settings = {
 	SoundTimer = 30,
 	MoveScreenShake = 6,
 	MoveSpeed = 5,
-	StompShotSpeed = 10,
+	StompShotSpeed = 12,
 
 	HeadSmashSpeed = 16,
 	HeadSmashTimer = 30,
@@ -35,13 +35,13 @@ function mod:daddyLongLegsUpdate(entity)
 			-- Move towards target
 			if data.timer <= 0 then
 				data.timer = Settings.SoundTimer
-				SFXManager():Play(SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.75)
+				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.75)
 				Game():ShakeScreen(Settings.MoveScreenShake)
 			else
 				data.timer = data.timer - 1
 
 				if data.timer <= 15 then
-					entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Normalized() * Settings.MoveSpeed, 0.25)
+					mod:ChasePlayer(entity, Settings.MoveSpeed, true)
 				end
 			end
 
@@ -51,10 +51,8 @@ function mod:daddyLongLegsUpdate(entity)
 			-- Stomp projectiles
 			if entity.State == NpcState.STATE_STOMP and sprite:IsEventTriggered("Land") then
 				local params = ProjectileParams()
-				params.Color = skyBulletColor
-				params.FallingAccelModifier = 0.1
-
-				entity:FireProjectiles(entity.Position, Vector(Settings.StompShotSpeed, 0), 5 + entity.I1 + entity.I2, params)
+				params.Color = IRFcolors.WhiteShot
+				entity:FireProjectiles(entity.Position, Vector(Settings.StompShotSpeed - entity.I2, 0), 6 + entity.I2, params)
 			end
 		end
 	end
@@ -76,11 +74,11 @@ function mod:daddyLongLegsUpdate(entity)
 		elseif entity.FrameCount <= 1 then
 			entity.Position = Game():GetRoom():GetGridPosition(Game():GetRoom():GetGridIndex(entity.Position))
 		end
-	
-	
+
+
 	-- Move to target
 	elseif entity.State == NpcState.STATE_ATTACK5 then
-		entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Normalized() * Settings.HeadSmashSpeed, 0.25)
+		mod:ChasePlayer(entity, Settings.HeadSmashSpeed, true)
 
 		if data.down <= 0 then
 			entity.State = NpcState.STATE_APPEAR_CUSTOM
@@ -95,8 +93,8 @@ function mod:daddyLongLegsUpdate(entity)
 		if sprite:IsEventTriggered("Land") then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 
-			SFXManager():Play(SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
-			SFXManager():Play(SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.1)
+			mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
+			mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.1)
 			Game():ShakeScreen(Settings.HeadSmashScreenShake)
 			Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
 
@@ -113,10 +111,10 @@ function mod:daddyLongLegsUpdate(entity)
 
 			-- Triachnid
 			elseif entity.Variant == 1 then
-				params.Color = skyBulletColor
+				params.Color = IRFcolors.WhiteShot
 				-- Creep
 				for i = 1, 4 do
-					mod:QuickCreep(EffectVariant.CREEP_WHITE, entity, entity.Position + (Vector.FromAngle(i * 90) * 50), 2.25)
+					mod:QuickCreep(EffectVariant.CREEP_WHITE, entity, entity.Position + Vector.FromAngle(i * 80):Resized(50), 2.25)
 				end
 			end
 

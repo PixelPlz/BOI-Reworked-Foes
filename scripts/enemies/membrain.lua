@@ -7,10 +7,12 @@ function mod:membrainUpdate(entity)
 		local sprite = entity:GetSprite()
 		local params = ProjectileParams()
 
+		-- For both
 		params.Acceleration = 1.075
 		params.FallingSpeedModifier = 1
 		params.FallingAccelModifier = -0.1
 		params.Scale = 1.4
+
 
 		-- Membrain
 		if entity.Variant == 0 then
@@ -21,12 +23,13 @@ function mod:membrainUpdate(entity)
 				params.ChangeVelocity = 0
 
 				entity:FireProjectiles(entity.Position, Vector(8, 0), 8, params)
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity).SpriteScale = Vector(0.75, 0.75)
-				SFXManager():Play(SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.75)
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity).SpriteScale = Vector(entity.Scale * 0.75, entity.Scale * 0.75)
+				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.75)
 
 			elseif sprite:IsEventTriggered("Activate") then
-				SFXManager():Play(SoundEffect.SOUND_REDLIGHTNING_ZAP, 0.75)
+				mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP, 0.75)
 			end
+
 
 		-- Mama guts
 		elseif entity.Variant == 1 and sprite:IsEventTriggered("Shoot") then
@@ -35,7 +38,7 @@ function mod:membrainUpdate(entity)
 			params.ChangeTimeout = 90
 
 			entity:FireProjectiles(entity.Position, Vector(8, 0), 8, params)
-			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity).SpriteScale = Vector(0.75, 0.75)
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity).SpriteScale = Vector(entity.Scale * 0.75, entity.Scale * 0.75)
 		end
 	end
 end
@@ -45,11 +48,17 @@ function mod:membrainBulletUpdate(entity)
 	if entity.SpawnerType == EntityType.ENTITY_MEMBRAIN and entity.SpawnerVariant == 0 then
 		if not entity.SpawnerEntity then
 			entity:Die()
+
 		else
+			-- Change color
 			if entity.FrameCount == 15 then
 				entity:SetColor(Color(0.5,0.5,0.7, 1, 0.3,0.3,0.6), 5, 1, true, false)
+
+			-- Move towards target
 			elseif entity.FrameCount < 50 then
 				entity.TargetPosition = entity.SpawnerEntity:ToNPC():GetPlayerTarget().Position
+
+			-- Disappear
 			elseif entity.FrameCount > 60 then
 				entity:Die()
 			end

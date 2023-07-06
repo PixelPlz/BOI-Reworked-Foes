@@ -9,11 +9,11 @@ function mod:headlessHorsemanBodyUpdate(entity)
 		-- Replace shooting attack
 		if entity.State == NpcState.STATE_ATTACK then
 			entity.State = NpcState.STATE_ATTACK2
-		
+
 		elseif entity.State == NpcState.STATE_ATTACK2 then
 			if sprite:GetFrame() == 10 then
-				entity:FireProjectiles(entity.Position, Vector(11, 6), 9, ProjectileParams())
-				entity:PlaySound(SoundEffect.SOUND_HEARTOUT, 1, 0, false, 1)
+				entity:FireProjectiles(entity.Position, Vector(12, 6), 9, ProjectileParams())
+				mod:PlaySound(nil, SoundEffect.SOUND_HEARTOUT)
 			end
 
 			if sprite:IsFinished("Attack") then
@@ -27,23 +27,25 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.headlessHorsemanBodyUpdate, Enti
 function mod:headlessHorsemanHeadUpdate(entity)
 	if entity.SubType == 1 then
 		local sprite = entity:GetSprite()
+		local target = entity:GetPlayerTarget()
 
-		-- Charge at the target horizontally
+		-- Appear horizontally to the target
 		if entity.State == NpcState.STATE_ATTACK then
 			local room = Game():GetRoom()
 
-			if entity.Position.X > room:GetBottomRightPos().X + 120 or entity.Position.X < room:GetTopLeftPos().X - 120 then
-				entity.Position = Vector(entity.Position.X, entity:GetPlayerTarget().Position.Y)
+			if entity.Position.X >= room:GetBottomRightPos().X + 200 or entity.Position.X <= room:GetTopLeftPos().X - 200 then
+				entity.Position = Vector(entity.Position.X, target.Position.Y)
 			end
-		
+
+
 		-- Replace shooting attack
 		elseif entity.State == NpcState.STATE_ATTACK2 then
 			entity.State = NpcState.STATE_ATTACK3
 		
 		elseif entity.State == NpcState.STATE_ATTACK3 then
 			if sprite:GetFrame() == 13 then
-				entity:FireBossProjectiles(10, entity:GetPlayerTarget().Position, 2, ProjectileParams())
-				entity:PlaySound(SoundEffect.SOUND_MONSTER_GRUNT_2, 1, 0, false, 1)
+				entity:FireBossProjectiles(10, target.Position, 2, ProjectileParams())
+				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_2)
 			end
 
 			if sprite:IsFinished("Attack") then

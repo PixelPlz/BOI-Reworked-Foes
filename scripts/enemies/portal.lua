@@ -6,7 +6,9 @@ local Settings = {
 	ShotSpeed = 10
 }
 
-local portalSpawns = { -- Corresponds to the values from Game():GetRoom():GetRoomConfigStage()
+-- Example on how to add custom spawns:
+-- table.insert( IRFportalSpawns[10], {CoolMod.EpicWombEnemy, 21} )
+IRFportalSpawns = { -- Corresponds to the IDs in stages.xml
 	{ -- Basement
 		{EntityType.ENTITY_GAPER, 1},
 		{EntityType.ENTITY_HORF, 0},
@@ -264,8 +266,11 @@ function mod:portalInit(entity)
 	if entity.Variant == 0 or entity.Variant == 40 then
 		entity.Variant = 40
 		entity.ProjectileCooldown = Settings.Cooldown / 2
-		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK)
-		entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+
+		-- Bestiary fix
+		entity:GetSprite():ReplaceSpritesheet(6, "")
+		entity:GetSprite():LoadGraphics()
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.portalInit, EntityType.ENTITY_PORTAL)
@@ -276,6 +281,32 @@ function mod:portalUpdate(entity)
 
 		entity.Velocity = Vector.Zero
 		mod:LoopingAnim(sprite, "Idle")
+
+
+		-- Particles
+		if entity:IsFrame(6, 0) then
+			for i = 1, math.random(1, 2) do
+				local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, entity.Position, Vector.Zero, entity):ToEffect()
+				trail.DepthOffset = entity.DepthOffset - 10
+				trail.SpriteOffset = Vector(0, -13)
+
+				-- Scale
+				local scaler = math.random(40, 50) / 100
+				trail.SpriteScale = Vector(scaler, scaler)
+
+				-- Color
+				local c = IRFcolors.PortalShotTrail
+				local colorOffset = math.random(-1, 1) * 0.06
+				trail:GetSprite().Color = Color(c.R,c.G,c.B, math.random(50, 100) / 100, c.RO + colorOffset, c.GO + colorOffset, c.BO + colorOffset)
+
+				-- Movement
+				local dir = mod:RandomVector()
+				trail.Position = entity.Position + dir * 44
+				trail.Velocity = -dir * 4
+
+				trail:Update()
+			end
+		end
 
 
 		-- Idle
@@ -293,33 +324,33 @@ function mod:portalUpdate(entity)
 		-- Spawn / Attack
 		elseif entity.State == NpcState.STATE_SUMMON then
 			if sprite:GetOverlayFrame() == 10 then
-				SFXManager():Play(SoundEffect.SOUND_PORTAL_SPAWN, 1.1)
+				mod:PlaySound(nil, SoundEffect.SOUND_PORTAL_SPAWN, 1.1)
 				local stage = Game():GetRoom():GetRoomConfigStage()
 
 				if Isaac.CountEntities(entity, EntityType.ENTITY_NULL, -1, -1) < Settings.MaxSpawns and ((stage > 0 and stage < 18) or (stage > 26 and stage < 35)) then
-					local spawn = portalSpawns[stage][math.random(1, #portalSpawns[stage])]
+					local spawn = mod:RandomIndex(IRFportalSpawns[stage])
 
 					local ent = Isaac.Spawn(spawn[1], spawn[2], 0, entity.Position + Vector(0, 10), Vector.Zero, entity)
-					ent:SetColor(portalSpawnColor, 15, 1, true, false)
+					ent:SetColor(IRFcolors.PortalSpawn, 15, 1, true, false)
 					ent.MaxHitPoints = ent.MaxHitPoints * 2
 					ent.HitPoints = ent.MaxHitPoints
 					ent:Update()
-				
+
 				else
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_HUSH
-					params.Color = portalBulletColor
-					
+					params.Color = IRFcolors.PortalShot
+
 					if entity.StateFrame == 0 then
 						params.BulletFlags = ProjectileFlags.ORBIT_CW
-						entity.StateFrame = entity.StateFrame + 1
+						entity.StateFrame = 1
 					elseif entity.StateFrame == 1 then
 						params.BulletFlags = ProjectileFlags.ORBIT_CCW
 						entity.StateFrame = 0
 					end
 					params.TargetPosition = entity.Position
 
-					entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 0), 7, params)
+					mod:FireProjectiles(entity, entity.Position, Vector(Settings.ShotSpeed, 0), 7, params, IRFcolors.PortalShotTrail)
 				end
 
 			elseif sprite:IsOverlayFinished("FaceSpawn") then

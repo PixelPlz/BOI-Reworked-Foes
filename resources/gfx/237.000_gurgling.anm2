@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2023. 04. 22. 12:28:48" Version="114" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2023. 06. 02. 16:37:03" Version="115" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="monsters\rebirth\monster_237_gurgling hands.png" Id="0"/>
