@@ -1,0 +1,9 @@
+<data>
+    <stage Name="Scarred Womb">
+        <Gfx>
+		<Entity ID="71" Image="resources/Entities/71.0.0 - Fistula Big_scarredwomb" />
+		<Entity ID="72" Image="resources/Entities/72.0.0 - Fistula Small_scarredwomb" />
+		<Entity ID="73" Image="resources/Entities/73.0.0 - Fistula Small_scarredwomb" />
+        </Gfx>
+    </stage>
+</data>
