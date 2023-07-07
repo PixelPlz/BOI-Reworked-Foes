@@ -116,7 +116,6 @@ function mod:gateUpdate(entity)
 					hopper.State = NpcState.STATE_MOVE
 					hopper.TargetPosition = entity.Position + (target.Position - entity.Position):Resized(mod:Random(120, 200))
 					hopper.PositionOffset = Vector(0, -64)
-					hopper.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 
 					hopper.MaxHitPoints = Settings.HopperHealth
 					hopper.HitPoints = hopper.MaxHitPoints
@@ -294,7 +293,7 @@ function mod:gateUpdate(entity)
 				params.BulletFlags = ProjectileFlags.HIT_ENEMIES
 				params.Spread = 1.2
 
-				for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(11 - entity.I1), 2 + entity.I1 * 3, params)) do
+				for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(10 - entity.I1), 2 + entity.I1 * 3, params)) do
 					projectile:GetData().dontChange = true
 				end
 			end

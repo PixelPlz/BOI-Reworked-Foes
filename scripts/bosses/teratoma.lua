@@ -91,7 +91,7 @@ function mod:teratomarUpdate(entity)
 				local params = ProjectileParams()
 				params.Variant = ProjectileVariant.PROJECTILE_BONE
 
-				for i,projectile in pairs(mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(Settings.ShotSpeed), 5, params)) do
+				for i,projectile in pairs(mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(Settings.ShotSpeed), 4, params)) do
 					local projectileSprite = projectile:GetSprite()
 					projectileSprite:Load("gfx/002.002_tooth tear.anm2", true)
 					projectileSprite:Play("Tooth4Move", true)

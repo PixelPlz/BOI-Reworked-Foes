@@ -1,4 +1,22 @@
-Version 3.0 - The Blood & Guts update!
+Version 3.0.1
+
+-- Balance changes --
+- Lowered the Gate's shotspeed during his Host attack
+- The Forsaken now gives more time for the player to move out of the way of his lasers
+- Increased the space between the Forsaken's projectiles during his triple clone attack
+- Teratomar now only shoots 4 shots again
+
+
+-- Fixes --
+- Fixed DSS not saving settings
+- Fixed Mama Gurdy's spikes not working
+- Fixed the Forsaken being able to telefrag the player when teleporting to the center of the room
+
+
+
+
+
+Version 3.0.0 - The Blood & Guts update!
 
 -- Reworks / Additions --
 - Your future's past awaits...
@@ -42,7 +60,6 @@ Version 3.0 - The Blood & Guts update!
 - New workshop thumbnail by Nevernamed!
 
 
-
 -- Balance changes --
 - Teratomar now shoots a spread of 5 shots instead of 4
 - Removed the Brimstone Bomb variant for Black Bonies
@@ -84,7 +101,6 @@ Version 3.0 - The Blood & Guts update!
 - Increased the shot speed for purple Headless Horseman's Body
 
 
-
 -- Other changes --
 - Wrath's charge attack is now visually distinguishable and is faster than his walking speed instead of being slower
 - New charred sprites for Flaming Gapers, Fatties and Hoppers to keep them consistent with other Burning Basement enemies
@@ -97,7 +113,6 @@ Version 3.0 - The Blood & Guts update!
 - Improved projectile visuals for several enemies
 - New sounds and effects for several enemies
 - MANY code improvements (note for compatibility: all enums have also been changed)
-
 
 
 -- Fixes --

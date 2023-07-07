@@ -58,11 +58,19 @@ function mod:flamingHopperUpdate(entity)
 		if sprite:GetFrame() < 12 then
 			entity.Velocity = Vector.Zero
 
-		-- Reset position offset (for the Gate's spawn)
-		elseif entity.PositionOffset.Y < 0 and sprite:GetFrame() == 25 then
-			entity.PositionOffset = Vector.Zero
-			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
+		-- Launched by Gate
+		elseif entity.PositionOffset.Y < 0 then
+			-- Reset offset, enable collision
+			if sprite:GetFrame() == 25 then
+				entity.PositionOffset = Vector.Zero
+				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
+
+			-- No collision before landing
+			else
+				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+			end
 		end
+
 
 		-- Fire ring
 		if sprite:IsEventTriggered("Land") then

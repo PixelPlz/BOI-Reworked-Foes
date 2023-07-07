@@ -4,6 +4,7 @@ local Settings = {
 	NewHealth = 350,
 	Cooldown = 90,
 	TransparencyTimer = 10,
+	MinTPDistance = 50,
 
 	HideSpeed = 1.5,
 	WanderSpeed = 2.25,
@@ -21,6 +22,7 @@ function mod:forsakenInit(entity)
 	entity.HitPoints = entity.MaxHitPoints
 	entity.ProjectileCooldown = Settings.Cooldown / 2
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+	entity.CollisionDamage = 0
 
 	if entity.SubType == 1 then
 		entity.V2 = Vector(2, 140)
@@ -81,6 +83,20 @@ function mod:forsakenUpdate(entity)
 
 	elseif sprite:IsEventTriggered("FadeIn") then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
+	end
+
+
+	-- Get center position far enough away from the player
+	local function getCenterPos()
+		local centerPos = room:FindFreePickupSpawnPosition(room:GetCenterPos(), 0, true, true)
+		local nearestPlayerPos = Game():GetNearestPlayer(centerPos).Position
+
+		if centerPos:Distance(nearestPlayerPos) < Settings.MinTPDistance then
+			local newPos = centerPos + (centerPos - nearestPlayerPos):Resized(Settings.MinTPDistance)
+			return room:FindFreePickupSpawnPosition(newPos, 0, true, true)
+		else
+			return centerPos
+		end
 	end
 
 
@@ -196,7 +212,7 @@ function mod:forsakenUpdate(entity)
 			if attack == 1 then
 				entity.State = NpcState.STATE_ATTACK
 				sprite:Play("FadeIn", true)
-				entity.Position = room:FindFreePickupSpawnPosition(room:GetCenterPos(), 0, true, true)
+				entity.Position = getCenterPos()
 
 
 			-- Clone spit attack
@@ -311,7 +327,9 @@ function mod:forsakenUpdate(entity)
 	-- Rotating brimstone attack
 	elseif entity.State == NpcState.STATE_ATTACK then
 		entity.Velocity = mod:StopLerp(entity.Velocity)
-		entity.Position = mod:Lerp(entity.Position, room:GetCenterPos(), 0.25)
+		if entity:HasEntityFlags(EntityFlag.FLAG_KNOCKED_BACK) then
+			entity:ClearEntityFlags(EntityFlag.FLAG_KNOCKED_BACK)
+		end
 
 		-- Appear
 		if entity.StateFrame == 0 then
@@ -465,6 +483,7 @@ function mod:forsakenUpdate(entity)
 				params.Variant = ProjectileVariant.PROJECTILE_BONE
 				
 				if entity.SubType == 0 then
+					params.Spread = 1 + entity.I1 * 0.15
 					mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(11 - entity.I1), 3 + entity.I1, params, IRFcolors.GhostTrail)
 
 				elseif entity.SubType == 1 then
@@ -489,7 +508,7 @@ function mod:forsakenUpdate(entity)
 						sprite:Play("FadeIn", true)
 						mod:PlaySound(entity, SoundEffect.SOUND_THE_FORSAKEN_LAUGH, 2)
 
-						entity.Position = room:FindFreePickupSpawnPosition(room:GetCenterPos(), 0, true, true)
+						entity.Position = getCenterPos()
 						entity.Velocity = Vector.Zero
 						entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 					else
@@ -509,7 +528,7 @@ function mod:forsakenUpdate(entity)
 	-- Clone brimstone attack
 	elseif entity.State == NpcState.STATE_ATTACK3 then
 		-- Movement
-		if entity.StateFrame == 1 or (entity.SubType == 1 and entity.StateFrame == 2) then
+		if entity.StateFrame == 1 and (not sprite:WasEventTriggered("Shoot") or entity.SubType == 1) or (entity.SubType == 1 and entity.StateFrame == 2) then
 			-- Get target position
 			local moveto = target.Position
 			if entity.Variant == 10 then
@@ -520,7 +539,7 @@ function mod:forsakenUpdate(entity)
 
 			-- Move slower while firing
 			local speed = Settings.MoveSpeed
-			if entity.StateFrame == 2 then
+			if sprite:WasEventTriggered("Shoot") or entity.StateFrame == 2 then
 				speed = Settings.MoveSpeed / 2
 			end
 
@@ -631,7 +650,7 @@ function mod:forsakenUpdate(entity)
 					entity.StateFrame = 4
 					sprite:Play("FadeIn", true)
 					mod:PlaySound(nil, SoundEffect.SOUND_THE_FORSAKEN_LAUGH, 2)
-					entity.Position = room:FindFreePickupSpawnPosition(room:GetCenterPos(), 0, true, true)
+					entity.Position = getCenterPos()
 					entity.Velocity = Vector.Zero
 				end
 			end

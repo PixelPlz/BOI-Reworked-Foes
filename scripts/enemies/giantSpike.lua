@@ -24,7 +24,19 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.giantSpikeInit, IRFentities.T
 function mod:giantSpikeUpdate(entity)
 	if entity.Variant == IRFentities.GiantSpike then
 		local sprite = entity:GetSprite()
+		local room = Game():GetRoom()
 		local target = nil
+
+
+		-- Destroy any obstacles under the spike
+		local function clearGridHere()
+			local gridEntity = room:GetGridEntityFromPos(entity.Position)
+
+			if gridEntity ~= nil and (gridEntity.CollisionClass == GridCollisionClass.COLLISION_SOLID or gridEntity:GetType() == GridEntityType.GRID_SPIDERWEB) then
+				gridEntity:Destroy(true)
+			end
+		end
+
 
 		-- Follow target if it's set
 		if entity.Target then
@@ -40,16 +52,6 @@ function mod:giantSpikeUpdate(entity)
 		-- Don't get knocked back
 		if entity:HasEntityFlags(EntityFlag.FLAG_KNOCKED_BACK) then
 			entity:ClearEntityFlags(EntityFlag.FLAG_KNOCKED_BACK)
-		end
-		
-		
-		-- Destroy any obstacles under the spike
-		local function clearGridHere()
-			local gridEntity = Game():GetRoom():GetGridEntityFromPos(entity.Position)
-
-			if gridEntity ~= nil and (gridEntity.CollisionClass == GridCollisionClass.COLLISION_SOLID or gridEntity:GetType() == GridEntityType.GRID_SPIDERWEB) then
-				gridEntity:Destroy(true)
-			end
 		end
 
 

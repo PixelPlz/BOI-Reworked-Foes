@@ -1,3 +1,37 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.1", [[
+
+{FSIZE2}Balance changes
+
+- Lowered the Gate's shotspeed
+during his Host attack
+
+- The Forsaken now gives more time
+for the player to move
+out of the way of his lasers
+
+- Increased the space between the
+Forsaken's projectiles during his
+triple clone attack
+
+- Teratomar now only
+shoots 4 shots again
+
+
+
+{FSIZE2}Fixes
+
+- Fixed DSS not saving settings
+
+- Fixed Mama Gurdy's spikes not working
+
+- Fixed the Forsaken being able to
+telefrag the player when teleporting
+to the center of the room
+
+]])
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.0", [[
 
 {FSIZE2}Blood and Guts update!
@@ -123,7 +157,6 @@ a player like Lust
 Black Bony variants (check the
 scripts/enemies/blackBony.lua
 file on how to do it)
-
 
 
 
@@ -256,7 +289,6 @@ purple Headless Horseman's Body
 
 
 
-
 {FSIZE2}Other changes
 
 - Wrath's charge attack is now
@@ -298,7 +330,6 @@ for several enemies
 - MANY code improvements
 (note for compatibility:
 all enums have also been changed)
-
 
 
 

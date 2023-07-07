@@ -32,10 +32,7 @@ IRFDefaultConfig = {
 --Load settings
 function DSSMenu:LoadSaveData()
     if mod:HasData() then
-        local data = json.decode(mod:LoadData())
-        for k, v in pairs(data) do
-            if IRFConfig[k] ~= nil then IRFConfig[k] = v end
-        end
+		IRFConfig = json.decode(mod:LoadData())
     end
 
     for k, v in pairs(IRFDefaultConfig) do
