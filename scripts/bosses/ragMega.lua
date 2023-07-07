@@ -496,7 +496,7 @@ function mod:ragPlasmaUpdate(entity)
 							params.Variant = ProjectileVariant.PROJECTILE_HUSH
 							params.Scale = 1.65
 							params.BulletFlags = (ProjectileFlags.SMART | ProjectileFlags.NO_WALL_COLLIDE)
-							mod:FireProjectiles(entity, entity.Position, (entity.Parent:ToNPC():GetPlayerTarget().Position - entity.Parent.Position):Resized(9), 0, params, IRFcolors.RagManPurple)
+							mod:FireProjectiles(entity, entity.Position, (entity.Parent:ToNPC():GetPlayerTarget().Position - entity.Parent.Position):Resized(9), 0, params, IRFcolors.RagManPurple).CollisionDamage = 1
 							mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP_STRONG)
 						end
 

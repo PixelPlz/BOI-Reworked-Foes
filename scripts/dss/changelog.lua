@@ -1,3 +1,36 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.2", [[
+
+{FSIZE2}Balance changes
+
+- It Lives is now easier in Normal Mode
+
+- Increased the space between the
+projectiles for some of
+It Lives' attacks
+
+- Increased the time between
+It Lives' gut attacks
+
+- Decreased the amount of shots
+for some of It Lives' attacks
+
+- Increased the time between shots
+for Mama Gurdy's spike cage attack
+
+
+
+{FSIZE2}Fixes
+
+- Fixed Mama Gurdy's spikes
+killing her if she is affected
+by Rotten Tomato
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.1", [[
 
 {FSIZE2}Balance changes
@@ -29,6 +62,8 @@ telefrag the player when teleporting
 to the center of the room
 
 ]])
+
+
 
 
 

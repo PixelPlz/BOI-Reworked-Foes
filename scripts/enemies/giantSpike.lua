@@ -40,11 +40,16 @@ function mod:giantSpikeUpdate(entity)
 
 		-- Follow target if it's set
 		if entity.Target then
-			target = entity.Target
+			if entity.SpawnerEntity and entity.Target.Index == entity.SpawnerEntity.Index then
+				entity.Target = nil
+			else
+				target = entity.Target
 
-			entity.Position = target.Position
-			entity.Velocity = target.Velocity
-			entity.DepthOffset = target.DepthOffset + 10
+				entity.Position = target.Position
+				entity.Velocity = target.Velocity
+				entity.DepthOffset = target.DepthOffset + 10
+			end
+
 		else
 			entity.Velocity = Vector.Zero
 		end

@@ -113,7 +113,7 @@ function mod:mamaGurdyUpdate(entity)
 						entity:FireProjectiles(shootPos, (target.Position - shootPos):Resized(6.5), 5 - entity.I1, params)
 						mod:ShootEffect(entity, 4, Vector(0, 8), IRFcolors.PukeOrange)
 
-						entity.ProjectileCooldown = 5
+						entity.ProjectileCooldown = 6
 						entity.I1 = entity.I1 + 1
 
 					else

@@ -2,9 +2,8 @@ local mod = BetterMonsters
 
 local Settings = {
 	NewHealth = 1000,
-	HomunculusHealth = 48,
-	FetusCooldown = 45,
-	GutsCooldown = 45
+	FetusCooldown = {45, 70},
+	GutsCooldown = 60
 }
 
 -- Example on how to add custom spawns:
@@ -98,6 +97,11 @@ function mod:itLivesUpdate(entity)
 		baseProjectileParams.FallingSpeedModifier = 1
 		baseProjectileParams.FallingAccelModifier = -0.13
 
+		local difficulty = Game().Difficulty
+		if difficulty > 1 then -- For Greed Mode
+			difficulty = difficulty - 2
+		end
+
 
 		--[[ Fetus ]]--
 		if entity.Variant == 1 then
@@ -113,7 +117,7 @@ function mod:itLivesUpdate(entity)
 			--[[ Functions ]]--
 			-- Reset variables for attacks
 			local function resetVariables()
-				entity.ProjectileCooldown = Settings.FetusCooldown
+				entity.ProjectileCooldown = Settings.FetusCooldown[animPrefix]
 				entity.I1 = 0
 				entity.I2 = 0
 				entity.StateFrame = 0
@@ -129,6 +133,12 @@ function mod:itLivesUpdate(entity)
 					local attacks = {1, 2, 3}
 					if data.lastAttack then
 						table.remove(attacks, data.lastAttack)
+					end
+
+					-- Don't do the Brimstone attack if the player is right under them
+					local targetAngle = (target.Position - entity.Position):GetAngleDegrees()
+					if attacks[1] == 1 and targetAngle > 45 and targetAngle < 135 then
+						table.remove(attacks, 1)
 					end
 
 					attack = mod:RandomIndex(attacks)
@@ -313,14 +323,12 @@ function mod:itLivesUpdate(entity)
 				-- Spawn Homunculi
 				if not data.homunculiSpawned then
 					for i = -1, 1, 2 do
-						local homo = Isaac.Spawn(EntityType.ENTITY_HOMUNCULUS, 0, 0, Vector(entity.Position.X + i * 140, room:GetTopLeftPos().Y + 40), Vector.Zero, entity)
-						homo.MaxHitPoints = Settings.HomunculusHealth
-						homo.HitPoints = homo.MaxHitPoints
+						Isaac.Spawn(EntityType.ENTITY_HOMUNCULUS, 0, 0, Vector(entity.Position.X + i * 140, room:GetTopLeftPos().Y + 40), Vector.Zero, entity)
 					end
 					mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 
 					data.homunculiSpawned = true
-					entity.ProjectileCooldown = Settings.FetusCooldown
+					entity.ProjectileCooldown = Settings.FetusCooldown[1]
 
 					-- Delirium fix
 					if data.wasDelirium then
@@ -443,13 +451,13 @@ function mod:itLivesUpdate(entity)
 							mod:ShootEffect(entity, 3, Vector(0, -30), Color.Default, 1, true)
 
 							entity.I1 = entity.I1 + 1
-							entity.ProjectileDelay = 7
+							entity.ProjectileDelay = 8
 
 						else
 							entity.ProjectileDelay = entity.ProjectileDelay - 1
 						end
 
-						if entity.I1 >= 16 then
+						if entity.I1 >= 14 then
 							entity.StateFrame = 2
 							sprite:Play(animPrefix .. "SqueezeEnd", true)
 						end
@@ -485,7 +493,7 @@ function mod:itLivesUpdate(entity)
 							mod:ShootEffect(entity, 3, Vector(0, -36), Color.Default, 1, true)
 
 							entity.I1 = entity.I1 + 1
-							entity.ProjectileDelay = 4
+							entity.ProjectileDelay = 6 - difficulty
 
 						else
 							entity.ProjectileDelay = entity.ProjectileDelay - 1
@@ -536,14 +544,14 @@ function mod:itLivesUpdate(entity)
 
 						-- Regular shots
 						params.CircleAngle = offset
-						entity:FireProjectiles(entity.Position, Vector(9, 12), 9, params)
+						entity:FireProjectiles(entity.Position, Vector(9, 10), 9, params)
 
 						-- Bouncing shots
-						params.CircleAngle = offset + 0.25
-						params.FallingAccelModifier = -0.09
+						params.CircleAngle = offset + 0.35
+						params.FallingAccelModifier = -0.085
 						params.BulletFlags = params.BulletFlags + ProjectileFlags.BOUNCE
 
-						for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, Vector(7, 12), 9, params)) do
+						for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, Vector(7, 10), 9, params)) do
 							mod:QuickTrail(projectile, 0.09, Color(1,0.25,0.25, 1), projectile.Scale * 1.6)
 						end
 
@@ -579,12 +587,12 @@ function mod:itLivesUpdate(entity)
 							if entity.I1 % 10 == 0 then
 								params.Scale = 1.75
 								params.BulletFlags = params.BulletFlags + ProjectileFlags.SINE_VELOCITY
-								entity:FireProjectiles(entity.Position, Vector(3, 16), 9, params)
+								entity:FireProjectiles(entity.Position, Vector(3, 12 + difficulty * 2), 9, params)
 								mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.9)
 							end
 
 							entity.I1 = entity.I1 + 1
-							entity.ProjectileDelay = 4
+							entity.ProjectileDelay = 5
 
 						else
 							entity.ProjectileDelay = entity.ProjectileDelay - 1
@@ -653,9 +661,9 @@ function mod:itLivesUpdate(entity)
 
 
 
-			--[[ Opposite rotation shots / Bursting bubbles / Pulsing rotating shots ]]--
+			--[[ Opposite rotation shots / Bursting bubbles / Pulsatiing rotating shots ]]--
 			elseif entity.State == NpcState.STATE_ATTACK3 then
-				-- Pulsing rotating shots
+				-- Pulsatiing rotating shots
 				if data.phase == 4 then
 					-- Start
 					if entity.StateFrame == 0 then
@@ -683,13 +691,13 @@ function mod:itLivesUpdate(entity)
 							mod:ShootEffect(entity, 3, Vector(0, -36), Color.Default, 1, true)
 
 							entity.I1 = entity.I1 + 1
-							entity.ProjectileDelay = 10
+							entity.ProjectileDelay = 12
 
 						else
 							entity.ProjectileDelay = entity.ProjectileDelay - 1
 						end
 
-						if entity.I1 >= 12 then
+						if entity.I1 >= 8 then
 							entity.StateFrame = 2
 							sprite:Play(animPrefix .. "CryEnd", true)
 						end
@@ -760,14 +768,14 @@ function mod:itLivesUpdate(entity)
 						mod:LoopingAnim(sprite, animPrefix .. "SqueezeLoop")
 
 						-- Create 8 bursting bubbles
-						if entity.I1 < 8 then
+						if entity.I1 < 6 then
 							if entity.ProjectileDelay <= 0 then
 								local params = ProjectileParams()
 								params.Scale = 2
 								params.BulletFlags = (ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.CHANGE_VELOCITY_AFTER_TIMEOUT)
 								params.ChangeTimeout = 9999
 								params.ChangeFlags = ProjectileFlags.BURST
-								params.ChangeVelocity = 10
+								params.ChangeVelocity = 8 + difficulty
 								params.Acceleration = 1.1
 								params.FallingAccelModifier = -0.175
 
@@ -984,7 +992,7 @@ function mod:itLivesUpdate(entity)
 
 						local params = ProjectileParams()
 						params.FallingSpeedModifier = 1
-						params.FallingAccelModifier = -0.17
+						params.FallingAccelModifier = -0.18
 						params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.WIGGLE)
 
 						local burstChoice = mod:Random(-1, 1)
@@ -994,7 +1002,7 @@ function mod:itLivesUpdate(entity)
 							local evenOrNot = entity.I1 % 2
 							local pos = basePos + Vector.FromAngle(direction):Rotated(90):Resized(i * distance + evenOrNot * 40)
 
-							local shot = mod:FireProjectiles(entity, pos, Vector.FromAngle(direction):Resized(7), 0, params)
+							local shot = mod:FireProjectiles(entity, pos, Vector.FromAngle(direction):Resized(6 + difficulty * 0.9), 0, params)
 							shot:GetSprite():Load("gfx/blood cell projectile.anm2", true)
 
 							-- Bursting cell
@@ -1175,7 +1183,7 @@ function mod:itLivesUpdate(entity)
 							mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
 
 							entity.I1 = entity.I1 + 1
-							entity.ProjectileDelay = 9
+							entity.ProjectileDelay = 10
 
 						else
 							entity.ProjectileDelay = entity.ProjectileDelay - 1
@@ -1203,7 +1211,7 @@ function mod:itLivesUpdate(entity)
 
 						local pos = getShootPos(entity.I1 % 2)
 						for i = 0, 5 do
-							fetus:FireProjectiles(pos, Vector.FromAngle(20 + i * 28):Resized(4), 0, params)
+							fetus:FireProjectiles(pos, Vector.FromAngle(20 + i * 28):Resized(3 + difficulty), 0, params)
 						end
 
 						mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
@@ -1233,13 +1241,13 @@ function mod:itLivesUpdate(entity)
 				elseif entity.State == NpcState.STATE_ATTACK3 then
 					if sprite:IsEventTriggered("Shoot") then
 						local params = baseProjectileParams
-						params.FallingAccelModifier = -0.18
+						params.FallingAccelModifier = -0.16
 						params.BulletFlags = params.BulletFlags + ProjectileFlags.SINE_VELOCITY
 
 						for i = -1, 1, 2 do
 							local pos = getShootPos(i)
-							for j = 0, 7 do
-								fetus:FireProjectiles(pos, Vector.FromAngle(20 + j * 20):Resized(3), 0, params)
+							for j = 0, 5 do
+								fetus:FireProjectiles(pos, Vector.FromAngle(20 + j * 28):Resized(3), 0, params)
 							end
 							doShootEffect(pos)
 						end
@@ -1276,7 +1284,7 @@ function mod:itLivesUpdate(entity)
 							mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
 
 							entity.I1 = entity.I1 + 1
-							entity.ProjectileDelay = 5
+							entity.ProjectileDelay = 6
 
 						else
 							entity.ProjectileDelay = entity.ProjectileDelay - 1
@@ -1299,8 +1307,10 @@ function mod:itLivesUpdate(entity)
 				--[[ Spreads of 5 shots ]]--
 				elseif entity.State == NpcState.STATE_ATTACK5 then
 					if sprite:IsEventTriggered("Shoot") then
+						local params = baseProjectileParams
+						params.Spread = 1.2
 						local pos = getShootPos(entity.I1 % 2)
-						fetus:FireProjectiles(pos, (target.Position - pos):Resized(5), 5, baseProjectileParams)
+						fetus:FireProjectiles(pos, (target.Position - pos):Resized(5 - difficulty), 4 + difficulty, params)
 
 						mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
 						doShootEffect(pos)
