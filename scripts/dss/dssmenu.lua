@@ -119,7 +119,13 @@ end
 local DSSInitializerFunction = require("scripts.dss.dssmenucore")
 local dssmod = DSSInitializerFunction(DSSModName, DSSCoreVersion, MenuProvider)
 
+
 include("scripts.dss.changelog")
+
+local changeLogButton = dssmod.changelogsButton
+if changeLogButton == true then
+	changeLogButton = { str = 'changelogs',  action = "openmenu", menu = 'Menu', dest = 'changelogs', }
+end
 
 
 -- Adding a Menu
@@ -130,7 +136,7 @@ local exampledirectory = {
             { str = 'resume game', action = 'resume' },
             { str = 'settings',    dest = 'settings' },
 			{ str = 'credits',     dest = 'credits' },
-            dssmod.changelogsButton,
+            changeLogButton,
 
 			{ str = '', fsize = 3, nosel = true },
 			{ str = 'more options', fsize = 2, nosel = true },

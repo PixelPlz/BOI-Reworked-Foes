@@ -286,11 +286,20 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, segmented)
 	if data.movementDirection then
 		vector = Vector.FromAngle(data.movementDirection * 90)
 	end
-	local collisionInFrontOfMe = room:GetGridCollision(room:GetGridIndex(gridAlignedPos + vector * 40))
+	local gridInFrontOfMe = room:GetGridIndex(gridAlignedPos + vector * 40)
+	local collisionInFrontOfMe = room:GetGridCollision(gridInFrontOfMe)
+	
+	-- Don't go into spikes
+	local areThereSpikesInFrontOfMe = false
+	local gridEntityInFrontOfMe = room:GetGridEntity(gridInFrontOfMe)
+
+	if gridEntityInFrontOfMe ~= nil and gridEntityInFrontOfMe:ToSpikes() ~= nil then
+		areThereSpikesInFrontOfMe = true
+	end
 
 
 	-- Get valid directions
-	if not data.movementDirection or collisionInFrontOfMe > maxValidGridCol or data.moveTimer <= 0 then
+	if not data.movementDirection or collisionInFrontOfMe > maxValidGridCol or data.moveTimer <= 0 or areThereSpikesInFrontOfMe == true then
 		local validDirections = {}
 
 		-- Check all directions

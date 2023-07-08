@@ -1,3 +1,31 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.3", [[
+
+{FSIZE2}Additions
+
+- Added a separate changelogs button
+in the Reworked Foes section for DSS
+if there are multiple DSS sections
+(for people that couldn't find it before)
+
+
+
+{FSIZE2}Fixes
+
+- Fixed C.H.A.D.'s Sucker projectiles
+spawning Suckers when they shouldn't
+
+- Fixed C.H.A.D.'s pathfinding not taking
+spikes into account (this also fixes him
+not surfacing in some room layouts)
+
+- Fixed issue with Carrion Queen's charge
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.2", [[
 
 {FSIZE2}Balance changes

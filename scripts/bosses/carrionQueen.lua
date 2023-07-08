@@ -48,7 +48,7 @@ function mod:carrionQueenUpdate(entity)
 		
 		-- Make her eat her own shit
 		elseif entity.State == NpcState.STATE_ATTACK then
-			local index = room:GetGridIndex(entity.Position + entity.Velocity:Resized(entity.Size * entity.SizeMulti) + entity.Velocity:Resized(15))
+			local index = room:GetGridIndex(entity.Position + entity.Velocity:Resized(entity.Size * entity.Scale) + entity.Velocity:Resized(15))
 			local grid = room:GetGridEntity(index)
 			if grid ~= nil and grid:GetType() == GridEntityType.GRID_POOP then
 				grid:Hurt(10)

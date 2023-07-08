@@ -1,3 +1,18 @@
+Version 3.0.3
+
+-- Additions --
+- Added a separate changelogs button in the Reworked Foes section for DSS if there are multiple DSS sections (for people that couldn't find it before)
+
+
+-- Fixes --
+- Fixed C.H.A.D.'s Sucker projectiles spawning Suckers when they shouldn't
+- Fixed C.H.A.D.'s pathfinding not taking spikes into account (this also fixes him not surfacing in some room layouts)
+- Fixed issue with Carrion Queen's charge
+
+
+
+
+
 Version 3.0.2
 
 -- Balance changes --

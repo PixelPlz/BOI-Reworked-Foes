@@ -356,6 +356,17 @@ function mod:chadUpdate(entity)
 						entity.TargetPosition = room:FindFreeTilePosition(entity.TargetPosition, 40)
 						entity.V1 = room:FindFreeTilePosition(entity.V1, 40)
 
+						-- Dumb piece of shit function doesn't take into account spikes...
+						local gridHere = room:GetGridEntityFromPos(entity.TargetPosition)
+						if gridHere ~= nil and gridHere:ToSpikes() ~= nil then
+							entity.TargetPosition = room:FindFreePickupSpawnPosition(entity.TargetPosition, 60, false, false)
+						end
+
+						gridHere = room:GetGridEntityFromPos(entity.V1)
+						if gridHere ~= nil and gridHere:ToSpikes() ~= nil then
+							entity.V1 = room:FindFreePickupSpawnPosition(entity.V1, 60, false, false)
+						end
+
 
 					-- Body I2 should be the same as the parent's I2
 					else
@@ -817,6 +828,8 @@ local function suckerProjectilePop(projectile)
 		sucker:FireProjectiles(projectile.Position, Vector(11, 4), 7, ProjectileParams())
 		mod:QuickCreep(EffectVariant.CREEP_RED, projectile.SpawnerEntity, projectile.Position, 1.5, 90)
 	end
+
+	projectile:Remove()
 end
 
 function mod:suckerProjectileUpdate(projectile)
@@ -836,7 +849,9 @@ function mod:suckerProjectileUpdate(projectile)
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.suckerProjectileUpdate, IRFentities.SuckerProjectile)
 
-function mod:suckerProjectileCollision(projectile)
-	suckerProjectilePop(projectile)
+function mod:suckerProjectileCollision(projectile, collider, bool)
+	if collider.Type == EntityType.ENTITY_PLAYER or (collider:ToNPC() and collider.EntityCollisionClass == EntityCollisionClass.ENTCOLL_ALL) then
+		suckerProjectilePop(projectile)
+	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_PROJECTILE_COLLISION, mod.suckerProjectileCollision, IRFentities.SuckerProjectile)
