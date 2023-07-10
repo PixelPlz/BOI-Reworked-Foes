@@ -2,7 +2,7 @@ local mod = BetterMonsters
 
 local Settings = {
 	NewHealth = 1000,
-	FetusCooldown = {45, 70},
+	FetusCooldown = {45, 60},
 	GutsCooldown = 60
 }
 
@@ -89,8 +89,15 @@ function mod:itLivesUpdate(entity)
 		local data = entity:GetData()
 		local room = Game():GetRoom()
 
-		local spawnedEnemyCount = entity:GetAliveEnemyCount() - 2
+		-- Count alive enemies
+		local spawnedEnemyCount = 0
+		for i, enemy in pairs(Isaac.GetRoomEntities()) do
+			if enemy:ToNPC() and (enemy:IsActiveEnemy() or enemy:IsDead()) and enemy.Type ~= EntityType.ENTITY_MOMS_HEART and not enemy:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+				spawnedEnemyCount = spawnedEnemyCount + 1
+			end
+		end
 
+		-- Base projectile parameters
 		local baseProjectileParams = ProjectileParams()
 		baseProjectileParams.Scale = 1.5
 		baseProjectileParams.BulletFlags = ProjectileFlags.HIT_ENEMIES
@@ -413,7 +420,7 @@ function mod:itLivesUpdate(entity)
 
 					-- Summon spikes to kill all enemies
 					for i, enemy in pairs(Isaac.GetRoomEntities()) do
-						if enemy:ToNPC() and enemy:IsVulnerableEnemy() and enemy.Type ~= EntityType.ENTITY_MOMS_HEART and not enemy:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+						if enemy:ToNPC() and enemy:IsActiveEnemy() and enemy.Type ~= EntityType.ENTITY_MOMS_HEART and not enemy:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
 							Isaac.Spawn(IRFentities.Type, IRFentities.GiantSpike, 0, enemy.Position, Vector.Zero, entity).Target = enemy
 						end
 					end
@@ -486,14 +493,14 @@ function mod:itLivesUpdate(entity)
 							for i = 0, 1 do
 								local params = baseProjectileParams
 								params.CircleAngle = 0 + (i * 0.8) + (mod:GetSign(i) * entity.I1 * 0.175)
-								entity:FireProjectiles(entity.Position, Vector(6, 4), 9, params)
+								entity:FireProjectiles(entity.Position, Vector(6.5, 4), 9, params)
 							end
 
 							mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT, 0.9)
 							mod:ShootEffect(entity, 3, Vector(0, -36), Color.Default, 1, true)
 
 							entity.I1 = entity.I1 + 1
-							entity.ProjectileDelay = 6 - difficulty
+							entity.ProjectileDelay = 5
 
 						else
 							entity.ProjectileDelay = entity.ProjectileDelay - 1
@@ -691,7 +698,7 @@ function mod:itLivesUpdate(entity)
 							mod:ShootEffect(entity, 3, Vector(0, -36), Color.Default, 1, true)
 
 							entity.I1 = entity.I1 + 1
-							entity.ProjectileDelay = 12
+							entity.ProjectileDelay = 11 - difficulty
 
 						else
 							entity.ProjectileDelay = entity.ProjectileDelay - 1
@@ -937,7 +944,7 @@ function mod:itLivesUpdate(entity)
 						if others:ToNPC() or others:ToPlayer() or others:ToTear() then
 							local strength = 0.5
 							if others:ToTear() then
-								strength = 1
+								strength = 0.75
 							end
 
 							others:AddVelocity((others.Position - entity.Position):Resized(strength))
@@ -954,7 +961,7 @@ function mod:itLivesUpdate(entity)
 			elseif entity.State == NpcState.STATE_SUMMON3 then
 				mod:LoopingAnim(sprite, animPrefix .. "HideIdle")
 
-				if entity.I1 < 16 then
+				if entity.I1 < 12 then
 					-- Come down delay
 					if entity.I2 == 2 then
 						entity.StateFrame = 60
@@ -1002,7 +1009,7 @@ function mod:itLivesUpdate(entity)
 							local evenOrNot = entity.I1 % 2
 							local pos = basePos + Vector.FromAngle(direction):Rotated(90):Resized(i * distance + evenOrNot * 40)
 
-							local shot = mod:FireProjectiles(entity, pos, Vector.FromAngle(direction):Resized(6 + difficulty * 0.9), 0, params)
+							local shot = mod:FireProjectiles(entity, pos, Vector.FromAngle(direction):Resized(6 + difficulty), 0, params)
 							shot:GetSprite():Load("gfx/blood cell projectile.anm2", true)
 
 							-- Bursting cell

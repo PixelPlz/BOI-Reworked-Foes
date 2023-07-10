@@ -35,6 +35,7 @@ IRFentities = {
 	HealingAura    = Isaac.GetEntityVariantByName("Healing Aura"),
 	HolyTracer 	   = Isaac.GetEntityVariantByName("Holy Tracer"),
 	BrimstoneSwirl = Isaac.GetEntityVariantByName("Single Brimstone Swirl"),
+	HuskEffect 	   = Isaac.GetEntityVariantByName("Husk Effect"),
 	--ShadowHelper   = Isaac.GetEntityVariantByName("Delirium Shadow Helper"),
 }
 
@@ -53,6 +54,7 @@ IRFcolors.GreenBlood = Color(0.4,0.8,0.4, 1, 0,0.4,0)
 IRFcolors.SunBeam 	 = Color(1,1,1, 1, 0.3,0.3,0)
 IRFcolors.DustTrail  = Color(0.8,0.8,0.8, 0.8, 0.05,0.025,0);   IRFcolors.DustTrail:SetColorize(1,1,1, 1)
 IRFcolors.BlackBony  = Color(0.18,0.18,0.18, 1)
+IRFcolors.PukeEffect = Color(0,0,0, 1, 0.48,0.36,0.3)
 IRFcolors.PukeOrange = Color(0.5,0.5,0.5, 1, 0.64,0.4,0.16)
 --IRFcolors.Delirium   = Color(2.5,2.5,2.5, 1);   				IRFcolors.Delirium:SetColorize(1.25, 1, 1, 1)
 
@@ -72,14 +74,14 @@ IRFcolors.SoulShot 		= Color(0.8,0.8,0.8, 0.7, 0.1,0.2,0.4)
 IRFcolors.LostShot 		= Color(1,1,1, 0.75, 0.25,0.25,0.25)
 IRFcolors.HolyOrbShot 	= Color(1,1,1, 0.7, 0.4,0.4,0)
 
+IRFcolors.HushGreen    = Color(1,1,1, 1, 0.2,0.2,0)
 IRFcolors.HushBlue 	   = Color(1,1,1, 1, 0,0.2,0.4)
 IRFcolors.HushDarkBlue = Color(0.6,0.6,0.6, 1, 0,0,0.1) -- For Blue Boils
-IRFcolors.HushGreen    = Color(1,1,1, 1, 0.2,0.2,0)
 IRFcolors.HushOrange   = Color(1,1,1, 1, 0.4,0.2,0)
 IRFcolors.HushPink 	   = Color(1,1,1, 1, 0.2,0,0.2)
 
-IRFcolors.LambShot 		= Color(1,1,1, 1);   IRFcolors.LambShot:SetColorize(0.6,0.5,0.7, 1)
-IRFcolors.LambShotTrail = Color(0,0,0, 1, 0.3,0.2,0.4)
+--IRFcolors.LambShot 		= Color(1,1,1, 1);   IRFcolors.LambShot:SetColorize(0.6,0.5,0.7, 1)
+--IRFcolors.LambShotTrail = Color(0,0,0, 1, 0.3,0.2,0.4)
 
 IRFcolors.CageCreep 	 = Color(1,1,1, 1);   IRFcolors.CageCreep:SetColorize(3.25,3.25,2.25, 1) -- Not 100% accurate but it's close enough
 IRFcolors.CageGreenShot  = Color(1,1,1, 1);   IRFcolors.CageGreenShot:SetColorize(0.75,1,0.5, 1)

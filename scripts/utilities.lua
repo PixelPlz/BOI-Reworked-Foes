@@ -139,6 +139,18 @@ function mod:PlaySound(entity, id, volume, pitch, cooldown, loop, pan)
 end
 
 
+-- Optional callback helper
+-- Replace the default AddCallback function with something like this:
+--      mod:AddOptionalCallback(ModCallbacks.MC_NPC_UPDATE, mod.blackBonyUpdate, EntityType.ENTITY_BLACK_BONY, "blackBonyBombs")
+function mod:AddOptionalCallback(callbackID, callbackScript, optionalParam, valueToCheck)
+	mod:AddCallback(callbackID, function(_, a, b, c, d, e, f, g, h)
+		if IRFConfig[valueToCheck] == true then
+			return callbackScript(_, a, b, c, d, e, f, g, h)
+		end
+	end, optionalParam)
+end
+
+
 
 --[[ Sprite functions ]]--
 -- Looping animation

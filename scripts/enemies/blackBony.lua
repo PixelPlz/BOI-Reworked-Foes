@@ -22,7 +22,6 @@ end
 
 
 
-
 function mod:blackBonyInit(entity)
 	-- Get random bomb type
 	if IRFConfig.blackBonyBombs == true and entity.SubType == 0 then

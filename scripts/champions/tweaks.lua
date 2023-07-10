@@ -379,19 +379,9 @@ function mod:peepUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.peepUpdate, EntityType.ENTITY_PEEP)
 
--- Cringe
-function mod:bluePeepEffectsUpdate(effect)
-	-- Fucking hate this shit why don't the piss effects have a spawner entity set
-	local change = false
-	if effect.Variant == EffectVariant.BLOOD_EXPLOSION then
-		for i, peep in pairs(Isaac.FindByType(EntityType.ENTITY_PEEP, 0, 2, false, false)) do
-			if peep:ToNPC().State == NpcState.STATE_SUMMON and peep.Position:Distance(effect.Position) <= 40 then
-				change = true
-			end
-		end
-	end
-
-	if effect.FrameCount <= 1 and ((effect.SpawnerType == EntityType.ENTITY_PEEP and effect.SpawnerVariant == 0 and effect.SpawnerEntity and effect.SpawnerEntity.SubType == 2) or change == true) then
+-- Blue effect colors
+function mod:bluePeepEffects(effect)
+	if effect.FrameCount <= 1 and effect.SpawnerType == EntityType.ENTITY_PEEP and effect.SpawnerVariant == 0 and effect.SpawnerEntity and effect.SpawnerEntity.SubType == 2 then
 		local sprite = effect:GetSprite()
 
 		-- Creep
@@ -404,12 +394,21 @@ function mod:bluePeepEffectsUpdate(effect)
 			sprite.Color = IRFcolors.TearTrail
 
 		-- Effects
-		elseif effect.Variant == EffectVariant.POOF02 or effect.Variant == EffectVariant.BLOOD_EXPLOSION then
+		elseif effect.Variant == EffectVariant.POOF02 then
 			sprite.Color = IRFcolors.TearEffect
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.bluePeepEffectsUpdate)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.bluePeepEffects)
+
+function mod:bluePeepPissEffects(effect)
+	for i, peep in pairs(Isaac.FindByType(EntityType.ENTITY_PEEP, 0, 2, false, false)) do
+		if peep:ToNPC().State == NpcState.STATE_SUMMON and peep.Position:Distance(effect.Position) <= 40 and effect.FrameCount == 0 then -- Of course they don't have a spawner entity set...
+			effect:GetSprite().Color = IRFcolors.TearEffect
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_RENDER, mod.bluePeepPissEffects, EffectVariant.BLOOD_EXPLOSION)
 
 
 

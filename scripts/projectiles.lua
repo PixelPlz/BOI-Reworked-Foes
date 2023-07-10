@@ -138,6 +138,11 @@ function mod:editNormalProjectiles(projectile)
 		end
 
 
+	-- Night crawler
+	elseif projectile.SpawnerType == EntityType.ENTITY_NIGHT_CRAWLER then
+		sprite.Color = Color(0.5,0,0.5, 1) -- Same color as vanilla Ragling shots
+
+
 	-- Mega Maw
 	elseif projectile.SpawnerType == EntityType.ENTITY_MEGA_MAW and projectile.SpawnerEntity and not projectile.SpawnerEntity:GetData().wasDelirium then
 		-- Red champion

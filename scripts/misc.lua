@@ -342,6 +342,24 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gurglingsUpdate, EntityType.ENTI
 
 
 
+--[[ Tube Worm effect color ]]--
+function mod:tubeWormEffects(effect)
+	for i, worm in pairs(Isaac.FindByType(EntityType.ENTITY_ROUND_WORM, 1, -1, false, false)) do
+		if worm:ToNPC().State == NpcState.STATE_ATTACK and worm.Position:Distance(effect.Position) <= 2 and effect.FrameCount == 0 then -- Of course they don't have a spawner entity set...
+			local bg = Game():GetRoom():GetBackdropType()
+
+			if bg == BackdropType.FLOODED_CAVES or bg == BackdropType.DOWNPOUR then
+				effect:GetSprite().Color = IRFcolors.TearEffect
+			elseif bg == BackdropType.DROSS then
+				effect:GetSprite().Color = IRFcolors.PukeEffect
+			end
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_RENDER, mod.tubeWormEffects, EffectVariant.BLOOD_EXPLOSION)
+
+
+
 --[[ Homunculus, Begotten chain break ]]--
 function mod:homunculusUpdate(entity)
 	if entity.Variant == 0 then

@@ -3,7 +3,7 @@ local mod = BetterMonsters
 
 
 
-local startupText = "Improved & Reworked Foes v3.0.0 Initialized"
+local startupText = mod.Name .. " v3.0.4 Initialized"
 Isaac.DebugString(startupText)
 
 IRFflavorText = {
@@ -11,22 +11,23 @@ IRFflavorText = {
 	"Look Teratomar, it's you!",
 	"Thank you for playing :)",
 	"Delirium rework coming out in 202X",
-	"No, there will not be options to toggle everything.",
 	"All oiled up",
 	"Monstro rework when?",
 	"Follow the turning coin",
 	"Today's lucky numbers:\n"
 	.. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)),
 	"Now 10% funnier!",
-	"The rat is coming.", --THATS ME!!!!!
 	"Not for baby gamers",
 	"01101000 01101001 00100000 00111010 00101001",
 	"Reworked Foes? More like STINKY Foes",
-	"Hi YouTube!",
-	"Hi Twitch!",
+	"Hi YouTube / Twitch!",
 	"Also check out Improved Backdrops and Visuals!",
 	"Ruining Tainted Lost runs since 2022!",
 	"ratratrat was here!",
+	"WARNING: Some reworks might require you to pay attention!",
+	"It will even fix your marriage!",
+	"The bosses finally got some training",
+	"The Husk was hiding the Forgotten this entire time",
 }
 
 local flavorText = "The Blood & Guts update"
@@ -52,8 +53,8 @@ end
 local generalScripts = {
 	"constants",
 	"utilities",
-	"bossHealthBars",
 	"dss.dssmenu",
+	"bossHealthBars",
 	"misc",
 	"projectiles",
 	"hiddenEnemies",

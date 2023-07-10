@@ -47,7 +47,7 @@ function mod:fatBatUpdate(entity)
 			-- Effects
 			if entity:IsFrame(3, 0) then
 				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.6)
-				mod:ShootEffect(entity, 1, Vector(0, 3), Color(0,0,0, 1, 0.5,0.4,0.3))
+				mod:ShootEffect(entity, 1, Vector(0, 3), IRFcolors.PukeEffect)
 			end
 
 		else

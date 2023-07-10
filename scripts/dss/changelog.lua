@@ -1,3 +1,38 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.4", [[
+
+{FSIZE2}Additions
+- Fallen Angels now have
+unique Delirium sprites
+
+
+
+{FSIZE2}Balance changes
+
+- Increased the space between
+projectiles for one of
+It Lives' attacks
+
+- Reduced the duration of
+It Lives' blood cell phase
+
+
+
+{FSIZE2}Fixes
+
+- Fixed the Husk unlocking the Forgotten
+
+- Fixed some of blue Peep's effects
+being the wrong color when spawned
+
+- Fixed It Lives softlocking
+in the Seeing Double challenge
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.3", [[
 
 {FSIZE2}Additions

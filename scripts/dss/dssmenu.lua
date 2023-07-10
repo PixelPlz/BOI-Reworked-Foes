@@ -529,7 +529,8 @@ local exampledirectory = {
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- ferpe -', fsize = 3 },
-			{ str = 'spriter and animator', fsize = 2, nosel = true },
+			{ str = 'spriter', fsize = 2, nosel = true },
+			{ str = 'animator', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- witchamy -', fsize = 3 },
@@ -537,7 +538,8 @@ local exampledirectory = {
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- ratratrat -', fsize = 3 },
-			{ str = 'menu and settings coder', fsize = 2, nosel = true },
+			{ str = 'dss menu implementation', fsize = 2, nosel = true },
+			{ str = 'save system coder', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- kittenchilly -', fsize = 3 },

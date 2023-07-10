@@ -1,3 +1,23 @@
+Version 3.0.4
+
+-- Additions --
+- Fallen Angels now have unique Delirium sprites
+
+
+-- Balance changes --
+- Increased the space between projectiles for one of It Lives' attacks
+- Reduced the duration of It Lives' blood cell phase
+
+
+-- Fixes --
+- Fixed the Husk unlocking the Forgotten
+- Fixed some of blue Peep's effects being the wrong color when spawned
+- Fixed It Lives softlocking in the Seeing Double challenge
+
+
+
+
+
 Version 3.0.3
 
 -- Additions --

@@ -197,8 +197,8 @@ function mod:huskUpdate(entity)
 
 				-- Effects
 				for i = -1, 1, 2 do
-					-- Why is this one of the only effects that doesn't fuck up rotations
-					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FORGOTTEN_SOUL, 0, entity.Position, Vector.Zero, entity):ToEffect()
+					-- Yes haha it unlocked the Forgorten for Oily before, how smart of you
+					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, IRFentities.HuskEffect, 0, entity.Position, Vector.Zero, entity):ToEffect()
 					effect:FollowParent(entity)
 					effect.DepthOffset = entity.DepthOffset + 10
 
@@ -487,3 +487,13 @@ function mod:huskPooterCollision(entity, target, bool)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.huskPooterCollision, EntityType.ENTITY_POOTER)
+
+
+
+-- Spawn effect
+function mod:huskEffectUpdate(effect)
+	if effect:GetSprite():IsFinished() then
+		effect:Remove()
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.huskEffectUpdate, IRFentities.HuskEffect)
