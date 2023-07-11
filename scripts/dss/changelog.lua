@@ -1,3 +1,18 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.5", [[
+
+{FSIZE2}Fixes
+
+- Fixed Fallen Angel
+Delirium sprites not working
+
+- Fixed more softlocks with It Lives
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.4", [[
 
 {FSIZE2}Additions

@@ -1,3 +1,13 @@
+Version 3.0.5
+
+-- Fixes --
+- Fixed Fallen Angel Delirium sprites not working
+- Fixed more softlocks with It Lives
+
+
+
+
+
 Version 3.0.4
 
 -- Additions --

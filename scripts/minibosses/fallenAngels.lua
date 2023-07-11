@@ -96,6 +96,17 @@ function mod:fallenUrielUpdate(entity)
 				entity.I2 = 0
 			end
 		end
+
+
+		-- Delirium skin
+		if data.wasDelirium and sprite:GetFilename() ~= "gfx/272.001_fallen uriel.anm2" then
+			sprite:Load("gfx/272.001_fallen uriel.anm2", true)
+
+			for i = 0, 5 do
+				sprite:ReplaceSpritesheet(i, "gfx/bosses/afterbirthplus/deliriumforms/rebirth/angelblack.png")
+			end
+			sprite:LoadGraphics()
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.fallenUrielUpdate, EntityType.ENTITY_URIEL)
@@ -174,6 +185,17 @@ function mod:fallenGabrielUpdate(entity)
 				entity.State = NpcState.STATE_MOVE
 				entity.I1 = 0
 			end
+		end
+
+
+		-- Delirium skin
+		if data.wasDelirium and sprite:GetFilename() ~= "gfx/272.001_fallen gabriel.anm2" then
+			sprite:Load("gfx/272.001_fallen gabriel.anm2", true)
+
+			for i = 0, 5 do
+				sprite:ReplaceSpritesheet(i, "gfx/bosses/afterbirthplus/deliriumforms/rebirth/angel2black.png")
+			end
+			sprite:LoadGraphics()
 		end
 	end
 end

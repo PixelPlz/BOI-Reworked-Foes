@@ -3,7 +3,7 @@ local mod = BetterMonsters
 
 
 
-local startupText = mod.Name .. " v3.0.4 Initialized"
+local startupText = mod.Name .. " v3.0.5 Initialized"
 Isaac.DebugString(startupText)
 
 IRFflavorText = {

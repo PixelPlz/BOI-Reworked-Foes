@@ -89,14 +89,6 @@ function mod:itLivesUpdate(entity)
 		local data = entity:GetData()
 		local room = Game():GetRoom()
 
-		-- Count alive enemies
-		local spawnedEnemyCount = 0
-		for i, enemy in pairs(Isaac.GetRoomEntities()) do
-			if enemy:ToNPC() and (enemy:IsActiveEnemy() or enemy:IsDead()) and enemy.Type ~= EntityType.ENTITY_MOMS_HEART and not enemy:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
-				spawnedEnemyCount = spawnedEnemyCount + 1
-			end
-		end
-
 		-- Base projectile parameters
 		local baseProjectileParams = ProjectileParams()
 		baseProjectileParams.Scale = 1.5
@@ -238,6 +230,19 @@ function mod:itLivesUpdate(entity)
 			end
 
 
+			-- Should this enemy keep him retracted and get killed by his spikes
+			local function isValidEnemy(entity)
+				if  entity:ToNPC() and entity:ToNPC():IsActiveEnemy(false)
+				and entity.Type ~= EntityType.ENTITY_MOMS_HEART
+				and entity.HitPoints >= 0.1
+				and entity:IsInvincible() == false
+				and entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) == false then
+					return true
+				end
+				return false
+			end
+
+
 
 			--[[ Always active ]]--
 			-- Hide helper
@@ -298,6 +303,16 @@ function mod:itLivesUpdate(entity)
 					elseif entity.State ~= NpcState.STATE_STOMP and entity.State ~= NpcState.STATE_IDLE then
 						entity.State = NpcState.STATE_IDLE
 					end
+				end
+			end
+
+
+			-- Count alive enemies
+			local spawnedEnemyCount = 0
+
+			for i, enemy in pairs(Isaac.GetRoomEntities()) do
+				if isValidEnemy(enemy) == true then
+					spawnedEnemyCount = spawnedEnemyCount + 1
 				end
 			end
 
@@ -420,7 +435,7 @@ function mod:itLivesUpdate(entity)
 
 					-- Summon spikes to kill all enemies
 					for i, enemy in pairs(Isaac.GetRoomEntities()) do
-						if enemy:ToNPC() and enemy:IsActiveEnemy() and enemy.Type ~= EntityType.ENTITY_MOMS_HEART and not enemy:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+						if isValidEnemy(enemy) == true then
 							Isaac.Spawn(IRFentities.Type, IRFentities.GiantSpike, 0, enemy.Position, Vector.Zero, entity).Target = enemy
 						end
 					end
@@ -698,7 +713,7 @@ function mod:itLivesUpdate(entity)
 							mod:ShootEffect(entity, 3, Vector(0, -36), Color.Default, 1, true)
 
 							entity.I1 = entity.I1 + 1
-							entity.ProjectileDelay = 11 - difficulty
+							entity.ProjectileDelay = 11
 
 						else
 							entity.ProjectileDelay = entity.ProjectileDelay - 1
