@@ -19,13 +19,21 @@ function mod:mrFredUpdate(entity)
 		local room = Game():GetRoom()
 
 
+		-- Jumping to target position
 		if entity.StateFrame == 1 then
-			entity.Velocity = mod:Lerp(entity.Velocity, (entity.V1 - entity.Position):Resized(12), 0.25)
+			if entity.Position:Distance(entity.V1) < 20 then
+				entity.Velocity = mod:StopLerp(entity.Velocity)
+			else
+				entity.Velocity = mod:Lerp(entity.Velocity, (entity.V1 - entity.Position):Resized(14), 0.25)
+			end
+
+		-- Stationary
 		else
 			entity.Velocity = Vector.Zero
 		end
 
 
+		-- Idle
 		if entity.State == NpcState.STATE_IDLE then
 			mod:LoopingAnim(sprite, "Idle")
 
@@ -34,24 +42,30 @@ function mod:mrFredUpdate(entity)
 
 				-- Decide attack
 				local attack = mod:Random(1, 5)
+
+				-- Jump
 				if attack == 1 then
 					entity.State = NpcState.STATE_JUMP
 					sprite:Play("LeapDown", true)
 
+				-- Harlequin baby attack
 				elseif attack == 2 then
 					entity.State = NpcState.STATE_ATTACK
 					sprite:Play("Shoot", true)
 
+				-- Barf attack
 				elseif attack == 3 then
 					entity.State = NpcState.STATE_ATTACK2
 					sprite:Play("Barf", true)
 					entity.I1 = 0
-				
+
+				-- Squirt attack
 				elseif attack == 4 then
 					entity.State = NpcState.STATE_ATTACK3
 					sprite:Play("Squirt", true)
 					entity.I2 = 0
 
+				-- Summon / release Homunculus
 				elseif attack == 5 then
 					local homoCount = Isaac.CountEntities(nil, EntityType.ENTITY_HOMUNCULUS, 0, 0)
 					if (homoCount > 0 and mod:Random(1) == 1) or homoCount > 2 then
@@ -72,7 +86,21 @@ function mod:mrFredUpdate(entity)
 		elseif entity.State == NpcState.STATE_JUMP then
 			-- Get position
 			if sprite:GetFrame() == 6 then
-				entity.V1 = room:FindFreePickupSpawnPosition(target.Position, 40, true, false)
+				local pos = target.Position
+
+				-- Confused
+				if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+					pos = entity.Position + mod:RandomVector(mod:Random(120, 200))
+				-- Feared
+				elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+					pos = entity.Position + (entity.Position - target.Position):Resized(mod:Random(120, 200))
+
+				-- Limit jump distance
+				elseif target.Position:Distance(entity.Position) > 200 then
+					pos = entity.Position + (target.Position - entity.Position):Resized(200)
+				end
+
+				entity.V1 = room:FindFreePickupSpawnPosition(pos, 0, false, false)
 				if (entity.V1 - entity.Position):GetAngleDegrees() < 0 then
 					sprite:SetAnimation("LeapUp", false)
 				end
@@ -81,7 +109,8 @@ function mod:mrFredUpdate(entity)
 			if sprite:IsEventTriggered("Shoot") then
 				local params = ProjectileParams()
 				params.Scale = 1.5
-				entity:FireProjectiles(entity.Position, Vector(12, 8), 8, params)
+				entity:FireProjectiles(entity.Position, Vector(11, 8), 8, params)
+
 				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
 				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_BURST_OUT, 0.75)
 
@@ -104,6 +133,7 @@ function mod:mrFredUpdate(entity)
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_APPEAR_CUSTOM
 				sprite:Play("Appear", true)
+				entity.Position = room:FindFreePickupSpawnPosition(entity.Position, 0, false, false)
 			end
 
 		-- Popup
@@ -116,7 +146,9 @@ function mod:mrFredUpdate(entity)
 			elseif sprite:IsEventTriggered("Shoot") then
 				local params = ProjectileParams()
 				params.Scale = 1.5
-				entity:FireProjectiles(entity.Position, Vector(12, 8), 8, params)
+				params.CircleAngle = 0
+				entity:FireProjectiles(entity.Position, Vector(10, 12), 9, params)
+
 				mod:PlaySound(entity, SoundEffect.SOUND_FAT_WIGGLE, 1.25, 0.95)
 			end
 

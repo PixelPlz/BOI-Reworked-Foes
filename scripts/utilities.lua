@@ -300,14 +300,17 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, segmented)
 	end
 	local gridInFrontOfMe = room:GetGridIndex(gridAlignedPos + vector * 40)
 	local collisionInFrontOfMe = room:GetGridCollision(gridInFrontOfMe)
-	
+
 	-- Don't go into spikes
 	local areThereSpikesInFrontOfMe = false
 	local gridEntityInFrontOfMe = room:GetGridEntity(gridInFrontOfMe)
 
-	if gridEntityInFrontOfMe ~= nil and gridEntityInFrontOfMe:ToSpikes() ~= nil then
+	if canFly ~= true and gridEntityInFrontOfMe ~= nil and gridEntityInFrontOfMe:ToSpikes() ~= nil then
 		areThereSpikesInFrontOfMe = true
 	end
+
+	-- Check for either fear or charm
+	local fearedOrCharmed = entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) or entity:HasEntityFlags(EntityFlag.FLAG_CHARM) or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY)
 
 
 	-- Get valid directions
@@ -329,11 +332,29 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, segmented)
 			end
 		end
 
-		-- Choose a valid direction
+
+		-- Failsafe
 		if #validDirections <= 0 then
-			data.movementDirection = 0 -- Failsafe
+			data.movementDirection = 0
+
+		-- Choose a valid direction
 		else
-			data.movementDirection = mod:RandomIndex(validDirections)
+			local chosenDirection = mod:RandomIndex(validDirections)
+
+			if fearedOrCharmed == true then
+				for i, direction in pairs(validDirections) do
+					local currentChosenPosition = gridAlignedPos + (Vector.FromAngle(chosenDirection * 90) * 40)
+					local checkPos = gridAlignedPos + (Vector.FromAngle(direction * 90) * 40)
+					local nearestPlayer = Game():GetNearestPlayer(entity.Position).Position
+
+					if ((entity:HasEntityFlags(EntityFlag.FLAG_FEAR)  or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK))   and checkPos:Distance(nearestPlayer) > currentChosenPosition:Distance(nearestPlayer))
+					or ((entity:HasEntityFlags(EntityFlag.FLAG_CHARM) or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY)) and checkPos:Distance(nearestPlayer) < currentChosenPosition:Distance(nearestPlayer)) then
+						chosenDirection = direction
+					end
+				end
+			end
+
+			data.movementDirection = chosenDirection
 		end
 
 		data.moveTimer = mod:Random(3, 6)
@@ -345,7 +366,12 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, segmented)
 		entity.Velocity = mod:Lerp(entity.Velocity, ((gridAlignedPos + Vector.FromAngle(data.movementDirection * 90) * 40) - entity.Position):Resized(speed), 0.35)
 
 		if room:GetGridIndex(entity.Position) ~= data.currentIndex then
-			data.moveTimer = data.moveTimer - 1
+			-- Feared and charmed enemies always try to change directions as soon as they can
+			if fearedOrCharmed == true then
+				data.moveTimer = 0
+			else
+				data.moveTimer = data.moveTimer - 1
+			end
 		end
 		data.currentIndex = room:GetGridIndex(entity.Position)
 	end
@@ -384,19 +410,19 @@ end
 
 -- Mulligan-type movement
 function mod:AvoidPlayer(entity, radius, wanderSpeed, runSpeed, canFly)
-	-- Get nearby players
-	local nearbyPlayers = {}
-	for i, player in pairs(Isaac.FindInRadius(entity.Position, radius, EntityPartition.PLAYER)) do
-		if entity.Pathfinder:HasPathToPos(player.Position) or canFly == true then
-			table.insert(nearbyPlayers, player)
-		end
-	end
+	-- Get nearest player
+	local nearest = Game():GetNearestPlayer(entity.Position)
+
+
+	-- Chase if charmed of friendly
+	if entity:HasEntityFlags(EntityFlag.FLAG_CHARM) or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+		mod:ChasePlayer(entity, wanderSpeed + (runSpeed - wanderSpeed) / 2)
+
 
 	-- Run away if there are players in radius
-	if #nearbyPlayers > 0 and not entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+	elseif nearest.Position:Distance(entity.Position) <= radius and not entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
 		-- Get target position
 		local room = Game():GetRoom()
-		local nearest = Game():GetNearestPlayer(entity.Position)
 		local vector = (entity.Position - nearest.Position):Normalized()
 		local targetPos = entity.Position + vector:Resized(radius)
 

@@ -69,7 +69,15 @@ function mod:lokiiUpdate(entity)
 			-- Stay to the side of the player
 			if entity.StateFrame == 0 then
 				entity.TargetPosition = Vector(target.Position.X + (mod:GetSign(entity.I1 - 1) * Settings.PlayerDistance), target.Position.Y)
-				if entity.Position:Distance(entity.TargetPosition) > 8 then
+
+				-- Confused
+				if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+					mod:WanderAround(entity, Settings.MoveSpeed)
+				-- Feared
+				elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+					entity.Velocity = mod:Lerp(entity.Velocity, (entity.Position - entity.TargetPosition):Resized(Settings.MoveSpeed), 0.25)
+				-- Normal
+				elseif entity.Position:Distance(entity.TargetPosition) > 8 then
 					entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Resized(Settings.MoveSpeed), 0.25)
 				end
 
@@ -199,8 +207,17 @@ function mod:lokiiUpdate(entity)
 			elseif entity.State == NpcState.STATE_ATTACK then
 				if sprite:IsEventTriggered("Jump") then
 					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
-					entity.V2 = (target.Position - entity.Position):Normalized()
 					entity.StateFrame = 2
+
+					-- Get direction
+					entity.V2 = (target.Position - entity.Position):Normalized()
+					-- Confused
+					if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+						entity.V2 = mod:RandomVector()
+					-- Feared
+					elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+						entity.V2 = (entity.Position - target.Position):Normalized()
+					end
 
 				elseif sprite:IsEventTriggered("Shoot") then
 					if entity.I1 == 1 then

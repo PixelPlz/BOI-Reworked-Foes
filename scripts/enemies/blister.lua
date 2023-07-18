@@ -41,8 +41,21 @@ function mod:blisterUpdate(entity)
 				entity.I1 = 1
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
+
+				-- Get position to jump to
 				entity.TargetPosition = entity.Position + (target.Position - entity.Position):Rotated(mod:Random(-60, 60)):Resized(mod:Random(80, 120))
+
+				-- No players in range / confused
+				if entity.Position:Distance(Game():GetNearestPlayer(entity.Position).Position) > 240 or entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+					entity.TargetPosition = entity.Position + mod:RandomVector(80, 120)
+
+				-- Feared
+				elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+					entity.TargetPosition = entity.Position + (entity.Position - target.Position):Resized(mod:Random(80, 120))
+				end
+
 				entity.TargetPosition = Game():GetRoom():FindFreePickupSpawnPosition(entity.TargetPosition, 0, true, false)
+
 
 			elseif sprite:IsEventTriggered("Land") then
 				entity.I1 = 0
@@ -50,6 +63,7 @@ function mod:blisterUpdate(entity)
 				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_IMPACTS)
 			end
+
 
 			if entity.I1 == 1 then
 				entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Resized(entity.TargetPosition:Distance(entity.Position) / 6), 0.25)
@@ -87,7 +101,7 @@ function mod:blisterUpdate(entity)
 
 				local vector = entity.V1 + (entity.V1 - entity.Position):Resized(20 * entity.I2)
 				entity:FireProjectiles(entity.Position, (vector - entity.Position):Rotated(mod:Random(-10, 10)):Resized(entity.Position:Distance(vector) / 20), 0, params)
-				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.8)
+				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.75)
 				mod:ShootEffect(entity, 1, Vector(0, -25), IRFcolors.WhiteShot)
 			end
 

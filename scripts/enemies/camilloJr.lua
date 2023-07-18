@@ -16,8 +16,10 @@ function mod:camilloJrUpdate(entity)
 		elseif sprite:GetFrame() == 1 then
 			mod:PlaySound(nil, SoundEffect.SOUND_LASERRING_WEAK, 1, 1.1)
 
-			local angle = entity.TargetPosition:GetAngleDegrees()
-			mod:QuickTracer(entity, angle, Vector.FromAngle(angle):Resized(20) + Vector(0, -25), 15, 1)
+			if not entity:GetData().IndicatorBrim then
+				local angle = entity.TargetPosition:GetAngleDegrees()
+				mod:QuickTracer(entity, angle, Vector.FromAngle(angle):Resized(20) + Vector(0, -25), 15, 1)
+			end
 			entity.V2 = entity.TargetPosition
 
 

@@ -4,9 +4,9 @@ local DSSMenu = {}
 
 IRFConfig = {}
 
---Default DSS Data
+-- Default DSS Data
 IRFDefaultConfig = {
-	--General
+	-- General
 	breakableHosts   = true,
 	noChapter1Nests  = true,
 	matriarchFistula = true,
@@ -14,22 +14,30 @@ IRFDefaultConfig = {
 	blackBonyBombs   = true,
 	burningGushers   = true,
 
-	--Hidden enemy visuals
+	-- Hidden enemy visuals
 	noHiddenPins  = true,
 	noHiddenPoly  = true,
 	noHiddenDust  = true,
 	
-	--Extra appear animations
+	-- Extra appear animations
 	appearPins 		= true,
 	appearMomsHands = true,
 	appearNeedles 	= true,
 	
-	--Laser indicators
+	-- Laser indicators
 	laserEyes 	  = true,
 	laserRedGhost = true,
+
+
+	-- Secrets
+	secretFound = false,
 }
 
---Load settings
+local secretButtonAdded = false
+
+
+
+-- Load settings
 function DSSMenu:LoadSaveData()
     if mod:HasData() then
 		IRFConfig = json.decode(mod:LoadData())
@@ -43,21 +51,22 @@ function DSSMenu:LoadSaveData()
 end
 mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, DSSMenu.LoadSaveData)
 
---Save settings
+-- Save settings
 function DSSMenu:SaveData()
 	mod:SaveData(json.encode(IRFConfig))
 end
 mod:AddCallback(ModCallbacks.MC_PRE_GAME_EXIT, DSSMenu.SaveData)
 
 
---Menu START!!!
 
---boring variables
+-- Menu START!!!
+
+-- boring variables
 local DSSModName = "Dead Sea Scrolls (Reworked Foes)"
 local DSSCoreVersion = 7
 local MenuProvider = {}
 
---why why why why why whyyyyyy
+-- why why why why why whyyyyyy
 function MenuProvider.SaveSaveData()
     DSSMenu.SaveData()
 end
@@ -120,397 +129,85 @@ local DSSInitializerFunction = require("scripts.dss.dssmenucore")
 local dssmod = DSSInitializerFunction(DSSModName, DSSCoreVersion, MenuProvider)
 
 
+
+-- Changelog BS
 include("scripts.dss.changelog")
 
 local changeLogButton = dssmod.changelogsButton
-if changeLogButton == true then
-	changeLogButton = { str = 'changelogs',  action = "openmenu", menu = 'Menu', dest = 'changelogs', }
+if changeLogButton ~= false then
+	changeLogButton = { str = 'changelogs', action = "openmenu", menu = 'Menu', dest = 'changelogs' }
 end
+
+
+-- Settings helpers
+local function CreateSetting(settingName, displayName, displayTooltip)
+	local setting = {
+		str = displayName,
+		fsize = 2,
+		choices = {'on', 'off'},
+		setting = 1,
+		variable = settingName,
+
+		load = function()
+			if IRFConfig[settingName] ~= nil then
+				if IRFConfig[settingName] then
+					return 1
+				else
+					return 2
+				end
+			end
+			return 1
+		end,
+
+		store = function(var)
+			if var == 1 then
+				IRFConfig[settingName] = true
+			else
+				IRFConfig[settingName] = false
+			end
+		end
+	}
+
+	if displayTooltip then
+		setting.tooltip = { strset = displayTooltip }
+	end
+	return setting
+end
+
+local wikiTooltip = { strset = { 'check the wiki', 'linked on the', 'workshop for', 'more details' }}
+
 
 
 -- Adding a Menu
 local exampledirectory = {
+	-- Main menu
     main = {
         title = 'reworked foes',
         buttons = {
-            { str = 'resume game', action = 'resume' },
-            { str = 'settings',    dest = 'settings' },
+			{ str = 'resume game', action = 'resume' },
+			{ str = 'settings',    dest = 'settings' },
+			changeLogButton,
 			{ str = 'credits',     dest = 'credits' },
-            changeLogButton,
-
-			{ str = '', fsize = 3, nosel = true },
-			{ str = 'more options', fsize = 2, nosel = true },
-			{ str = 'coming soon!', fsize = 2, nosel = true },
+			-- Secret menu button
         },
         tooltip = dssmod.menuOpenToolTip
     },
 
+
+	-- Settings menu
     settings = {
         title = 'settings',
         buttons = {
-            { str = 'general', fsize = 3, nosel = true },
-            { str = '', fsize = 3, nosel = true },
-            {                
-                str = 'breakable hosts',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'breakableHosts',
-                load = function()
-                    if IRFConfig.breakableHosts ~= nil then
-                        if IRFConfig.breakableHosts then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.breakableHosts = true
-                    else
-                        IRFConfig.breakableHosts = false
-                    end
-                end,
-                tooltip = { strset = { 'host armor', 'can be broken', 'by a bomb', 'or high damage' } }
-            },
-            {
-                str = 'no basement nests',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'noChapter1Nests',
-                load = function()
-                    if IRFConfig.noChapter1Nests ~= nil then
-                        if IRFConfig.noChapter1Nests then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.noChapter1Nests = true
-                    else
-                        IRFConfig.noChapter1Nests = false
-                    end
-                end,
-                tooltip = { strset = { 'replace nests', 'in chapter 1', 'with easier', 'mullicocoons' } }
-            },
-            {
-                str = 'matriarch fistula',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'matriarchFistula',
-                load = function()
-                    if IRFConfig.matriarchFistula ~= nil then
-                        if IRFConfig.matriarchFistula then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.matriarchFistula = true
-                    else
-                        IRFConfig.matriarchFistula = false
-                    end
-                end,
-                tooltip = { strset = { 'fistula chunks', 'spawned by', 'matriarch will', 'have better', 'colors' } }
-            },
-            {
-                str = 'envy rework',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'envyRework',
-                load = function()
-                    if IRFConfig.envyRework ~= nil then
-                        if IRFConfig.envyRework then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.envyRework = true
-                    else
-                        IRFConfig.envyRework = false
-                    end
-                end,
-                tooltip = { strset = { 'envy heads', 'will bounce', 'off of each', 'other' } }
-            },
-            {
-                str = 'black bony bombs',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'blackBonyBombs',
-                load = function()
-                    if IRFConfig.blackBonyBombs ~= nil then
-                        if IRFConfig.blackBonyBombs then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.blackBonyBombs = true
-                    else
-                        IRFConfig.blackBonyBombs = false
-                    end
-                end,
-                tooltip = { strset = { 'black bonies', 'will spawn', 'with random', 'bomb effects' } }
-            },
-            {
-                str = 'burning gushers',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'burningGushers',
-                load = function()
-                    if IRFConfig.burningGushers ~= nil then
-                        if IRFConfig.burningGushers then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.burningGushers = true
-                    else
-                        IRFConfig.burningGushers = false
-                    end
-                end,
-                tooltip = { strset = { 'gushers', 'spawned by', 'flaming gapers', 'will have', 'new behaviour' } }
-            },
-            { str = '', fsize = 3, nosel = true },
-            { str = 'enemy indicators', fsize = 3, nosel = true },
-            { str = '', fsize = 3, nosel = true },
-            {                
-                str = 'pin',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'pin',
-                load = function()
-                    if IRFConfig.noHiddenPins ~= nil then
-                        if IRFConfig.noHiddenPins then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.noHiddenPins = true
-                    else
-                        IRFConfig.noHiddenPins = false
-                    end
-                end,
-                tooltip = { strset = { 'show indicator', 'when pin and', 'similar bosses', 'are hidden'} }
-            },
-            {                
-                str = 'polycephalus',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'polycephalus',
-                load = function()
-                    if IRFConfig.noHiddenPoly ~= nil then
-                        if IRFConfig.noHiddenPoly then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.noHiddenPoly = true
-                    else
-                        IRFConfig.noHiddenPoly = false
-                    end
-                end,
-                tooltip = { strset = { 'show', 'indicator when', 'polycephalus', 'and similar', 'bosses are', 'hidden' } }
-            },
-            {                
-                str = 'dust',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'dust',
-                load = function()
-                    if IRFConfig.noHiddenDust ~= nil then
-                        if IRFConfig.noHiddenDust then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.noHiddenDust = true
-                    else
-                        IRFConfig.noHiddenDust = false
-                    end
-                end,
-                tooltip = { strset = { 'show indicator', 'when dust and', 'similar enemies',  'are hidden' } }
-            },
-            { str = '', fsize = 3, nosel = true },
-            { str = 'spawn indicators', fsize = 3, nosel = true },
-            { str = '', fsize = 3, nosel = true },
-            {                
-                str = 'pin',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'pintwo',
-                load = function()
-                    if IRFConfig.appearPins ~= nil then
-                        if IRFConfig.appearPins then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.appearPins = true
-                    else
-                        IRFConfig.appearPins = false
-                    end
-                end,
-                tooltip = { strset = { 'play animation', 'when pin and', 'similar bosses', 'spawn'} }
-            },
-            {                
-                str = 'needles',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'needles',
-                load = function()
-                    if IRFConfig.appearNeedles ~= nil then
-                        if IRFConfig.appearNeedles then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.appearNeedles = true
-                    else
-                        IRFConfig.appearNeedles = false
-                    end
-                end,
-                tooltip = { strset = { 'play animation', 'when needles', 'and similar' , 'enemies spawn' } }
-            },
-            {                
-                str = 'moms hand',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'momshand',
-                load = function()
-                    if IRFConfig.appearMomsHands ~= nil then
-                        if IRFConfig.appearMomsHands then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.appearMomsHands = true
-                    else
-                        IRFConfig.appearMomsHands = false
-                    end
-                end,
-                tooltip = { strset = {  'play', 'animation when', 'moms hand', 'and similar' , 'enemies spawn' } }
-            },
-            { str = '', fsize = 3, nosel = true },
-            { str = 'laser indicators', fsize = 3, nosel = true },
-            { str = '', fsize = 3, nosel = true },
-            {                
-                str = 'laser eyes',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'eyes',
-                load = function()
-                    if IRFConfig.laserEyes ~= nil then
-                        if IRFConfig.laserEyes then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.laserEyes = true
-                    else
-                        IRFConfig.laserEyes = false
-                    end
-                end,
-                tooltip = { strset = { 'show', 'indicator when', 'laser eyes', 'fire lasers'} }
-            },
-            {                
-                str = 'red ghosts',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'ghosts',
-                load = function()
-                    if IRFConfig.laserRedGhost ~= nil then
-                        if IRFConfig.laserRedGhost then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.laserRedGhost = true
-                    else
-                        IRFConfig.laserRedGhost = false
-                    end
-                end,
-                tooltip = { strset = { 'show', 'indicator when', 'red ghosts', 'fire lasers' } }
-            },
+			{ str = '', fsize = 2, nosel = true },
+			{ str = 'general',    dest = 'general' },
+			{ str = 'enemies',    dest = 'enemies' },
+			{ str = 'bosses', 	  dest = 'bosses' },
+			{ str = 'minibosses', dest = 'minibosses' },
+			{ str = 'champions',  dest = 'champions' },
+
+			-- DSS settings
 			{ str = '', fsize = 3, nosel = true },
-            dssmod.gamepadToggleButton,
+			dssmod.gamepadToggleButton,
             dssmod.menuKeybindButton,
             dssmod.paletteButton,
             dssmod.menuHintButton,
@@ -518,6 +215,145 @@ local exampledirectory = {
         }
     },
 
+
+	-- General settings
+	general = {
+        title = 'general settings',
+        buttons = {
+			CreateSetting("general.breakableHosts", "breakable hosts", { "hosts' armor", 'can be broken', 'by a bomb', 'or high damage' }),
+			CreateSetting("general.spawnIndicators", "spawn indicators", { 'play an', 'animation when', "mom's hands,", 'needles, pin', 'and similar', 'enemies spawn' }),
+			CreateSetting("general.burrowIndicators", "hiding indicators", { 'show an', 'indicator when', 'pin, dust,', 'polycephalus', 'and similar', 'enemies are', 'hidden' }),
+			CreateSetting("general.laserIndicators", "laser indicators", { 'show an', 'indicator', 'where some', "enemies'", 'lasers are', 'about to be', 'fired' }),
+			CreateSetting("general.coinSteal", "extra greedy enemies", { "greed and", 'other greedy', 'enemies can', 'steal coins', 'and heal', 'from them', '(outside of', 'greed mode)' }),
+        },
+        tooltip = dssmod.menuOpenToolTip
+    },
+
+
+	-- Enemy settings
+	enemies = {
+        title = 'enemy settings',
+        buttons = {
+			CreateSetting("enemies.angelicBaby", "angelic baby rework"),
+			CreateSetting("enemies.blackBonyBombs", "black bony bomb effects"),
+			CreateSetting("enemies.blackGlobin", "black globin rework"),
+			CreateSetting("enemies.blister", "blister rework"),
+			CreateSetting("enemies.boneKnight", "bone knight changes"),
+			CreateSetting("enemies.codWorm", "cod worm rework"),
+			CreateSetting("enemies.dankDeathHead", "dank death head rework"),
+			CreateSetting("enemies.dankGlobin", "dank globin rework"),
+			CreateSetting("enemies.dartFly", "dart fly rework"),
+			CreateSetting("enemies.drownedBoomFly", "drown. boomfly rework"),
+			CreateSetting("enemies.drownedCharger", "drown. charger rework"),
+			CreateSetting("enemies.drownedHive", "better drowned hive"),
+			CreateSetting("enemies.classicEternalFly", "classic eternal flies"),
+			CreateSetting("enemies.fatBat", "fat bat changes"),
+			CreateSetting("enemies.flamingFatty", "flaming fatty rework"),
+			CreateSetting("enemies.flamingGaper", "flaming gaper rework"),
+			CreateSetting("enemies.burningGushers", "burning gushers"),
+			CreateSetting("enemies.flamingHopper", "flaming hopper rework"),
+			CreateSetting("enemies.fleshDeathHead", "flesh d. head rework"),
+			CreateSetting("enemies.lump", "lump rework"),
+			CreateSetting("enemies.mamaGuts", "harder mama guts"),
+			CreateSetting("enemies.megaClotty", "mega clotty rework"),
+			CreateSetting("enemies.membrain", "membrain rework"),
+			CreateSetting("enemies.momsHands", "mom's hand spawn anim."),
+			CreateSetting("enemies.momsDeadHand", "mom's dead hand rework"),
+			CreateSetting("enemies.needles", "needle spawn animation"),
+			CreateSetting("enemies.nerveEndingTwo", "nerve ending 2 rework"),
+			CreateSetting("enemies.nest", "nest changes"),
+			CreateSetting("enemies.noChapter1Nests", "replace nests in ch.1"),
+			CreateSetting("enemies.slide", "slide rework"),
+			CreateSetting("enemies.portal", "portal rework"),
+			CreateSetting("enemies.psyTumor", "psy tumor rework"),
+			CreateSetting("enemies.raglings", "harder raglings"),
+			CreateSetting("enemies.redMaw", "red maw rework"), -- get rid of this rework it sucks
+			CreateSetting("enemies.scarredGuts", "harder scarred guts"),
+			CreateSetting("enemies.scarredParabite", "scar. para-bite rework"),
+			CreateSetting("enemies.selflessKnight", "selfless knight rework"),
+			CreateSetting("enemies.skinnies", "skinny + rotty rework"),
+			CreateSetting("enemies.taintedFaceless", "harder tainted faceless"),
+			CreateSetting("enemies.ulcer", "ulcer rework"),
+        },
+        tooltip = wikiTooltip
+    },
+
+
+	-- Boss settings
+	bosses = {
+        title = 'boss settings',
+        buttons = {
+			CreateSetting("bosses.blastocyst", "harder big blastocyst"),
+			CreateSetting("bosses.blightedOvum", "blighted ovum rework"),
+			CreateSetting("bosses.blueBaby", "??? rework"),
+			CreateSetting("bosses.carrionQueen", "carrion queen changes"),
+			CreateSetting("bosses.chad", "c.h.a.d. rework"),
+			CreateSetting("bosses.conquest", "conquest 2nd phase"),
+			CreateSetting("bosses.daddyLongLegs", "better daddy long legs"),
+			CreateSetting("bosses.matriarchFistula", "matriarch fistula sprites"),
+			CreateSetting("bosses.forsaken", "forsaken rework"),
+			CreateSetting("bosses.gate", "gate rework"),
+			CreateSetting("bosses.gish", "gish rework"),
+			CreateSetting("bosses.bossGurglings", "boss gurgling sprites"),
+			CreateSetting("bosses.hushBaby", "hush blue baby rework"),
+			CreateSetting("bosses.husk", "husk rework"),
+			CreateSetting("bosses.itLives", "it lives rework"),
+			CreateSetting("bosses.lokii", "lokii rework"),
+			CreateSetting("bosses.mamaGurdy", "mama gurdy rework"),
+			CreateSetting("bosses.maskInfamy", "mask of infamy rework"),
+			CreateSetting("bosses.megaMaw", "harder mega maw"),
+			CreateSetting("bosses.mrFred", "mr. fred rework"),
+			CreateSetting("bosses.ragMega", "rag mega rework"),
+			CreateSetting("bosses.satan", "harder satan"),
+			CreateSetting("bosses.scolex", "scolex rework"),
+			CreateSetting("bosses.stain", "harder stain"),
+			CreateSetting("bosses.steven", "steven rework"),
+			CreateSetting("bosses.teratoma", "better teratoma"),
+        },
+        tooltip = wikiTooltip
+    },
+
+
+	-- Miniboss settings
+	minibosses = {
+        title = 'miniboss settings',
+        buttons = {
+			CreateSetting("minibosses.envyRework", "envy rework"),
+			CreateSetting("minibosses.fallenAngels", "harder fallen angels"),
+			CreateSetting("minibosses.superGluttony", "harder super gluttony"),
+			CreateSetting("minibosses.superGreed", "super greed pickup steal"),
+			CreateSetting("minibosses.lust", "lust rework"),
+			CreateSetting("minibosses.superPride", "harder super pride"),
+			CreateSetting("minibosses.sloth", "better sloth"),
+			CreateSetting("minibosses.wrath", "harder wrath"),
+        },
+        tooltip = wikiTooltip
+    },
+
+
+	-- Champion settings
+	champions = {
+        title = 'champion settings',
+        buttons = {
+			CreateSetting("champions.bloat", "better green bloat"),
+			CreateSetting("champions.cage", "green cage rework"),
+			CreateSetting("champions.death", "no black death red maws"),
+			CreateSetting("champions.frail", "black frail rework"),
+			CreateSetting("champions.greenGemini", "green gemini creep"),
+			CreateSetting("champions.blueGemini", "blue gemini creep"),
+			CreateSetting("champions.gurdy", "new green gurdy spawns"),
+			CreateSetting("champions.haunt", "better black haunt"),
+			CreateSetting("champions.larryJr", "blue larry jr. creep"),
+			CreateSetting("champions.lilHorn", "harder black lil horn"),
+			CreateSetting("champions.megaMaw", "harder black mega maw"),
+			CreateSetting("champions.monstro", "harder gray monstro"),
+			CreateSetting("champions.peep", "blue peep rework"),
+        },
+        tooltip = wikiTooltip
+    },
+
+
+	-- Credits
 	credits = {
         title = 'credits',
         buttons = {
@@ -538,7 +374,7 @@ local exampledirectory = {
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- ratratrat -', fsize = 3 },
-			{ str = 'dss menu implementation', fsize = 2, nosel = true },
+			{ str = 'menu implementation', fsize = 2, nosel = true },
 			{ str = 'save system coder', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
@@ -558,10 +394,40 @@ local exampledirectory = {
 			{ str = '- hgrfff -', fsize = 3 },
 			{ str = 'hush fixes', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
+
+			{ str = 'shh...', fsize = 3, dest = "secrets",
+			func = function()
+				IRFConfig.secretFound = true
+				DSSMenu:AddSecretButton()
+			end
+			},
+        },
+        tooltip = dssmod.menuOpenToolTip
+    },
+
+
+	-- Secret menu
+	secrets = {
+        title = "it's a secret...",
+        buttons = {
+			CreateSetting("secret.babyMode", "easy mode", { 'can i play,', 'daddy?' }),
+			CreateSetting("secret.found", "placeholder"),
         },
         tooltip = dssmod.menuOpenToolTip
     },
 }
+
+
+
+-- Add secret menu button
+function DSSMenu:AddSecretButton()
+	if secretButtonAdded == false and IRFConfig.secretFound == true then
+		table.insert(exampledirectory.main.buttons, { str = 'secrets', dest = 'secrets', glowcolor = 3 })
+		secretButtonAdded = true
+	end
+end
+mod:AddPriorityCallback(ModCallbacks.MC_POST_GAME_STARTED, CallbackPriority.LATE, DSSMenu.AddSecretButton)
+
 
 
 local exampledirectorykey = {

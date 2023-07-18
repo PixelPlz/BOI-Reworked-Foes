@@ -17,7 +17,7 @@ local mod = BetterMonsters
 
 local Settings = {
 	Length = 19, -- Doesn't include head
-	ArmorHealth = 50,
+	ArmorHealth = 40,
 	TailMulti = 1.25,
 
 	BurrowTime = 30,
@@ -282,9 +282,17 @@ function mod:scolexUpdate(entity)
 					elseif entity.StateFrame == 3 then
 						data.zVelocity = Settings.SteerJumpSpeed
 
+					-- No attack
 					else
+						local vector = (target.Position - entity.Position):Normalized()
+						if entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+							vector = -vector
+						elseif entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+							vector = mod:RandomVector()
+						end
+
 						data.zVelocity = Settings.JumpSpeed
-						entity.TargetPosition = (target.Position - entity.Position):Normalized()
+						entity.TargetPosition = vector
 					end
 
 					entity.ProjectileDelay = delay
@@ -432,7 +440,18 @@ function mod:scolexUpdate(entity)
 				if entity.GroupIdx == 0 then
 					-- Steering jump
 					if entity.StateFrame == 3 then
-						entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Resized(Settings.MoveSpeed + 1), 0.2)
+						-- Confused
+						if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+							mod:WanderAround(entity, Settings.MoveSpeed + 1)
+
+						else
+							local vector = (target.Position - entity.Position):Normalized()
+							if entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+								vector = -vector
+							end
+
+							entity.Velocity = mod:Lerp(entity.Velocity, vector * (Settings.MoveSpeed + 1), 0.2)
+						end
 
 					-- Long and regular jump
 					else

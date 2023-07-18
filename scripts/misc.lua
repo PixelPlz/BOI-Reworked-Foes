@@ -27,22 +27,12 @@ function mod:drownedHiveUpdate(entity, target, bool)
 			entity.State = NpcState.STATE_MOVE
 		end
 
-		-- Spawn bubble projectiles instead of chargers on death
+		-- Shoot projectiles and spawn a Charger on death
 		if entity:HasMortalDamage() and entity:IsDead() then
-			for i = 1, 8 do
-				local params = ProjectileParams()
-				params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
-				params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
-				params.ChangeTimeout = 90
-
-				params.Acceleration = 1.1
-				params.FallingSpeedModifier = 1
-				params.FallingAccelModifier = -0.2
-				params.Scale = 1 + (mod:Random(5) * 0.1)
-				params.Variant = ProjectileVariant.PROJECTILE_TEAR
-
-				mod:FireProjectiles(entity, entity.Position, mod:RandomVector(mod:Random(3, 5)), 0, params).CollisionDamage = 1
-			end
+			local params = ProjectileParams()
+			params.Variant = ProjectileVariant.PROJECTILE_TEAR
+			entity:FireProjectiles(entity.Position, Vector(9, 4), 7, params)
+			Isaac.Spawn(EntityType.ENTITY_CHARGER, 1, 0, entity.Position, Vector.Zero, entity)
 
 			return true
 		end
@@ -521,7 +511,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.cageCollide, EntityType.E
 function mod:redGhostUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	if IRFConfig.laserRedGhost == true and entity.State == NpcState.STATE_ATTACK and sprite:GetFrame() == 0 then
+	if not entity:GetData().IndicatorBrim and IRFConfig.laserRedGhost == true and entity.State == NpcState.STATE_ATTACK and sprite:GetFrame() == 0 then
 		local angle = 0
 		if sprite:GetAnimation() == "ShootDown" then
 			angle = 90

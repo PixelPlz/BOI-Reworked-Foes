@@ -1,3 +1,26 @@
+Version 3.1.0
+
+-- Additions --
+- Added DSS toggles for pretty much everything! (you can stop asking for it now)
+
+
+-- Balance changes --
+- Drowned Hives now shoot diagonally and spawn a Drowned Charger on death
+- Satan now only spawns Nulls instead of Kamikaze Leeches in Hard Mode
+- Satan now has 800 health per phase instead of 600
+- Satan's hand projectile attack is now harder
+- Mr. Fred now shoots a ring of 12 shots after his jump instead of 8
+- Hush Baby now shoots a ring of shots after teleporting
+
+
+-- Fixes --
+- Fixed some reworked enemies / bosses not moving as they should while charmed or friendly
+- Fixed more reworked enemies / bosses not moving as they should while feared or confused
+
+
+
+
+
 Version 3.0.5
 
 -- Fixes --
