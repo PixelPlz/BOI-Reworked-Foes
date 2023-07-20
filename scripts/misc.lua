@@ -619,6 +619,21 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.tFacelessUpdate, EntityType.ENTI
 
 
 
+--[[ Cyst effect ]]--
+function mod:cystEffect(effect)
+	for i, cyst in pairs(Isaac.FindByType(EntityType.ENTITY_CYST, -1, -1, false, false)) do
+		if cyst.Position:Distance(effect.Position) <= 0 then -- Of course they don't have a spawner entity set...
+			effect:GetSprite().Color = IRFcolors.CorpseYellow
+			effect:GetSprite().Offset = Vector(0, -6)
+			effect:FollowParent(cyst)
+			effect.DepthOffset = cyst.DepthOffset + 1
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.cystEffect, EffectVariant.BULLET_POOF)
+
+
+
 --[[ Evis Cord ]]--
 function mod:evisCordUpdate(entity)
 	if entity.Variant == 10 and entity.Parent then

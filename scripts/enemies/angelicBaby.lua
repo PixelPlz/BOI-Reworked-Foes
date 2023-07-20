@@ -9,11 +9,21 @@ local Settings = {
 
 
 function mod:angelicBabyInit(entity)
-	if entity.Variant == 1 and entity.SubType == 0 and entity.SpawnerType == EntityType.ENTITY_GABRIEL then
-		if entity.SpawnerVariant == 1 then
-			entity:Morph(EntityType.ENTITY_IMP, 0, 0, entity:GetChampionColorIdx())
-		else
-			entity:Morph(entity.Type, 1, 1, entity:GetChampionColorIdx())
+	if entity.Variant == 1 and entity.SubType == 0 then
+		-- Replace Gabriel spawns
+		if entity.SpawnerType == EntityType.ENTITY_GABRIEL then
+			if entity.SpawnerVariant == 1 then
+				entity:Morph(EntityType.ENTITY_IMP, 0, 0, entity:GetChampionColorIdx())
+			else
+				entity:Morph(entity.Type, 1, 1, entity:GetChampionColorIdx())
+			end
+
+		-- New animations
+		elseif IRFConfig.enemies.angelicBaby == true then
+			local sprite = entity:GetSprite()
+			local animToPlay = sprite:GetAnimation()
+			sprite:Load("gfx/reworked/038.001_angelic baby.anm2", true)
+			sprite:Play(animToPlay, true)
 		end
 	end
 end
@@ -65,4 +75,4 @@ function mod:angelicBabyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.angelicBabyUpdate, EntityType.ENTITY_BABY)
+mod:AddOptionalCallback(ModCallbacks.MC_NPC_UPDATE, mod.angelicBabyUpdate, EntityType.ENTITY_BABY, "enemies.angelicBaby")

@@ -2,37 +2,127 @@ local mod = BetterMonsters
 local json = require("json")
 local DSSMenu = {}
 
-IRFConfig = {}
+IRFConfig = {
+	general    = {},
+	enemies    = {},
+	bosses     = {},
+	minibosses = {},
+	champions  = {},
+	secrets    = {},
+}
 
 -- Default DSS Data
 IRFDefaultConfig = {
-	-- General
-	breakableHosts   = true,
-	noChapter1Nests  = true,
-	matriarchFistula = true,
-	envyRework 		 = true,
-	blackBonyBombs   = true,
-	burningGushers   = true,
+	general = {
+		breakableHosts   = true,
+		spawnIndicators  = true,
+		burrowIndicators = true,
+		laserIndicators  = true,
+		coinSteal 		 = true,
+	},
 
-	-- Hidden enemy visuals
-	noHiddenPins  = true,
-	noHiddenPoly  = true,
-	noHiddenDust  = true,
-	
-	-- Extra appear animations
-	appearPins 		= true,
-	appearMomsHands = true,
-	appearNeedles 	= true,
-	
-	-- Laser indicators
-	laserEyes 	  = true,
-	laserRedGhost = true,
+	enemies = {
+		angelicBaby 	  = true,
+		blackBony 		  = true,
+		blackGlobin 	  = true,
+		blister 		  = true,
+		boneKnight 		  = true,
+		codWorm 		  = true,
+		dankDeathHead 	  = true,
+		dankGlobin 		  = true,
+		dartFly 		  = true,
+		drownedBoomFly    = true,
+		drownedCharger    = true,
+		drownedHive       = true,
+		classicEternalFly = true,
+		fatBat 			  = true,
+		flamingFatty 	  = true,
+		flamingGaper 	  = true,
+		burningGushers    = true,
+		flamingHopper 	  = true,
+		fleshDeathHead    = true,
+		lump 			  = true,
+		mamaGuts 		  = true,
+		megaClotty 		  = true,
+		membrain 		  = true,
+		momsDeadHand 	  = true,
+		nerveEndingTwo    = true,
+		nest 			  = true,
+		noChapter1Nests   = true,
+		slide 			  = true,
+		portal 			  = true,
+		psyTumor 		  = true,
+		raglings 		  = true,
+		redMaw 			  = true,
+		scarredGuts 	  = true,
+		scarredParabite   = true,
+		selflessKnight    = true,
+		skinnies 		  = true,
+		taintedFaceless   = true,
+		ulcer 			  = true,
+	},
 
+	bosses = {
+		blastocyst    = true,
+		blightedOvum  = true,
+		blueBaby 	  = true,
+		carrionQueen  = true,
+		chad 		  = true,
+		conquest 	  = true,
+		daddyLongLegs = true,
+		forsaken 	  = true,
+		gate 		  = true,
+		gish 		  = true,
+		bossGurglings = true,
+		hushBaby 	  = true,
+		husk 		  = true,
+		itLives 	  = true,
+		lokii 		  = true,
+		mamaGurdy 	  = true,
+		maskInfamy    = true,
+		megaMaw 	  = true,
+		mrFred 		  = true,
+		ragMega 	  = true,
+		satan 		  = true,
+		scolex 		  = true,
+		stain 		  = true,
+		steven 		  = true,
+		teratoma 	  = true,
+	},
 
-	-- Secrets
-	secretFound = false,
+	minibosses = {
+		envy 		  = true,
+		superGluttony = true,
+		superGreed    = true,
+		lust 		  = true,
+		superPride    = true,
+		sloth 		  = true,
+		wrath 		  = true,
+		fallenAngels  = true,
+	},
+
+	champions = {
+		bloat 		= true,
+		cage 		= true,
+		death 		= true,
+		frail 		= true,
+		greenGemini = true,
+		blueGemini  = true,
+		gurdy 		= true,
+		haunt 		= true,
+		lilHaunts 	= true,
+		larryJr 	= true,
+		lilHorn 	= true,
+		megaMaw 	= true,
+		monstro 	= true,
+		peep 		= true,
+	},
+
+	secrets = {
+		found 	 = false,
+		babyMode = false,
+	},
 }
-
 local secretButtonAdded = false
 
 
@@ -44,9 +134,16 @@ function DSSMenu:LoadSaveData()
     end
 
     for k, v in pairs(IRFDefaultConfig) do
-        if IRFConfig[k] == nil then
-            IRFConfig[k] = v
-        end
+		-- Convert old save system to the new one
+		if type(IRFConfig[k]) ~= "table" then
+			IRFConfig[k] = v
+		end
+
+		for i, j in pairs(v) do
+			if IRFConfig[k][i] == nil then
+				IRFConfig[k][i] = j
+			end
+		end
     end
 end
 mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, DSSMenu.LoadSaveData)
@@ -135,12 +232,20 @@ include("scripts.dss.changelog")
 
 local changeLogButton = dssmod.changelogsButton
 if changeLogButton ~= false then
-	changeLogButton = { str = 'changelogs', action = "openmenu", menu = 'Menu', dest = 'changelogs' }
+	changeLogButton = { str = 'changelogs', action = 'openmenu', menu = 'Menu', dest = 'changelogs' }
 end
 
 
 -- Settings helpers
+local wikiTooltip = { strset = { 'check the wiki', 'linked on the', 'workshop for', 'more details' }}
+
 local function CreateSetting(settingName, displayName, displayTooltip)
+	-- Get the proper setting variable
+	local splitSetting = mod:SplitString(settingName, '.')
+	local settingGroup = splitSetting[1]
+	local settingIndex = splitSetting[2]
+
+	-- Create the setting entry
 	local setting = {
 		str = displayName,
 		fsize = 2,
@@ -149,8 +254,8 @@ local function CreateSetting(settingName, displayName, displayTooltip)
 		variable = settingName,
 
 		load = function()
-			if IRFConfig[settingName] ~= nil then
-				if IRFConfig[settingName] then
+			if IRFConfig[settingGroup][settingIndex] ~= nil then
+				if IRFConfig[settingGroup][settingIndex] then
 					return 1
 				else
 					return 2
@@ -160,21 +265,21 @@ local function CreateSetting(settingName, displayName, displayTooltip)
 		end,
 
 		store = function(var)
+			local bool = false
 			if var == 1 then
-				IRFConfig[settingName] = true
-			else
-				IRFConfig[settingName] = false
+				bool = true
 			end
+			IRFConfig[settingGroup][settingIndex] = bool
 		end
 	}
 
+	-- Add tooltip if it has one
 	if displayTooltip then
 		setting.tooltip = { strset = displayTooltip }
 	end
+
 	return setting
 end
-
-local wikiTooltip = { strset = { 'check the wiki', 'linked on the', 'workshop for', 'more details' }}
 
 
 
@@ -204,6 +309,9 @@ local exampledirectory = {
 			{ str = 'bosses', 	  dest = 'bosses' },
 			{ str = 'minibosses', dest = 'minibosses' },
 			{ str = 'champions',  dest = 'champions' },
+
+			{ str = '', fsize = 3, nosel = true },
+			{ str = 'reset settings', fsize = 2, dest = 'resetSettings' },
 
 			-- DSS settings
 			{ str = '', fsize = 3, nosel = true },
@@ -235,7 +343,7 @@ local exampledirectory = {
         title = 'enemy settings',
         buttons = {
 			CreateSetting("enemies.angelicBaby", "angelic baby rework"),
-			CreateSetting("enemies.blackBonyBombs", "black bony bomb effects"),
+			CreateSetting("enemies.blackBony", "black bony rework"),
 			CreateSetting("enemies.blackGlobin", "black globin rework"),
 			CreateSetting("enemies.blister", "blister rework"),
 			CreateSetting("enemies.boneKnight", "bone knight changes"),
@@ -257,12 +365,10 @@ local exampledirectory = {
 			CreateSetting("enemies.mamaGuts", "harder mama guts"),
 			CreateSetting("enemies.megaClotty", "mega clotty rework"),
 			CreateSetting("enemies.membrain", "membrain rework"),
-			CreateSetting("enemies.momsHands", "mom's hand spawn anim."),
 			CreateSetting("enemies.momsDeadHand", "mom's dead hand rework"),
-			CreateSetting("enemies.needles", "needle spawn animation"),
 			CreateSetting("enemies.nerveEndingTwo", "nerve ending 2 rework"),
 			CreateSetting("enemies.nest", "nest changes"),
-			CreateSetting("enemies.noChapter1Nests", "replace nests in ch.1"),
+			CreateSetting("enemies.noChapter1Nests", "replace nests in ch. 1"),
 			CreateSetting("enemies.slide", "slide rework"),
 			CreateSetting("enemies.portal", "portal rework"),
 			CreateSetting("enemies.psyTumor", "psy tumor rework"),
@@ -290,7 +396,6 @@ local exampledirectory = {
 			CreateSetting("bosses.chad", "c.h.a.d. rework"),
 			CreateSetting("bosses.conquest", "conquest 2nd phase"),
 			CreateSetting("bosses.daddyLongLegs", "better daddy long legs"),
-			CreateSetting("bosses.matriarchFistula", "matriarch fistula sprites"),
 			CreateSetting("bosses.forsaken", "forsaken rework"),
 			CreateSetting("bosses.gate", "gate rework"),
 			CreateSetting("bosses.gish", "gish rework"),
@@ -318,14 +423,14 @@ local exampledirectory = {
 	minibosses = {
         title = 'miniboss settings',
         buttons = {
-			CreateSetting("minibosses.envyRework", "envy rework"),
-			CreateSetting("minibosses.fallenAngels", "harder fallen angels"),
+			CreateSetting("minibosses.envy", "envy rework"),
 			CreateSetting("minibosses.superGluttony", "harder super gluttony"),
 			CreateSetting("minibosses.superGreed", "super greed pickup steal"),
 			CreateSetting("minibosses.lust", "lust rework"),
 			CreateSetting("minibosses.superPride", "harder super pride"),
 			CreateSetting("minibosses.sloth", "better sloth"),
 			CreateSetting("minibosses.wrath", "harder wrath"),
+			CreateSetting("minibosses.fallenAngels", "harder fallen angels"),
         },
         tooltip = wikiTooltip
     },
@@ -343,6 +448,7 @@ local exampledirectory = {
 			CreateSetting("champions.blueGemini", "blue gemini creep"),
 			CreateSetting("champions.gurdy", "new green gurdy spawns"),
 			CreateSetting("champions.haunt", "better black haunt"),
+			CreateSetting("champions.lilHaunts", "matching lil haunts"),
 			CreateSetting("champions.larryJr", "blue larry jr. creep"),
 			CreateSetting("champions.lilHorn", "harder black lil horn"),
 			CreateSetting("champions.megaMaw", "harder black mega maw"),
@@ -350,6 +456,39 @@ local exampledirectory = {
 			CreateSetting("champions.peep", "blue peep rework"),
         },
         tooltip = wikiTooltip
+    },
+
+
+	-- Reset settings
+	resetSettings = {
+        title = 'reset settings',
+        buttons = {
+			{ str = "are you sure?", nosel = true },
+			{ str = "", nosel = true },
+
+			{ str = "cancel", action = "back" },
+			{ str = "", fsize = 2, nosel = true },
+
+			{ str = "i'm sure!", action = "back",
+				func = function(button, item, root)
+					local wasSecretFound = IRFConfig.secrets.found
+
+					IRFConfig = IRFDefaultConfig
+					IRFConfig.secrets.found = wasSecretFound
+
+					DSSMenu:SaveData()
+					DSSMenu:LoadSaveData()
+
+					dssmod.reloadButtons(root, root.Directory.settings.general)
+					dssmod.reloadButtons(root, root.Directory.settings.enemies)
+					dssmod.reloadButtons(root, root.Directory.settings.bosses)
+					dssmod.reloadButtons(root, root.Directory.settings.minibosses)
+					dssmod.reloadButtons(root, root.Directory.settings.champions)
+					dssmod.reloadButtons(root, root.Directory.settings.secrets)
+				end
+			},
+        },
+        tooltip = { strset = { 'this cannot', 'be undone'}}
     },
 
 
@@ -397,7 +536,7 @@ local exampledirectory = {
 
 			{ str = 'shh...', fsize = 3, dest = "secrets",
 			func = function()
-				IRFConfig.secretFound = true
+				IRFConfig.secrets.found = true
 				DSSMenu:AddSecretButton()
 			end
 			},
@@ -410,8 +549,8 @@ local exampledirectory = {
 	secrets = {
         title = "it's a secret...",
         buttons = {
-			CreateSetting("secret.babyMode", "easy mode", { 'can i play,', 'daddy?' }),
-			CreateSetting("secret.found", "placeholder"),
+			CreateSetting("secrets.babyMode", "easy mode", { 'can i play,', 'daddy?' }),
+			CreateSetting("secrets.found", "placeholder"),
         },
         tooltip = dssmod.menuOpenToolTip
     },
@@ -421,7 +560,7 @@ local exampledirectory = {
 
 -- Add secret menu button
 function DSSMenu:AddSecretButton()
-	if secretButtonAdded == false and IRFConfig.secretFound == true then
+	if secretButtonAdded == false and IRFConfig.secrets.found == true then
 		table.insert(exampledirectory.main.buttons, { str = 'secrets', dest = 'secrets', glowcolor = 3 })
 		secretButtonAdded = true
 	end

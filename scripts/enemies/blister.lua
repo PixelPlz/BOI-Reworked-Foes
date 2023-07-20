@@ -8,7 +8,7 @@ function mod:blisterInit(entity)
 		entity.ProjectileCooldown = mod:Random(1, 2)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blisterInit, EntityType.ENTITY_BLISTER)
+mod:AddOptionalCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blisterInit, EntityType.ENTITY_BLISTER, "enemies.blister", true)
 
 function mod:blisterUpdate(entity)
 	if entity.Variant == 0 and entity.SubType == 0 then
@@ -118,7 +118,7 @@ function mod:blisterUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blisterUpdate, EntityType.ENTITY_BLISTER)
+mod:AddOptionalCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blisterUpdate, EntityType.ENTITY_BLISTER, "enemies.blister")
 
 function mod:blisterDeath(entity)
 	if entity.Variant == 0 and entity.SubType == 0 then
@@ -126,7 +126,7 @@ function mod:blisterDeath(entity)
 		Isaac.Spawn(EntityType.ENTITY_BOIL, 2, 0, entity.Position, Vector.Zero, nil)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.blisterDeath, EntityType.ENTITY_BLISTER)
+mod:AddOptionalCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.blisterDeath, EntityType.ENTITY_BLISTER, "enemies.blister")
 
 function mod:blisterProjectileUpdate(projectile)
 	if projectile.SpawnerType == EntityType.ENTITY_BLISTER and projectile:IsDead() then

@@ -139,15 +139,46 @@ function mod:PlaySound(entity, id, volume, pitch, cooldown, loop, pan)
 end
 
 
--- Optional callback helper
--- Replace the default AddCallback function with something like this:
---      mod:AddOptionalCallback(ModCallbacks.MC_NPC_UPDATE, mod.blackBonyUpdate, EntityType.ENTITY_BLACK_BONY, "blackBonyBombs")
-function mod:AddOptionalCallback(callbackID, callbackScript, optionalParam, valueToCheck)
-	mod:AddCallback(callbackID, function(_, a, b, c, d, e, f, g, h)
-		if IRFConfig[valueToCheck] == true then
+-- Optional callback helper (replace the default AddCallback function with this)
+function mod:AddOptionalCallback(callbackID, callbackScript, optionalParam, settingName, hasNewANM2)
+	-- Get the proper setting variable
+	local splitSetting = mod:SplitString(settingName, '.')
+	local settingGroup = splitSetting[1]
+	local settingIndex = splitSetting[2]
+
+	-- Create the function
+	local function func(_, a, b, c, d, e, f, g, h)
+		-- Only run the function if the setting is turned on
+		if IRFConfig[settingGroup][settingIndex] == true then
+
+			-- For entities that need new animation files
+			if callbackID == ModCallbacks.MC_POST_NPC_INIT and hasNewANM2 == true then
+				local sprite = a:GetSprite() -- 'a' is the entity
+
+				-- Get the new path (this is probably the dumbest way to make me need to do less work)
+				local splitAnim = mod:SplitString(sprite:GetFilename(), '/')
+				local newANM2 = ""
+
+				for i, segment in pairs(splitAnim) do
+					newANM2 = newANM2 .. "/" .. segment
+					if i == 1 then -- After 'gfx'
+						newANM2 = newANM2 .. "/reworked"
+					end
+				end
+
+				-- Load the new animation file
+				local animToPlay = sprite:GetAnimation()
+				sprite:Load(newANM2, true)
+				sprite:Play(animToPlay, true)
+			end
+
+			-- Run the actual script
 			return callbackScript(_, a, b, c, d, e, f, g, h)
 		end
-	end, optionalParam)
+	end
+
+	-- Create the callback
+	mod:AddCallback(callbackID, func, optionalParam)
 end
 
 
@@ -849,6 +880,19 @@ function mod:CheckValidMiniboss(entity)
 		return true
 	end
 	return false
+end
+
+
+-- Split string
+function mod:SplitString(stringToSplit, splitChar)
+	local splitChar = splitChar or "%s"
+	local result = {}
+
+	for segment in string.gmatch(stringToSplit, "([^" .. splitChar .. "]+)") do
+		table.insert(result, segment)
+	end
+
+	return result
 end
 
 

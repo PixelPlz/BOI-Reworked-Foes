@@ -83,7 +83,7 @@
     </entity>
 
 	<!-- Bone Knight -->
-	<entity anm2path="283.000_BoneKnight.anm2" baseHP="20" boss="0" champion="1" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="41" name="#BONE_KNIGHT" numGridCollisionPoints="12" portrait="6" reroll="true" shadowSize="14" stageHP="0" variant="40">
+	<entity anm2path="reworked/283.000_BoneKnight.anm2" baseHP="20" boss="0" champion="1" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="41" name="#BONE_KNIGHT" numGridCollisionPoints="12" portrait="6" reroll="true" shadowSize="14" stageHP="0" variant="40">
         <bestiary parent="283.0"/>
         <gibs amount="6" blood="0" bone="1" eye="0" gut="1" large="0" worm="1"/>
     	<devolve id="41.1.0" weight="1" />

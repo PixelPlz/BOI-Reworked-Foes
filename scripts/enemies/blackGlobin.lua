@@ -25,12 +25,12 @@ function mod:blackGlobinUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blackGlobinUpdate, EntityType.ENTITY_BLACK_GLOBIN)
+mod:AddOptionalCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blackGlobinUpdate, EntityType.ENTITY_BLACK_GLOBIN, "enemies.blackGlobin")
 
 function mod:blackGlobinDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	target:ToNPC().V2 = damageSource.Position
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.blackGlobinDMG, EntityType.ENTITY_BLACK_GLOBIN)
+mod:AddOptionalCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.blackGlobinDMG, EntityType.ENTITY_BLACK_GLOBIN, "enemies.blackGlobin")
 
 function mod:blackGlobinDeath(entity)
 	local head = Isaac.Spawn(EntityType.ENTITY_BLACK_GLOBIN_HEAD, 0, 0, entity.Position, Vector.Zero, entity):ToNPC()
@@ -49,7 +49,7 @@ function mod:blackGlobinDeath(entity)
 		body:MakeChampion(1, entity:GetChampionColorIdx(), true)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.blackGlobinDeath, EntityType.ENTITY_BLACK_GLOBIN)
+mod:AddOptionalCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.blackGlobinDeath, EntityType.ENTITY_BLACK_GLOBIN, "enemies.blackGlobin")
 
 
 
@@ -65,7 +65,7 @@ function mod:blackGlobinHeadUpdate(entity)
 				local spawn = Isaac.Spawn(EntityType.ENTITY_BLACK_GLOBIN, 0, 0, entity.Position, Vector.Zero, entity):ToNPC()
 				spawn.State = NpcState.STATE_APPEAR_CUSTOM
 				spawn:GetSprite():Play("Appear", true)
-				spawn:GetSprite().FlipX = sprite.FlipX
+				spawn:GetSprite().FlipX = not sprite.FlipX
 				spawn.HitPoints = Settings.NewHealth
 				mod:PlaySound(entity, SoundEffect.SOUND_DEATH_REVERSE, 1.2)
 

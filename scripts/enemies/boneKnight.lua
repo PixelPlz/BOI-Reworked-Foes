@@ -17,7 +17,7 @@ function mod:boneKnightInit(entity)
 	sprite:ReplaceSpritesheet(2, "")
 	sprite:LoadGraphics()
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.boneKnightInit, EntityType.ENTITY_BONE_KNIGHT)
+mod:AddOptionalCallback(ModCallbacks.MC_POST_NPC_INIT, mod.boneKnightInit, EntityType.ENTITY_BONE_KNIGHT, "enemies.boneKnight")
 
 function mod:boneKnightUpdate(entity)
 	if entity.Variant == 40 then

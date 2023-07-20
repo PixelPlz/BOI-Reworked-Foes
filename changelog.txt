@@ -1,16 +1,24 @@
 Version 3.1.0
 
 -- Additions --
-- Added DSS toggles for pretty much everything! (you can stop asking for it now)
+- Added DSS toggles for pretty much everything!
+	- NOTE: The mod now uses a new system to store the config so previous settings have been reset
+	and any other mod wanting to do compatibility should also update to use these variables (this is the price you have to pay for wanting this)
+	Because of how the reworks are handled, the bestiary won't show this mod's sprites for most enemies and bosses.
 
 
 -- Balance changes --
+- Reduced the amount of damage required to break Scolex's armor from 50 to 40 per segment
 - Drowned Hives now shoot diagonally and spawn a Drowned Charger on death
 - Satan now only spawns Nulls instead of Kamikaze Leeches in Hard Mode
 - Satan now has 800 health per phase instead of 600
 - Satan's hand projectile attack is now harder
 - Mr. Fred now shoots a ring of 12 shots after his jump instead of 8
 - Hush Baby now shoots a ring of shots after teleporting
+
+
+-- Other changes --
+- Added a custom animation file option for custom Black Bony variants (check the scripts/enemies/blackBony.lua file on how to do it)
 
 
 -- Fixes --
