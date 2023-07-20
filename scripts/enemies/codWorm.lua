@@ -52,7 +52,7 @@ function mod:codWormUpdate(entity)
 	elseif entity.State == NpcState.STATE_ATTACK then
 		if sprite:IsEventTriggered("Shoot") then
 			mod:PlaySound(entity, SoundEffect.SOUND_WORM_SPIT, 1.2)
-			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(Settings.ShotSpeed - (entity.I2 * 2)), 3 + (entity.I2 * 2), ProjectileParams())
+			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(Settings.ShotSpeed - (entity.I2 * 3)), 3 + (entity.I2 * 2), ProjectileParams())
 			mod:ShootEffect(entity, 5, Vector(1, -22), Color(1,1,1, 0.7))
 		end
 
