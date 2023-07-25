@@ -16,6 +16,7 @@ IRFentities = {
 
 	Teratomar 	  = Isaac.GetEntityVariantByName("Teratomar"),
 	GiantSpike 	  = Isaac.GetEntityVariantByName("Giant Spike"),
+	Wallace 	  = Isaac.GetEntityVariantByName("Wallace"),
 	Coffer 		  = Isaac.GetEntityVariantByName("Coffer"),
 	HushFlyAttack = Isaac.GetEntityVariantByName("Hush Fly Attack"),
 	BoneOrbital   = Isaac.GetEntityVariantByName("Enemy Bone Orbital"),
@@ -105,3 +106,22 @@ IRFcolors.TearTrail  = Color(0,0,0, 1, 0.54,0.64,0.78)
 
 IRFcolors.DamageFlash = Color(0.5,0.5,0.5, 1, 0.8,0,0)
 IRFcolors.ArmorFlash  = Color(1,1,1, 1, 0.2,0.2,0.2)
+
+
+
+--[[ New sound enums ]]--
+IRFsounds = {
+	ChadDive 	   = Isaac.GetSoundIdByName("C.H.A.D. Dive"),
+	ChadAttackSwim = Isaac.GetSoundIdByName("C.H.A.D. Attack 1"),
+	ChadAttackJump = Isaac.GetSoundIdByName("C.H.A.D. Attack 2"),
+	ChadAttackSpit = Isaac.GetSoundIdByName("C.H.A.D. Attack 3"),
+	ChadStunned    = Isaac.GetSoundIdByName("C.H.A.D. Stunned"),
+	ChadDie 	   = Isaac.GetSoundIdByName("C.H.A.D. Die"),
+
+	StevenVoice  = Isaac.GetSoundIdByName("Steven Voice"),
+	StevenTP 	 = Isaac.GetSoundIdByName("Steven Teleport Loop"),
+	StevenChange = Isaac.GetSoundIdByName("Steven Layer Change"),
+	StevenLand   = Isaac.GetSoundIdByName("Steven Land"),
+	StevenDie 	 = Isaac.GetSoundIdByName("Steven Die"),
+	StevenFlip 	 = Isaac.GetSoundIdByName("Steven Flip"),
+}

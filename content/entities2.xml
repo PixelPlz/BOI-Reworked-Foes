@@ -43,6 +43,11 @@
 		<gibs amount="6" blood="0" bone="0" dust="1" eye="0" gut="0" large="0" rock="1"/>
     </entity>
 
+	<!-- Steven 2nd phase (yes, they're called Wallace because it has 'wall' in it) -->
+	<entity anm2path="079.001_Steven.anm2" baseHP="100" boss="1" bossID="20" champion="0" collisionDamage="1" collisionMass="0.1" collisionRadius="20" friction="1" id="200" name="Wallace" numGridCollisionPoints="12" portrait="22" shadowSize="0" stageHP="0" variant="4079">
+        <gibs amount="4" blood="1" bone="1" eye="1" gut="1" large="0"/>
+    </entity>
+
 	<!-- Coffer -->
 	<entity anm2path="086.450_coffer.anm2" baseHP="8" boss="0" champion="0" collisionDamage="1" collisionMass="10" collisionRadius="13" friction="1" id="86" name="Coffer" numGridCollisionPoints="12" portrait="2" reroll="true" shadowSize="14" stageHP="1" variant="450">
         <bestiary anim="JumpDown" transform="0,0,1"/>
@@ -51,13 +56,13 @@
     </entity>
 
 	<!-- ??? -->
-	<entity anm2path="forgotten body (boss).anm2" baseHP="1000" boss="1" champion="0" collisionDamage="1" collisionMass="100" collisionRadius="18" friction="1" gridCollision="walls" id="200" name="Forgotten Body (Boss)" numGridCollisionPoints="12" portrait="22" shadowSize="16" shutdoors="false" stageHP="0" variant="4102" subtype="0">
+	<entity anm2path="forgotten body (boss).anm2" baseHP="1000" boss="1" champion="0" collisionDamage="1" collisionMass="100" collisionRadius="18" friction="1" gridCollision="walls" id="200" name="Forgotten Body (Boss)" numGridCollisionPoints="12" portrait="23" shadowSize="16" shutdoors="false" stageHP="0" variant="4102" subtype="0">
 		<gibs amount="10" blood="0" bone="1" eye="0" gut="0" large="0"/>
     </entity>
-	<entity anm2path="forgotten body (boss).anm2" baseHP="1000" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" gridCollision="none" id="200" name="Forgotten Chain (Boss)" numGridCollisionPoints="0" portrait="22" shadowSize="8" shutdoors="false" stageHP="0" variant="4102" subtype="1">
+	<entity anm2path="forgotten body (boss).anm2" baseHP="1000" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" gridCollision="none" id="200" name="Forgotten Chain (Boss)" numGridCollisionPoints="0" portrait="23" shadowSize="8" shutdoors="false" stageHP="0" variant="4102" subtype="1">
 		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
-	<entity anm2path="holy orb.anm2" baseHP="1000" boss="0" champion="0" collisionDamage="1" collisionMass="20" collisionRadius="13" friction="1" id="200" name="Lost Holy Orb" numGridCollisionPoints="16" portrait="22" shadowSize="16" shutdoors="false" stageHP="0" variant="4102" subtype="2">
+	<entity anm2path="holy orb.anm2" baseHP="1000" boss="0" champion="0" collisionDamage="1" collisionMass="20" collisionRadius="13" friction="1" id="200" name="Lost Holy Orb" numGridCollisionPoints="16" portrait="23" shadowSize="16" shutdoors="false" stageHP="0" variant="4102" subtype="2">
 		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
 
@@ -97,12 +102,12 @@
 	</entity>
 
 	<!-- The Stain tentacle -->
-	<entity anm2path="401.010_thestain tentacle.anm2" baseHP="400" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="18" friction="1" id="401" name="The Stain Tentacle" numGridCollisionPoints="0" portrait="24" reroll="false" shadowSize="0" shutdoors="false" stageHP="0" variant="10">
+	<entity anm2path="401.010_thestain tentacle.anm2" baseHP="400" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="18" friction="1" id="401" name="The Stain Tentacle" numGridCollisionPoints="0" portrait="25" reroll="false" shadowSize="0" shutdoors="false" stageHP="0" variant="10">
 		<gibs amount="6" blood="1" bone="0" eye="0" gut="0" large="0"/>
     </entity>
 
 	<!-- Rag Mega Plasma -->
-	<entity anm2path="ragmega plasma.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="20" collisionRadius="13" friction="1" id="200" name="Rag Mega Plasma" numGridCollisionPoints="16" portrait="25" shadowSize="16" shutdoors="false" stageHP="0" variant="4409">
+	<entity anm2path="ragmega plasma.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="20" collisionRadius="13" friction="1" id="200" name="Rag Mega Plasma" numGridCollisionPoints="16" portrait="26" shadowSize="16" shutdoors="false" stageHP="0" variant="4409">
         <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     </entity>
 

@@ -4,6 +4,11 @@ function mod:postGameStartedHPBars()
 	if HPBars then
 		local path = "gfx/ui/bosshp_icons/"
 
+		HPBars.BossIgnoreList["79.11"] = true -- Little Steven
+		HPBars.BossIgnoreList["79.1"] = function(entity) -- Steven fake death
+			return entity:ToNPC().State == NpcState.STATE_SPECIAL and entity:ToNPC().StateFrame == 0
+		end
+		HPBars.BossIgnoreList["200.4079"] = true -- Wallace
 		HPBars.BossIgnoreList["97.0"] = true -- Mask of Infamy
 		HPBars.BossIgnoreList["200.4102"] = true -- Forgotten Body
 		HPBars.BossIgnoreList["403.10"] = true -- Forsaken clone

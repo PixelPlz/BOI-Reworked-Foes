@@ -6,7 +6,7 @@ function mod:giantSpikeInit(entity)
 	if entity.Variant == IRFentities.GiantSpike then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
-		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
 
 		entity.State = NpcState.STATE_IDLE
 		entity:GetSprite():Play("Appear", true)
@@ -67,8 +67,6 @@ function mod:giantSpikeUpdate(entity)
 						rocks.State = 2
 					end
 					mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.4)
-
-					clearGridHere()
 				end
 
 				if sprite:IsFinished() then
@@ -115,8 +113,6 @@ function mod:giantSpikeUpdate(entity)
 						target:AddEntityFlags(EntityFlag.FLAG_EXTRA_GORE)
 						target:TakeDamage(target.MaxHitPoints * 2, (DamageFlag.DAMAGE_CRUSH | DamageFlag.DAMAGE_IGNORE_ARMOR), EntityRef(entity), 0)
 					end
-
-					clearGridHere()
 				end
 
 				if sprite:IsFinished() then

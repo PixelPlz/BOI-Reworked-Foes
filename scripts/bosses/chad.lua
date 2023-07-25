@@ -112,7 +112,7 @@ function mod:chadUpdate(entity)
 			-- Sounds
 			if entity.I1 == 0 then
 				mod:PlaySound(nil, SoundEffect.SOUND_HEARTIN, 0.9, 0.85)
-				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_DIVE, 0.9)
+				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_DIVE, 0.85)
 			end
 		end
 

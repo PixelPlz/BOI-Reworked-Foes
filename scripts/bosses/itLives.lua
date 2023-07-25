@@ -234,6 +234,7 @@ function mod:itLivesUpdate(entity)
 			local function isValidEnemy(entity)
 				if  entity:ToNPC() and entity:ToNPC():IsActiveEnemy(false)
 				and entity.Type ~= EntityType.ENTITY_MOMS_HEART
+				and not (entity.Type == EntityType.ENTITY_HOMUNCULUS and entity.Variant == 10)
 				and entity.HitPoints >= 0.1
 				and entity:IsInvincible() == false
 				and entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) == false then
@@ -288,7 +289,7 @@ function mod:itLivesUpdate(entity)
 			-- Transition to next phase
 			local quarterHp = (entity.MaxHitPoints / 4)
 
-			if entity.HitPoints <= entity.MaxHitPoints - (quarterHp * data.phase) then
+			if data.phase < 4 and entity.HitPoints <= entity.MaxHitPoints - (quarterHp * data.phase) then
 				data.phase = data.phase + 1
 
 				-- Enrage

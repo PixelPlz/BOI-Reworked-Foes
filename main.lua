@@ -3,7 +3,7 @@ local mod = BetterMonsters
 
 
 
-local startupText = mod.Name .. " v3.0.5 Initialized"
+local startupText = mod.Name .. " v3.1.0 Initialized"
 Isaac.DebugString(startupText)
 
 IRFflavorText = {
@@ -30,10 +30,7 @@ IRFflavorText = {
 	"The Husk was hiding the Forgotten this entire time",
 }
 
-local flavorText = "The Blood & Guts update"
-if math.random(2) == 1 then
-	flavorText = IRFflavorText[math.random(#IRFflavorText)]
-end
+local flavorText = IRFflavorText[math.random(#IRFflavorText)]
 print(startupText .. " - " .. flavorText)
 
 
