@@ -1,22 +1,29 @@
 Version 3.1.0
 
+-- Reworks / Additions --
+- Steven has been re-reworked!
+
+
 -- Balance changes --
 - Reduced the amount of damage required to break Scolex's armor from 50 to 40 per segment
-- Drowned Hives now shoot diagonally and spawn a Drowned Charger on death
+- Drowned Hives now shoot diagonally and spawn a Drowned Charger on death instead of creating lingering projectiles
 - Satan now only spawns Nulls instead of Kamikaze Leeches in Hard Mode
 - Satan now has 800 health per phase instead of 600
 - Satan's hand projectile attack is now harder
 - Mr. Fred now shoots a ring of 12 shots after his jump instead of 8
-- Hush Baby now shoots a ring of shots after teleporting
+- Hush Baby now shoots a ring of shots when teleporting
 
 
 -- Other changes --
-- Added a custom animation file option for custom Black Bony variants (check the scripts/enemies/blackBony.lua file on how to do it)
+- C.H.A.D. now uses sounds from Super Meat Boy
+- Added a custom anm2 option for custom Black Bony variants (check the scripts/enemies/blackBony.lua file on how to do it)
 
 
 -- Fixes --
 - Fixed some reworked enemies / bosses not moving as they should while charmed or friendly
 - Fixed more reworked enemies / bosses not moving as they should while feared or confused
+- Fixed Wrath and Super Wrath having missing heads in the bestiary
+- Fixed minor errors with It Lives
 
 
 

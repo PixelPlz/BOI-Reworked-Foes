@@ -111,7 +111,6 @@ IRFcolors.ArmorFlash  = Color(1,1,1, 1, 0.2,0.2,0.2)
 
 --[[ New sound enums ]]--
 IRFsounds = {
-	ChadDive 	   = Isaac.GetSoundIdByName("C.H.A.D. Dive"),
 	ChadAttackSwim = Isaac.GetSoundIdByName("C.H.A.D. Attack 1"),
 	ChadAttackJump = Isaac.GetSoundIdByName("C.H.A.D. Attack 2"),
 	ChadAttackSpit = Isaac.GetSoundIdByName("C.H.A.D. Attack 3"),

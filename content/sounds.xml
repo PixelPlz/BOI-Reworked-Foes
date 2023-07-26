@@ -1,11 +1,5 @@
 <sounds root="sfx/">
 	<!-- C.H.A.D. -->
-	<sound name="C.H.A.D. Dive">
-        <sample weight="1" path="chad_dive1.wav" />
-		<sample weight="1" path="chad_dive2.wav" />
-		<sample weight="1" path="chad_dive3.wav" />
-    </sound>
-
 	<sound name="C.H.A.D. Attack 1">
         <sample weight="1" path="chad_attack1.wav" />
     </sound>
@@ -35,6 +29,7 @@
 	<sound name="Steven Teleport Loop">
         <sample weight="1" path="steven_teleport.wav" />
     </sound>
+
 	<sound name="Steven Layer Change">
         <sample weight="1" path="steven_change1.wav" />
 		<sample weight="1" path="steven_change2.wav" />

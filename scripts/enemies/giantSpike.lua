@@ -11,18 +11,15 @@ function mod:giantSpikeInit(entity)
 		entity.State = NpcState.STATE_IDLE
 		entity:GetSprite():Play("Appear", true)
 
-		entity.I1 = 15
-		entity.I2 = 15
+		entity.I1 = 15 -- Delay before popping out
+		entity.I2 = 15 -- Time to wait after popping out
 
 		if mod:Random(1) == 1 then
 			entity:GetSprite().FlipX = true
 		end
 
 		-- Destroy any obstacles under the spike
-		local gridEntity = Game():GetRoom():GetGridEntityFromPos(entity.Position)
-		if gridEntity ~= nil and (gridEntity.CollisionClass == GridCollisionClass.COLLISION_SOLID or gridEntity:GetType() == GridEntityType.GRID_SPIDERWEB) then
-			gridEntity:Destroy(true)
-		end
+		room:DestroyGrid(room:GetGridIndex(entity.Position), true)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.giantSpikeInit, IRFentities.Type)

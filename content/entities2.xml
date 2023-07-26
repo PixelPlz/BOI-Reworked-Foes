@@ -43,7 +43,7 @@
 		<gibs amount="6" blood="0" bone="0" dust="1" eye="0" gut="0" large="0" rock="1"/>
     </entity>
 
-	<!-- Steven 2nd phase (yes, they're called Wallace because it has 'wall' in it) -->
+	<!-- Steven 2nd phase -->
 	<entity anm2path="079.001_Steven.anm2" baseHP="100" boss="1" bossID="20" champion="0" collisionDamage="1" collisionMass="0.1" collisionRadius="20" friction="1" id="200" name="Wallace" numGridCollisionPoints="12" portrait="22" shadowSize="0" stageHP="0" variant="4079">
         <gibs amount="4" blood="1" bone="1" eye="1" gut="1" large="0"/>
     </entity>

@@ -1,19 +1,21 @@
 local mod = BetterMonsters
 
 local Settings = {
-	Cooldown = 90,
-	TeleportCooldown = 120,
+	NewHealth = 150,
+	LilStevenMaxDistance = 20,
 
 	MoveSpeed = 5,
 	ChaseSpeed = 12,
 
+	Cooldown = 90,
 	ChaseTime = 180,
+	TeleportCooldown = 120,
 	TeleportTime = 15,
 
-	LilStevenMaxDistance = 20,
-
+	-- 2nd phase
 	SecondPhaseHP = 100,
 	Gravity = 0.5,
+	WallaceOffset = Vector(80, -15)
 }
 
 
@@ -24,14 +26,22 @@ function mod:stevenInit(entity)
 
 		-- Big Steven
 		if entity.Variant == 1 then
+			entity.MaxHitPoints = Settings.NewHealth
+			entity.HitPoints = entity.MaxHitPoints
 			entity.I2 = Settings.TeleportCooldown
 
 		-- Little Steven
 		elseif entity.Variant == 11 then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
+			entity:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
 
 			entity.SpawnerEntity.Child = entity
+
+			-- Off-screen inficator blacklist
+			if OffscreenIndicators then
+				OffscreenIndicators:addOIblacklist(entity.Type, entity.Variant, -1)
+			end
 		end
 	end
 end
@@ -58,17 +68,19 @@ function mod:stevenUpdate(entity)
 				end
 
 				-- Teleport
-				if entity.I2 <= 0 then
-					entity.I2 = Settings.TeleportTime
-					entity.State = NpcState.STATE_JUMP
-					sprite:Play("TeleportStart", true)
-					entity.StateFrame = 0
+				if not entity:GetData().wasDelirium then
+					if entity.I2 <= 0 then
+						entity.I2 = Settings.TeleportTime
+						entity.State = NpcState.STATE_JUMP
+						sprite:Play("TeleportStart", true)
+						entity.StateFrame = 0
 
-					mod:PlaySound(entity, IRFsounds.StevenVoice, 1.3)
-					mod:PlaySound(nil, IRFsounds.StevenTP, 1.1, 1, 0, true)
+						mod:PlaySound(entity, IRFsounds.StevenVoice, 1.3)
+						mod:PlaySound(nil, IRFsounds.StevenTP, 1.1, 1, 0, true)
 
-				else
-					entity.I2 = entity.I2 - 1
+					else
+						entity.I2 = entity.I2 - 1
+					end
 				end
 
 				-- Start rolling
@@ -134,11 +146,13 @@ function mod:stevenUpdate(entity)
 
 					mod:LoopingAnim(sprite, "Roll" .. mod:GetDirectionString(entity.Velocity:GetAngleDegrees(), true))
 					mod:FlipTowardsMovement(entity, sprite)
+					sprite.PlaybackSpeed = entity.Velocity:Length() * 0.125
 
 					-- Cooldown
 					if entity.ProjectileCooldown <= 0 then
 						entity.StateFrame = 2
 						sprite:Play("RollEnd", true)
+						sprite.PlaybackSpeed = 1
 
 					else
 						entity.ProjectileCooldown = entity.ProjectileCooldown - 1
@@ -231,10 +245,12 @@ function mod:stevenUpdate(entity)
 				end
 
 
+
 			-- 2nd phase
 			elseif entity.State == NpcState.STATE_SPECIAL then
 				entity.Position = room:GetCenterPos()
 				entity.Velocity = Vector.Zero
+				mod:LoopingAnim(sprite, "WalkVert")
 
 				-- Wait before starting
 				if entity.StateFrame == 0 then
@@ -248,36 +264,77 @@ function mod:stevenUpdate(entity)
 							mod:PlaySound(nil, IRFsounds.StevenChange, 2.75, 1.05)
 						end
 
+						-- Get rid of rocks in the middle
+						if room:GetRoomShape() == RoomShape.ROOMSHAPE_1x1 then
+							for i = -1, 1 do
+								for j = -2, 2 do
+									local pos = room:GetCenterPos() + Vector(i * 40, j * 40)
+									room:DestroyGrid(room:GetGridIndex(pos), true)
+								end
+							end
+						end
+
 					else
 						entity.I2 = entity.I2 - 1
 					end
 
+
 				-- Give birth to Wallaces
 				elseif entity.StateFrame == 1 then
 					if entity.ProjectileCooldown <= 0 then
-						entity.ProjectileCooldown = 25
+						entity.ProjectileCooldown = entity.I1
 						entity.I2 = entity.I2 + 1
 
-						for i = -1, 1, 2 do
-							local pos = room:GetTopLeftPos() - Vector(80, -15)
+						-- Short rooms only have the top line
+						local shape = room:GetRoomShape()
+						local maxI = 1
+
+						if shape == RoomShape.ROOMSHAPE_IH or shape == RoomShape.ROOMSHAPE_IIH then
+							maxI = -1
+						end
+
+						-- -1 = top wall / 1 = bottom wall
+						for i = -1, maxI, 2 do
+							local pos = room:GetTopLeftPos() - Settings.WallaceOffset
 							if i == 1 then
-								pos = room:GetBottomRightPos() + Vector(80, -15)
+								pos = room:GetBottomRightPos() + Settings.WallaceOffset
 							end
 
 							local wallace = Isaac.Spawn(IRFentities.Type, IRFentities.Wallace, entity.SubType, pos, Vector.Zero, entity):ToNPC()
 							wallace.Parent = entity
 							wallace.TargetPosition = Vector(-i, 0)
+							wallace.V1 = Vector(i ,pos.Y)
 
+							-- Attacking variants
 							if entity.I2 % 3 == 0 then
 								wallace.I1 = mod:Random(1, 2)
+
+								local cdMin = 20
+								local cdMax = 50
+
+								-- Wide rooms
+								if shape >= 6 then
+									cdMax = 110
+								-- Thin rooms
+								elseif shape == RoomShape.ROOMSHAPE_IV or shape == RoomShape.ROOMSHAPE_IIV then
+									cdMin = 5
+									cdMax = 10
+								end
+
+								wallace.ProjectileCooldown = mod:Random(cdMin, cdMax)
 							end
 
-							wallace.ProjectileCooldown = mod:Random(20, 50)
-							wallace.V1 = pos
-							wallace.I2 = i
+							local wallaceSprite = wallace:GetSprite()
+							wallaceSprite.FlipY = i == -1
+							wallaceSprite.Color = Color(1,1,1, 0)
 
-							wallace:GetSprite().FlipY = i == -1
-							wallace:GetSprite().Color = Color(1,1,1, 0)
+							-- Delirious fix
+							if entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+								for j = 0, wallaceSprite:GetLayerCount() do
+									wallaceSprite:ReplaceSpritesheet(j, "gfx/bosses/afterbirthplus/deliriumforms/classic/boss_013_steven.png")
+								end
+								wallaceSprite:LoadGraphics()
+							end
 						end
 
 					else
@@ -299,6 +356,7 @@ function mod:stevenUpdate(entity)
 
 			-- Big bro is alive :)
 			else
+				entity.MaxHitPoints = entity.Parent.MaxHitPoints
 				entity.HitPoints = entity.Parent.HitPoints
 
 				-- Movement
@@ -352,22 +410,42 @@ function mod:stevenUpdate(entity)
 				mod:PlaySound(nil, IRFsounds.StevenDie, 1.25)
 
 				-- Start 2nd phase
-				local newSteven = Isaac.Spawn(entity.Type, entity.Variant, entity.SubType, room:GetCenterPos(), Vector.Zero, entity):ToNPC()
-				newSteven.State = NpcState.STATE_SPECIAL
-				newSteven.I2 = 50
-				newSteven.ProjectileCooldown = 0
+				local hasSteven = false
 
-				newSteven.Visible = false
-				newSteven.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-				newSteven.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
-				newSteven:AddEntityFlags(EntityFlag.FLAG_NO_BLOOD_SPLASH | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+				-- Increase the hp for an existing one
+				for i, steven in pairs(Isaac.FindByType(entity.Type, entity.Variant, entity.SubType, false, true)) do
+					if steven:ToNPC().State == NpcState.STATE_SPECIAL then
+						steven.MaxHitPoints = steven.MaxHitPoints + Settings.SecondPhaseHP
+						steven.HitPoints = steven.HitPoints + Settings.SecondPhaseHP
+						steven:ToNPC().I1 = steven:ToNPC().I1 - 3
 
-				newSteven.MaxHitPoints = Settings.SecondPhaseHP
-				newSteven.HitPoints = newSteven.MaxHitPoints
+						hasSteven = true
+						break
+					end
+				end
+
+				-- Create a new Steven
+				if hasSteven == false then
+					local newSteven = Isaac.Spawn(entity.Type, entity.Variant, entity.SubType, room:GetCenterPos(), Vector.Zero, entity):ToNPC()
+					newSteven.State = NpcState.STATE_SPECIAL
+					newSteven.I1 = 25
+					newSteven.I2 = 50
+					newSteven.ProjectileCooldown = 0
+
+					newSteven.Visible = false
+					newSteven.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+					newSteven.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
+					newSteven:AddEntityFlags(EntityFlag.FLAG_NO_BLOOD_SPLASH | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+					newSteven.SplatColor = Color(0,0,0, 0)
+
+					newSteven.MaxHitPoints = Settings.SecondPhaseHP
+					newSteven.HitPoints = newSteven.MaxHitPoints
+				end
 
 				-- Silhouette fix
 				if entity:GetData().effect then
 					entity:GetData().effect:Play("Disappear", true)
+					SFXManager():StopLoopingSounds()
 				end
 
 			else
@@ -380,9 +458,11 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.stevenUpdate, EntityType.ENT
 
 function mod:lilStevenDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == 11 then
-		damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
-		target.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 5)
-		target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+		if target.Parent then
+			damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
+			target.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 5)
+			target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+		end
 
 		return false
 	end
@@ -396,7 +476,7 @@ function mod:wallaceInit(entity)
 	if entity.Variant == IRFentities.Wallace then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
-		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
+		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_NO_REWARD)
 		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 
 		entity.State = NpcState.STATE_MOVE
@@ -419,13 +499,13 @@ function mod:wallaceUpdate(entity)
 
 		-- Die without a parent
 		if not entity.Parent or entity.Parent:IsDead() then
-			--entity:Die()
 			entity.State = NpcState.STATE_UNIQUE_DEATH
 			sprite:Play("WallaceDeath", true)
 
 
 		-- Steven is alive :)
 		else
+			entity.MaxHitPoints = entity.Parent.MaxHitPoints
 			entity.HitPoints = entity.Parent.HitPoints
 
 			-- Stroll across the screen
@@ -465,7 +545,7 @@ function mod:wallaceUpdate(entity)
 						-- Jump
 						elseif entity.I1 == 2 then
 							entity.State = NpcState.STATE_JUMP
-							sprite:Play("RollJump", true)
+							sprite:Play("JumpUp", true)
 							entity.StateFrame = 0
 						end
 
@@ -494,39 +574,52 @@ function mod:wallaceUpdate(entity)
 			-- Jump
 			elseif entity.State == NpcState.STATE_JUMP then
 				-- Update height
-				local data = entity:GetData()
-				if data.zVelocity then
-					data.zVelocity = data.zVelocity - Settings.Gravity
-					entity.Position = Vector(entity.Position.X, math.min(room:GetBottomRightPos().Y + 12, entity.Position.Y - data.zVelocity * entity.I2))
+				if entity.StateFrame > 0 then
+					entity.V2 = Vector(0, entity.V2.Y - Settings.Gravity)
+					entity.Position = Vector(entity.Position.X, entity.Position.Y - entity.V2.Y * entity.V1.X)
 				end
 
+				-- Telegraph
 				if entity.StateFrame == 0 then
-					-- Jump velocity
 					if sprite:IsEventTriggered("Shoot") then
-						entity:GetData().zVelocity = 12
 						entity.StateFrame = 1
 						mod:PlaySound(entity, IRFsounds.StevenVoice, 0.8, 1, 5)
 						mod:PlaySound(nil, IRFsounds.StevenLand, 1.5)
+
+						-- Get jump height
+						local jumpHeight = 12
+						local shape = room:GetRoomShape()
+
+						if shape == RoomShape.ROOMSHAPE_1x2 or shape == RoomShape.ROOMSHAPE_IIV or shape >= 8 then
+							jumpHeight = 15
+						elseif shape == RoomShape.ROOMSHAPE_IH or shape == RoomShape.ROOMSHAPE_IIH then
+							jumpHeight = 9
+						end
+
+						entity.V2 = Vector(0, jumpHeight)
 					end
 
+				-- Going up
 				elseif entity.StateFrame == 1 then
-					if data.zVelocity and data.zVelocity <= 1 then
+					-- Peak of the jump
+					if entity.V2.Y <= 1 then
 						entity.StateFrame = 2
 						sprite:Play("JumpDown", true)
 					end
 
+				-- Going down
 				elseif entity.StateFrame == 2 then
 					-- Land
-					if sprite:IsFinished() and ((entity.I2 == 1 and entity.Position.Y >= entity.V1.Y) or (entity.I2 == -1 and entity.Position.Y <= entity.V1.Y)) then
+					if (entity.V1.X == 1 and entity.Position.Y >= entity.V1.Y) or (entity.V1.X == -1 and entity.Position.Y <= entity.V1.Y) then
 						entity.State = NpcState.STATE_MOVE
 						entity.StateFrame = 1
-
-						-- Effects
 						mod:PlaySound(nil, IRFsounds.StevenLand, 2)
-						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position + Vector(0, entity.I2 * 30), Vector.Zero, entity):GetSprite()
+
+						-- Effect
+						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position + Vector(0, entity.V1.X * 30), Vector.Zero, entity):GetSprite()
 						effect.Color = Color(0,0,0, 0.5)
 						effect.Scale = Vector(0.6, 0.6)
-						effect.FlipY = entity.I2 == -1
+						effect.FlipY = entity.V1.X == -1
 					end
 				end
 			end
@@ -537,9 +630,11 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.wallaceUpdate, IRFentities.Type)
 
 function mod:wallaceDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == IRFentities.Wallace then
-		damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
-		target.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 5)
-		target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+		if target.Parent then
+			damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
+			target.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 5)
+			target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+		end
 
 		return false
 	end
@@ -553,7 +648,7 @@ function mod:stevenStaticOverlay()
 		IRF_Steven_Static:Render(Game():GetRoom():GetRenderSurfaceTopLeft(), Vector.Zero, Vector.Zero)
 		IRF_Steven_Static:Play("Static", false)
 		IRF_Steven_Static:Update()
-		
+
 		if IRF_Steven_Static:IsFinished() then
 			IRF_Steven_Static = nil
 		end
