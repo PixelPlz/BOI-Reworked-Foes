@@ -925,11 +925,6 @@ function mod:forgottenBodyInit(entity)
 			entity:GetSprite():Play("Appear", true)
 			entity:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
 
-			-- Off-screen inficator blacklist
-			if OffscreenIndicators then
-				OffscreenIndicators:addOIblacklist(entity.Type, entity.Variant, entity.SubType)
-			end
-
 		-- Chain
 		elseif entity.SubType == IRFentities.ForgottenChain then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE

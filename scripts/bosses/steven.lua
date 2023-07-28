@@ -37,11 +37,6 @@ function mod:stevenInit(entity)
 			entity:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
 
 			entity.SpawnerEntity.Child = entity
-
-			-- Off-screen inficator blacklist
-			if OffscreenIndicators then
-				OffscreenIndicators:addOIblacklist(entity.Type, entity.Variant, -1)
-			end
 		end
 	end
 end
@@ -456,18 +451,25 @@ function mod:stevenUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.stevenUpdate, EntityType.ENTITY_GEMINI)
 
-function mod:lilStevenDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 11 then
+function mod:stevenDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	-- 2nd phase only takes damage when Wallaces take damage
+	if target.Variant == 1 and target:ToNPC().State == NpcState.STATE_SPECIAL then
+		if not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+			return false
+		end
+
+	-- Little Steven
+	elseif target.Variant == 11 then
 		if target.Parent then
 			damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
-			target.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 5)
+			target.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 1)
 			target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
 		end
 
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.lilStevenDMG, EntityType.ENTITY_GEMINI)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.stevenDMG, EntityType.ENTITY_GEMINI)
 
 
 
@@ -477,15 +479,10 @@ function mod:wallaceInit(entity)
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_NO_REWARD)
-		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR | EntityFlag.FLAG_NO_TARGET)
 
 		entity.State = NpcState.STATE_MOVE
 		entity.SplatColor = Color(0,0,0, 1)
-
-		-- Off-screen inficator blacklist
-		if OffscreenIndicators then
-			OffscreenIndicators:addOIblacklist(entity.Type, entity.Variant, -1)
-		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.wallaceInit, IRFentities.Type)
@@ -632,7 +629,7 @@ function mod:wallaceDMG(target, damageAmount, damageFlags, damageSource, damageC
 	if target.Variant == IRFentities.Wallace then
 		if target.Parent then
 			damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
-			target.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 5)
+			target.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 1)
 			target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
 		end
 

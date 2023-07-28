@@ -1,7 +1,13 @@
-Version 3.1.0
+================================================
+    Version 3.1.0 - Across the Edmund-verse
+================================================
 
 -- Reworks / Additions --
 - Steven has been re-reworked!
+- TODO: Gish
+- TODO: Sister Vis
+- TODO: Ultra Pride
+- Maybe TODO: Triachnid?
 
 
 -- Balance changes --
@@ -12,24 +18,29 @@ Version 3.1.0
 - Satan's hand projectile attack is now harder
 - Mr. Fred now shoots a ring of 12 shots after his jump instead of 8
 - Hush Baby now shoots a ring of shots when teleporting
+- Lowered the shotspeed for Cod Worms
 
 
 -- Other changes --
 - C.H.A.D. now uses sounds from Super Meat Boy
-- Added a custom anm2 option for custom Black Bony variants (check the scripts/enemies/blackBony.lua file on how to do it)
+- Added a custom anm2 option for custom Black Bony variants
 
 
 -- Fixes --
 - Fixed some reworked enemies / bosses not moving as they should while charmed or friendly
 - Fixed more reworked enemies / bosses not moving as they should while feared or confused
+- Fixed Cod Worms not taking damage from certain things
 - Fixed Wrath and Super Wrath having missing heads in the bestiary
 - Fixed minor errors with It Lives
 
+- Fixed Scolex not taking damage from Mom's Knife if the mod "Mom's Knife Synergies" is enabled
 
 
 
 
-Version 3.0.5
+================================================
+    Version 3.0.5
+================================================
 
 -- Fixes --
 - Fixed Fallen Angel Delirium sprites not working
@@ -38,8 +49,9 @@ Version 3.0.5
 
 
 
-
-Version 3.0.4
+================================================
+    Version 3.0.4
+================================================
 
 -- Additions --
 - Fallen Angels now have unique Delirium sprites
@@ -58,8 +70,9 @@ Version 3.0.4
 
 
 
-
-Version 3.0.3
+================================================
+    Version 3.0.3
+================================================
 
 -- Additions --
 - Added a separate changelogs button in the Reworked Foes section for DSS if there are multiple DSS sections (for people that couldn't find it before)
@@ -73,8 +86,9 @@ Version 3.0.3
 
 
 
-
-Version 3.0.2
+================================================
+    Version 3.0.2
+================================================
 
 -- Balance changes --
 - It Lives is now easier in Normal Mode
@@ -90,8 +104,9 @@ Version 3.0.2
 
 
 
-
-Version 3.0.1
+================================================
+    Version 3.0.1
+================================================
 
 -- Balance changes --
 - Lowered the Gate's shotspeed during his Host attack
@@ -108,8 +123,9 @@ Version 3.0.1
 
 
 
-
-Version 3.0.0 - The Blood & Guts update!
+================================================
+    Version 3.0.0 - The Blood & Guts update!
+================================================
 
 -- Reworks / Additions --
 - Your future's past awaits...

@@ -772,7 +772,7 @@ function mod:chadDMG(target, damageAmount, damageFlags, damageSource, damageCoun
 		-- Redirect damage from body segments to the head
 		elseif data.head then
 			damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
-			data.head:TakeDamage(damageAmount, damageFlags, damageSource, 5)
+			data.head:TakeDamage(damageAmount, damageFlags, damageSource, 1)
 			data.head:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
 
 			return false

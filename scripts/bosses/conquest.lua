@@ -253,7 +253,6 @@ function mod:conquestPreUpdate(entity)
 					entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS_Y
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK)
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-					entity.Mass = 0.1
 					entity.V1 = Vector(mod:GetSign(not sprite.FlipX), 0)
 
 					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_YELL_A, 0.9)

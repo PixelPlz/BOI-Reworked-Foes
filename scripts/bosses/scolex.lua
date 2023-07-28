@@ -126,7 +126,7 @@ function mod:scolexUpdate(entity)
 
 				-- Body segments
 				else
-					local anim = "Body" .. tostring(mod:Random(1, 3))
+					local anim = "Body" .. tostring(math.random(1, 3))
 					local middle = math.floor(Settings.Length / 2)
 
 					-- Second to last one has its shell broken
@@ -563,7 +563,7 @@ function mod:scolexDMG(target, damageAmount, damageFlags, damageSource, damageCo
 		if damageSource.Type == EntityType.ENTITY_PIN or damageSource.SpawnerType == EntityType.ENTITY_PIN then
 			return false
 
-		elseif not (damageFlags & DamageFlag.DAMAGE_COUNTDOWN > 0) then
+		else
 			local segment = target:ToNPC()
 			local data = segment:GetData()
 
@@ -583,7 +583,7 @@ function mod:scolexDMG(target, damageAmount, damageFlags, damageSource, damageCo
 					end
 
 					damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
-					data.head:TakeDamage(damageAmount, damageFlags, damageSource, 5)
+					data.head:TakeDamage(damageAmount, damageFlags, damageSource, 1)
 					data.head:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
 
 				-- Damage the shell
@@ -597,7 +597,7 @@ function mod:scolexDMG(target, damageAmount, damageFlags, damageSource, damageCo
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.scolexDMG, EntityType.ENTITY_PIN)
+mod:AddPriorityCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, CallbackPriority.LATE, mod.scolexDMG, EntityType.ENTITY_PIN)
 
 function mod:scolexCollision(entity, target, bool)
 	-- Jump over the player

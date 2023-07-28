@@ -28,7 +28,7 @@
 	<entity anm2path="065.011_conquest without horse.anm2" baseHP="500" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" id="65" name="Conquest Without Horse" numGridCollisionPoints="0" portrait="20" shadowSize="19" stageHP="0" variant="11">
 		<gibs amount="12" blood="1" bone="1" eye="0" gut="1" large="1"/>
     </entity>
-	<entity anm2path="065.020_conquest horse.anm2" baseHP="150" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" id="65" name="Conquest Horse" numGridCollisionPoints="0" portrait="20" shadowSize="19" stageHP="0" tags="nodelirium" variant="20">
+	<entity anm2path="065.020_conquest horse.anm2" baseHP="150" boss="1" bossID="38" champion="0" collisionDamage="2" collisionMass="1" collisionRadius="25" friction="1" id="65" name="Conquest Horse" numGridCollisionPoints="0" portrait="20" shadowSize="19" stageHP="0" tags="nodelirium" variant="20">
         <gibs amount="6" blood="1" bone="1" eye="0" gut="0" large="0"/>
     </entity>
 
@@ -95,7 +95,7 @@
 	</entity>
 
 	<!-- Hush Fly attack -->
-    <entity anm2path="296.000_Hush Fly.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="3" collisionRadius="9" friction="1" gridCollision="walls" id="200" name="Hush Fly Attack" numGridCollisionPoints="0" portrait="7" shadowSize="11" shutdoors="false" stageHP="0" tags="fly" variant="4103">
+    <entity anm2path="296.000_Hush Fly.anm2" baseHP="30" boss="0" champion="0" collisionDamage="1" collisionMass="1" collisionRadius="9" friction="1" gridCollision="walls" id="200" name="Hush Fly Attack" numGridCollisionPoints="0" portrait="7" shadowSize="11" shutdoors="false" stageHP="0" tags="fly" variant="4103">
         <bestiary parent="296.0"/>
         <gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0"/>
     	<devolve id="222.0.0" weight="1" />

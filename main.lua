@@ -51,7 +51,7 @@ local generalScripts = {
 	"constants",
 	"utilities",
 	"dss.dssmenu",
-	"bossHealthBars",
+	"compatibility",
 	"misc",
 	"projectiles",
 	"hiddenEnemies",
