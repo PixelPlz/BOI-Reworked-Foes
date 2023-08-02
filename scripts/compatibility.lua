@@ -221,5 +221,46 @@ function mod:postGameStarted()
 		-- Forgotten body
 		OffscreenIndicators:addOIblacklist(IRFentities.Type, IRFentities.BlueBabyExtras, IRFentities.ForgottenBody)
 	end
+
+
+
+	--[[ Fiend Folio ]]--
+	if FiendFolio then
+		-- Flies
+		FiendFolio.AllFlies[IRFentities.Type .. " " .. IRFentities.HushFlyAttack] = true
+
+
+		-- Non-male
+		local nonMale = {
+			{ID = {EntityType.ENTITY_HOST, 3, 40}, Affliction = "Woman"}, -- Soft Host
+			{ID = {EntityType.ENTITY_MONSTRO2, 1, 1}, Affliction = "Woman"}, -- Hera (Gish champion)
+			{ID = {EntityType.ENTITY_MULLIGAN, 40}, Affliction = "Woman"}, -- Mullicocoon
+			{ID = {EntityType.ENTITY_HIVE, 40}, Affliction = "Woman"}, -- Nest (new)
+		}
+		for i, entry in pairs(nonMale) do
+			table.insert(FiendFolio.Nonmale, entry)
+		end
+
+
+		-- LGBTQIA
+		local based = {
+			{ID = {EntityType.ENTITY_PRIDE, 0, 1}, Affliction = "Closeted gay"}, -- Champion Pride
+			{ID = {IRFentities.Type, IRFentities.Wallace}, Affliction = "Pan"}, -- Wallace
+		}
+		for i, entry in pairs(based) do
+			table.insert(FiendFolio.LGBTQIA, entry)
+		end
+
+
+		-- Outliers
+		local outliers = {
+			{ID = {EntityType.ENTITY_WAR, 20}, Affliction = "Horse"}, -- Conquest Horse
+			{ID = {IRFentities.Type, IRFentities.Teratomar}, Affliction = "War criminal"}, -- Teratomar
+			{ID = {EntityType.ENTITY_KEEPER, IRFentities.Coffer}, Affliction = "Inflation fetishist"}, -- Coffer
+		}
+		for i, entry in pairs(outliers) do
+			table.insert(FiendFolio.Outlier, entry)
+		end
+	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.postGameStarted)

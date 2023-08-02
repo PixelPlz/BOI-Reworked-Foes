@@ -55,7 +55,7 @@ function mod:stevenUpdate(entity)
 			if entity.State == NpcState.STATE_MOVE then
 				mod:ChasePlayer(entity, Settings.MoveSpeed)
 
-				if entity.Velocity:Length() > 0.1 then
+				if entity.Velocity:Length() >= 0.5 then
 					mod:LoopingAnim(sprite, "Walk" .. mod:GetDirectionString(entity.Velocity:GetAngleDegrees(), true))
 					mod:FlipTowardsMovement(entity, sprite)
 				else
@@ -122,7 +122,7 @@ function mod:stevenUpdate(entity)
 						-- If there is a path to the player
 						if entity.Pathfinder:HasPathToPos(target.Position) then
 							-- If there is a direct line to the player
-							if Game():GetRoom():CheckLine(entity.Position, target.Position, 1, 0, false, false) then
+							if room:CheckLine(entity.Position, target.Position, 1, 0, false, false) then
 								entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Resized(speed), 0.04)
 
 							else
@@ -135,7 +135,7 @@ function mod:stevenUpdate(entity)
 
 						-- Otherwise stay still
 						else
-							entity.Velocity = mod:StopLerp(entity.Velocity)
+							entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.05)
 						end
 					end
 
@@ -430,7 +430,7 @@ function mod:stevenUpdate(entity)
 					newSteven.Visible = false
 					newSteven.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 					newSteven.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
-					newSteven:AddEntityFlags(EntityFlag.FLAG_NO_BLOOD_SPLASH | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+					newSteven:AddEntityFlags(EntityFlag.FLAG_NO_BLOOD_SPLASH | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 					newSteven.SplatColor = Color(0,0,0, 0)
 
 					newSteven.MaxHitPoints = Settings.SecondPhaseHP
@@ -482,6 +482,7 @@ function mod:wallaceInit(entity)
 		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR | EntityFlag.FLAG_NO_TARGET)
 
 		entity.State = NpcState.STATE_MOVE
+		entity:GetSprite().Offset = Vector(0, 20)
 		entity.SplatColor = Color(0,0,0, 1)
 	end
 end
@@ -525,7 +526,7 @@ function mod:wallaceUpdate(entity)
 
 			-- Conga line
 			if entity.State == NpcState.STATE_MOVE then
-				local anim = "WallWalk"
+				local anim = "WalkHori"
 				if entity.I1 == 1 then
 					anim = "BabyWalk"
 				end

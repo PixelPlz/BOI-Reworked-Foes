@@ -86,10 +86,8 @@ function mod:lustUpdate(entity)
 
 		-- Destroy rocks
 		if data.crushRocks == true then
-			local grid = room:GetGridEntityFromPos(entity.Position + entity.Velocity:Resized(entity.Scale * 26))
-			if grid ~= nil and grid.CollisionClass < 4 and grid.CollisionClass > 1 then
-				grid:Destroy(true)
-			end
+			local pos = entity.Position + entity.Velocity:Resized(entity.Scale * entity.Size) + entity.Velocity:Resized(20)
+			room:DestroyGrid(room:GetGridIndex(pos), true)
 		end
 
 
@@ -355,6 +353,7 @@ function mod:lustDMG(target, damageAmount, damageFlags, damageSource, damageCoun
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.lustDMG, EntityType.ENTITY_LUST)
 
+-- Kiss the player to heal
 function mod:lustHit(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Type == EntityType.ENTITY_PLAYER
 	and ((damageSource.Type == EntityType.ENTITY_LUST and mod:CheckValidMiniboss(damageSource.Entity) == true)
@@ -365,6 +364,7 @@ function mod:lustHit(target, damageAmount, damageFlags, damageSource, damageCoun
 		mod:PlaySound(lust, SoundEffect.SOUND_KISS_LIPS1, 1.1)
 		lust:SetColor(Color(1,1,1, 1, 0.5,0,0), 12, 1, true, false)
 
+		-- Effect
 		local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HEART, 0, lust.Position, Vector.Zero, lust)
 		effect:ToEffect():FollowParent(lust)
 		effect:GetSprite().Offset = Vector(0, -40)

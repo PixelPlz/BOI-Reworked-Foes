@@ -93,14 +93,11 @@ function mod:daddyLongLegsUpdate(entity)
 		if sprite:IsEventTriggered("Land") then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity).DepthOffset = entity.DepthOffset + 10
 			mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
 			mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.1)
 			Game():ShakeScreen(Settings.HeadSmashScreenShake)
 			Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
-
-			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):ToEffect()
-			effect.Scale = 1.5
-			effect.DepthOffset = entity.DepthOffset + 10
 
 			local params = ProjectileParams()
 			-- Daddy Long Legs

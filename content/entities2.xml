@@ -32,7 +32,7 @@
         <gibs amount="6" blood="1" bone="1" eye="0" gut="0" large="0"/>
     </entity>
 
-	<!-- Teratomar AKA Terrytomar -->
+	<!-- Teratomar -->
 	<entity anm2path="teratomar.anm2" baseHP="100" boss="1" bossID="33" champion="0" collisionDamage="2" collisionMass="30" collisionRadius="25" friction="1" gridCollision="walls" hasFloorAlts="true" id="200" name="Teratomar" numGridCollisionPoints="12" portrait="21" shadowSize="27" stageHP="0" variant="4071">
         <bestiary anim="Idle" transform="0,8,1"/>
 		<gibs amount="8" blood="1" bone="1" eye="0" gut="1" large="1" worm="1"/>
@@ -44,7 +44,7 @@
     </entity>
 
 	<!-- Steven 2nd phase -->
-	<entity anm2path="079.001_Steven.anm2" baseHP="100" boss="1" bossID="20" champion="0" collisionDamage="1" collisionMass="0.1" collisionRadius="20" friction="1" id="200" name="Wallace" numGridCollisionPoints="12" portrait="22" shadowSize="0" stageHP="0" variant="4079">
+	<entity anm2path="079.001_Steven.anm2" baseHP="100" boss="1" bossID="20" champion="0" collisionDamage="1" collisionMass="1" collisionRadius="20" collisionRadiusYMulti="1.2" friction="1" id="200" name="Wallace" numGridCollisionPoints="12" portrait="22" shadowSize="0" stageHP="0" variant="4079">
         <gibs amount="4" blood="1" bone="1" eye="1" gut="1" large="0"/>
     </entity>
 

@@ -440,6 +440,14 @@ function mod:itLivesUpdate(entity)
 							Isaac.Spawn(IRFentities.Type, IRFentities.GiantSpike, 0, enemy.Position, Vector.Zero, entity).Target = enemy
 						end
 					end
+					
+					-- Bursting bubble fix
+					if data.burstProjectiles then
+						for i, bubble in pairs(data.burstProjectiles) do
+							bubble:Kill()
+						end
+						data.burstProjectiles = nil
+					end
 				end
 
 
@@ -662,7 +670,7 @@ function mod:itLivesUpdate(entity)
 							pos = entity.Position + entity.V1:Rotated(angle):Resized(distance)
 						end
 
-						pos = room:GetClampedPosition(pos, -10)
+						pos = room:GetClampedPosition(pos, 20)
 
 						-- Target
 						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TARGET, 0, pos, Vector.Zero, entity):ToEffect().Timeout = 30
