@@ -199,7 +199,6 @@ function mod:gishUpdate(entity)
 
 					-- Effects
 					mod:QuickCreep(data.creepType, entity, entity.Position, 5)
-					mod:ShootEffect(entity, 4, Vector(0, -18), data.effectColor, 1, true)
 					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.75)
 					Game():ShakeScreen(7)
 

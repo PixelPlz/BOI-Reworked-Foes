@@ -74,7 +74,7 @@ function mod:maskInfamyUpdate(entity)
 
 		if data.state == States.Idle then
 			-- Movement
-			mod:MoveRandomGridAligned(entity, Settings.MoveSpeed)
+			mod:MoveRandomGridAligned(entity, Settings.MoveSpeed, false, true)
 			-- Get animation direction
 			data.facing = mod:GetDirectionString(entity.Velocity:GetAngleDegrees())
 

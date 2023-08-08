@@ -150,7 +150,7 @@ function mod:chadUpdate(entity)
 					local params = ProjectileParams()
 					params.FallingSpeedModifier = 1
 					params.FallingAccelModifier = -0.1
-					params.Scale = 1 + mod:Random(35) * 0.01
+					params.Scale = 1 + mod:Random(35) / 100
 					entity:FireProjectiles(entity.Position, Vector.FromAngle(360 / (r * 8) * i):Resized(mod:Random(r * 4, r * 4 + 3)), 0, params)
 				end
 			end

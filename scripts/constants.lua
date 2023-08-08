@@ -23,6 +23,8 @@ IRFentities = {
 	Mullicocoon   = Isaac.GetEntityVariantByName("Mullicocoon"),
 	RagPlasma 	  = Isaac.GetEntityVariantByName("Rag Mega Plasma"),
 
+	UltraPrideSketches = 4046, -- Subtype of the entity types he can make sketches of
+
 	BlueBabyExtras = Isaac.GetEntityVariantByName("Forgotten Body (Boss)"),
 		ForgottenBody  = 0,
 		ForgottenChain = 1,
@@ -50,21 +52,23 @@ IRFcolors.ShadyRed   = Color(-1,-1,-1, 1, 1,0,0)
 IRFcolors.Tar 		 = Color(1,1,1, 1);   						IRFcolors.Tar:SetColorize(1,1,1, 1);   IRFcolors.Tar:SetTint(0.5,0.5,0.5, 1)
 IRFcolors.WhiteShot  = Color(1,1,1, 1, 0.5,0.5,0.5);   			IRFcolors.WhiteShot:SetColorize(1,1,1, 1)
 IRFcolors.CrispyMeat = Color(1,1,1, 1);   						IRFcolors.CrispyMeat:SetColorize(0.32,0.25,0.2, 1)
-IRFcolors.Ipecac 	 = Color(1,1,1, 1, 0,0,0);   				IRFcolors.Ipecac:SetColorize(0.7,2,0.7, 1)
-IRFcolors.GreenBlood = Color(0.4,0.8,0.4, 1, 0,0.4,0)
 IRFcolors.SunBeam 	 = Color(1,1,1, 1, 0.3,0.3,0)
 IRFcolors.DustTrail  = Color(0.8,0.8,0.8, 0.8, 0.05,0.025,0);   IRFcolors.DustTrail:SetColorize(1,1,1, 1)
 IRFcolors.BlackBony  = Color(0.18,0.18,0.18, 1)
 IRFcolors.PukeEffect = Color(0,0,0, 1, 0.48,0.36,0.3)
 IRFcolors.PukeOrange = Color(0.5,0.5,0.5, 1, 0.64,0.4,0.16)
+IRFcolors.Sketch	 = Color(0,0,0, 1, 0.48,0.4,0.36)
 --IRFcolors.Delirium   = Color(2.5,2.5,2.5, 1);   				IRFcolors.Delirium:SetColorize(1.25, 1, 1, 1)
 
 IRFcolors.BlueFire 	   = Color(0,1,1, 1, -0.5,0.35,0.9);   IRFcolors.BlueFire:SetColorize(1,1,1, 1)
 IRFcolors.BlueFireShot = Color(1,1,1, 1, 0,0.6,1.2);   	   IRFcolors.BlueFireShot:SetColorize(1,1,1, 1)
 
-IRFcolors.CorpseGreen 	   = Color(1,1,1, 1);   IRFcolors.CorpseGreen:SetColorize(0.75,1,0.5, 1)
+IRFcolors.Ipecac 		   = Color(1,1,1, 1, 0,0,0);   IRFcolors.Ipecac:SetColorize(0.7,2,0.7, 1)
+IRFcolors.GreenCreep 	   = Color(0,0,0, 1, 0,0.5,0)
+IRFcolors.GreenBlood 	   = Color(0.4,0.8,0.4, 1, 0,0.4,0)
+IRFcolors.CorpseGreen 	   = Color(1,1,1, 1);   	   IRFcolors.CorpseGreen:SetColorize(0.75,1,0.5, 1)
 IRFcolors.CorpseGreenTrail = Color(0,0,0, 1, 0.15,0.25,0.07)
-IRFcolors.CorpseYellow 	   = Color(1,1,1, 1);   IRFcolors.CorpseYellow:SetColorize(2,2,1, 1)
+IRFcolors.CorpseYellow 	   = Color(1,1,1, 1);   	   IRFcolors.CorpseYellow:SetColorize(2,2,1, 1) -- Yellowish green
 
 IRFcolors.PortalShot 	  = Color(0.6,0.5,0.8, 1, 0.1,0,0.2)
 IRFcolors.PortalShotTrail = Color(0,0,0, 1, 0.45,0.3,0.6)

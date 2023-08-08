@@ -246,7 +246,7 @@
 	</boss>
 	<!-- Wrath -->
     <boss id="48" variant="0">
-		<color anm2path="048.000_wrath_grey.anm2" scale="1.15" hp="1.15"/>
+		<color anm2path="048.000_wrath_grey.anm2" scale="1.15"/>
 	</boss>
 	<!-- Gluttony -->
     <boss id="49" variant="0">
@@ -258,16 +258,16 @@
 	</boss>
 	<!-- Envy -->
     <boss id="51" variant="0">
-		<color suffix="_pink" scale="1.15" hp="0.9"/>
+		<color suffix="_pink" scale="1.15" hp="0.85"/>
 	</boss>
 	<boss id="51" variant="10">
-		<color suffix="_pink" scale="1.15" hp="0.9"/>
+		<color suffix="_pink" scale="1.15" hp="0.85"/>
 	</boss>
 	<boss id="51" variant="20">
-		<color suffix="_pink" scale="1.15" hp="0.9"/>
+		<color suffix="_pink" scale="1.15" hp="0.85"/>
 	</boss>
 	<boss id="51" variant="30">
-		<color suffix="_pink" scale="1.15" hp="0.9"/>
+		<color suffix="_pink" scale="1.15" hp="0.85"/>
 	</boss>
 	<!-- Pride -->
     <boss id="52" variant="0">

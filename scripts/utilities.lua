@@ -268,7 +268,7 @@ end
 
 
 -- Grid aligned random movement
-function mod:MoveRandomGridAligned(entity, speed, canFly, segmented)
+function mod:MoveRandomGridAligned(entity, speed, canFly, dontDoubleBack)
 	local data = entity:GetData()
 	local room = Game():GetRoom()
 
@@ -315,7 +315,7 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, segmented)
 				opposite = i - 2
 			end
 
-			if gridCollision <= maxValidGridCol and (segmented ~= true or opposite ~= data.movementDirection) then
+			if gridCollision <= maxValidGridCol and (dontDoubleBack ~= true or opposite ~= data.movementDirection) then
 				table.insert(validDirections, i)
 			end
 		end
@@ -345,8 +345,8 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, segmented)
 			data.movementDirection = chosenDirection
 		end
 
-		data.moveTimer = mod:Random(3, 6)
-		data.currentIndex = gridAlignedPos
+		data.moveTimer = mod:Random(1, 4)
+		data.currentIndex = room:GetGridIndex(entity.Position)
 
 
 	-- Move in the selected direction

@@ -13,12 +13,17 @@
 -- Balance changes --
 - Reduced the amount of damage required to break Scolex's armor from 50 to 40 per segment
 - Drowned Hives now shoot diagonally and spawn a Drowned Charger on death instead of creating lingering projectiles
-- Satan now only spawns Nulls instead of Kamikaze Leeches in Hard Mode
 - Satan now has 800 health per phase instead of 600
 - Satan's hand projectile attack is now harder
 - Mr. Fred now shoots a ring of 12 shots after his jump instead of 8
 - Hush Baby now shoots a ring of shots when teleporting
 - Lowered the shotspeed for Cod Worms
+- Tweaked some of It Lives' attacks
+- Lowered the max bounce speed for Envy
+
+- Champion Wrath no longer has increased health
+- Champion Envy now has 15% less health instead of 10%
+- Champion Envy's shot direction now depends on the bounce direction instead of always being the same
 
 
 -- Other changes --

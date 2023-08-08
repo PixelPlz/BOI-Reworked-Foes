@@ -30,13 +30,22 @@ function mod:stevenInit(entity)
 			entity.HitPoints = entity.MaxHitPoints
 			entity.I2 = Settings.TeleportCooldown
 
+
 		-- Little Steven
 		elseif entity.Variant == 11 then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
-			entity:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
 
-			entity.SpawnerEntity.Child = entity
+			-- If spanwed by Steven
+			if entity.SpawnerEntity then
+				entity.SpawnerEntity.Child = entity
+				entity:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
+
+			-- If spawned by himself (why must Fiend Folio ruin things once again)
+			else
+				entity.I1 = 1
+				entity:SetColor(Color(1,0,0, 1), -1, 1, false, false)
+			end
 		end
 	end
 end
@@ -51,7 +60,7 @@ function mod:stevenUpdate(entity)
 
 		--[[ Big Steven ]]--
 		if entity.Variant == 1 then
-			-- When you're walkin'
+			-- When you walkin'
 			if entity.State == NpcState.STATE_MOVE then
 				mod:ChasePlayer(entity, Settings.MoveSpeed)
 
@@ -344,63 +353,72 @@ function mod:stevenUpdate(entity)
 
 		--[[ Little Steven ]]--
 		elseif entity.Variant == 11 then
-			-- Die without a parent
-			if not entity.Parent or entity.Parent:IsDead() then
-				entity:Die()
+			-- Spawned by himself
+			if entity.I1 == 1 then
+				mod:ChasePlayer(entity, Settings.MoveSpeed, true)
+				mod:FlipTowardsMovement(entity, sprite)
 
 
-			-- Big bro is alive :)
+			-- Spawned by Steven
 			else
-				entity.MaxHitPoints = entity.Parent.MaxHitPoints
-				entity.HitPoints = entity.Parent.HitPoints
+				-- Die without a parent
+				if not entity.Parent or entity.Parent:IsDead() then
+					entity:Die()
+					return true
 
-				-- Movement
-				local distance = entity.Parent.Size + entity.Size + Settings.LilStevenMaxDistance
+				-- Big bro is alive :)
+				else
+					entity.MaxHitPoints = entity.Parent.MaxHitPoints
+					entity.HitPoints = entity.Parent.HitPoints
 
-				if entity.Position:Distance(entity.Parent.Position) > distance then
-					entity.Position = mod:Lerp(entity.Position, entity.Parent.Position + (entity.Position - entity.Parent.Position):Resized(distance), 0.2)
+					-- Movement
+					local distance = entity.Parent.Size + entity.Size + Settings.LilStevenMaxDistance
+
+					if entity.Position:Distance(entity.Parent.Position) > distance then
+						entity.Position = mod:Lerp(entity.Position, entity.Parent.Position + (entity.Position - entity.Parent.Position):Resized(distance), 0.2)
+					end
+
+					entity.Velocity = Vector.Zero
+					mod:FlipTowardsTarget(entity, sprite)
+				end
+			end
+
+
+			-- Idle
+			if entity.State == NpcState.STATE_MOVE then
+				-- Shoot
+				if entity.ProjectileCooldown <= 0 then
+					if entity.Position:Distance(target.Position) <= 240 and (entity.I1 == 1 or not (entity.Parent:ToNPC().State == NpcState.STATE_JUMP and entity.Parent:ToNPC().StateFrame > 0)) then
+						entity.State = NpcState.STATE_ATTACK
+						sprite:Play("Attack01", true)
+					end
+
+				else
+					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 				end
 
-				entity.Velocity = Vector.Zero
-				mod:FlipTowardsTarget(entity, sprite)
 
+			-- Shoot
+			elseif entity.State == NpcState.STATE_ATTACK then
+				if sprite:IsEventTriggered("Shoot") then
+					local params = ProjectileParams()
+					params.Variant = ProjectileVariant.PROJECTILE_FCUK
+					params.BulletFlags = ProjectileFlags.GHOST
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(12), 0, params)
+					mod:PlaySound(entity, IRFsounds.StevenDie)
+				end
 
-				-- Idle
-				if entity.State == NpcState.STATE_MOVE then
-					mod:LoopingAnim(sprite, "Walk01")
-
-					-- Shoot
-					if entity.ProjectileCooldown <= 0 then
-						if entity.Position:Distance(target.Position) <= 240 and not (entity.Parent:ToNPC().State == NpcState.STATE_JUMP and entity.Parent:ToNPC().StateFrame > 0) then
-							entity.State = NpcState.STATE_ATTACK
-							sprite:Play("Attack01", true)
-						end
-
-					else
-						entity.ProjectileCooldown = entity.ProjectileCooldown - 1
-					end
-
-
-				-- Shoot
-				elseif entity.State == NpcState.STATE_ATTACK then
-					if sprite:IsEventTriggered("Shoot") then
-						local params = ProjectileParams()
-						params.Variant = ProjectileVariant.PROJECTILE_FCUK
-						params.BulletFlags = ProjectileFlags.GHOST
-						entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(12), 0, params)
-						mod:PlaySound(entity, IRFsounds.StevenDie)
-					end
-
-					if sprite:IsFinished() then
-						entity.State = NpcState.STATE_MOVE
-						entity.ProjectileCooldown = Settings.Cooldown
-					end
+				if sprite:IsFinished() then
+					entity.State = NpcState.STATE_MOVE
+					entity.ProjectileCooldown = Settings.Cooldown
 				end
 			end
 		end
 
 
+
 		if entity.FrameCount > 1 then
+			-- Big Steven death
 			if entity.Variant == 1 and entity:IsDead() and entity.State ~= NpcState.STATE_SPECIAL then
 				mod:PlaySound(nil, IRFsounds.StevenDie, 1.25)
 
@@ -443,7 +461,9 @@ function mod:stevenUpdate(entity)
 					SFXManager():StopLoopingSounds()
 				end
 
-			else
+
+			-- If not dead Little Steven that spawned by itself
+			elseif not (entity.Variant == 11 and entity.I1 == 1 and entity:IsDead()) then
 				return true
 			end
 		end
@@ -459,7 +479,7 @@ function mod:stevenDMG(target, damageAmount, damageFlags, damageSource, damageCo
 		end
 
 	-- Little Steven
-	elseif target.Variant == 11 then
+	elseif target.Variant == 11 and target:ToNPC().I1 ~= 1 then
 		if target.Parent then
 			damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
 			target.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 1)

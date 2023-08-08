@@ -231,17 +231,15 @@ function mod:cofferDeath(entity)
 		local params = ProjectileParams()
 		params.Variant = ProjectileVariant.PROJECTILE_COIN
 
+		-- Single shot aimed at the player
 		if entity.I1 == 1 then
 			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(8), 0, params)
 
-		elseif entity.I1 == 3 then
-			for i = 0, 2 do
-				entity:FireProjectiles(entity.Position, Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees() + (i * 120)):Resized(8), 0, params)
-			end
-
+		-- 4 shots in a X / + pattern
 		elseif entity.I1 == 4 then
 			entity:FireProjectiles(entity.Position, Vector(8, 4), mod:Random(6, 7), params)
 
+		-- Ring of 8 shots
 		elseif entity.I1 >= 8 then
 			entity:FireProjectiles(entity.Position, Vector(8, 8), 8, params)
 

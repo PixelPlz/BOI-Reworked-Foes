@@ -9,20 +9,18 @@ local Settings = {
 
 
 function mod:dartFlyInit(entity)
-	local sprite = entity:GetSprite()
+	entity.PositionOffset = Vector(0, -16)
+	entity.ProjectileCooldown = Settings.Cooldown
 
+	local sprite = entity:GetSprite()
 	sprite.Rotation = 0
-	sprite.Offset = Vector(0, -14)
-	entity.ProjectileCooldown = Settings.Cooldown * 1.5
+	sprite.FlipX = false -- Fix for FF Honeydrop spawns
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.dartFlyInit, EntityType.ENTITY_DART_FLY)
 
 function mod:dartFlyUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
-
-	-- Fix for FF Honeydrop spawns
-	sprite.FlipX = false
 
 
 	-- Idle

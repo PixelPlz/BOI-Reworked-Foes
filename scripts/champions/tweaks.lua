@@ -674,8 +674,10 @@ function mod:cageChampionUpdate(entity)
 				entity.I1 = 0
 				entity.I2 = 1
 				entity.V1 = Vector(mod:Random(359), 0)
+				mod:PlaySound(nil, SoundEffect.SOUND_HEARTOUT, 0.6)
 			end
 
+			-- Creep + projectiles
 			if entity.I2 == 1 and entity:IsFrame(2, 0) then
 				for i = 0, 3 do
 					local params = ProjectileParams()
@@ -686,10 +688,15 @@ function mod:cageChampionUpdate(entity)
 
 					local position = entity.Position + Vector.FromAngle(entity.V1.X + i * 90) * ((entity.I1 + 3) * 20)
 
-					-- Don't spawn the creep and projectiles outside of the room
+					-- Don't spawn them outside of the room
 					if Game():GetRoom():IsPositionInRoom(position, 0) then
 						entity:FireProjectiles(position, mod:RandomVector(), 0, params)
 						mod:QuickCreep(EffectVariant.CREEP_GREEN, entity, position, 1.6 - (entity.I1 * 0.1), 60)
+
+						-- Effect
+						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 4 - math.ceil(entity.I1 / 3), position, Vector.Zero, entity):GetSprite()
+						effect.Color = IRFcolors.CageGreenCreep
+						effect.Scale = Vector(0.85, 0.85)
 					end
 				end
 

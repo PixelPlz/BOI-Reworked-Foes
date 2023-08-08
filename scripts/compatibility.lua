@@ -189,7 +189,9 @@ function mod:postGameStarted()
 
 		-- Blacklists
 		-- Steven
-		HPBars.BossIgnoreList["79.11"] = true -- Little Steven
+		HPBars.BossIgnoreList["79.11"] = function(entity) -- Little Steven
+			return entity:ToNPC().I1 ~= 1
+		end
 		HPBars.BossIgnoreList["79.1"] = function(entity) -- 2nd phase delay
 			return entity:ToNPC().State == NpcState.STATE_SPECIAL and entity:ToNPC().StateFrame == 0
 		end
@@ -235,7 +237,6 @@ function mod:postGameStarted()
 			{ID = {EntityType.ENTITY_HOST, 3, 40}, Affliction = "Woman"}, -- Soft Host
 			{ID = {EntityType.ENTITY_MONSTRO2, 1, 1}, Affliction = "Woman"}, -- Hera (Gish champion)
 			{ID = {EntityType.ENTITY_MULLIGAN, 40}, Affliction = "Woman"}, -- Mullicocoon
-			{ID = {EntityType.ENTITY_HIVE, 40}, Affliction = "Woman"}, -- Nest (new)
 		}
 		for i, entry in pairs(nonMale) do
 			table.insert(FiendFolio.Nonmale, entry)
@@ -246,6 +247,7 @@ function mod:postGameStarted()
 		local based = {
 			{ID = {EntityType.ENTITY_PRIDE, 0, 1}, Affliction = "Closeted gay"}, -- Champion Pride
 			{ID = {IRFentities.Type, IRFentities.Wallace}, Affliction = "Pan"}, -- Wallace
+			{ID = {EntityType.ENTITY_HIVE, 40}, Affliction = "Trans"}, -- Nest (new)
 		}
 		for i, entry in pairs(based) do
 			table.insert(FiendFolio.LGBTQIA, entry)

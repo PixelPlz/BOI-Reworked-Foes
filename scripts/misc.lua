@@ -75,18 +75,6 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.launchedBoomFlyUpdate, Entit
 
 
 
---[[ Ultra Pride baby ]]--
-function mod:florianInit(entity)
-	if entity.Variant == 2 then
-		local fly = Isaac.Spawn(EntityType.ENTITY_ETERNALFLY, 0, 0, entity.Position, Vector.Zero, nil)
-		fly.Parent = entity
-		entity.Child = fly
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.florianInit, EntityType.ENTITY_BABY)
-
-
-
 --[[ Chubber ]]--
 function mod:chubberInit(entity)
 	if entity.Variant == 22 then

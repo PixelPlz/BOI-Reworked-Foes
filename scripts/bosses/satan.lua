@@ -132,7 +132,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.satanUpdate, EntityType.ENTITY_S
 
 -- Replace Kamikaze Leeches
 function mod:kLeechInit(entity)
-	if entity.Variant == 1 and entity.SpawnerType == EntityType.ENTITY_SATAN and ((entity.SpawnerVariant == 0 and Game().Difficulty > 0) or entity.SpawnerVariant == 10) then
+	if entity.Variant == 1 and entity.SpawnerType == EntityType.ENTITY_SATAN then
 		entity:Remove()
 
 		-- Fallen phase Nulls

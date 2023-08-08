@@ -105,7 +105,7 @@ mod:LoadScripts(enemyScripts, "enemies")
 -- Minibosses
 local minibossScripts = {
 	"sloth",
-	--"ultraPride",
+	"ultraPride",
 	"lust",
 	"wrath",
 	"gluttony",
