@@ -52,16 +52,20 @@ function mod:lumpUpdate(entity)
 
 	-- Go to position
 	elseif entity.State == NpcState.STATE_MOVE then
-		entity.V1 = target.Position + mod:RandomVector(mod:Random(200, 300))
-		entity.V1 = room:FindFreePickupSpawnPosition(entity.V1, 40, true, false)
+		entity.TargetPosition = target.Position + mod:RandomVector(mod:Random(160, 280))
+		entity.TargetPosition = room:FindFreePickupSpawnPosition(entity.TargetPosition, 40, true, false)
 
+		-- Check if this spot far enough away from any players
+		local nearestPlayerPos = Game():GetNearestPlayer(entity.TargetPosition).Position
 		local minDistance = 160
-		if room:GetRoomShape() == RoomShape.ROOMSHAPE_IV then
-			minDistance = 120
+
+		local shape = room:GetRoomShape()
+		if shape == RoomShape.ROOMSHAPE_IH or shape == RoomShape.ROOMSHAPE_IV then
+			minDistance = 100
 		end
 
-		if entity.StateFrame <= 0 and entity.V1:Distance(Game():GetNearestPlayer(entity.Position).Position) >= minDistance then
-			entity.Position = entity.V1
+		if entity.StateFrame <= 0 and entity.TargetPosition:Distance(nearestPlayerPos) >= minDistance then
+			entity.Position = entity.TargetPosition
 			entity.State = NpcState.STATE_JUMP
 			sprite:Play("Emerge", true)
 			entity.Visible = true

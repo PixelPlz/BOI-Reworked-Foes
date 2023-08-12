@@ -6,8 +6,8 @@
 - Steven has been re-reworked!
 - TODO: Gish
 - TODO: Sister Vis
-- TODO: Ultra Pride
-- Maybe TODO: Triachnid?
+- TODO: Triachnid
+- Ultra Pride has been reworked!
 
 
 -- Balance changes --
@@ -18,6 +18,8 @@
 - Mr. Fred now shoots a ring of 12 shots after his jump instead of 8
 - Hush Baby now shoots a ring of shots when teleporting
 - Lowered the shotspeed for Cod Worms
+- It lives no longer pushes away tears and has damage reduction when entering his last phase
+- Reduced the duration of It Lives' blood cell attack
 - Tweaked some of It Lives' attacks
 - Lowered the max bounce speed for Envy
 
@@ -30,15 +32,18 @@
 - C.H.A.D. now uses sounds from Super Meat Boy
 - Added a custom anm2 option for custom Black Bony variants
 
+- Added compatibility with Fiend Folio trinkets that affect female enemies
+
 
 -- Fixes --
 - Fixed some reworked enemies / bosses not moving as they should while charmed or friendly
 - Fixed more reworked enemies / bosses not moving as they should while feared or confused
 - Fixed Cod Worms not taking damage from certain things
 - Fixed Wrath and Super Wrath having missing heads in the bestiary
+- Fixed Dart Flies having messed up reflections
 - Fixed minor errors with It Lives
 
-- Fixed Scolex not taking damage from Mom's Knife if the mod "Mom's Knife Synergies" is enabled
+- Fixed Scolex not taking damage from Mom's Knife if the mod "Mom's Knife Synergies" is enabled (and hopefully in other cases too)
 
 
 

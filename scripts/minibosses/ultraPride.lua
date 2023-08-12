@@ -3,13 +3,19 @@ local mod = BetterMonsters
 local Settings = {
 	Cooldown = 80,
 
+	-- Edmund
+	EdmundSpeed = 3.75,
+	MaxSpawns = 2, -- +1 without Florian
+
 	-- Florian
 	FlorianHealthMulti = 1.5,
+	FlorianMaxDistance = 80,
+	FlorianSpeed = 4, -- x0.5 while following Ed
 	MinSketchLifeTime = 100,
 	TeleportCooldown = {60, 240},
 }
 
-IRFultraPrideSketches = {
+IRFultraPrideSketches = { -- Variant = 0, Subtype = IRFentities.UltraPrideSketches
 	EntityType.ENTITY_CLOTTY,
 	EntityType.ENTITY_CHARGER,
 	EntityType.ENTITY_GLOBIN,
@@ -21,7 +27,7 @@ IRFultraPrideSketches = {
 --[[ Edmund ]]--
 function mod:edmundInit(entity)
 	if entity.Variant == 2 then
-		entity.ProjectileCooldown = Settings.Cooldown / 2
+		entity.ProjectileCooldown = mod:Random(Settings.Cooldown / 2, Settings.Cooldown)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.edmundInit, EntityType.ENTITY_SLOTH)
@@ -34,7 +40,7 @@ function mod:edmundUpdate(entity)
 
 		-- Chillin'
 		if entity.State == NpcState.STATE_MOVE then
-			mod:MoveRandomGridAligned(entity, 3.75)
+			mod:MoveRandomGridAligned(entity, Settings.EdmundSpeed)
 			entity:AnimWalkFrame("WalkHori", "WalkVert", 0.1)
 
 			if entity.ProjectileCooldown <= 0 then
@@ -45,30 +51,24 @@ function mod:edmundUpdate(entity)
 					count = count + #Isaac.FindByType(entry, 0, 0, 								false, true)
 				end
 
-				-- Max spawns depend on if Florian is alive and the room shape
-				local maxSpawns = 2
-
+				-- Max spawns depend on if Florian is alive and if there are multiple Edmunds
+				local maxSpawns = Settings.MaxSpawns
 				if not entity.Child and Isaac.CountEntities(nil, entity.Type, entity.Variant, entity.SubType) <= 1 then
 					maxSpawns = maxSpawns + 1
 				end
 
-				local shape = Game():GetRoom():GetRoomShape()
-				if shape == RoomShape.ROOMSHAPE_1x2 or shape == RoomShape.ROOMSHAPE_2x1 or shape >= 8 then
-					maxSpawns = maxSpawns + 1
-				end
 
 				-- Summon a sketch monster
-				if count < maxSpawns -- Don't have more than 3 spawns active
+				if count < maxSpawns -- Don't have more than 2 / 3 spawns active
 				and ((entity.Child and count <= 0 and mod:Random(2) ~= 0) -- More likely to choose this if there are none spawned and Florian is alive
 				or mod:Random(1) == 1) then
 					entity.State = NpcState.STATE_SUMMON
-					sprite:Play("Attack", true)
+					sprite:Play("Summon", true)
 
 				-- Shoot
 				elseif entity.Position:Distance(target.Position) <= 320 then
 					entity.State = NpcState.STATE_ATTACK
-					sprite:Play("AttackOld", true)
-					mod:PlaySound(entity, SoundEffect.SOUND_ANGRY_GURGLE, 1, 0.95)
+					sprite:Play("Attack", true)
 				end
 
 			else
@@ -80,19 +80,26 @@ function mod:edmundUpdate(entity)
 		elseif entity.State == NpcState.STATE_ATTACK then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
+			-- Face the target before shooting
 			if not sprite:WasEventTriggered("Shoot") then
 				mod:FlipTowardsTarget(entity, sprite)
 			end
 
-			if sprite:IsEventTriggered("Shoot") then
+
+			if sprite:IsEventTriggered("Sound") then
+				mod:PlaySound(entity, SoundEffect.SOUND_ANGRY_GURGLE, 1, 0.9)
+
+			-- Start shooting
+			elseif sprite:IsEventTriggered("Shoot") then
 				entity.I1 = 0
 				entity.I2 = 1
 				entity.TargetPosition = (target.Position - entity.Position):Normalized()
 
-				mod:ShootEffect(entity, 2, Vector(mod:GetSign(sprite.FlipX) * -14, -16), IRFcolors.GreenCreep)
+				mod:ShootEffect(entity, 2, Vector(mod:GetSign(sprite.FlipX) * -12, -14), IRFcolors.GreenCreep)
 				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_SLOPPY_ROAR)
 				mod:PlaySound(nil, SoundEffect.SOUND_HEARTOUT, 0.75)
 			end
+
 
 			-- Creep + projectiles
 			if entity.I2 == 1 and entity:IsFrame(entity.I1 % 2 + 1, 0) then
@@ -135,9 +142,20 @@ function mod:edmundUpdate(entity)
 		elseif entity.State == NpcState.STATE_SUMMON then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
-			if sprite:IsEventTriggered("Shoot") then
+			if sprite:IsEventTriggered("Sound") then
+				local sound = SoundEffect.SOUND_PAPER_OUT
+				if sprite:WasEventTriggered("Shoot") == true then
+					sound = SoundEffect.SOUND_PAPER_IN
+				end
+				mod:PlaySound(nil, sound, 0.9)
+
+			elseif sprite:IsEventTriggered("Shoot") then
 				local selectedSpawn = mod:RandomIndex(IRFultraPrideSketches)
-				Isaac.Spawn(selectedSpawn, 0, IRFentities.UltraPrideSketches, entity.Position + Vector(0, 20), Vector.Zero, entity)
+
+				local dir = mod:ClampVector((target.Position - entity.Position):Normalized(), 90)
+				local pos = entity.Position + dir:Resized(30)
+
+				Isaac.Spawn(selectedSpawn, 0, IRFentities.UltraPrideSketches, Game():GetRoom():FindFreeTilePosition(pos, 0), Vector.Zero, entity)
 				mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 			end
 
@@ -169,9 +187,9 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.edmundCollide, EntityType
 --[[ Florian ]]--
 function mod:florianInit(entity)
 	if entity.Variant == 2 then
-		entity.MaxHitPoints = entity.MaxHitPoints * 1.5
+		entity.MaxHitPoints = entity.MaxHitPoints * Settings.FlorianHealthMulti
 		entity.HitPoints = entity.MaxHitPoints
-		entity.ProjectileCooldown = Settings.Cooldown
+		entity.ProjectileCooldown = mod:Random(Settings.Cooldown, Settings.Cooldown * 2)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.florianInit, EntityType.ENTITY_BABY)
@@ -191,20 +209,28 @@ function mod:florianUpdate(entity)
 			return false
 		end
 
+		-- Effect for teleporting
+		local function teleportEffect()
+			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 5, entity.Position, Vector.Zero, entity):GetSprite()
+			effect.Color = Color(0,0,0, 0.5)
+			effect.Offset = Vector(0, -18)
+			effect.Scale = Vector(1, 0.75)
+		end
+
 
 		-- Chillin'
 		if entity.State == NpcState.STATE_MOVE then
 			-- Follow Ed if he's alive
 			if entity.Parent then
-				if entity.Position:Distance(entity.Parent.Position) <= 80 then
+				if entity.Position:Distance(entity.Parent.Position) <= Settings.FlorianMaxDistance then
 					entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.15)
 				else
-					entity.Velocity = mod:Lerp(entity.Velocity, (entity.Parent.Position - entity.Position):Resized(4), 0.15)
+					entity.Velocity = mod:Lerp(entity.Velocity, (entity.Parent.Position - entity.Position):Resized(Settings.FlorianSpeed), 0.15)
 				end
 
 			-- Go after the player otherwise
 			else
-				mod:ChasePlayer(entity, 2, true)
+				mod:ChasePlayer(entity, Settings.FlorianSpeed / 2, true)
 			end
 
 			mod:LoopingAnim(sprite, "Move")
@@ -225,17 +251,8 @@ function mod:florianUpdate(entity)
 				-- Transform a sketch
 				if #sketches > 0 and mod:Random(1) == 1 then
 					entity.State = NpcState.STATE_SUMMON
-					sprite:Play("Attack", true)
+					sprite:Play("Transform", true)
 					data.chosenSketch = mod:RandomIndex(sketches)
-
-					-- Connector beam
-					local beam = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.KINETI_BEAM, 0, entity.Position, Vector.Zero, entity):ToEffect()
-					beam.Parent = entity
-					beam:FollowParent(beam.Parent)
-					beam.Target = data.chosenSketch
-					entity.Child = beam
-					beam.DepthOffset = entity.DepthOffset + data.chosenSketch.DepthOffset
-
 
 				-- Shoot
 				elseif entity.Position:Distance(target.Position) <= 240 then
@@ -250,14 +267,13 @@ function mod:florianUpdate(entity)
 
 			-- Teleport if Ed is dead
 			if not entity.Parent then
-				if entity.I1 <= 0 then
-					entity.I1 = mod:Random(Settings.TeleportCooldown[1], Settings.TeleportCooldown[2])
+				if entity.StateFrame <= 0 then
+					entity.StateFrame = mod:Random(Settings.TeleportCooldown[1], Settings.TeleportCooldown[2])
 					entity.State = NpcState.STATE_JUMP
 					sprite:Play("Vanish", true)
-					entity.StateFrame = 0
 
 				else
-					entity.I1 = entity.I1 - 1
+					entity.StateFrame = entity.StateFrame - 1
 				end
 			end
 
@@ -272,11 +288,24 @@ function mod:florianUpdate(entity)
 				params.Scale = 1.25
 				entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(10), 0, params)
 				mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
+
+				-- Effect
+				local c = IRFcolors.RagManPurple
+				local color = Color(c.R,c.G,c.B, 0.6, c.RO,c.GO,c.BO)
+				mod:ShootEffect(entity, 5, Vector(0, -18), color, 0.9)
 			end
 
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
-				entity.ProjectileCooldown = Settings.Cooldown
+
+				-- Attack faster if Ed is dead
+				if not entity.Parent then
+					entity.ProjectileCooldown = Settings.Cooldown / 4
+					entity.StateFrame = entity.StateFrame - 30
+
+				else
+					entity.ProjectileCooldown = Settings.Cooldown
+				end
 			end
 
 
@@ -284,29 +313,49 @@ function mod:florianUpdate(entity)
 		elseif entity.State == NpcState.STATE_SUMMON then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
-			-- Get rid of the connector beam
-			if entity.Child and data.chosenSketch and (not data.chosenSketch:Exists() or data.chosenSketch:HasMortalDamage()) then
-				entity.Child:Remove()
+			-- Get rid of the connector beam if the sketch doesn't exist anymore
+			if data.beam and data.chosenSketch and (not data.chosenSketch:Exists() or data.chosenSketch:HasMortalDamage()) then
+				data.beam:Remove()
+				data.beam = nil
 				data.chosenSketch = nil
+
+				-- Cancel the attack entirely if it dies before the laser
+				if not sprite:WasEventTriggered("Shoot") then
+					sprite:Play("TransformCancel", true)
+				end
 			end
 
-			-- Only shoot if the sketch is still alive
-			if sprite:IsEventTriggered("Shoot") and data.chosenSketch then
-				local pos = data.chosenSketch.Position
 
-				-- Create laser
-				local laser_ent_pair = {laser = EntityLaser.ShootAngle(2, entity.Position, (pos - entity.Position):GetAngleDegrees(), 3, Vector(0, entity.SpriteScale.Y * -34), entity), entity}
-				local laser = laser_ent_pair.laser
+			if data.chosenSketch then
+				-- Connector beam
+				if sprite:IsEventTriggered("Jump") then
+					local beam = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.KINETI_BEAM, 0, entity.Position, Vector.Zero, entity):ToEffect()
+					data.beam = beam
 
-				-- Set up parameters
-				laser:SetMaxDistance(entity.Position:Distance(pos))
-				laser.Mass = 0
-				laser.DepthOffset = entity.DepthOffset + 10
-				laser.OneHit = true
-				laser.CollisionDamage = 0
-				laser:SetColor(Color(1,1,1, 1, 0.2,0.1,0.8), 0, 1, false, false)
+					beam.Parent = entity
+					beam:FollowParent(beam.Parent)
+					beam.Target = data.chosenSketch
+					beam.DepthOffset = entity.DepthOffset + data.chosenSketch.DepthOffset
 
-				mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
+
+				-- Laser
+				elseif sprite:IsEventTriggered("Shoot") then
+					local pos = data.chosenSketch.Position
+
+					-- Create laser
+					local laser_ent_pair = {laser = EntityLaser.ShootAngle(2, entity.Position, (pos - entity.Position):GetAngleDegrees(), 3, Vector(0, entity.SpriteScale.Y * -30), entity), entity}
+					local laser = laser_ent_pair.laser
+
+					-- Set up parameters
+					laser:SetMaxDistance(entity.Position:Distance(pos))
+					laser.Mass = 0
+					laser.DepthOffset = entity.DepthOffset - 10
+					laser.OneHit = true
+					laser.CollisionDamage = 0
+					laser:SetColor(Color(1,1,1, 1, 0.2,0.1,0.8), 0, 1, false, false)
+
+					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
+				end
 			end
 
 			if sprite:IsFinished() then
@@ -319,43 +368,43 @@ function mod:florianUpdate(entity)
 		elseif entity.State == NpcState.STATE_JUMP then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
-			if entity.StateFrame == 0 then
-				if sprite:IsEventTriggered("Jump") then
-					entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-					entity.Visible = false
-					mod:PlaySound(nil, SoundEffect.SOUND_HELL_PORTAL2, 0.75)
+			if sprite:IsEventTriggered("Jump") then
+				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+				entity.Visible = false
+				mod:PlaySound(nil, SoundEffect.SOUND_HELL_PORTAL2, 0.75)
+				teleportEffect()
+			end
 
-					-- Effect
-					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 5, entity.Position, Vector.Zero, entity):GetSprite()
-					effect.Color = Color(0,0,0, 0.5)
-					effect.Offset = Vector(0, -18)
-					effect.Scale = Vector(1, 0.75)
-				end
+			if sprite:IsFinished() then
+				entity.State = NpcState.STATE_IDLE
+			end
 
-				if sprite:IsFinished() then
-					entity.StateFrame = 1
-				end
+		-- Find a good spot to teleport to
+		elseif entity.State == NpcState.STATE_IDLE then
+			entity.TargetPosition = target.Position + mod:RandomVector(mod:Random(160, 280))
+			entity.TargetPosition = Game():GetRoom():GetClampedPosition(entity.TargetPosition, 20)
 
-			elseif entity.StateFrame == 1 then
-				entity.V1 = target.Position + mod:RandomVector(mod:Random(160, 280))
-				entity.V1 = Game():GetRoom():GetClampedPosition(entity.V1, 20)
+			-- Check if this spot far enough away from any players
+			local nearestPlayerPos = Game():GetNearestPlayer(entity.TargetPosition).Position
+			local minDistance = 160
 
-				local minDistance = 160
-				if room:GetRoomShape() == RoomShape.ROOMSHAPE_IV then
-					minDistance = 120
-				end
+			local shape = room:GetRoomShape()
+			if shape == RoomShape.ROOMSHAPE_IH or shape == RoomShape.ROOMSHAPE_IV then
+				minDistance = 100
+			end
 
-				if entity.V1:Distance(Game():GetNearestPlayer(entity.Position).Position) >= minDistance then
-					entity.Position = entity.V1
-					entity.State = NpcState.STATE_STOMP
-					sprite:Play("Vanish2", true)
-					entity.Visible = true
+			if entity.TargetPosition:Distance(nearestPlayerPos) >= minDistance then
+				entity.Position = entity.TargetPosition
+				entity.State = NpcState.STATE_STOMP
+				sprite:Play("Vanish2", true)
+				entity.Visible = true
+				teleportEffect()
 
-					-- Effect
-					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 5, entity.Position, Vector.Zero, entity):GetSprite()
-					effect.Color = Color(0,0,0, 0.5)
-					effect.Offset = Vector(0, -18)
-					effect.Scale = Vector(1, 0.75)
+				-- Gain an eternal fly if he doesn't have one
+				if entity.Child == nil then
+					local fly = Isaac.Spawn(EntityType.ENTITY_ETERNALFLY, 0, 0, entity.Position, Vector.Zero, entity)
+					fly.Parent = entity
+					entity.Child = fly
 				end
 			end
 
@@ -410,14 +459,15 @@ local function isSketch(entity)
 	return false
 end
 
--- Transform sketches, don't hurt the player with the laser
+-- Transform sketches
 function mod:florianLaser(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.Type == EntityType.ENTITY_BABY and damageSource.Variant == 2 and damageFlags & DamageFlag.DAMAGE_LASER > 0 then
-		for i, entry in pairs(IRFultraPrideSketches) do
-			if target.Type == entry and isSketch(target) == true then
-				target:Remove()
-				Isaac.Spawn(target.Type, target.Variant, 0, target.Position, Vector.Zero, target.SpawnerEntity)
-			end
+		if target.Index == damageSource.Entity:GetData().chosenSketch.Index then
+			target:Remove()
+			Isaac.Spawn(target.Type, target.Variant, 0, target.Position, Vector.Zero, target.SpawnerEntity):SetColor(IRFcolors.PortalSpawn, 15, 1, true, false)
+
+			mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND, 0.8)
+			mod:PlaySound(nil, SoundEffect.SOUND_EDEN_GLITCH, 1, 0.9)
 		end
 
 		return false
@@ -538,7 +588,7 @@ function mod:mawSketchEffects(effect)
 		for i, maw in pairs(Isaac.FindByType(EntityType.ENTITY_MAW, 0, IRFentities.UltraPrideSketches, false, false)) do
 			if maw:ToNPC().State == NpcState.STATE_ATTACK and maw.Position:Distance(effect.Position) <= 0 then -- Of course they don't have a spawner entity set...
 				local c = IRFcolors.Sketch
-				effect:GetSprite().Color = Color(c.R,c.G,c.B, 0.8, c.RO,c.GO,c.BO)
+				effect:GetSprite().Color = Color(c.R,c.G,c.B, 0.6, c.RO,c.GO,c.BO)
 			end
 		end
 	end

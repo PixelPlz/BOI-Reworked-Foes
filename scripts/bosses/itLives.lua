@@ -303,12 +303,13 @@ function mod:itLivesUpdate(entity)
 			end
 
 
-			-- Count alive enemies
-			local spawnedEnemyCount = 0
+			-- Check if he can come down or not
+			local canComeDown = true
 
 			for i, enemy in pairs(Isaac.GetRoomEntities()) do
 				if isValidEnemy(enemy) == true or (enemy.Type == EntityType.ENTITY_PROJECTILE and enemy.Variant == ProjectileVariant.PROJECTILE_MEAT) then
-					spawnedEnemyCount = spawnedEnemyCount + 1
+					canComeDown = false
+					break
 				end
 			end
 
@@ -927,7 +928,7 @@ function mod:itLivesUpdate(entity)
 				end
 
 				-- Come down if all enemies are dead
-				if spawnedEnemyCount <= 0 then
+				if canComeDown == true then
 					-- Delay before coming down
 					if entity.StateFrame <= 0 then
 						entity.State = NpcState.STATE_STOMP
@@ -990,7 +991,7 @@ function mod:itLivesUpdate(entity)
 							local evenOrNot = entity.I1 % 2
 							local pos = basePos + Vector.FromAngle(direction):Rotated(90):Resized(i * 100 + evenOrNot * 40)
 
-							local shot = mod:FireProjectiles(entity, pos, Vector.FromAngle(direction):Resized(6.66), 0, params)
+							local shot = mod:FireProjectiles(entity, pos, Vector.FromAngle(direction):Resized(6.5), 0, params)
 							shot:GetSprite():Load("gfx/blood cell projectile.anm2", true)
 
 							-- Bursting cell
@@ -1014,7 +1015,7 @@ function mod:itLivesUpdate(entity)
 
 
 				-- Come down after all the lines have spawned
-				elseif spawnedEnemyCount <= 0 then
+				elseif canComeDown == true then
 					-- Delay before coming down
 					if entity.StateFrame <= 0 then
 						entity.State = NpcState.STATE_STOMP
@@ -1337,11 +1338,6 @@ function mod:itLivesDMG(target, damageAmount, damageFlags, damageSource, damageC
 	if target.Variant == 1 then
 		-- Don't take damage from his spawns
 		if damageSource.SpawnerType == target.Type then
-			return false
-
-		-- Reduced damage during enrage animation
-		elseif target:ToNPC().State == NpcState.STATE_SPECIAL and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
-			target:TakeDamage(damageAmount / 2, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
 			return false
 
 		-- Grunt on high damage (like Mom's Heart)

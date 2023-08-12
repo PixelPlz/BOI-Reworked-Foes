@@ -841,9 +841,12 @@ end
 
 
 -- Print the color of an entity for debugging
-function mod:PrintColors(entity)
-	local sprite = entity:GetSprite()
+function mod:GetColorString(c)
+	return c.R .. "," .. c.G .. "," .. c.B .. " - " .. c.A .. " - " .. c.RO .. "," .. c.GO .. "," .. c.BO
+end
+
+function mod:PrintEntityColors(entity)
 	print()
-	print("entity color:  " .. entity.Color.R .. ", " .. entity.Color.G .. ", " .. entity.Color.B .. "  -  " .. entity.Color.RO .. ", " .. entity.Color.GO .. ", " .. entity.Color.BO)
-	print("sprite color:  " .. sprite.Color.R .. ", " .. sprite.Color.G .. ", " .. sprite.Color.B .. "  -  " .. sprite.Color.RO .. ", " .. sprite.Color.GO .. ", " .. sprite.Color.BO)
+	print("entity color:  " .. mod:GetColorString(entity.Color))
+	print("sprite color:  " .. mod:GetColorString(entity:GetSprite().Color))
 end

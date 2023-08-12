@@ -371,7 +371,11 @@ function mod:gishUpdate(entity)
 		-- Spit out a Clot
 		elseif entity.State == NpcState.STATE_SUMMON then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
-			mod:FlipTowardsTarget(entity, sprite, true)
+
+			-- Face the target before shooting
+			if not sprite:WasEventTriggered("Shoot") then
+				mod:FlipTowardsTarget(entity, sprite)
+			end
 
 			if sprite:IsEventTriggered("Shoot") then
 				-- Lobbed Clot
