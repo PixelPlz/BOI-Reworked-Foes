@@ -746,7 +746,7 @@ function mod:gishFallingShot(projectile)
 
 		-- From the ceiling
 		if projectile:GetData().fallingShot then
-			local creep = mod:QuickCreep(spawnerData.creepType, entity, projectile.Position, 2.5, -1)
+			local creep = mod:QuickCreep(spawnerData.creepType, projectile.SpawnerEntity, projectile.Position, 2.5, -1)
 			table.insert(spawnerData.bubblies, creep)
 
 			-- Projectiles

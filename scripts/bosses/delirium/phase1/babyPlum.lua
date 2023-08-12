@@ -65,7 +65,7 @@ local function Update(entity)
 			if not sprite:IsPlaying("Attack3") then
 				mod:LoopingAnim(sprite, "Attack3" .. prefix .. "Loop")
 			end
-			mod:FlipTowardsMovement(entity, sprite, otherWay)
+			mod:FlipTowardsMovement(entity, sprite, false)
 
 
 			-- Projectiles

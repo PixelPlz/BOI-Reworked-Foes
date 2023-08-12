@@ -388,7 +388,7 @@ function mod:florianUpdate(entity)
 			local nearestPlayerPos = Game():GetNearestPlayer(entity.TargetPosition).Position
 			local minDistance = 160
 
-			local shape = room:GetRoomShape()
+			local shape = Game():GetRoom():GetRoomShape()
 			if shape == RoomShape.ROOMSHAPE_IH or shape == RoomShape.ROOMSHAPE_IV then
 				minDistance = 100
 			end

@@ -4,6 +4,7 @@ local mod = BetterMonsters
 
 function mod:giantSpikeInit(entity)
 	if entity.Variant == IRFentities.GiantSpike then
+		local room = Game():GetRoom()
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
