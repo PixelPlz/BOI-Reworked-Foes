@@ -139,18 +139,6 @@ function mod:PlaySound(entity, id, volume, pitch, cooldown, loop, pan)
 end
 
 
--- Optional callback helper
--- Replace the default AddCallback function with something like this:
---      mod:AddOptionalCallback(ModCallbacks.MC_NPC_UPDATE, mod.blackBonyUpdate, EntityType.ENTITY_BLACK_BONY, "blackBonyBombs")
-function mod:AddOptionalCallback(callbackID, callbackScript, optionalParam, valueToCheck)
-	mod:AddCallback(callbackID, function(_, a, b, c, d, e, f, g, h)
-		if IRFConfig[valueToCheck] == true then
-			return callbackScript(_, a, b, c, d, e, f, g, h)
-		end
-	end, optionalParam)
-end
-
-
 
 --[[ Sprite functions ]]--
 -- Looping animation
@@ -280,7 +268,7 @@ end
 
 
 -- Grid aligned random movement
-function mod:MoveRandomGridAligned(entity, speed, canFly, segmented)
+function mod:MoveRandomGridAligned(entity, speed, canFly, dontDoubleBack)
 	local data = entity:GetData()
 	local room = Game():GetRoom()
 
@@ -300,14 +288,17 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, segmented)
 	end
 	local gridInFrontOfMe = room:GetGridIndex(gridAlignedPos + vector * 40)
 	local collisionInFrontOfMe = room:GetGridCollision(gridInFrontOfMe)
-	
+
 	-- Don't go into spikes
 	local areThereSpikesInFrontOfMe = false
 	local gridEntityInFrontOfMe = room:GetGridEntity(gridInFrontOfMe)
 
-	if gridEntityInFrontOfMe ~= nil and gridEntityInFrontOfMe:ToSpikes() ~= nil then
+	if canFly ~= true and gridEntityInFrontOfMe ~= nil and gridEntityInFrontOfMe:ToSpikes() ~= nil then
 		areThereSpikesInFrontOfMe = true
 	end
+
+	-- Check for either fear or charm
+	local fearedOrCharmed = entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) or entity:HasEntityFlags(EntityFlag.FLAG_CHARM) or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY)
 
 
 	-- Get valid directions
@@ -324,20 +315,38 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, segmented)
 				opposite = i - 2
 			end
 
-			if gridCollision <= maxValidGridCol and (segmented ~= true or opposite ~= data.movementDirection) then
+			if gridCollision <= maxValidGridCol and (dontDoubleBack ~= true or opposite ~= data.movementDirection) then
 				table.insert(validDirections, i)
 			end
 		end
 
-		-- Choose a valid direction
+
+		-- Failsafe
 		if #validDirections <= 0 then
-			data.movementDirection = 0 -- Failsafe
+			data.movementDirection = 0
+
+		-- Choose a valid direction
 		else
-			data.movementDirection = mod:RandomIndex(validDirections)
+			local chosenDirection = mod:RandomIndex(validDirections)
+
+			if fearedOrCharmed == true then
+				for i, direction in pairs(validDirections) do
+					local currentChosenPosition = gridAlignedPos + (Vector.FromAngle(chosenDirection * 90) * 40)
+					local checkPos = gridAlignedPos + (Vector.FromAngle(direction * 90) * 40)
+					local nearestPlayer = Game():GetNearestPlayer(entity.Position).Position
+
+					if ((entity:HasEntityFlags(EntityFlag.FLAG_FEAR)  or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK))   and checkPos:Distance(nearestPlayer) > currentChosenPosition:Distance(nearestPlayer))
+					or ((entity:HasEntityFlags(EntityFlag.FLAG_CHARM) or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY)) and checkPos:Distance(nearestPlayer) < currentChosenPosition:Distance(nearestPlayer)) then
+						chosenDirection = direction
+					end
+				end
+			end
+
+			data.movementDirection = chosenDirection
 		end
 
-		data.moveTimer = mod:Random(3, 6)
-		data.currentIndex = gridAlignedPos
+		data.moveTimer = mod:Random(1, 4)
+		data.currentIndex = room:GetGridIndex(entity.Position)
 
 
 	-- Move in the selected direction
@@ -345,7 +354,12 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, segmented)
 		entity.Velocity = mod:Lerp(entity.Velocity, ((gridAlignedPos + Vector.FromAngle(data.movementDirection * 90) * 40) - entity.Position):Resized(speed), 0.35)
 
 		if room:GetGridIndex(entity.Position) ~= data.currentIndex then
-			data.moveTimer = data.moveTimer - 1
+			-- Feared and charmed enemies always try to change directions as soon as they can
+			if fearedOrCharmed == true then
+				data.moveTimer = 0
+			else
+				data.moveTimer = data.moveTimer - 1
+			end
 		end
 		data.currentIndex = room:GetGridIndex(entity.Position)
 	end
@@ -353,7 +367,7 @@ end
 
 
 -- Bounce around diagonally
-function mod:MoveDiagonally(entity, speed)
+function mod:MoveDiagonally(entity, speed, lerpStep)
 	-- Move randomly if confused
 	if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
 		mod:WanderAround(entity, speed)
@@ -377,26 +391,26 @@ function mod:MoveDiagonally(entity, speed)
 			yV = yV * -1
 		end
 
-		entity.Velocity = mod:Lerp(entity.Velocity, Vector(xV, yV), 0.1)
+		entity.Velocity = mod:Lerp(entity.Velocity, Vector(xV, yV), lerpStep or 0.1)
 	end
 end
 
 
 -- Mulligan-type movement
 function mod:AvoidPlayer(entity, radius, wanderSpeed, runSpeed, canFly)
-	-- Get nearby players
-	local nearbyPlayers = {}
-	for i, player in pairs(Isaac.FindInRadius(entity.Position, radius, EntityPartition.PLAYER)) do
-		if entity.Pathfinder:HasPathToPos(player.Position) or canFly == true then
-			table.insert(nearbyPlayers, player)
-		end
-	end
+	-- Get nearest player
+	local nearest = Game():GetNearestPlayer(entity.Position)
+
+
+	-- Chase if charmed of friendly
+	if entity:HasEntityFlags(EntityFlag.FLAG_CHARM) or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+		mod:ChasePlayer(entity, wanderSpeed + (runSpeed - wanderSpeed) / 2)
+
 
 	-- Run away if there are players in radius
-	if #nearbyPlayers > 0 and not entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+	elseif nearest.Position:Distance(entity.Position) <= radius and not entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
 		-- Get target position
 		local room = Game():GetRoom()
-		local nearest = Game():GetNearestPlayer(entity.Position)
 		local vector = (entity.Position - nearest.Position):Normalized()
 		local targetPos = entity.Position + vector:Resized(radius)
 
@@ -578,7 +592,7 @@ end
 
 -- Shooting effect
 function mod:ShootEffect(entity, subtype, offset, color, scale, behind)
-	local entityScale = entity:ToNPC().Scale
+	local entityScale = entity:ToNPC() and entity:ToNPC().Scale or 1
 	offset = offset and entityScale * offset or Vector.Zero
 	scale = scale and entityScale * scale or 1
 
@@ -597,7 +611,7 @@ function mod:ShootEffect(entity, subtype, offset, color, scale, behind)
 	end
 
 	if subtype == 5 then
-		sprite.PlaybackSpeed = 1.5
+		sprite.PlaybackSpeed = 1.25
 	end
 
 	effect:Update()
@@ -626,7 +640,8 @@ end
 
 -- Sprite trail
 function mod:QuickTrail(parent, length, color, width)
-	if not parent:GetData().spriteTrail then
+	if not parent:GetData().spriteTrail
+	and (parent.Type ~= EntityType.ENTITY_PROJECTILE or not BulletTrails) then -- Don't spawn one for projectiles if Enemy Bullet Trails is enabled
 		local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SPRITE_TRAIL, 0, parent.Position, Vector(0, parent.Height or parent.PositionOffset.Y), parent):ToEffect()
 		trail.Parent = parent
 
@@ -646,8 +661,8 @@ end
 
 -- Smoke particles
 function mod:SmokeParticles(entity, offset, radius, scale, color, newSprite)
-	if entity:IsFrame(2, 0) then
-		for i = 1, StageAPI and 4 or 5 do
+	if not StageAPI and entity:IsFrame(2, 0) then
+		for i = 1, 5 do
 			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DARK_BALL_SMOKE_PARTICLE, 0, entity.Position, mod:RandomVector(), entity):ToEffect()
 			local sprite = trail:GetSprite()
 
@@ -827,9 +842,12 @@ end
 
 
 -- Print the color of an entity for debugging
-function mod:PrintColors(entity)
-	local sprite = entity:GetSprite()
+function mod:GetColorString(c)
+	return c.R .. "," .. c.G .. "," .. c.B .. " - " .. c.A .. " - " .. c.RO .. "," .. c.GO .. "," .. c.BO
+end
+
+function mod:PrintEntityColors(entity)
 	print()
-	print("entity color:  " .. entity.Color.R .. ", " .. entity.Color.G .. ", " .. entity.Color.B .. "  -  " .. entity.Color.RO .. ", " .. entity.Color.GO .. ", " .. entity.Color.BO)
-	print("sprite color:  " .. sprite.Color.R .. ", " .. sprite.Color.G .. ", " .. sprite.Color.B .. "  -  " .. sprite.Color.RO .. ", " .. sprite.Color.GO .. ", " .. sprite.Color.BO)
+	print("entity color:  " .. mod:GetColorString(entity.Color))
+	print("sprite color:  " .. mod:GetColorString(entity:GetSprite().Color))
 end

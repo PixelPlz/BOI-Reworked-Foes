@@ -4,7 +4,7 @@ local Settings = {
 	MaxEnemyScore = 3,
 	SpawnHP = 20,
 
-	-- Tossed small Blastocyst
+	-- Lobbed small Blastocyst
 	LandHeight = 8,
 	JumpSpeed = 9,
 	Gravity = 0.8
@@ -34,13 +34,14 @@ function mod:blastocystBigUpdate(entity)
 			local vector = mod:RandomVector()
 
 			-- Lobbed small Blastocyst
-			local guy = Isaac.Spawn(EntityType.ENTITY_BLASTOCYST_SMALL, 0, entity.SubType, entity.Position + vector * 20, vector * 4, entity):ToNPC()
-			guy.MaxHitPoints = Settings.SpawnHP
-			guy.HitPoints = guy.MaxHitPoints
+			local small = Isaac.Spawn(EntityType.ENTITY_BLASTOCYST_SMALL, 0, entity.SubType, entity.Position + vector * 20, vector * 4, entity):ToNPC()
+			small.MaxHitPoints = Settings.SpawnHP
+			small.HitPoints = small.MaxHitPoints
 
-			guy.State = NpcState.STATE_APPEAR_CUSTOM
-			guy.PositionOffset = Vector(0, Settings.LandHeight - 10)
-			guy.V2 = Vector(0, Settings.JumpSpeed)
+			small.State = NpcState.STATE_APPEAR_CUSTOM
+			small.PositionOffset = Vector(0, Settings.LandHeight - 10)
+			small.V2 = Vector(0, Settings.JumpSpeed)
+			small:GetSprite():Play("Midair", true)
 
 
 			-- Lose health when spawning
@@ -126,9 +127,8 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.blastocystBigUpdate, EntityType.
 
 --[[ Small ]]--
 function mod:blastocystSmallUpdate(entity)
-	local sprite = entity:GetSprite()
-
 	if entity.State == NpcState.STATE_APPEAR_CUSTOM and not entity:HasMortalDamage() then
+		local sprite = entity:GetSprite()
 		mod:LoopingAnim(sprite, "Midair")
 
 		-- Update height

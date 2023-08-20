@@ -120,7 +120,7 @@ function mod:flamingGusherUpdate(entity)
 			params.BulletFlags = (ProjectileFlags.FIRE | ProjectileFlags.FIRE_SPAWN)
 			params.Scale = 0.75
 			params.FallingAccelModifier = 0.175
-			entity:FireProjectiles(entity.Position, mod:RandomVector(5), 0, params)
+			mod:FireProjectiles(entity, entity.Position, mod:RandomVector(5), 0, params, Color(0,0,0, 1, 0.9,0.45,0))
 
 			mod:ShootEffect(entity, 5, Vector(0, -16), Color(1,1,1, 1, 0,0.25,0), 0.75, true)
 			entity.ProjectileCooldown = mod:Random(20, 40)

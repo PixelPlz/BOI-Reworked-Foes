@@ -280,12 +280,14 @@ function mod:gateUpdate(entity)
 
 			-- Black champion fire wave shots
 			elseif entity.SubType == 2 then
-				params.BulletFlags = (ProjectileFlags.FIRE | ProjectileFlags.FIRE_WAVE)
+				params.BulletFlags = ProjectileFlags.FIRE
 				params.Scale = 2
 				params.Color = IRFcolors.BlueFireShot
 				params.FallingAccelModifier = 1.25
 				params.FallingSpeedModifier = -20
-				mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(entity.Position:Distance(target.Position) / 24), 0, params):GetData().dontChange = true
+				local projectile = mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(entity.Position:Distance(target.Position) / 24), 0, params):GetData()
+				projectile.dontChange = true
+				projectile.customFireWave = {X = false, Type = 3}
 
 			-- Default blood shots
 			else
@@ -394,11 +396,3 @@ function mod:gateSpawns(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.gateSpawns)
-
--- Turn fire waves into blue ones
-function mod:gateBlueFireJet(effect)
-	if effect.SpawnerType == EntityType.ENTITY_GATE and effect.SubType ~= 3 then
-		effect.SubType = 3
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.gateBlueFireJet, EffectVariant.FIRE_WAVE)

@@ -17,7 +17,7 @@ local mod = BetterMonsters
 
 local Settings = {
 	Length = 19, -- Doesn't include head
-	ArmorHealth = 50,
+	ArmorHealth = 40,
 	TailMulti = 1.25,
 
 	BurrowTime = 30,
@@ -126,7 +126,7 @@ function mod:scolexUpdate(entity)
 
 				-- Body segments
 				else
-					local anim = "Body" .. tostring(mod:Random(1, 3))
+					local anim = "Body" .. tostring(math.random(1, 3))
 					local middle = math.floor(Settings.Length / 2)
 
 					-- Second to last one has its shell broken
@@ -282,9 +282,17 @@ function mod:scolexUpdate(entity)
 					elseif entity.StateFrame == 3 then
 						data.zVelocity = Settings.SteerJumpSpeed
 
+					-- No attack
 					else
+						local vector = (target.Position - entity.Position):Normalized()
+						if entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+							vector = -vector
+						elseif entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+							vector = mod:RandomVector()
+						end
+
 						data.zVelocity = Settings.JumpSpeed
-						entity.TargetPosition = (target.Position - entity.Position):Normalized()
+						entity.TargetPosition = vector
 					end
 
 					entity.ProjectileDelay = delay
@@ -432,7 +440,18 @@ function mod:scolexUpdate(entity)
 				if entity.GroupIdx == 0 then
 					-- Steering jump
 					if entity.StateFrame == 3 then
-						entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Resized(Settings.MoveSpeed + 1), 0.2)
+						-- Confused
+						if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+							mod:WanderAround(entity, Settings.MoveSpeed + 1)
+
+						else
+							local vector = (target.Position - entity.Position):Normalized()
+							if entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+								vector = -vector
+							end
+
+							entity.Velocity = mod:Lerp(entity.Velocity, vector * (Settings.MoveSpeed + 1), 0.2)
+						end
 
 					-- Long and regular jump
 					else
@@ -544,7 +563,7 @@ function mod:scolexDMG(target, damageAmount, damageFlags, damageSource, damageCo
 		if damageSource.Type == EntityType.ENTITY_PIN or damageSource.SpawnerType == EntityType.ENTITY_PIN then
 			return false
 
-		elseif not (damageFlags & DamageFlag.DAMAGE_COUNTDOWN > 0) then
+		else
 			local segment = target:ToNPC()
 			local data = segment:GetData()
 
@@ -564,7 +583,7 @@ function mod:scolexDMG(target, damageAmount, damageFlags, damageSource, damageCo
 					end
 
 					damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
-					data.head:TakeDamage(damageAmount, damageFlags, damageSource, 5)
+					data.head:TakeDamage(damageAmount, damageFlags, damageSource, 1)
 					data.head:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
 
 				-- Damage the shell
@@ -578,7 +597,7 @@ function mod:scolexDMG(target, damageAmount, damageFlags, damageSource, damageCo
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.scolexDMG, EntityType.ENTITY_PIN)
+mod:AddPriorityCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, CallbackPriority.LATE, mod.scolexDMG, EntityType.ENTITY_PIN)
 
 function mod:scolexCollision(entity, target, bool)
 	-- Jump over the player
@@ -595,7 +614,6 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.scolexCollision, EntityTy
 function mod:dirtHelperInit(entity)
 	if entity.Variant == IRFentities.DirtHelper then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
 		entity.State = NpcState.STATE_IDLE

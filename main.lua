@@ -3,7 +3,7 @@ local mod = BetterMonsters
 
 
 
-local startupText = mod.Name .. " v3.0.5 Initialized"
+local startupText = mod.Name .. " v3.0.6 Initialized"
 Isaac.DebugString(startupText)
 
 IRFflavorText = {
@@ -30,10 +30,7 @@ IRFflavorText = {
 	"The Husk was hiding the Forgotten this entire time",
 }
 
-local flavorText = "The Blood & Guts update"
-if math.random(2) == 1 then
-	flavorText = IRFflavorText[math.random(#IRFflavorText)]
-end
+local flavorText = IRFflavorText[math.random(#IRFflavorText)]
 print(startupText .. " - " .. flavorText)
 
 
@@ -43,8 +40,8 @@ print(startupText .. " - " .. flavorText)
 --[[ Load scripts ]]--
 function mod:LoadScripts(scripts, subfolder)
 	subfolder = subfolder or ""
-	for i = 1, #scripts do
-		include("scripts." .. subfolder .. "." .. scripts[i])
+	for i, script in pairs(scripts) do
+		include("scripts." .. subfolder .. "." .. script)
 	end
 end
 
@@ -54,9 +51,8 @@ local generalScripts = {
 	"constants",
 	"utilities",
 	"dss.dssmenu",
-	"bossHealthBars",
-	"misc",
 	"projectiles",
+	"misc",
 	"hiddenEnemies",
 }
 mod:LoadScripts(generalScripts)
@@ -68,7 +64,7 @@ local enemyScripts = {
 	"drownedCharger",
 	"dankGlobin",
 	"drownedBoomFly",
-	"host",
+	"hostBreaking",
 	"hoppers",
 	"redMaw",
 	"angelicBaby",
@@ -87,9 +83,8 @@ local enemyScripts = {
 	"momsHand",
 	"codWorm",
 	"skinny",
-	"camilloJr",
+	"tumors",
 	"nerveEnding2",
-	"psyTumor",
 	"fatBat",
 	"ragling",
 	"dartFly",
@@ -137,28 +132,23 @@ local bossScripts = {
 	"blightedOvum",
 	"satan",
 	"maskInfamy",
-	--"wretched",
 	"daddyLongLegs",
 	"blueBaby",
 	"hushBaby",
-	--"turdlings",
-	--"dangle",
 	"gate",
 	"mamaGurdy",
 	"mrFred",
-	--"lamb",
 	"stain",
 	"forsaken",
 	"ragMega",
 	--"sisterVis",
-	--"delirium.main",
 }
 mod:LoadScripts(bossScripts, "bosses")
 
 
 -- Champions
 local championScripts = {
-	"tweaks",
+	"vanillaChanges",
 	"fallen",
 	"headlessHorseman",
 	"darkOne",
@@ -166,31 +156,10 @@ local championScripts = {
 mod:LoadScripts(championScripts, "champions")
 
 
---[[
--- Delirium forms
-local deliriumPhase1Scripts = {
-	"famine",
-	"babyPlum",
+-- Compatibility
+local compatibilityScripts = {
+	"baptismal_preloader", -- This is retarded
+	"compatibility",
+	"retribution",
 }
-mod:LoadScripts(deliriumPhase1Scripts, "bosses.delirium.phase1")
-
-local deliriumPhase2Scripts = {
-	"pestilence",
-}
-mod:LoadScripts(deliriumPhase2Scripts, "bosses.delirium.phase2")
-
-local deliriumPhase3Scripts = {
-	"war",
-}
-mod:LoadScripts(deliriumPhase3Scripts, "bosses.delirium.phase3")
-
-local deliriumPhase4Scripts = {
-	"death",
-}
-mod:LoadScripts(deliriumPhase4Scripts, "bosses.delirium.phase4")
-
-local deliriumPhase5Scripts = {
-	"mom",
-}
-mod:LoadScripts(deliriumPhase5Scripts, "bosses.delirium.phase5")
-]]--
+mod:LoadScripts(compatibilityScripts, "compatibility")

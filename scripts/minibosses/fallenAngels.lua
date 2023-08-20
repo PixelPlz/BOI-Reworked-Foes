@@ -6,6 +6,8 @@ local mod = BetterMonsters
 function mod:fallenUrielInit(entity)
 	if entity.Variant == 1 then
 		entity:GetSprite():Load("gfx/271.001_fallen uriel.anm2", true)
+		entity.MaxHitPoints = 500
+		entity.HitPoints = entity.MaxHitPoints
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fallenUrielInit, EntityType.ENTITY_URIEL)
@@ -115,9 +117,14 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.fallenUrielUpdate, EntityType.EN
 
 -- Gabriel
 function mod:fallenGabrielInit(entity)
+	local newHp = 520
 	if entity.Variant == 1 then
 		entity:GetSprite():Load("gfx/272.001_fallen gabriel.anm2", true)
+		newHp = 666
 	end
+
+	entity.MaxHitPoints = newHp
+	entity.HitPoints = entity.MaxHitPoints
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fallenGabrielInit, EntityType.ENTITY_GABRIEL)
 

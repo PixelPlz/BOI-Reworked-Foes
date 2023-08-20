@@ -2,7 +2,7 @@ local mod = BetterMonsters
 
 local Settings = {
 	HideTime = 120,
-	ShotSpeed = 12,
+	ShotSpeed = 11,
 	VulnerableTime = 45
 }
 
@@ -42,6 +42,7 @@ function mod:codWormUpdate(entity)
 	elseif entity.State == NpcState.STATE_JUMP then
 		if sprite:IsEventTriggered("Dig") then
 			entity.I1 = 1
+			entity:ClearEntityFlags(EntityFlag.FLAG_NO_TARGET)
 		end
 		if sprite:IsFinished() then
 			entity.State = NpcState.STATE_ATTACK
@@ -52,8 +53,8 @@ function mod:codWormUpdate(entity)
 	elseif entity.State == NpcState.STATE_ATTACK then
 		if sprite:IsEventTriggered("Shoot") then
 			mod:PlaySound(entity, SoundEffect.SOUND_WORM_SPIT, 1.2)
-			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(Settings.ShotSpeed - (entity.I2 * 2)), 3 + (entity.I2 * 2), ProjectileParams())
-			mod:ShootEffect(entity, 5, Vector(1, -22), Color(1,1,1, 0.7))
+			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(Settings.ShotSpeed - (entity.I2 * 3)), 3 + (entity.I2 * 2), ProjectileParams())
+			mod:ShootEffect(entity, 5, Vector(1, -22), Color(1,1,1, 0.6))
 		end
 
 		if sprite:IsFinished("Attack") then
@@ -82,6 +83,7 @@ function mod:codWormUpdate(entity)
 	elseif entity.State == NpcState.STATE_STOMP then
 		if sprite:IsEventTriggered("Dig") then
 			entity.I1 = 0
+			entity:AddEntityFlags(EntityFlag.FLAG_NO_TARGET)
 		end
 		if sprite:IsFinished("DigIn") then
 			entity.State = NpcState.STATE_IDLE
@@ -109,11 +111,3 @@ function mod:codWormDMG(target, damageAmount, damageFlags, damageSource, damageC
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.codWormDMG, EntityType.ENTITY_COD_WORM)
-
--- Fix them not taking damage from Mom's Knife (Why do I even have to do this to begin with?)
-function mod:codWormCollide(entity, target, bool)
-	if target.Type == EntityType.ENTITY_KNIFE and target.Variant == 0 then
-		entity:TakeDamage(target.CollisionDamage, 0, EntityRef(target.Parent), 5)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.codWormCollide, EntityType.ENTITY_COD_WORM)

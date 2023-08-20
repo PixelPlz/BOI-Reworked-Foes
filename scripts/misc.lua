@@ -4,8 +4,19 @@ local mod = BetterMonsters
 
 --[[ Clotty variants ]]--
 function mod:clottyUpdate(entity)
-	if entity.Variant ~= 3 and entity.State == NpcState.STATE_ATTACK and entity:GetSprite():GetFrame() > 2 then
+	if entity.State == NpcState.STATE_ATTACK and entity:GetSprite():GetFrame() > 2 then
 		entity.Velocity = Vector.Zero
+	end
+
+	-- Better I.Blob (+ Retardribution Curdle) effect colors
+	if entity.Variant == 2 or (Retribution and entity.Variant == 1873) then
+		if entity:HasMortalDamage() then
+			entity.SplatColor = Color.Default
+
+		elseif entity.FrameCount == 25 then
+			local c = IRFcolors.TearEffect
+			entity.SplatColor = Color(c.R,c.G,c.B, 0.35, c.RO,c.GO,c.BO)
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.clottyUpdate, EntityType.ENTITY_CLOTTY)
@@ -27,22 +38,12 @@ function mod:drownedHiveUpdate(entity, target, bool)
 			entity.State = NpcState.STATE_MOVE
 		end
 
-		-- Spawn bubble projectiles instead of chargers on death
+		-- Shoot projectiles and spawn a Charger on death
 		if entity:HasMortalDamage() and entity:IsDead() then
-			for i = 1, 8 do
-				local params = ProjectileParams()
-				params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
-				params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
-				params.ChangeTimeout = 90
-
-				params.Acceleration = 1.1
-				params.FallingSpeedModifier = 1
-				params.FallingAccelModifier = -0.2
-				params.Scale = 1 + (mod:Random(5) * 0.1)
-				params.Variant = ProjectileVariant.PROJECTILE_TEAR
-
-				mod:FireProjectiles(entity, entity.Position, mod:RandomVector(mod:Random(3, 5)), 0, params).CollisionDamage = 1
-			end
+			local params = ProjectileParams()
+			params.Variant = ProjectileVariant.PROJECTILE_TEAR
+			entity:FireProjectiles(entity.Position, Vector(9, 4), 7, params)
+			Isaac.Spawn(EntityType.ENTITY_CHARGER, 1, 0, entity.Position, Vector.Zero, entity)
 
 			return true
 		end
@@ -82,18 +83,6 @@ function mod:launchedBoomFlyUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.launchedBoomFlyUpdate, EntityType.ENTITY_BOOMFLY)
-
-
-
---[[ Ultra Pride baby ]]--
-function mod:florianInit(entity)
-	if entity.Variant == 2 then
-		local fly = Isaac.Spawn(EntityType.ENTITY_ETERNALFLY, 0, 0, entity.Position, Vector.Zero, nil)
-		fly.Parent = entity
-		entity.Child = fly
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.florianInit, EntityType.ENTITY_BABY)
 
 
 
@@ -321,7 +310,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.thrownDipUpdate, EntityType.ENTI
 --[[ Gurglings ]]--
 -- Different sprites for boss Gurglings
 function mod:gurglingsInit(entity)
-	if entity.Variant == 1 and entity.SubType == 0 then
+	if entity.Variant == 1 and (entity.SubType == 0 or entity.SubType == 500) then
 		local sprite = entity:GetSprite()
 		sprite:ReplaceSpritesheet(1, "gfx/monsters/rebirth/monster_237_gurgling_boss.png")
 		sprite:ReplaceSpritesheet(2, "gfx/monsters/rebirth/monster_237_gurgling_boss.png")
@@ -333,9 +322,9 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.gurglingsInit, EntityType.ENT
 -- Make them immuno to knockback while charging
 function mod:gurglingsUpdate(entity)
 	if entity.State == NpcState.STATE_ATTACK then
-		entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	else
-		entity:ClearEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+		entity:ClearEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gurglingsUpdate, EntityType.ENTITY_GURGLING)
@@ -501,7 +490,7 @@ function mod:cageUpdate(entity)
 
 	-- Extra effects when bouncing off of walls
 	elseif entity.State == NpcState.STATE_ATTACK and entity:CollidesWithGrid() then
-		mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, entity.Scale * 0.6)
+		mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, entity.Scale * 0.5)
 		Game():ShakeScreen(math.floor(entity.Scale * 5))
 	end
 end
@@ -521,7 +510,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.cageCollide, EntityType.E
 function mod:redGhostUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	if IRFConfig.laserRedGhost == true and entity.State == NpcState.STATE_ATTACK and sprite:GetFrame() == 0 then
+	if not entity:GetData().IndicatorBrim and IRFConfig.laserRedGhost == true and entity.State == NpcState.STATE_ATTACK and sprite:GetFrame() == 0 then
 		local angle = 0
 		if sprite:GetAnimation() == "ShootDown" then
 			angle = 90
@@ -626,6 +615,21 @@ function mod:tFacelessUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.tFacelessUpdate, EntityType.ENTITY_FACELESS)
+
+
+
+--[[ Cyst effect ]]--
+function mod:cystEffect(effect)
+	for i, cyst in pairs(Isaac.FindByType(EntityType.ENTITY_CYST, -1, -1, false, false)) do
+		if cyst.Position:Distance(effect.Position) <= 0 then -- Of course they don't have a spawner entity set...
+			effect:GetSprite().Color = IRFcolors.CorpseYellow
+			effect:GetSprite().Offset = Vector(0, -6)
+			effect:FollowParent(cyst)
+			effect.DepthOffset = cyst.DepthOffset + 1
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.cystEffect, EffectVariant.BULLET_POOF)
 
 
 

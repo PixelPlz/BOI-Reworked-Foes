@@ -1,14 +1,18 @@
 local mod = BetterMonsters
 
 local Settings = {
+	NewHealth = 800,
 	DoubleStompCooldown = 240,
-	HandShotSpeed = 8,
-	LaserShotSpeed = 10,
+	HandShotSpeed = 6.66,
+	LaserShotSpeed = 10.5,
 }
 
 
 
 function mod:satanInit(entity)
+	entity.MaxHitPoints = Settings.NewHealth
+	entity.HitPoints = entity.MaxHitPoints
+
 	if entity.Variant == 10 then
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 		entity.ProjectileCooldown = Settings.DoubleStompCooldown
@@ -20,21 +24,27 @@ function mod:satanUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
 
+
 	--[[ 1st phase ]]--
 	if entity.Variant == 0 then
+		if entity.State == NpcState.STATE_ATTACK and (sprite:IsEventTriggered("Shoot") or sprite:IsEventTriggered("Shoot2")) then
+			mod:ShootEffect(entity, 5, Vector(0, -26), Color(1,1,1, 0.8), 1.25)
+
 		-- Single brimstone
-		if entity.State == NpcState.STATE_ATTACK2 and sprite:IsEventTriggered("Shoot") then
+		elseif entity.State == NpcState.STATE_ATTACK2 and sprite:IsEventTriggered("Shoot") then
+			local pos = Vector(entity.Position.X, Game():GetRoom():GetBottomRightPos().Y - 1)
+
 			local params = ProjectileParams()
 			params.Variant = ProjectileVariant.PROJECTILE_HUSH
 			params.Color = IRFcolors.BrimShot
 
 			params.Scale = 1.25
-			params.CircleAngle = 0
-			mod:FireProjectiles(entity, Vector(entity.Position.X, Game():GetRoom():GetBottomRightPos().Y - 1), Vector(Settings.LaserShotSpeed, 16), 9, params, Color.Default)
+			params.CircleAngle = 0.2
+			mod:FireProjectiles(entity, pos, Vector(Settings.LaserShotSpeed, 16), 9, params, Color.Default)
 
 			params.CircleAngle = 0.4
 			params.Scale = 1.75
-			mod:FireProjectiles(entity, Vector(entity.Position.X, Game():GetRoom():GetBottomRightPos().Y - 1), Vector(Settings.LaserShotSpeed - 5, 8), 9, params, Color.Default)
+			mod:FireProjectiles(entity, pos, Vector(Settings.LaserShotSpeed - 4.5, 8), 9, params, Color.Default)
 
 
 		-- Custom hand bullet attack
@@ -43,13 +53,18 @@ function mod:satanUpdate(entity)
 
 		elseif entity.State == NpcState.STATE_ATTACK5 then
 			if sprite:IsEventTriggered("Shoot") then
-				mod:PlaySound(entity, SoundEffect.SOUND_SATAN_BLAST, 0.9)
-
 				local params = ProjectileParams()
 				params.Scale = 1.5
+				params.FallingSpeedModifier = 1
+				params.FallingAccelModifier = -0.09
+
 				for i = -1, 1, 2 do
-					entity:FireProjectiles(entity.Position + Vector(i * 90, -40), Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees() - i * 15):Resized(Settings.HandShotSpeed), 5, params)
+					local pos = entity.Position + Vector(i * 90, -40)
+					entity:FireProjectiles(pos, Vector(Settings.HandShotSpeed, 16), 9, params)
+					mod:ShootEffect(entity, 5, Vector(i * 68, -34), Color.Default, 1.25)
 				end
+
+				mod:PlaySound(entity, SoundEffect.SOUND_SATAN_BLAST, 0.9)
 			end
 
 			if sprite:IsFinished("Attack03") then
@@ -57,12 +72,11 @@ function mod:satanUpdate(entity)
 			end
 		end
 
-
 		-- Extra death sounds
 		if sprite:IsPlaying("Death") and sprite:IsEventTriggered("Shoot") then
 			mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 0.9)
-			mod:PlaySound(entity, SoundEffect.SOUND_SATAN_HURT, 0.8, 0.9)
 		end
+
 
 
 	--[[ 2nd phase ]]--
@@ -77,6 +91,7 @@ function mod:satanUpdate(entity)
 				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACKWAVE, 1, entity.Position + Vector.FromAngle(i * 90):Resized(20), Vector.Zero, entity):ToEffect().Rotation = i * 90
 			end
 		end
+
 
 		-- Double stomp
 		if entity.Child then
@@ -109,6 +124,7 @@ function mod:satanUpdate(entity)
 			end
 		end
 
+		-- Extra death sounds
 		if entity:HasMortalDamage() then
 			mod:PlaySound(entity, SoundEffect.SOUND_SATAN_HURT, 1.2)
 			sprite.PlaybackSpeed = 1
@@ -119,7 +135,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.satanUpdate, EntityType.ENTITY_S
 
 -- Replace Kamikaze Leeches
 function mod:kLeechInit(entity)
-	if entity.Variant == 1 and entity.SpawnerEntity and entity.SpawnerType == EntityType.ENTITY_SATAN then
+	if entity.Variant == 1 and entity.SpawnerType == EntityType.ENTITY_SATAN then
 		entity:Remove()
 
 		-- Fallen phase Nulls

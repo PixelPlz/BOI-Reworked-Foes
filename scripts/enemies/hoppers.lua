@@ -36,11 +36,15 @@ function mod:flamingHopperUpdate(entity)
 
 
 	-- Ember particles
-	local color = nil
-	if entity.SubType >= 1 then
-		color = Color(0.6,0.6,0.6, 1, 0.3,0,0.6)
+	local emberColor = nil
+	local splatColor = IRFcolors.EmberFade
+
+	if entity.SubType == 1 then
+		emberColor = Color(0.6,0.6,0.6, 1, 0.3,0,0.6)
+		splatColor = IRFcolors.PurpleFade
 	end
-	mod:EmberParticles(entity, Vector(0, -28), nil, color)
+
+	mod:EmberParticles(entity, Vector(0, -28), nil, emberColor)
 
 
 	-- Attack after 3 jumps
@@ -83,10 +87,18 @@ function mod:flamingHopperUpdate(entity)
 			data.fireRingIndex = 0
 			data.fireRingDelay = 0
 
+			-- Effect
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_SPLAT, 0, entity.Position, Vector.Zero, entity).Color = splatColor
 			mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END, 1.1)
 		end
 
 		mod:FireRing(entity, 70, entity.SubType)
+	end
+
+
+	-- Cool gibs
+	if entity:HasMortalDamage() then
+		entity.SplatColor = splatColor
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingHopperUpdate, EntityType.ENTITY_FLAMINGHOPPER)

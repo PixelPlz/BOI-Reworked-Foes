@@ -444,7 +444,7 @@ function mod:ragPlasmaInit(entity)
 
 		entity.V1 = Vector(Settings.OrbitDistance, 0) -- Distance from parent
 		entity.State = NpcState.STATE_IDLE
-		entity.SplatColor = IRFcolors.RagManPurple
+		entity.SplatColor = IRFcolors.PurpleFade
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ragPlasmaInit, IRFentities.Type)

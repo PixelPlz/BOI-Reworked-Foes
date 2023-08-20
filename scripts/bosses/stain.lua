@@ -135,6 +135,7 @@ function mod:stainTentacleUpdate(entity)
 			local target = entity.Parent:ToNPC():GetPlayerTarget()
 			
 			entity.Velocity = Vector.Zero
+			entity.MaxHitPoints = entity.Parent.MaxHitPoints
 			entity.HitPoints = entity.Parent.HitPoints
 
 
@@ -206,7 +207,9 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.stainTentacleUpdate, EntityT
 
 function mod:stainTentacleDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == 10 and target.Parent then
-		target.Parent:TakeDamage(damageAmount / 2, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 5)
+		target.Parent:TakeDamage(damageAmount / 2, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
+		target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+		return false
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.stainTentacleDMG, EntityType.ENTITY_STAIN)

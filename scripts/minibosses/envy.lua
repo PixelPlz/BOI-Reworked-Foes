@@ -2,8 +2,8 @@ local mod = BetterMonsters
 
 local Settings = {
 	InitialSpeed = 7,
-	BaseStrength = 1.2,
-	MaxStrength = 14,
+	BaseStrength = 1,
+	MaxStrength = 12,
 
 	InitialTimer = 60,
 	BaseTimer = 30,
@@ -11,8 +11,8 @@ local Settings = {
 	BaseMulti = 0.1,
 	BaseDiv = 0.05,
 
-	BaseVolume = 2.2,
-	BaseShotSpeed = 7.5
+	BaseVolume = 2,
+	BaseShotSpeed = 6.5
 }
 
 
@@ -71,7 +71,9 @@ function mod:envyCollide(entity, target, bool)
 
 		-- Champion shots
 		if entity.SubType == 1 and bool == true then
-			entity:FireProjectiles(entity.Position, Vector(Settings.BaseShotSpeed + strength, 0), 6, ProjectileParams())
+			for i = -1, 1, 2 do
+				entity:FireProjectiles(entity.Position, (entity.Position - target.Position):Rotated(i * 90):Resized(Settings.BaseShotSpeed + strength), 0, ProjectileParams())
+			end
 		end
 
 		return true

@@ -112,7 +112,7 @@ function mod:chadUpdate(entity)
 			-- Sounds
 			if entity.I1 == 0 then
 				mod:PlaySound(nil, SoundEffect.SOUND_HEARTIN, 0.9, 0.85)
-				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_DIVE, 0.9)
+				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_DIVE, 0.8)
 			end
 		end
 
@@ -150,7 +150,7 @@ function mod:chadUpdate(entity)
 					local params = ProjectileParams()
 					params.FallingSpeedModifier = 1
 					params.FallingAccelModifier = -0.1
-					params.Scale = 1 + mod:Random(35) * 0.01
+					params.Scale = 1 + mod:Random(35) / 100
 					entity:FireProjectiles(entity.Position, Vector.FromAngle(360 / (r * 8) * i):Resized(mod:Random(r * 4, r * 4 + 3)), 0, params)
 				end
 			end
@@ -165,6 +165,10 @@ function mod:chadUpdate(entity)
 
 			entity.PositionOffset = Vector.Zero
 			mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 2.5, Settings.CreepTime * 4)
+
+			if entity.I1 == 0 then
+				mod:PlaySound(entity, IRFsounds.ChadDie, 3)
+			end
 		end
 
 
@@ -457,7 +461,7 @@ function mod:chadUpdate(entity)
 						if entity.I1 == 0 then
 							entity.ProjectileDelay = 0
 							entity.Velocity = (entity.V1 - entity.Position):Normalized()
-							mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_ROAR_0)
+							mod:PlaySound(entity, IRFsounds.ChadAttackSwim, 2)
 						end
 
 						local anim = "HeadSwim"
@@ -480,7 +484,7 @@ function mod:chadUpdate(entity)
 						if entity.I1 == 0 then
 							jumpAttackProjectiles()
 							bigSplash()
-							mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_ROAR_0, 1.1)
+							mod:PlaySound(entity, IRFsounds.ChadAttackJump, 2)
 						end
 
 
@@ -492,7 +496,7 @@ function mod:chadUpdate(entity)
 						-- Head only
 						if entity.I1 == 0 then
 							bigSplash()
-							mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 1.1)
+							mod:PlaySound(entity, IRFsounds.ChadAttackSpit, 2.5)
 						end
 					end
 
@@ -768,7 +772,7 @@ function mod:chadDMG(target, damageAmount, damageFlags, damageSource, damageCoun
 		-- Redirect damage from body segments to the head
 		elseif data.head then
 			damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
-			data.head:TakeDamage(damageAmount, damageFlags, damageSource, 5)
+			data.head:TakeDamage(damageAmount, damageFlags, damageSource, 1)
 			data.head:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
 
 			return false
@@ -790,7 +794,7 @@ function mod:chadCollision(entity, target, bool)
 
 		-- Head only
 		elseif entity:ToNPC().I1 == 0 then
-			-- Kiss :3
+			-- Smooch :3
 			if target.Type == EntityType.ENTITY_PLAYER then
 				mod:PlaySound(entity:ToNPC(), SoundEffect.SOUND_KISS_LIPS1, 1, 1, 30)
 
@@ -807,51 +811,15 @@ function mod:chadCollision(entity, target, bool)
 
 					entity:ToNPC().State = NpcState.STATE_SUICIDE
 					entity:ToNPC().StateFrame = 35
-					mod:PlaySound(entity:ToNPC(), SoundEffect.SOUND_MONSTER_ROAR_2)
+					mod:PlaySound(entity:ToNPC(), IRFsounds.ChadStunned, 3)
 					return true -- Ignore collision
 				end
+
+			-- Ignore collision with Suckers when not dashing
+			elseif target.Type == EntityType.ENTITY_SUCKER then
+				return true
 			end
 		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.chadCollision, EntityType.ENTITY_CHUB)
-
-
-
--- Sucker projectile
-local function suckerProjectilePop(projectile)
-	Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BULLET_POOF, 0, projectile.Position, Vector.Zero, projectile)
-	mod:PlaySound(nil, SoundEffect.SOUND_PLOP, 0.9)
-
-	if projectile.SpawnerEntity then
-		local sucker = Isaac.Spawn(EntityType.ENTITY_SUCKER, 0, 0, projectile.Position, Vector.Zero, projectile.SpawnerEntity):ToNPC()
-		sucker:FireProjectiles(projectile.Position, Vector(11, 4), 7, ProjectileParams())
-		mod:QuickCreep(EffectVariant.CREEP_RED, projectile.SpawnerEntity, projectile.Position, 1.5, 90)
-	end
-
-	projectile:Remove()
-end
-
-function mod:suckerProjectileUpdate(projectile)
-	local sprite = projectile:GetSprite()
-
-	if projectile.FrameCount <= 2 then
-		sprite:Play("Fly", true)
-		projectile:GetData().trailColor = Color.Default
-		projectile.Scale = 1.5
-	end
-
-	sprite.Rotation = projectile.Velocity:GetAngleDegrees() + 90
-
-	if projectile:IsDead() then
-		suckerProjectilePop(projectile)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.suckerProjectileUpdate, IRFentities.SuckerProjectile)
-
-function mod:suckerProjectileCollision(projectile, collider, bool)
-	if collider.Type == EntityType.ENTITY_PLAYER or (collider:ToNPC() and collider.EntityCollisionClass == EntityCollisionClass.ENTCOLL_ALL) then
-		suckerProjectilePop(projectile)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_PRE_PROJECTILE_COLLISION, mod.suckerProjectileCollision, IRFentities.SuckerProjectile)

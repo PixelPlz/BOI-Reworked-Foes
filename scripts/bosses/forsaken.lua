@@ -59,8 +59,8 @@ function mod:forsakenUpdate(entity)
 	-- Clone handler
 	if entity.Variant == 10 then
 		if entity.Parent then
-			if entity.FrameCount == 2 then
-				entity.StateFrame = 0 -- For some reasons the clones set their StateFrame to 1 even if I don't do anything???
+			if entity.FrameCount <= 2 then
+				entity.StateFrame = 0 -- For some reason the clones set their StateFrame to 1 even if I don't do anything?
 			end
 
 			entity.MaxHitPoints = entity.Parent.MaxHitPoints
@@ -697,11 +697,9 @@ function mod:forsakenDMG(target, damageAmount, damageFlags, damageSource, damage
 
 	-- Clones
 	elseif target.Variant == 10 and target.Parent then
-		if target.HitPoints - damageAmount <= 0 then
-			return false
-		else
-			target.Parent:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 5)
-		end
+		target.Parent:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
+		target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+		return false
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.forsakenDMG, EntityType.ENTITY_FORSAKEN)

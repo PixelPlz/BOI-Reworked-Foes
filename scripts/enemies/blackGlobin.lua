@@ -65,7 +65,7 @@ function mod:blackGlobinHeadUpdate(entity)
 				local spawn = Isaac.Spawn(EntityType.ENTITY_BLACK_GLOBIN, 0, 0, entity.Position, Vector.Zero, entity):ToNPC()
 				spawn.State = NpcState.STATE_APPEAR_CUSTOM
 				spawn:GetSprite():Play("Appear", true)
-				spawn:GetSprite().FlipX = sprite.FlipX
+				spawn:GetSprite().FlipX = not sprite.FlipX
 				spawn.HitPoints = Settings.NewHealth
 				mod:PlaySound(entity, SoundEffect.SOUND_DEATH_REVERSE, 1.2)
 

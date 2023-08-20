@@ -6,17 +6,21 @@ function mod:giantSpikeInit(entity)
 	if entity.Variant == IRFentities.GiantSpike then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
-		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
 
 		entity.State = NpcState.STATE_IDLE
 		entity:GetSprite():Play("Appear", true)
 
-		entity.I1 = 15
-		entity.I2 = 15
+		entity.I1 = 15 -- Delay before popping out
+		entity.I2 = 15 -- Time to wait after popping out
 
 		if mod:Random(1) == 1 then
 			entity:GetSprite().FlipX = true
 		end
+
+		-- Destroy any obstacles under the spike
+		local room = Game():GetRoom()
+		room:DestroyGrid(room:GetGridIndex(entity.Position), true)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.giantSpikeInit, IRFentities.Type)
@@ -24,18 +28,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.giantSpikeInit, IRFentities.T
 function mod:giantSpikeUpdate(entity)
 	if entity.Variant == IRFentities.GiantSpike then
 		local sprite = entity:GetSprite()
-		local room = Game():GetRoom()
 		local target = nil
-
-
-		-- Destroy any obstacles under the spike
-		local function clearGridHere()
-			local gridEntity = room:GetGridEntityFromPos(entity.Position)
-
-			if gridEntity ~= nil and (gridEntity.CollisionClass == GridCollisionClass.COLLISION_SOLID or gridEntity:GetType() == GridEntityType.GRID_SPIDERWEB) then
-				gridEntity:Destroy(true)
-			end
-		end
 
 
 		-- Follow target if it's set
@@ -72,8 +65,6 @@ function mod:giantSpikeUpdate(entity)
 						rocks.State = 2
 					end
 					mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.4)
-
-					clearGridHere()
 				end
 
 				if sprite:IsFinished() then
@@ -98,6 +89,7 @@ function mod:giantSpikeUpdate(entity)
 		-- Extended
 		elseif entity.State == NpcState.STATE_ATTACK then
 			-- Make enemies go around them
+			local room = Game():GetRoom()
 			local gridIndex = room:GetGridIndex(entity.Position)
 			room:SetGridPath(gridIndex, 900)
 
@@ -118,10 +110,7 @@ function mod:giantSpikeUpdate(entity)
 					if entity.Target then
 						target:AddEntityFlags(EntityFlag.FLAG_EXTRA_GORE)
 						target:TakeDamage(target.MaxHitPoints * 2, (DamageFlag.DAMAGE_CRUSH | DamageFlag.DAMAGE_IGNORE_ARMOR), EntityRef(entity), 0)
-						target:ToNPC():FireProjectiles(target.Position, Vector(8, 4), 6, ProjectileParams())
 					end
-
-					clearGridHere()
 				end
 
 				if sprite:IsFinished() then

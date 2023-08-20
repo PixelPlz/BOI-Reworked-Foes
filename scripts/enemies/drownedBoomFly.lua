@@ -3,14 +3,14 @@ local mod = BetterMonsters
 
 
 function mod:drownedBoomFlyUpdate(entity)
-	if entity.Variant == 2 and entity:IsDead() then
+	if (entity.Variant == 2 or (Retribution and entity.Variant == 1874)) and entity:IsDead() then
 		return true
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.drownedBoomFlyUpdate, EntityType.ENTITY_BOOMFLY)
 
 function mod:drownedBoomFlyDeath(entity)
-	if entity.Variant == 2 then
+	if entity.Variant == 2 or (Retribution and entity.Variant == 1874) then
 		Game():BombExplosionEffects(entity.Position, 40, TearFlags.TEAR_NORMAL, Color(1,1,1, 1, 0,0,0.1), entity, 1, true, true, DamageFlag.DAMAGE_EXPLOSION)
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BIG_SPLASH, 0, entity.Position, Vector.Zero, entity)
 
@@ -26,8 +26,24 @@ function mod:drownedBoomFlyDeath(entity)
 		params.Variant = ProjectileVariant.PROJECTILE_TEAR
 
 		-- Outer projectiles
-		for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, Vector(8, 0), 8, params)) do
-			projectile.CollisionDamage = 1
+		-- Retardribution Bloated Fly
+		if entity.Variant == 1874 then
+			local offset = mod:Random(10, 100) * 0.01
+
+			params.CircleAngle = offset
+			for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, Vector(6, 6), 9, params)) do
+				projectile.CollisionDamage = 1
+			end
+
+			params.CircleAngle = offset + 0.5
+			for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, Vector(10, 6), 9, params)) do
+				projectile.CollisionDamage = 1
+			end
+
+		else
+			for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, Vector(8, 0), 8, params)) do
+				projectile.CollisionDamage = 1
+			end
 		end
 
 		-- Center projectile

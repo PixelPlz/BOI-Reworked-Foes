@@ -1,3 +1,151 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.6", [[
+
+{FSIZE2}Reworks / Additions
+- Camillo Jr. has been redone
+to be more consistent
+
+- Tumors and Psy Tumors now also have
+short cooldowns similar to Camillo Jr.
+
+- C.H.A.D. now has unique sounds
+from Super Meat Boy!
+
+
+- Added the option for modders to easily
+add compatibility with the
+'Breakable Hosts' option
+(check the scripts/enemies/hostBreaking.lua
+file on how to do it)
+
+- Added compatibility with Fiend Folio
+trinkets that affect female enemies
+
+- Added compatibility with
+the mod 'Enemy Bullet Trails'
+
+- Added Retribution downgrade
+and upgrade support for new enemies
+
+- Bloated Flies, Drowned Maggots,
+Drowned (Conjoined) Spitties and
+Mega Clots from Retribution now have
+behaviour that's more consistent
+with reworked enemies from this mod
+
+- Added a custom anm2 option for
+custom Black Bony variants
+
+
+
+{FSIZE2}Balance changes
+- Changed most of It Lives' attacks
+to be easier and get slightly
+faster as the fight goes on
+
+- It Lives now only does
+one continuous attack when retracted
+instead of doing several short ones
+
+- It Lives now has an easier selection
+of enemies and bosses
+
+- It Lives no longer pushes away tears
+and no longer has damage reduction
+when entering his last phase
+
+- Reduced the duration of
+It Lives' blood cell attack
+
+
+- Reduced the amount of damage required
+to break Scolex's armor
+from 50 to 40 per segment
+
+- Red Mr. Maws no longer self destruct
+their head when it gets close to the
+player like Red Maws
+(regular Mr. Maw heads don't shoot so
+it makes sense for them to
+also not keep their head behaviour)
+
+- Drowned Hives now shoot diagonally
+and spawn a Drowned Charger on death
+instead of creating lingering projectiles
+
+- Satan now has 800 health per phase
+instead of 600
+
+- Satan's hand projectile attack
+now works more like its vanilla version
+
+- Fallen Uriel now has 500 HP
+instead of 450
+
+- Gabriel now has 520 HP
+instead of 660
+and Fallen Gabriel now has 666 HP
+instead of 750
+
+- Mr. Fred's jump has been improved and
+he now shoots a ring of 12 shots
+after his jump instead of 8
+
+- Lowered the shotspeed for Cod Worms
+
+- Lowered the max bounce speed for Envy
+
+
+- Champion Wrath no longer
+has increased health
+
+- Champion Envy now has
+15% less health instead of 10%
+
+- Champion Envy's shot direction
+now depends on the bounce direction
+instead of always being the same
+and now only shoots 2 shots
+
+- Increased the time between
+blue Peep's eye shots
+
+
+
+{FSIZE2}Fixes
+- Fixed some reworked enemies / bosses
+not moving as they should
+while charmed or friendly
+
+- Fixed more reworked enemies / bosses
+not moving as they should
+while feared or confused
+
+- Fixed Cod Worms not taking damage
+from certain things
+
+- Fixed Wrath and Super Wrath
+having missing heads in the bestiary
+
+- Fixed Dart Flies having
+messed up reflections
+
+- Fixed minor errors with It Lives
+
+- Fixed Black Gate and Black Frail's
+fire waves being the wrong color if they
+get created after their spawners died
+
+- Fixed Scolex not taking damage
+from Mom's Knife if the mod
+"Mom's Knife Synergies" is enabled
+(and hopefully in other cases too)
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.5", [[
 
 {FSIZE2}Fixes

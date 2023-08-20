@@ -2,7 +2,6 @@ local mod = BetterMonsters
 
 local Settings = {
 	MoveSpeed = 5,
-
 	Cooldown = 60,
 	TearCooldown = 22,
 	TeleportCooldown = {90, 180},
@@ -63,8 +62,33 @@ function mod:hushBabyUpdate(entity)
 		--[[ Idle phase ]]--
 		if entity.State == NpcState.STATE_IDLE then
 			mod:LoopingAnim(sprite, math.max(1, entity.I1) .. "Idle")
+
+			-- Movement
 			if entity.I1 == 3 then
-				mod:ChasePlayer(entity, Settings.MoveSpeed, true)
+				-- Confused
+				if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+					mod:WanderAround(entity, Settings.MoveSpeed)
+
+				-- Feared
+				elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+					entity.Velocity = mod:Lerp(entity.Velocity, (entity.Position - target.Position):Resized(Settings.MoveSpeed), 0.25)
+
+				-- Normal
+				else
+					-- Stay at a point around the player, change this point every 60 frames
+					if not data.angle or entity:IsFrame(60, 0) then
+						data.angle = mod:Random(7) * 45
+					end
+					local pos = target.Position + Vector.FromAngle(data.angle):Resized(100)
+
+					if entity.Position:Distance(pos) < 20 then
+						entity.Velocity = mod:StopLerp(entity.Velocity)
+					else
+						entity.Velocity = mod:Lerp(entity.Velocity, (pos - entity.Position):Resized(Settings.MoveSpeed), 0.25)
+					end
+				end
+
+			-- Stationary
 			else
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 			end
@@ -204,6 +228,7 @@ function mod:hushBabyUpdate(entity)
 		elseif entity.State == NpcState.STATE_JUMP then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
+			-- Get position
 			if sprite:IsEventTriggered("Shoot") or sprite:IsFinished("3FBAttack3") then
 				local position = target.Position + target.Velocity:Resized(240)
 				if room:IsPositionInRoom(position, 0) == false or target.Velocity:Length() <= 0.1 then
@@ -211,10 +236,12 @@ function mod:hushBabyUpdate(entity)
 				end
 				entity.Position = room:FindFreePickupSpawnPosition(position, 40, true, false)
 
+			-- Teleport away
 			elseif sprite:IsEventTriggered("TeleportUp") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 				mod:PlaySound(nil, SoundEffect.SOUND_HELL_PORTAL2, 1.2)
-			
+
+			-- Teleported
 			elseif sprite:IsEventTriggered("TeleportDown") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 				mod:PlaySound(nil, SoundEffect.SOUND_HELL_PORTAL1, 1.2)
@@ -421,7 +448,6 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.hushBabyDMG, EntityType.ENT
 function mod:hushFlyAttackInit(entity)
 	if entity.Variant == IRFentities.HushFlyAttack then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
-		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
 		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
 

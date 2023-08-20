@@ -2,6 +2,16 @@ local mod = BetterMonsters
 
 
 
+function mod:wrathInit(entity)
+	-- Bestiary fix
+	if not (entity.Variant == 0 and entity.SubType == 1) then
+		local sprite = entity:GetSprite()
+		sprite:ReplaceSpritesheet(3, "")
+		sprite:LoadGraphics()
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.wrathInit, EntityType.ENTITY_WRATH)
+
 function mod:wrathUpdate(entity)
 	if mod:CheckValidMiniboss(entity) == true then
 		local sprite = entity:GetSprite()

@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2023. 06. 27. 13:43:01" Version="104" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2023. 07. 24. 14:56:07" Version="106" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="Bosses/Classic/Boss_000_Bodies02.png" Id="0"/>
@@ -9,6 +9,7 @@
 			<Layer Name="body" Id="0" SpritesheetId="0"/>
 			<Layer Name="head" Id="1" SpritesheetId="1"/>
 			<Layer Name="extra0" Id="2" SpritesheetId="1"/>
+			<Layer Name="bestiary" Id="3" SpritesheetId="1"/>
 		</Layers>
 		<Nulls>
 			<Null Name="BloodGuide" Id="0" ShowRect="false"/>
@@ -40,6 +41,7 @@
 				</LayerAnimation>
 				<LayerAnimation LayerId="1" Visible="true"/>
 				<LayerAnimation LayerId="2" Visible="true"/>
+				<LayerAnimation LayerId="3" Visible="true"/>
 			</LayerAnimations>
 			<NullAnimations>
 				<NullAnimation NullId="0" Visible="true"/>
@@ -70,6 +72,9 @@
 				</LayerAnimation>
 				<LayerAnimation LayerId="1" Visible="true"/>
 				<LayerAnimation LayerId="2" Visible="true"/>
+				<LayerAnimation LayerId="3" Visible="true">
+					<Frame XPosition="-1" YPosition="-9" XPivot="24" YPivot="40" XCrop="0" YCrop="0" Width="48" Height="48" XScale="100" YScale="100" Delay="2" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="false"/>
+				</LayerAnimation>
 			</LayerAnimations>
 			<NullAnimations>
 				<NullAnimation NullId="0" Visible="true"/>
@@ -92,6 +97,7 @@
 					<Frame XPosition="-1" YPosition="-1" XPivot="24" YPivot="44" XCrop="0" YCrop="48" Width="48" Height="48" XScale="110" YScale="90" Delay="2" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="true"/>
 					<Frame XPosition="-1" YPosition="-1" XPivot="24" YPivot="44" XCrop="0" YCrop="48" Width="48" Height="48" XScale="100" YScale="100" Delay="14" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="true"/>
 				</LayerAnimation>
+				<LayerAnimation LayerId="3" Visible="true"/>
 			</LayerAnimations>
 			<NullAnimations>
 				<NullAnimation NullId="0" Visible="true"/>
@@ -116,6 +122,7 @@
 					<Frame XPosition="-1" YPosition="-1" XPivot="24" YPivot="44" XCrop="48" YCrop="48" Width="48" Height="48" XScale="106" YScale="94" Delay="2" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="true"/>
 					<Frame XPosition="-1" YPosition="-1" XPivot="24" YPivot="44" XCrop="48" YCrop="48" Width="48" Height="48" XScale="100" YScale="100" Delay="2" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="true"/>
 				</LayerAnimation>
+				<LayerAnimation LayerId="3" Visible="true"/>
 			</LayerAnimations>
 			<NullAnimations>
 				<NullAnimation NullId="0" Visible="true"/>
@@ -135,6 +142,7 @@
 					<Frame XPosition="-1" YPosition="-1" XPivot="24" YPivot="44" XCrop="0" YCrop="48" Width="48" Height="48" XScale="100" YScale="100" Delay="1" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="false"/>
 				</LayerAnimation>
 				<LayerAnimation LayerId="2" Visible="true"/>
+				<LayerAnimation LayerId="3" Visible="true"/>
 			</LayerAnimations>
 			<NullAnimations>
 				<NullAnimation NullId="0" Visible="true">
@@ -156,6 +164,7 @@
 					<Frame XPosition="-1" YPosition="-9" XPivot="24" YPivot="40" XCrop="0" YCrop="0" Width="48" Height="48" XScale="100" YScale="100" Delay="2" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="false"/>
 				</LayerAnimation>
 				<LayerAnimation LayerId="2" Visible="true"/>
+				<LayerAnimation LayerId="3" Visible="true"/>
 			</LayerAnimations>
 			<NullAnimations>
 				<NullAnimation NullId="0" Visible="true"/>
@@ -175,6 +184,7 @@
 					<Frame XPosition="-1" YPosition="-9" XPivot="24" YPivot="40" XCrop="48" YCrop="0" Width="48" Height="48" XScale="100" YScale="100" Delay="2" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="false"/>
 				</LayerAnimation>
 				<LayerAnimation LayerId="2" Visible="true"/>
+				<LayerAnimation LayerId="3" Visible="true"/>
 			</LayerAnimations>
 			<NullAnimations>
 				<NullAnimation NullId="0" Visible="true"/>

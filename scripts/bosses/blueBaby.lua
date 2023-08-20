@@ -209,11 +209,30 @@ function mod:blueBabyUpdate(entity)
 
 		--[[ Idle phase ]]--
 		if entity.State == NpcState.STATE_IDLE then
-			-- Stay at a point around the player, change this point every 60 frames
-			if not data.angle or entity:IsFrame(60, 0) then
-				data.angle = mod:Random(7) * 45
+			-- Movement
+			-- Confused
+			if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+				mod:WanderAround(entity, Settings.MoveSpeed)
+
+			-- Feared
+			elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+				entity.Velocity = mod:Lerp(entity.Velocity, (entity.Position - target.Position):Resized(Settings.MoveSpeed), 0.25)
+
+			-- Normal
+			else
+				-- Stay at a point around the player, change this point every 60 frames
+				if not data.angle or entity:IsFrame(60, 0) then
+					data.angle = mod:Random(7) * 45
+				end
+				local pos = target.Position + Vector.FromAngle(data.angle):Resized(100)
+
+				if entity.Position:Distance(pos) < 20 then
+					entity.Velocity = mod:StopLerp(entity.Velocity)
+				else
+					entity.Velocity = mod:Lerp(entity.Velocity, (pos - entity.Position):Resized(Settings.MoveSpeed), 0.25)
+				end
 			end
-			entity.Velocity = mod:Lerp(entity.Velocity, ((target.Position + Vector.FromAngle(data.angle):Resized(100)) - entity.Position):Resized(Settings.MoveSpeed), 0.25)
+
 
 			if data.isSoul == true then
 				mod:LoopingAnim(sprite, "2_Idle_Soul")
@@ -735,9 +754,19 @@ function mod:blueBabyUpdate(entity)
 					params.FallingSpeedModifier = 1
 					params.FallingAccelModifier = -0.1
 					entity:FireProjectiles(entity.Position, Vector(10, 6), 9, params)
-
-					entity.Velocity = (target.Position - entity.Position):Resized(35)
 					mod:PlaySound(nil, SoundEffect.SOUND_SHELLGAME, 1.1)
+
+					-- Get direction
+					local vector = (target.Position - entity.Position):Resized(35)
+					-- Confused
+					if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+						vector = mod:RandomVector(mod:Random(30, 35))
+					-- Feared
+					elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+						vector = (entity.Position - target.Position):Resized(mod:Random(30, 35))
+					end
+
+					entity.Velocity = vector
 
 				-- Throw bone at player
 				elseif sprite:IsEventTriggered("Shoot") then
@@ -895,11 +924,6 @@ function mod:forgottenBodyInit(entity)
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 			entity:GetSprite():Play("Appear", true)
 			entity:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
-
-			-- Off-screen inficator blacklist
-			if OffscreenIndicators then
-				OffscreenIndicators:addOIblacklist(entity.Type, entity.Variant, entity.SubType)
-			end
 
 		-- Chain
 		elseif entity.SubType == IRFentities.ForgottenChain then

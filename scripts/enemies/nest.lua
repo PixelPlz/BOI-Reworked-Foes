@@ -33,14 +33,14 @@ end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.mullicocoonInit, EntityType.ENTITY_MULLIGAN)
 
 function mod:mullicocoonDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == IRFentities.Mullicocoon and damageSource.Type == EntityType.ENTITY_SPIDER then
+	if target.Variant == IRFentities.Mullicocoon and damageSource.SpawnerType == target.Type and damageSource.SpawnerVariant == target.Variant then
 		return false
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.mullicocoonDMG, EntityType.ENTITY_MULLIGAN)
 
 function mod:mullicocoonCollide(entity, target, bool)
-	if entity.Variant == IRFentities.Mullicocoon and target.Type == EntityType.ENTITY_SPIDER then
+	if entity.Variant == IRFentities.Mullicocoon and target.SpawnerType == entity.Type and target.SpawnerVariant == entity.Variant then
 		return true -- Ignore collision
 	end
 end
