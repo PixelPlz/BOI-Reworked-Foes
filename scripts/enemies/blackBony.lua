@@ -74,7 +74,7 @@ function mod:blackBonyUpdate(entity)
 
 
 	-- Fire effects for Hot Bombs variant
-	if IRFblackBonyTypes[entity.SubType].effect == TearFlags.TEAR_BURN then
+	if IRFblackBonyTypes[entity.SubType] and IRFblackBonyTypes[entity.SubType].effect == TearFlags.TEAR_BURN then
 		if entity.I2 == 0 then
 			mod:LoopingOverlay(sprite, "FireAppear", true)
 			if sprite:GetOverlayFrame() == 11 then

@@ -108,7 +108,7 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.gaperIgnite, EntityType.ENT
 function mod:flamingGusherUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	if entity.Variant == 2 then
+	if entity.Variant == IRFentities.Brazier then
 		mod:LoopingOverlay(sprite, "Fire", true)
 		mod:EmberParticles(entity, Vector(0, -28))
 
@@ -145,7 +145,7 @@ function mod:flamingGusherUpdate(entity)
 	-- Turn Gushers and Pacers from Flaming Gapers into Braziers
 	elseif entity:GetData().wasFlamingGaper then
 		if IRFConfig.burningGushers == true then
-			entity:Morph(EntityType.ENTITY_GUSHER, 2, 0, entity:GetChampionColorIdx())
+			entity:Morph(EntityType.ENTITY_GUSHER, IRFentities.Brazier, 0, entity:GetChampionColorIdx())
 
 		else
 			local suffix = ""
@@ -164,8 +164,8 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingGusherUpdate, EntityType.
 
 -- Turn regular Gushers into Braziers when burnt
 function mod:gusherIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant ~= 2 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
-		target:ToNPC():Morph(EntityType.ENTITY_GUSHER, 2, 0, target:ToNPC():GetChampionColorIdx())
+	if target.Variant < 2 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
+		target:ToNPC():Morph(EntityType.ENTITY_GUSHER, IRFentities.Brazier, 0, target:ToNPC():GetChampionColorIdx())
 		mod:PlaySound(nil, SoundEffect.SOUND_FIREDEATH_HISS)
 		return false
 	end

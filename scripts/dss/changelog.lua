@@ -1,6 +1,54 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.7", [[
+
+{FSIZE2}Balance changes
+
+- Champion Envy will no longer act like
+reworked Envy if the rework is supposed
+to be disabled (he will now simply
+shoot rings of shots when splitting
+if it's disabled)
+
+- Increased the spread of Mama Gurdy's
+bullets for her spike trap attack
+to make going between them easier
+
+
+
+{FSIZE2}Other changes
+
+- Custom Gusher and Pacer variants will
+no longer turn into Braziers when burnt
+
+- C.H.A.D. and Forsaken will now spawn less
+creep and smoke respectively to reduce
+lag if multiple of them are present
+
+
+
+{FSIZE2}Fixes
+
+- Fixed C.H.A.D. and Scolex
+getting stuck underground
+(hopefully for the last time)
+
+- Fixed C.H.A.D.'s segments sometimes
+getting desynced during his charge
+
+- Fixed grid Hosts from Fiend Folio
+using the wrong sprites when
+their skull gets cracked
+
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.6", [[
 
 {FSIZE2}Reworks / Additions
+
 - Camillo Jr. has been redone
 to be more consistent
 
@@ -38,6 +86,7 @@ custom Black Bony variants
 
 
 {FSIZE2}Balance changes
+
 - Changed most of It Lives' attacks
 to be easier and get slightly
 faster as the fight goes on
@@ -112,6 +161,7 @@ blue Peep's eye shots
 
 
 {FSIZE2}Fixes
+
 - Fixed some reworked enemies / bosses
 not moving as they should
 while charmed or friendly

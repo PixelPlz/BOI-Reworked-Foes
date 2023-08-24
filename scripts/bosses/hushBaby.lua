@@ -267,14 +267,23 @@ function mod:hushBabyUpdate(entity)
 						local sign = mod:RandomSign()
 
 						for i = 0, 3 do
-							local fly = Isaac.Spawn(IRFentities.Type, IRFentities.HushFlyAttack, 0, entity.Position, Vector.Zero, entity):ToNPC()
+							local fly = Isaac.Spawn(EntityType.ENTITY_HUSH_FLY, 0, 0, entity.Position, Vector.Zero, entity):ToNPC()
+							fly:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+							fly.State = NpcState.STATE_SPECIAL
+
+							fly:GetSprite():Play("Fly", true)
+							fly.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
+							fly.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
+							fly:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
+							fly.Mass = 1
+
 							fly.Parent = entity
 							fly.TargetPosition = entity.Position
-							fly.StateFrame = i
-							fly.I1 = 100
-							fly.V2 = Vector(sign * fly.V2.X, fly.V2.Y)
+							fly.I1 = 90 -- Lifespan
+							fly.StateFrame = i -- Rotation Offset
+							fly.V2 = Vector(sign * 4, 20) -- Rotation speed / Distance from parent
 						end
-					
+
 					-- Orbiting shots
 					else
 						local params = ProjectileParams()
@@ -445,26 +454,8 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.hushBabyDMG, EntityType.ENT
 
 
 --[[ Circling fly attack ]]--
-function mod:hushFlyAttackInit(entity)
-	if entity.Variant == IRFentities.HushFlyAttack then
-		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
-		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
-		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
-
-		entity.V2 = Vector(4, 20) -- Rotation speed / Distance from parent
-
-		-- Set random sprite
-		entity.Scale = 1.25
-		local sprite = entity:GetSprite()
-		sprite:Play("Fly", true)
-		sprite:ReplaceSpritesheet(0, "gfx/monsters/afterbirth/monster_010_fly_hush_" .. mod:Random(1, 3) .. ".png")
-		sprite:LoadGraphics()
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.hushFlyAttackInit, IRFentities.Type)
-
 function mod:hushFlyAttackUpdate(entity)
-	if entity.Variant == IRFentities.HushFlyAttack then
+	if entity.State == NpcState.STATE_SPECIAL then
 		if entity.Parent and entity.I1 > 0 then
 			-- Orbit spawn position
 			entity.V1 = Vector((90 * entity.StateFrame), entity.V1.Y + entity.V2.X) -- Rotation offset / Current rotation
@@ -502,18 +493,11 @@ function mod:hushFlyAttackUpdate(entity)
 		else
 			entity:Kill()
 		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hushFlyAttackUpdate, IRFentities.Type)
 
-function mod:hushFlyAttackDeath(entity)
-	if entity.Variant == IRFentities.HushFlyAttack then
-		local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FLY_EXPLOSION, 1, entity.Position, Vector.Zero, entity):GetSprite()
-		effect:Load("gfx/296.000_hush fly.anm2", true)
-		effect:Play("Die", true)
+		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.hushFlyAttackDeath, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.hushFlyAttackUpdate, EntityType.ENTITY_HUSH_FLY)
 
 
 

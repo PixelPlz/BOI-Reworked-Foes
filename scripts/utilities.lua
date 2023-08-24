@@ -662,7 +662,7 @@ end
 -- Smoke particles
 function mod:SmokeParticles(entity, offset, radius, scale, color, newSprite)
 	if not StageAPI and entity:IsFrame(2, 0) then
-		for i = 1, 5 do
+		for i = 1, 4 do
 			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DARK_BALL_SMOKE_PARTICLE, 0, entity.Position, mod:RandomVector(), entity):ToEffect()
 			local sprite = trail:GetSprite()
 

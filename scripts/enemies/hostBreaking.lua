@@ -61,7 +61,7 @@ function mod:BreakHost(entity, brokenData)
 	-- Fiend Folio grid Hosts
 	if FiendFolio and entity:GetData().ffGridHost then
 		sprite:Load("gfx/enemies/grid hosts/host.anm2", true)
-		sprite:ReplaceSpritesheet(1, "gfx/enemies/grid hosts/host_" .. entity:GetData().ffGridHost)
+		sprite:ReplaceSpritesheet(1, "gfx/enemies/grid hosts/redhost_" .. entity:GetData().ffGridHost)
 		sprite:LoadGraphics()
 	end
 

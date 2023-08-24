@@ -526,6 +526,7 @@ function mod:scolexUpdate(entity)
 								local posLeft = Vector(room:GetTopLeftPos().X + 20, target.Position.Y)
 								local posRight = Vector(room:GetBottomRightPos().X - 20, target.Position.Y)
 
+								-- Get closest side
 								if entity.Position:Distance(posLeft) > entity.Position:Distance(posRight) then
 									entity.TargetPosition = posRight
 									entity.ProjectileDelay = -1
@@ -533,7 +534,14 @@ function mod:scolexUpdate(entity)
 									entity.TargetPosition = posLeft
 									entity.ProjectileDelay = 1
 								end
+
 								entity.TargetPosition = room:FindFreeTilePosition(entity.TargetPosition, 40)
+
+								-- Dumb piece of shit function doesn't take into account spikes...
+								local gridHere = room:GetGridEntityFromPos(entity.TargetPosition)
+								if (gridHere ~= nil and gridHere:ToSpikes() ~= nil) or entity.Pathfinder:HasPathToPos(entity.TargetPosition, false) == false then
+									entity.TargetPosition = room:FindFreePickupSpawnPosition(entity.TargetPosition, 60, false, false)
+								end
 
 								-- Longer burrow time before long jump
 								entity.I1 = Settings.BurrowTime * 3

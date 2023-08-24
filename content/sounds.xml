@@ -19,34 +19,4 @@
 	<sound name="C.H.A.D. Die">
         <sample weight="1" path="chad_die.wav" />
     </sound>
-
-
-	<!-- Steven -->
-	<sound name="Steven Voice">
-        <sample weight="1" path="steven_voice.wav" />
-    </sound>
-
-	<sound name="Steven Teleport Loop">
-        <sample weight="1" path="steven_teleport.wav" />
-    </sound>
-
-	<sound name="Steven Layer Change">
-        <sample weight="1" path="steven_change1.wav" />
-		<sample weight="1" path="steven_change2.wav" />
-		<sample weight="1" path="steven_change3.wav" />
-    </sound>
-
-	<sound name="Steven Land">
-        <sample weight="1" path="steven_land1.wav" />
-		<sample weight="1" path="steven_land2.wav" />
-		<sample weight="1" path="steven_land3.wav" />
-    </sound>
-
-	<sound name="Steven Die">
-        <sample weight="1" path="steven_die.wav" />
-    </sound>
-
-	<sound name="Steven Flip">
-        <sample weight="1" path="steven_flip.wav" />
-    </sound>
 </sounds>

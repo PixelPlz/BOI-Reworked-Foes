@@ -127,6 +127,7 @@ function mod:postGameStarted()
 		HPBars.BossDefinitions["200.4071"] = {
 			sprite = path .. "chapter4/teratomar.png",
 			offset = Vector(-4, 0),
+			bossColors = {"_fuzzy"}
 		}
 
 		-- It lives
@@ -188,16 +189,6 @@ function mod:postGameStarted()
 
 
 		-- Blacklists
-		--[[ Steven
-		HPBars.BossIgnoreList["79.11"] = function(entity) -- Little Steven
-			return entity:ToNPC().I1 ~= 1
-		end
-		HPBars.BossIgnoreList["79.1"] = function(entity) -- 2nd phase delay
-			return entity:ToNPC().State == NpcState.STATE_SPECIAL and entity:ToNPC().StateFrame == 0
-		end
-		HPBars.BossIgnoreList["200.4079"] = true -- Wallace
-		]]--
-
 		-- Mask of Infamy
 		HPBars.BossIgnoreList["97.0"] = true
 
@@ -222,10 +213,6 @@ function mod:postGameStarted()
 
 	--[[ Off-screen Indicator blacklists ]]--
 	if OffscreenIndicators then
-		-- Steven
-		--OffscreenIndicators:addOIblacklist(EntityType.ENTITY_GEMINI, 11, -1) -- Little Steven
-		--OffscreenIndicators:addOIblacklist(IRFentities.Type, IRFentities.Wallace, -1) -- Wallace
-
 		-- Forgotten body
 		OffscreenIndicators:addOIblacklist(IRFentities.Type, IRFentities.BlueBabyExtras, IRFentities.ForgottenBody)
 	end
@@ -236,11 +223,7 @@ function mod:postGameStarted()
 
 	--[[ Fiend Folio ]]--
 	if FiendFolio then
-		-- Flies
-		FiendFolio.AllFlies[IRFentities.Type .. " " .. IRFentities.HushFlyAttack] = true
-
-
-		-- Non-male
+		-- Non-males
 		local nonMale = {
 			{ID = {EntityType.ENTITY_HOST, 3, 40}, Affliction = "Woman"}, -- Soft Host
 			{ID = {EntityType.ENTITY_MONSTRO2, 1, 1}, Affliction = "Woman"}, -- Hera (Gish champion)
@@ -254,7 +237,6 @@ function mod:postGameStarted()
 		-- LGBTQIA
 		local based = {
 			{ID = {EntityType.ENTITY_PRIDE, 0, 1}, Affliction = "Closeted gay"}, -- Champion Pride
-			--{ID = {IRFentities.Type, IRFentities.Wallace}, Affliction = "Pan"}, -- Wallace
 			{ID = {EntityType.ENTITY_HIVE, 40}, Affliction = "Trans"}, -- Nest (new)
 		}
 		for i, entry in pairs(based) do
@@ -287,9 +269,6 @@ function mod:postGameStarted()
 		-- C.H.A.D. Sucker projectile
 		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_CHUB, 1, red)
 
-		-- Ultra Pride
-		--BulletTrails:AddEntityTrailColor(EntityType.ENTITY_SLOTH, 2, green)
-
 		-- Champion Husk Sucker projectile
 		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_DUKE, 1, red)
 
@@ -303,7 +282,7 @@ function mod:postGameStarted()
 		)
 
 		-- Hush baby fly attack
-		BulletTrails:BlacklistEntity(true, IRFentities.Type, IRFentities.HushFlyAttack)
+		BulletTrails:BlacklistEntity(true, EntityType.ENTITY_HUSH_FLY, 0)
 
 		-- Non-champion Mega Maw fires
 		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_MEGA_MAW, 0,

@@ -140,7 +140,7 @@ function mod:editNormalProjectiles(projectile)
 
 		-- Blastocyst
 		elseif projectile.SpawnerType == EntityType.ENTITY_BLASTOCYST_BIG or projectile.SpawnerType == EntityType.ENTITY_BLASTOCYST_MEDIUM or projectile.SpawnerType == EntityType.ENTITY_BLASTOCYST_SMALL then
-			sprite:ReplaceSpritesheet(0, "gfx/blastocyst projectile.png")
+			sprite:ReplaceSpritesheet(0, "gfx/projectiles/blastocyst_projectile.png")
 			sprite:LoadGraphics()
 
 
@@ -378,7 +378,7 @@ local function featherProjectileInit(projectile)
 	-- Black variant
 	if projectile.SubType == 1 then
 		local sprite = projectile:GetSprite()
-		sprite:ReplaceSpritesheet(0, "gfx/feather projectile black.png")
+		sprite:ReplaceSpritesheet(0, "gfx/projectiles/feather_projectile_black.png")
 		sprite:LoadGraphics()
 
 		projectile.SplatColor = IRFcolors.Tar

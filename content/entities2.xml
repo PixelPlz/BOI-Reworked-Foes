@@ -54,14 +54,6 @@
 	</entity>
 
 
-	<!-- Giant spike -->
-	<entity name="Giant Spike"   id="200" variant="4437"   anm2path="giant spike.anm2" hasFloorAlts="true" portrait="9"
-	shutdoors="false" tags="noreroll"
-	friction="1" collisionRadius="18" collisionMass="100" collisionDamage="2" numGridCollisionPoints="12" >
-		<gibs amount="6"   dust="1" rock="1" />
-	</entity>
-
-
 	<!-- Coffer -->
 	<entity name="Coffer"   id="86" variant="450"   anm2path="086.450_coffer.anm2" shadowSize="14" portrait="2"
 	baseHP="8" stageHP="1"
@@ -74,7 +66,7 @@
 
 	<!-- ??? -->
 	<!-- Forgotten Body -->
-	<entity name="Forgotten Body (Boss)"   id="200" variant="4102" subtype="0"   anm2path="forgotten body (boss).anm2" shadowSize="16" portrait="23"
+	<entity name="Forgotten Body (Boss)"   id="200" variant="4102" subtype="0"   anm2path="forgotten body (boss).anm2" shadowSize="16" portrait="22"
 	shutdoors="false" boss="1" bossID="63" tags="nodelirium"
 	friction="1" collisionRadius="18" gridCollision="walls" collisionMass="100" collisionDamage="1" numGridCollisionPoints="12" >
 		<gibs amount="10"   sound_bone="1"   bone="1" dust="1" />
@@ -84,7 +76,7 @@
 	shutdoors="false" tags="noreroll"
 	friction="1" gridCollision="none" />
 	<!-- Lost Holy Orb -->
-	<entity name="Lost Holy Orb"   id="200" variant="4102" subtype="2"   anm2path="holy orb.anm2" shadowSize="16" portrait="23"
+	<entity name="Lost Holy Orb"   id="200" variant="4102" subtype="2"   anm2path="holy orb.anm2" shadowSize="16" portrait="22"
 	shutdoors="false" tags="noreroll"
 	friction="1" collisionRadius="13" gridCollision="walls" collisionMass="100" collisionDamage="1" numGridCollisionPoints="12" />
 
@@ -104,8 +96,16 @@
 	</entity>
 
 
+	<!-- Giant spike -->
+	<entity name="Giant Spike"   id="200" variant="4437"   anm2path="giant spike.anm2" hasFloorAlts="true" portrait="4"
+	shutdoors="false" tags="noreroll"
+	friction="1" collisionRadius="18" collisionMass="100" collisionDamage="2" numGridCollisionPoints="12" >
+		<gibs amount="6"   dust="1" rock="1" />
+	</entity>
+
+
 	<!-- Mullicocoon -->
-	<entity name="Mullicocoon"   id="16" variant="40"   anm2path="016.040_mullicocoon.anm2" shadowSize="13" portrait="4"
+	<entity name="Mullicocoon"   id="16" variant="40"   anm2path="016.040_mullicocoon.anm2" shadowSize="13" portrait="5"
 	baseHP="13" champion="1"
 	friction="1" collisionRadius="13" collisionMass="6" numGridCollisionPoints="12" >
 		<gibs amount="6"   blood="1" bone="1" eye="1" gut="1" />
@@ -113,7 +113,7 @@
 		<devolve id="11.0.0" weight="1" />
 	</entity>
 	<!-- Nest -->
-	<entity name="#NEST"   id="22" variant="40"   anm2path="205.000_nest.anm2" shadowSize="14" portrait="5"
+	<entity name="#NEST"   id="22" variant="40"   anm2path="205.000_nest.anm2" shadowSize="14" portrait="6"
 	baseHP="20" champion="1"
 	friction="1" collisionRadius="13" collisionMass="7" numGridCollisionPoints="12" >
 		<gibs amount="6"   blood="1" bone="1" eye="1" gut="1" />
@@ -123,7 +123,7 @@
 
 
 	<!-- Bone Knight -->
-	<entity name="#BONE_KNIGHT"   id="41" variant="40"   anm2path="283.000_BoneKnight.anm2" shadowSize="14" portrait="6"
+	<entity name="#BONE_KNIGHT"   id="41" variant="40"   anm2path="283.000_BoneKnight.anm2" shadowSize="14" portrait="7"
 	baseHP="20" champion="1"
 	friction="1" collisionRadius="13" collisionMass="10" collisionDamage="1" numGridCollisionPoints="12" >
 		<gibs amount="6"   bone="1" gut="1" worm="1" />
@@ -132,16 +132,8 @@
 	</entity>
 
 
-	<!-- Hush Fly attack -->
-	<entity name="Hush Fly Attack"   id="200" variant="4013"   anm2path="296.000_Hush Fly.anm2" shadowSize="11" portrait="7"
-	baseHP="30" shutdoors="false" tags="fly noreroll"
-	friction="1" collisionRadius="9" gridCollision="none" collisionMass="1" collisionDamage="1" >
-		<devolve id="222.0.0" weight="1" />
-	</entity>
-
-
 	<!-- The Stain tentacle -->
-	<entity name="The Stain's Tentacle"   id="401" variant="10"   anm2path="401.010_thestain tentacle.anm2" portrait="25"
+	<entity name="The Stain's Tentacle"   id="401" variant="10"   anm2path="401.010_thestain tentacle.anm2" portrait="23"
 	baseHP="400" shutdoors="false" boss="1" bossID="57" tags="nodelirium"
 	friction="1" collisionRadius="18" collisionMass="100" >
 		<gibs amount="6"   blood="1" />
@@ -149,7 +141,7 @@
 
 
 	<!-- Rag Mega Plasma -->
-	<entity name="Rag Mega Plasma"   id="200" variant="4409"   anm2path="ragmega plasma.anm2" shadowSize="16" portrait="26"
+	<entity name="Rag Mega Plasma"   id="200" variant="4409"   anm2path="ragmega plasma.anm2" shadowSize="16" portrait="24"
 	shutdoors="false" tags="noreroll"
 	friction="1" collisionRadius="13" collisionMass="20" collisionDamage="1" numGridCollisionPoints="12" />
 

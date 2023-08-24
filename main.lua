@@ -3,7 +3,7 @@ local mod = BetterMonsters
 
 
 
-local startupText = mod.Name .. " v3.0.6 Initialized"
+local startupText = mod.Name .. " v3.0.7 Initialized"
 Isaac.DebugString(startupText)
 
 IRFflavorText = {
@@ -103,7 +103,6 @@ mod:LoadScripts(enemyScripts, "enemies")
 -- Minibosses
 local minibossScripts = {
 	"sloth",
-	--"ultraPride",
 	"lust",
 	"wrath",
 	"gluttony",
@@ -141,7 +140,6 @@ local bossScripts = {
 	"stain",
 	"forsaken",
 	"ragMega",
-	--"sisterVis",
 }
 mod:LoadScripts(bossScripts, "bosses")
 

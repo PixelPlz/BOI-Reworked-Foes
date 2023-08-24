@@ -1,8 +1,8 @@
 <AnimatedActor>
-	<Info CreatedBy="Pixel" CreatedOn="2023. 06. 23. 16:29:51" Version="112" Fps="30"/>
+	<Info CreatedBy="Pixel" CreatedOn="2023. 08. 21. 18:18:11" Version="113" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="blood cell projectile.png" Id="0"/>
+			<Spritesheet Path="projectiles\blood_cell_projectile.png" Id="0"/>
 		</Spritesheets>
 		<Layers>
 			<Layer Name="body" Id="0" SpritesheetId="0"/>
