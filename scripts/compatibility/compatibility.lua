@@ -138,6 +138,16 @@ function mod:postGameStarted()
 			},
 		}
 
+		-- Steven
+		HPBars.BossDefinitions["79.1"] = {
+			sprite = path .. "chapter1/steven_big.png",
+			offset = Vector(-5, 0),
+			conditionalSprites = {
+				{function(entity) return entity:ToNPC().State == NpcState.STATE_SPECIAL end, path .. "chapter1/steven_wallace.png"}
+			},
+			barStyle = "Steven",
+		}
+
 		-- Blighted Ovum
 		HPBars.BossDefinitions["79.2"] = {
 			sprite = path .. "chapter1/blighted_ovum.png",
@@ -188,7 +198,7 @@ function mod:postGameStarted()
 
 
 		-- Blacklists
-		--[[ Steven
+		-- Steven
 		HPBars.BossIgnoreList["79.11"] = function(entity) -- Little Steven
 			return entity:ToNPC().I1 ~= 1
 		end
@@ -196,7 +206,6 @@ function mod:postGameStarted()
 			return entity:ToNPC().State == NpcState.STATE_SPECIAL and entity:ToNPC().StateFrame == 0
 		end
 		HPBars.BossIgnoreList["200.4079"] = true -- Wallace
-		]]--
 
 		-- Mask of Infamy
 		HPBars.BossIgnoreList["97.0"] = true
@@ -223,8 +232,9 @@ function mod:postGameStarted()
 	--[[ Off-screen Indicator blacklists ]]--
 	if OffscreenIndicators then
 		-- Steven
-		--OffscreenIndicators:addOIblacklist(EntityType.ENTITY_GEMINI, 11, -1) -- Little Steven
-		--OffscreenIndicators:addOIblacklist(IRFentities.Type, IRFentities.Wallace, -1) -- Wallace
+		OffscreenIndicators:addOIblacklist(EntityType.ENTITY_GEMINI, 1, -1, "state", NpcState.STATE_SPECIAL) -- 2nd phase
+		OffscreenIndicators:addOIblacklist(EntityType.ENTITY_GEMINI, 11, -1, "segmented") -- Little Steven
+		OffscreenIndicators:addOIblacklist(IRFentities.Type, IRFentities.Wallace, -1) -- Wallace
 
 		-- Forgotten body
 		OffscreenIndicators:addOIblacklist(IRFentities.Type, IRFentities.BlueBabyExtras, IRFentities.ForgottenBody)
@@ -236,11 +246,7 @@ function mod:postGameStarted()
 
 	--[[ Fiend Folio ]]--
 	if FiendFolio then
-		-- Flies
-		FiendFolio.AllFlies[IRFentities.Type .. " " .. IRFentities.HushFlyAttack] = true
-
-
-		-- Non-male
+		-- Non-males
 		local nonMale = {
 			{ID = {EntityType.ENTITY_HOST, 3, 40}, Affliction = "Woman"}, -- Soft Host
 			{ID = {EntityType.ENTITY_MONSTRO2, 1, 1}, Affliction = "Woman"}, -- Hera (Gish champion)
@@ -254,7 +260,7 @@ function mod:postGameStarted()
 		-- LGBTQIA
 		local based = {
 			{ID = {EntityType.ENTITY_PRIDE, 0, 1}, Affliction = "Closeted gay"}, -- Champion Pride
-			--{ID = {IRFentities.Type, IRFentities.Wallace}, Affliction = "Pan"}, -- Wallace
+			{ID = {IRFentities.Type, IRFentities.Wallace}, Affliction = "Pan"}, -- Wallace
 			{ID = {EntityType.ENTITY_HIVE, 40}, Affliction = "Trans"}, -- Nest (new)
 		}
 		for i, entry in pairs(based) do
@@ -264,6 +270,11 @@ function mod:postGameStarted()
 
 		-- Outliers
 		local outliers = {
+			{ID = {EntityType.ENTITY_CLOTTY, IRFentities.ClottySketch}, Affliction = "Drawing"}, -- Clotty Sketch
+			{ID = {EntityType.ENTITY_CHARGER, IRFentities.ChargerSketch}, Affliction = "Drawing"}, -- Charger Sketch
+			{ID = {EntityType.ENTITY_GLOBIN, IRFentities.GlobinSketch}, Affliction = "Drawing"}, -- Globin Sketch
+			{ID = {EntityType.ENTITY_MAW, IRFentities.MawSketch}, Affliction = "Drawing"}, -- Maw Sketch
+
 			{ID = {EntityType.ENTITY_WAR, 20}, Affliction = "Horse"}, -- Conquest Horse
 			{ID = {IRFentities.Type, IRFentities.Teratomar}, Affliction = "War criminal"}, -- Teratomar
 			{ID = {EntityType.ENTITY_KEEPER, IRFentities.Coffer}, Affliction = "Inflation fetishist"}, -- Coffer
@@ -279,6 +290,8 @@ function mod:postGameStarted()
 
 	--[[ Enemy Bullet Trails ]]--
 	if BulletTrails then
+		local sketch = Color(0.48,0.4,0.36, 1)
+
 		-- Trail colors from the mod
 		local red = Color(0.9,0.05,0.05, 1)
 		local green = Color(0.05,0.9,0.05, 1)
@@ -288,7 +301,11 @@ function mod:postGameStarted()
 		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_CHUB, 1, red)
 
 		-- Ultra Pride
-		--BulletTrails:AddEntityTrailColor(EntityType.ENTITY_SLOTH, 2, green)
+		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_SLOTH, 2, green)
+
+		-- Ultra Pride Sketches
+		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_CLOTTY, IRFentities.ClottySketch, sketch)
+		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_MAW, IRFentities.MawSketch, sketch)
 
 		-- Champion Husk Sucker projectile
 		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_DUKE, 1, red)
@@ -303,7 +320,7 @@ function mod:postGameStarted()
 		)
 
 		-- Hush baby fly attack
-		BulletTrails:BlacklistEntity(true, IRFentities.Type, IRFentities.HushFlyAttack)
+		BulletTrails:BlacklistEntity(true, EntityType.ENTITY_HUSH_FLY, 0)
 
 		-- Non-champion Mega Maw fires
 		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_MEGA_MAW, 0,
@@ -355,6 +372,11 @@ function mod:postGameStarted()
 
 
 		local upgrades = {
+			{GED("Clotty Sketch"), 	GED("#CLOTTY")},
+			{GED("Charger Sketch"), GED("#CHARGER")},
+			{GED("Globin Sketch"), 	GED("#GLOBIN")},
+			{GED("Maw Sketch"), 	GED("#MAW")},
+
 			{GED("Coffer"), 	 GED("#EGGY")},
 			{GED("Mullicocoon"), GED("#NEST")},
 		}

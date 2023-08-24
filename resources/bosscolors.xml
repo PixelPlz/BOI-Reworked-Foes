@@ -233,7 +233,7 @@
 
 	<!-- Gish -->
 	<boss id="43" variant="1">
-		<color suffix="_white" scale="0.9"/>
+		<color anm2path="043.001_gish_heraglow.anm2" scale="0.9"/>
 	</boss>
 
 	<!-- Sloth -->
