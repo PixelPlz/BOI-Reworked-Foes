@@ -18,7 +18,7 @@ IRFitLivesSpawns = {
 		{ -- 75% - 50%
 			{EntityType.ENTITY_MONSTRO},
 			{EntityType.ENTITY_DUKE},
-			{EntityType.ENTITY_GEMINI},
+			{EntityType.ENTITY_FISTULA_BIG},
 		},
 		{ -- 50% - 25%
 			{EntityType.ENTITY_CHUB},
@@ -320,7 +320,7 @@ function mod:itLivesUpdate(entity)
 				if data.phase >= 3 then
 					sound = SoundEffect.SOUND_HEARTBEAT_FASTER
 				end
-				mod:PlaySound(nil, sound, 0.85)
+				mod:PlaySound(nil, sound, 0.88)
 			end
 
 
@@ -1285,7 +1285,7 @@ function mod:itLivesUpdate(entity)
 
 						if sprite:IsFinished() then
 							entity.StateFrame = 0
-							entity.ProjectileDelay = 14
+							entity.ProjectileDelay = 16
 						end
 					end
 				end

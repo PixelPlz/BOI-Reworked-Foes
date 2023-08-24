@@ -18,7 +18,7 @@ local Settings = {
 
 
 function mod:envyUpdate(entity)
-	if mod:CheckForRev() == false and (IRFConfig.envyRework == true or entity.SubType == 1) then
+	if mod:CheckForRev() == false and IRFConfig.envyRework == true then
 		if entity.Variant >= 10 and entity.FrameCount == 0 then
 			entity.I2 = 1
 			entity.ProjectileCooldown = Settings.InitialTimer
@@ -45,7 +45,7 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.envyUpdate, EntityType.ENTITY_ENVY)
 
 function mod:envyCollide(entity, target, bool)
-	if mod:CheckForRev() == false and (IRFConfig.envyRework == true or entity.SubType == 1) and target.Type == EntityType.ENTITY_ENVY and (entity.I1 == 1 or entity.Variant < 2) then
+	if mod:CheckForRev() == false and IRFConfig.envyRework == true and target.Type == EntityType.ENTITY_ENVY and (entity.I1 == 1 or entity.Variant < 2) then
 		-- Get bounce strength
 		local eSize = math.floor(entity.Variant / 10)
 		local tSize = math.floor(target.Variant / 10)
@@ -82,8 +82,13 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.envyCollide, EntityType.ENTITY_ENVY)
 
 function mod:envyDeath(entity)
-	if mod:CheckForRev() == false and entity.Variant == 0 and entity.SubType == 1 then
-		entity:FireProjectiles(entity.Position, Vector(Settings.BaseShotSpeed, 0), 8, ProjectileParams())
+	if mod:CheckForRev() == false and entity.SubType == 1
+	and (entity.Variant == 0 or (IRFConfig.envyRework == false and (entity.Variant == 10 or entity.Variant == 20))) then
+		local amount = 8 - (entity.Variant / 10) * 2
+
+		local params = ProjectileParams()
+		params.CircleAngle = 0
+		entity:FireProjectiles(entity.Position, Vector(Settings.BaseShotSpeed + 1, amount), 9, params)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.envyDeath, EntityType.ENTITY_ENVY)

@@ -127,6 +127,7 @@ function mod:postGameStarted()
 		HPBars.BossDefinitions["200.4071"] = {
 			sprite = path .. "chapter4/teratomar.png",
 			offset = Vector(-4, 0),
+			bossColors = {"_fuzzy"}
 		}
 
 		-- It lives

@@ -458,9 +458,13 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.florianCollide, EntityTyp
 function mod:florianLaser(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.Type == EntityType.ENTITY_BABY and damageSource.Variant == 2 and damageFlags & DamageFlag.DAMAGE_LASER > 0 then
 		if target.Index == damageSource.Entity:GetData().chosenSketch.Index then
-			local hp = target.HitPoints
+			local hp = target.MaxHitPoints
 			target:Remove()
-			Isaac.Spawn(target.Type, 0, target.SubType, target.Position, Vector.Zero, target.SpawnerEntity):SetColor(IRFcolors.PortalSpawn, 15, 1, true, false).HitPoints = hp
+
+			local new = Isaac.Spawn(target.Type, 0, target.SubType, target.Position, Vector.Zero, target.SpawnerEntity)
+			new.MaxHitPoints = hp
+			new.HitPoints = new.MaxHitPoints
+			new:SetColor(IRFcolors.PortalSpawn, 15, 1, true, false)
 
 			mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND, 0.75)
 			mod:PlaySound(nil, SoundEffect.SOUND_EDEN_GLITCH, 1, 0.9)

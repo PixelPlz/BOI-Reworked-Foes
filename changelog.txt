@@ -1,4 +1,26 @@
 ================================================
+    Version 3.0.7
+================================================
+
+-- Balance changes --
+- Champion Envy will no longer act like reworked Envy if the rework is supposed to be disabled (he will now simply shoot rings of shots when splitting if it's disabled)
+- Increased the spread of Mama Gurdy's bullets for her spike trap attack to make going between them easier
+
+
+-- Other changes --
+- Custom Gusher and Pacer variants will no longer turn into Braziers when burnt
+- C.H.A.D. and Forsaken will now spawn less creep and smoke respectively to reduce lag if multiple of them are present
+
+
+-- Fixes --
+- Fixed C.H.A.D. and Scolex getting stuck underground (hopefully for the last time)
+- Fixed C.H.A.D.'s segments sometimes getting desynced during his charge
+- Fixed grid Hosts from Fiend Folio using the wrong sprites when their skull gets cracked
+
+
+
+
+================================================
     Version 3.0.6
 ================================================
 

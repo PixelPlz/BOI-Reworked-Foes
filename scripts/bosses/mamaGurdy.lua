@@ -110,6 +110,7 @@ function mod:mamaGurdyUpdate(entity)
 						params.Color = IRFcolors.PukeOrange
 						params.FallingSpeedModifier = 1
 						params.FallingAccelModifier = -0.13
+						params.Spread = 1.1
 						entity:FireProjectiles(shootPos, (target.Position - shootPos):Resized(6.5), 5 - entity.I1, params)
 						mod:ShootEffect(entity, 4, Vector(0, 8), IRFcolors.PukeOrange)
 

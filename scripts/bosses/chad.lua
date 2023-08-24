@@ -12,7 +12,7 @@ local Settings = {
 	SubmergeTime = 45,
 	Cooldown = 120,
 
-	DashSpeed = 16,
+	DashSpeed = 15,
 
 	SubmergeHeight = 7.5,
 	Gravity = 0.35,
@@ -51,7 +51,7 @@ function mod:chadUpdate(entity)
 		end
 
 		-- Creep pool + effects
-		if entity:IsFrame(2, 0) and entity.State ~= NpcState.STATE_ATTACK2 and (entity.State ~= NpcState.STATE_IDLE or entity.I1 == 0) then
+		if entity:IsFrame(3, 0) and entity.State ~= NpcState.STATE_ATTACK2 and (entity.State ~= NpcState.STATE_IDLE or entity.I1 == 0) then
 			local stage = Game():GetLevel():GetAbsoluteStage()
 
 			-- Don't spawn creep in Scarred Womb flooded rooms
@@ -351,23 +351,24 @@ function mod:chadUpdate(entity)
 							entity.TargetPosition = choices[1].from
 							entity.V1 = choices[1].to
 
+
 						-- Sucker attack
 						elseif entity.I2 == 3 then
 							entity.TargetPosition = target.Position + (room:GetCenterPos() - target.Position):Resized(mod:Random(160, 240))
-							entity.TargetPosition = room:FindFreePickupSpawnPosition(entity.TargetPosition, 40, true, false)
 						end
+
 
 						entity.TargetPosition = room:FindFreeTilePosition(entity.TargetPosition, 40)
 						entity.V1 = room:FindFreeTilePosition(entity.V1, 40)
 
 						-- Dumb piece of shit function doesn't take into account spikes...
 						local gridHere = room:GetGridEntityFromPos(entity.TargetPosition)
-						if gridHere ~= nil and gridHere:ToSpikes() ~= nil then
+						if (gridHere ~= nil and gridHere:ToSpikes() ~= nil) or entity.Pathfinder:HasPathToPos(entity.TargetPosition, false) == false then
 							entity.TargetPosition = room:FindFreePickupSpawnPosition(entity.TargetPosition, 60, false, false)
 						end
 
 						gridHere = room:GetGridEntityFromPos(entity.V1)
-						if gridHere ~= nil and gridHere:ToSpikes() ~= nil then
+						if (gridHere ~= nil and gridHere:ToSpikes() ~= nil) or entity.Pathfinder:HasPathToPos(entity.V1, false) == false then
 							entity.V1 = room:FindFreePickupSpawnPosition(entity.V1, 60, false, false)
 						end
 
@@ -399,7 +400,7 @@ function mod:chadUpdate(entity)
 						if entity.ProjectileCooldown <= 10 then
 							mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.V1, entity.Scale + (2 - entity.ProjectileCooldown * 0.2), Settings.CreepTime * 4)
 							-- Sound
-							if entity.ProjectileCooldown % 3 == 0 then
+							if entity.ProjectileCooldown > 0 and entity.ProjectileCooldown % 3 == 0 then
 								mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.5)
 							end
 
@@ -457,6 +458,11 @@ function mod:chadUpdate(entity)
 					elseif entity.I2 == 1 then
 						entity.State = NpcState.STATE_ATTACK
 
+						-- Surface all at once
+						if entity.Child then
+							entity.Child:ToNPC().ProjectileCooldown = 0
+						end
+
 						-- Head only
 						if entity.I1 == 0 then
 							entity.ProjectileDelay = 0
@@ -508,27 +514,12 @@ function mod:chadUpdate(entity)
 
 			--[[ Dashing attack ]]--
 			elseif entity.State == NpcState.STATE_ATTACK then
-				-- Movement
-				-- Go to the other side
-				if entity.I1 == 0 or entity.Parent:ToNPC().State ~= NpcState.STATE_ATTACK then
-					-- If the head is stunned then body segments also get stunned
-					if entity.I1 > 0 and entity.Parent:ToNPC().State == NpcState.STATE_SUICIDE then
-						entity.State = NpcState.STATE_SUICIDE
-					else
-						entity.Velocity = mod:Lerp(entity.Velocity, (entity.V1 - entity.Position):Resized(Settings.DashSpeed), 0.25)
-					end
-
-				-- Follow parent
-				else
-					local distance = entity.Size * entity.Scale * 0.7
-					local pos = entity.Parent.Position + -entity.Parent.Velocity:Resized(distance)
-					entity.Position = mod:Lerp(entity.Position, pos, 0.35)
-				end
-
-
 				-- Head
 				if entity.I1 == 0 then
-					if not sprite:IsPlaying("HeadSwimAppear") and not sprite:IsPlaying("HeadSwimSubmerge") then
+					entity.Velocity = mod:Lerp(entity.Velocity, (entity.V1 - entity.Position):Resized(Settings.DashSpeed), 0.25)
+
+					-- Animations
+					if entity.StateFrame == 0 and not sprite:IsPlaying("HeadSwimAppear") then
 						mod:LoopingAnim(sprite, "HeadSwim")
 					end
 
@@ -547,41 +538,117 @@ function mod:chadUpdate(entity)
 						entity:FireBossProjectiles(2, entity.Child.Position, 8, ProjectileParams())
 					end
 
-				-- Body segment animations
+
+				-- Body segments
 				else
+					-- Follow parent
+					local distance = entity.Size * entity.Scale
+					if entity.I1 == 2 then
+						distance = distance * 0.88
+					end
+					local pos = entity.Parent.Position + (entity.Position - entity.Parent.Position):Resized(distance)
+
+					if entity.Position:Distance(pos) > distance then
+						entity.Velocity = mod:Lerp(entity.Velocity, (pos - entity.Position):Resized(entity.Parent.Velocity:Length()), 0.5)
+					else
+						entity.Velocity = mod:StopLerp(entity.Velocity)
+					end
+
+					-- If the head is stunned then also get stunned
+					if entity.Parent:ToNPC().State == NpcState.STATE_SUICIDE then
+						entity.State = NpcState.STATE_SUICIDE
+
+					-- Animations
+					elseif entity.StateFrame == 0 then
+						local anim = "Middle"
+						if entity.I1 == 2 then
+							anim = "Tail"
+						end
+
+						if not sprite:IsPlaying(anim .. "Appear") then
+							mod:LoopingAnim(sprite, anim .. "Idle")
+						end
+					end
+				end
+
+
+				-- Sugmerge
+				if entity.StateFrame == 0 then
+					if (entity.I1 == 0 and entity.Position:Distance(entity.V1) < 140) -- Got to the other side
+					or (entity.I1 > 0 and entity.Parent:ToNPC().StateFrame == 1) then -- Head got to the other side
+						local anim = "HeadSwim"
+						local frame = 0
+
+						if entity.I1 == 1 then
+							anim = "Middle"
+							frame = 8
+						elseif entity.I1 == 2 then
+							anim = "Tail"
+							frame = 6
+						end
+
+						sprite:Play(anim .. "Submerge", true)
+						sprite:SetFrame(frame)
+						entity.StateFrame = 1
+					end
+
+
+				-- Got to the other side
+				elseif entity.StateFrame == 1 and sprite:IsFinished() then
+					dive()
+					entity.StateFrame = 0
+				end
+
+
+
+			--[[ Stunned ]]--
+			elseif entity.State == NpcState.STATE_SUICIDE then
+				-- Head
+				if entity.I1 == 0 then
+					entity.Velocity = mod:StopLerp(entity.Velocity)
+					mod:LoopingAnim(sprite, "HeadStunned")
+
+					-- Explode bomb
+					if entity.StateFrame <= 0 then
+						data.bomb.Position = entity.Position
+						data.bomb:SetExplosionCountdown(0)
+						data.bomb = nil
+
+						entity.State = NpcState.STATE_MOVE
+						entity.ProjectileCooldown = math.ceil(Settings.Cooldown * entity.Scale / 2)
+						data.moveTimer = 0
+
+					-- Wait
+					else
+						data.bomb:SetExplosionCountdown(9999)
+						entity.StateFrame = entity.StateFrame - 1
+					end
+
+
+				-- Body segments
+				else
+					-- Stay close to parent
+					local distance = entity.Size * entity.Scale
+					local pos = entity.Parent.Position + (entity.Position - entity.Parent.Position):Resized(distance)
+
+					if entity.Position:Distance(pos) > distance then
+						entity.Velocity = mod:Lerp(entity.Velocity, (pos - entity.Position):Resized(1), 0.5)
+					else
+						entity.Velocity = mod:StopLerp(entity.Velocity)
+					end
+
+					-- Animations
 					local anim = "Middle"
 					if entity.I1 == 2 then
 						anim = "Tail"
 					end
+					mod:LoopingAnim(sprite, anim .. "Idle")
 
-					if not sprite:IsPlaying(anim .. "Appear") and not sprite:IsPlaying(anim .. "Submerge") then
-						mod:LoopingAnim(sprite, anim .. "Idle")
+					-- Unstun
+					if entity.Parent:ToNPC().State ~= NpcState.STATE_SUICIDE then
+						entity.State = NpcState.STATE_MOVE
+						entity.StateFrame = 0
 					end
-				end
-
-
-				-- Play submerge animation
-				if entity.Position:Distance(entity.V1) < 140 and entity.StateFrame == 0 then
-					local anim = "HeadSwim"
-					local frame = 0
-
-					if entity.I1 == 1 then
-						anim = "Middle"
-						frame = 7
-					elseif entity.I1 == 2 then
-						anim = "Tail"
-						frame = 5
-					end
-
-					sprite:Play(anim .. "Submerge", true)
-					sprite:SetFrame(frame)
-					entity.StateFrame = 1
-				end
-
-				-- Submerge
-				if entity.Position:Distance(entity.V1) < 15 then
-					dive()
-					entity.StateFrame = 0
 				end
 
 
@@ -698,53 +765,6 @@ function mod:chadUpdate(entity)
 					entity.ProjectileCooldown = math.ceil(Settings.Cooldown * entity.Scale)
 					data.moveTimer = 0
 				end
-
-
-
-			--[[ Stunned ]]--
-			elseif entity.State == NpcState.STATE_SUICIDE then
-				-- Head
-				if entity.I1 == 0 then
-					entity.Velocity = mod:StopLerp(entity.Velocity)
-					mod:LoopingAnim(sprite, "HeadStunned")
-
-					-- Explode bomb
-					if entity.StateFrame <= 0 then
-						data.bomb.Position = entity.Position
-						data.bomb:SetExplosionCountdown(0)
-						data.bomb = nil
-
-						entity.State = NpcState.STATE_MOVE
-						entity.ProjectileCooldown = math.ceil(Settings.Cooldown * entity.Scale / 2)
-						data.moveTimer = 0
-
-					-- Wait
-					else
-						data.bomb:SetExplosionCountdown(9999)
-						entity.StateFrame = entity.StateFrame - 1
-					end
-
-
-				-- Body segments
-				else
-					-- Get close to parent
-					local distance = entity.Size * entity.Scale * 2
-					if entity.Position:Distance(entity.Parent.Position) > distance then
-						entity.Position = mod:Lerp(entity.Position, entity.Parent.Position + (entity.Position - entity.Parent.Position):Resized(distance), 0.25)
-					end
-
-					-- Animations
-					local anim = "Middle"
-					if entity.I1 == 2 then
-						anim = "Tail"
-					end
-					mod:LoopingAnim(sprite, anim .. "Idle")
-
-					-- Unstun
-					if entity.Parent:ToNPC().State ~= NpcState.STATE_SUICIDE then
-						entity.State = NpcState.STATE_MOVE
-					end
-				end
 			end
 		end
 
@@ -784,7 +804,7 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.chadDMG, EntityType.ENTITY_
 function mod:chadCollision(entity, target, bool)
 	if entity.Variant == 1 then
 		-- Jump over the player
-		if entity.PositionOffset.Y <= -40 and (target.Type == EntityType.ENTITY_PLAYER or target.Type == EntityType.ENTITY_FAMILIAR or target.Type == EntityType.ENTITY_BOMB) then
+		if entity.PositionOffset.Y <= -44 and (target.Type == EntityType.ENTITY_PLAYER or target.Type == EntityType.ENTITY_FAMILIAR or target.Type == EntityType.ENTITY_BOMB) then
 			-- Bombs just don't give a fuck apparently?
 			if target.Type == EntityType.ENTITY_BOMB then
 				target.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
