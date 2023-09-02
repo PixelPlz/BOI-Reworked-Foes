@@ -23,7 +23,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingFattyUpdate, EntityType.E
 
 -- Turn regular fatties into flaming ones when burnt
 function mod:fattyIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 0 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
+	if Game():GetRoom():HasWater() == false and target.Variant == 0 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
 		target:ToNPC():Morph(EntityType.ENTITY_FATTY, 2, 0, target:ToNPC():GetChampionColorIdx())
 		mod:PlaySound(nil, SoundEffect.SOUND_FIREDEATH_HISS)
 		return false

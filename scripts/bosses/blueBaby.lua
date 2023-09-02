@@ -398,7 +398,9 @@ function mod:blueBabyUpdate(entity)
 					mod:PlaySound(nil, SoundEffect.SOUND_DEATH_BURST_BONE)
 
 				elseif sprite:IsEventTriggered("BloodStop") then
-					Isaac.Spawn(EntityType.ENTITY_BONY, 0, 0, entity.Position, Vector.Zero, entity):Kill()
+					local boneEffect = Isaac.Spawn(EntityType.ENTITY_BONY, 0, 0, entity.Position, Vector.Zero, entity)
+					boneEffect.Visible = false
+					boneEffect:Kill()
 
 				elseif sprite:IsEventTriggered("Shoot") then
 					mod:PlaySound(nil, SoundEffect.SOUND_BONE_HEART)
@@ -417,7 +419,8 @@ function mod:blueBabyUpdate(entity)
 					mod:PlaySound(nil, SoundEffect.SOUND_SUPERHOLY)
 
 				elseif sprite:IsEventTriggered("Explosion") then
-					local boneEffect = Isaac.Spawn(EntityType.ENTITY_BONY, 0, 0, entity.Position, Vector.Zero, entity):ToNPC()
+					local boneEffect = Isaac.Spawn(EntityType.ENTITY_BONY, 0, 0, entity.Position, Vector.Zero, entity)
+					boneEffect.Visible = false
 					boneEffect:AddEntityFlags(EntityFlag.FLAG_EXTRA_GORE)
 					boneEffect:Kill()
 				end

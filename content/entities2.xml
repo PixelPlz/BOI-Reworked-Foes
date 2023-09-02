@@ -202,16 +202,5 @@
 	<entity name="Holy Tracer"   			id="1000" variant="869"   			  anm2path="holy tracer.anm2"   			friction="1" />
 	<entity name="Single Brimstone Swirl"   id="1000" variant="870"   			  anm2path="1000.071_brimstoneswirl.anm2"   friction="1" />
 	<entity name="Husk Effect"   			id="1000" variant="871"   			  anm2path="1000.001_bomb explosion.anm2"   friction="1" />
-
-
-
-	<!-- Template
-	<entity name="entity template"   id="777" variant="0" subtype="0"   anm2path="animation.anm2" hasFloorAlts="true" shadowSize="1" portrait="1"
-	baseHP="1" stageHP="1" shieldStrength="1" shutdoors="false" champion="0" boss="0" bossID="777" tags="cansacrifice nodelirium fly spider ghost noreroll"
-	friction="1" collisionRadius="1" collisionRadiusXMulti="1" collisionRadiusYMulti="1" gridCollision="none" collisionMass="1" collisionDamage="1" numGridCollisionPoints="12" collisionInterval="1" >
-		<gibs amount="6"   small="1" large="1" huge="1" colorblood="1" sound_baby="1" sound_bone="1"   blood="1" bone="1" chain="1" dust="1" eye="1" gut="1" poop="1" rock="1" rock_small="1" worm="1" />
-		<bestiary anim="anim" overlay="overlay" transform="0,0,1" parent="777.0" />
-		<devolve id="10.0.0" weight="1" />
-	</entity>
-	-->
+	<entity name="Triachnid Leg Segment"   	id="1000" variant="872"   			  anm2path="test/boss_duskhand.anm2"   		friction="1" />
 </entities>

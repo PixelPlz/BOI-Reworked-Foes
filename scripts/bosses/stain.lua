@@ -207,7 +207,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.stainTentacleUpdate, EntityT
 
 function mod:stainTentacleDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == 10 and target.Parent then
-		target.Parent:TakeDamage(damageAmount / 2, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
+		target.Parent:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
 		target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
 		return false
 	end

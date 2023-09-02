@@ -10,6 +10,10 @@ local Settings = {
 	CreepTime = 60,
 	ChargeCooldown = 15,
 
+	-- Ceiling attack
+	CeilingSpeed = 6,
+	ShotDelay = 20,
+
 	-- Jumping on/off of walls
 	Gravity = 1,
 	JumpStrength = 8,
@@ -27,7 +31,7 @@ function mod:gishInit(entity)
 	if entity.Variant == 1 then
 		--entity:SetSize(20, Vector(entity.Scale, entity.Scale), 12)
 		entity.ProjectileCooldown = Settings.Cooldown / 2
-		entity:GetData().counter = 10
+		entity:GetData().counter = 1
 
 		-- Hera's Altar Scamps
 		if entity.SubType == 1 then
@@ -87,7 +91,7 @@ function mod:gishUpdate(entity)
 
 
 
-		-- Chasing
+		--[[ Chasing on the ground ]]--
 		if entity.State == NpcState.STATE_IDLE then
 			mod:ChasePlayer(entity, Settings.MoveSpeed)
 
@@ -99,65 +103,56 @@ function mod:gishUpdate(entity)
 			end
 
 
-			-- Cooldown between charges
-			if entity.StateFrame == 1 then
-				if entity.I2 <= 0 then
-					entity.State = NpcState.STATE_ATTACK
-					entity.StateFrame = 0
+			-- Attack
+			if entity.ProjectileCooldown <= 0 then
+				-- Reset variables
+				entity.ProjectileCooldown = Settings.Cooldown
+				entity.I1 = 0
+				entity.I2 = 0
+				entity.StateFrame = 0
+
+				-- Jump onto a wall after 2 regular attacks
+				if data.counter >= 2 then
+					entity.State = NpcState.STATE_JUMP
+					data.counter = 0
+
+
+				-- Regular attacks
 				else
-					entity.I2 = entity.I2 - 1
-				end
+					local attackCount = 3
+					-- Only have up to 3 Clots
+					if Isaac.CountEntities(nil, EntityType.ENTITY_CLOTTY, 1, -1) >= Settings.MaxClots then
+						attackCount = 2
+					end
+					local attack = mod:Random(1, attackCount)
 
+					-- Hardened charge
+					if attack == 1 then
+						entity.State = NpcState.STATE_ATTACK
 
-			-- Attack cooldown
-			else
-				if entity.ProjectileCooldown <= 0 then
-					-- Reset variables
-					entity.ProjectileCooldown = Settings.Cooldown
-					entity.I1 = 0
-					entity.I2 = 0
-					entity.StateFrame = 0
+					-- Jump up
+					elseif attack == 2 then
+						entity.State = NpcState.STATE_ATTACK2
+						sprite:Play("JumpUp", true)
 
-					if data.counter >= 2 then
-						-- Jump onto a wall
-						entity.State = NpcState.STATE_JUMP
-						--data.counter = 0
-
-					else
-						-- Choose attack
-						local attackCount = 3
-						if Isaac.CountEntities(nil, EntityType.ENTITY_CLOTTY, 1, -1) >= Settings.MaxClots then
-							attackCount = 2
-						end
-						local attack = mod:Random(1, attackCount)
-
-						-- Hardened charge
-						if attack == 1 then
-							entity.State = NpcState.STATE_ATTACK
-
-						-- Jump up
-						elseif attack == 2 then
-							entity.State = NpcState.STATE_ATTACK2
-							sprite:Play("JumpUp", true)
-
-						-- Spit out a Clot
-						elseif attack == 3 then
-							entity.State = NpcState.STATE_SUMMON
-							sprite:Play("Taunt", true)
-						end
-						
-						data.counter = data.counter + 1
+					-- Spit out a Clot
+					elseif attack == 3 then
+						entity.State = NpcState.STATE_SUMMON
+						sprite:Play("Taunt", true)
 					end
 
-				else
-					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+					data.counter = data.counter + 1
 				end
+
+			else
+				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 			end
 
 
-		-- Hardened charge
+
+		--[[ Hardened charge ]]--
 		elseif entity.State == NpcState.STATE_ATTACK then
-			if entity.StateFrame ~= 2 then
+			if entity.StateFrame ~= 0 and entity.StateFrame ~= 3 then
 				mod:LoopingAnim(sprite, "Run")
 
 				-- Creep
@@ -167,16 +162,35 @@ function mod:gishUpdate(entity)
 			end
 
 
-			-- Get a clear line to the player first
+			-- Cooldown between charges
 			if entity.StateFrame == 0 then
+				mod:ChasePlayer(entity, Settings.MoveSpeed)
+
+				if entity.Velocity:Length() > 0.1 then
+					mod:LoopingAnim(sprite, "Walk")
+					mod:FlipTowardsMovement(entity, sprite)
+				else
+					mod:LoopingAnim(sprite, "Idle")
+				end
+
+				-- Charge again
+				if entity.I2 <= 0 then
+					entity.StateFrame = 1
+					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.75)
+				else
+					entity.I2 = entity.I2 - 1
+				end
+
+
+			-- Get a clear line to the player first
+			elseif entity.StateFrame == 1 then
 				entity.Pathfinder:FindGridPath(target.Position, Settings.ChargeSpeed / 12, 500, false)
 				mod:FlipTowardsMovement(entity, sprite)
 
 				if room:CheckLine(entity.Position, target.Position, 1, 0, false, false) or entity.Pathfinder:HasPathToPos(target.Position) == false
 				or entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) or entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
-					entity.StateFrame = 1
+					entity.StateFrame = 2
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.75)
 
 					-- Get direction
 					-- Random if confused
@@ -194,14 +208,19 @@ function mod:gishUpdate(entity)
 
 
 			-- Charging
-			elseif entity.StateFrame == 1 then
+			elseif entity.StateFrame == 2 then
 				entity.Velocity = mod:Lerp(entity.Velocity, entity.TargetPosition:Resized(Settings.ChargeSpeed), 0.055)
 
 				-- Slam into obstacles
 				if entity:CollidesWithGrid() then
+					entity.StateFrame = 3
+					sprite:Play("Stagger", true)
+					entity.I1 = entity.I1 + 1
+					entity:ClearEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+
 					-- Destroy rocks he slams into
 					for i = -1, 1 do
-						local pos = entity.Position + (entity.V1:Resized(entity.Scale * entity.Size) + entity.V1:Resized(10)):Rotated(i * 35)
+						local pos = entity.Position + (entity.V1:Resized(entity.Scale * entity.Size) + entity.V1:Resized(15)):Rotated(i * 45)
 						room:DestroyGrid(room:GetGridIndex(pos), true)
 					end
 
@@ -217,11 +236,6 @@ function mod:gishUpdate(entity)
 					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.75)
 					Game():ShakeScreen(7)
 
-					-- Stagger
-					entity.StateFrame = 2
-					sprite:Play("Stagger", true)
-					entity:ClearEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-
 				-- Keep track of velocity before colliding
 				else
 					entity.V1 = entity.Velocity
@@ -230,27 +244,25 @@ function mod:gishUpdate(entity)
 
 
 			-- Staggered
-			elseif entity.StateFrame == 2 then
+			elseif entity.StateFrame == 3 then
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				if sprite:IsFinished() then
-					entity.State = NpcState.STATE_IDLE
-					entity.I1 = entity.I1 + 1
-
 					-- Charge 3 times
 					if entity.I1 >= 3 then
-						entity.StateFrame = 0
+						entity.State = NpcState.STATE_IDLE
 
 					-- Cooldown after charge
 					else
-						entity.StateFrame = 1
+						entity.StateFrame = 0
 						entity.I2 = Settings.ChargeCooldown
 					end
 				end
 			end
 
 
-		-- Ceiling attack
+
+		--[[ Ceiling attack ]]--
 		elseif entity.State == NpcState.STATE_ATTACK2 then
 			-- Jump up
 			if entity.StateFrame == 0 then
@@ -263,85 +275,102 @@ function mod:gishUpdate(entity)
 					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS)
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
 
-				elseif sprite:IsEventTriggered("Shoot") then
+				-- Land effects
+				elseif sprite:IsEventTriggered("Land") then
+					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.8)
+					mod:PlaySound(nil, SoundEffect.SOUND_GOOATTACH0, 1.1)
+
+					-- Splat
 					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity):ToEffect()
-					effect:GetSprite().Color = data.effectColor
-					effect:GetSprite().Scale = Vector(0.8, 0.8)
+					effect.SortingLayer = SortingLayer.SORTING_NORMAL
 					effect.DepthOffset = entity.DepthOffset + 10
+
+					local effectSprite = effect:GetSprite()
+					effectSprite.Offset = Vector(0, -160 * entity.Scale)
+					effectSprite.Scale = Vector(entity.Scale, entity.Scale)
+
+					local color = data.effectColor
+					color:SetTint(0.3,0.3,0.3, 1)
+					effectSprite.Color = color
 				end
 
 				if sprite:IsFinished() then
 					entity.StateFrame = 1
-					entity.I2 = 10
-					--entity.Visible = false
+					entity.I2 = Settings.ShotDelay
+					data.bubblies = {}
+
+					local screenHeight = Isaac.ScreenToWorld( Vector(0, Isaac.GetScreenHeight()) ).Y
+					--entity.Position = Vector(target.Position.X, screenHeight * entity.Scale + 120)
 				end
+
 
 			-- On the ceiling
 			elseif entity.StateFrame == 1 then
-				--mod:ChasePlayer(entity, Settings.MoveSpeed)
-				local pos = Vector(target.Position.X, room:GetTopLeftPos().Y + 160)
+				local screenHeight = Isaac.ScreenToWorld( Vector(0, Isaac.GetScreenHeight()) ).Y
+				local pos = Vector(target.Position.X, screenHeight * entity.Scale + 120)
+
 				if entity.Position:Distance(pos) < 20 then
 					entity.Velocity = mod:StopLerp(entity.Velocity)
 				else
-					entity.Velocity = mod:Lerp(entity.Velocity, (pos - entity.Position):Resized(Settings.MoveSpeed), 0.25)
+					entity.Velocity = mod:Lerp(entity.Velocity, (pos - entity.Position):Resized(Settings.CeilingSpeed), 0.25)
 				end
+
 				mod:LoopingAnim(sprite, "CeilingIdle")
 
 				if entity.I2 <= 0 then
 					-- Jump down
 					if entity.I1 >= 3 then
-						entity.StateFrame = 2
+						entity.StateFrame = 3
 						sprite:Play("JumpDown", true)
-						entity.Visible = true
+						--entity.Visible = true
 						--entity.Position = target.Position
 						mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
 
-					-- Falling shots
+					-- Shoot
 					else
-						-- Get position
-						local pos = target.Position
-
-						if entity.I1 == 0 then
-							entity.TargetPosition = (target.Position - room:GetCenterPos()):Normalized()
-							data.bubblies = {}
-						else
-							local angle = mod:GetSign(entity.I1 % 2) * mod:Random(60, 120)
-							local distance = mod:Random(60, 180)
-							pos = room:GetCenterPos() + entity.TargetPosition:Rotated(angle):Resized(distance)
-						end
-
-						pos = room:GetClampedPosition(pos, 20)
-
-						-- Target
-						local target = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TARGET, 0, pos, Vector.Zero, entity):ToEffect()
-						target.Timeout = 30
-						target:GetSprite().Color = Color(1,1,1, 1, -0.8,-0.8,-0.8)
-
-						-- Projectile
-						local params = ProjectileParams()
-						params.HeightModifier = -500
-						params.FallingAccelModifier = 2.5
-						params.Color = data.effectColor
-						params.Scale = 2.5
-						mod:FireProjectiles(entity, pos, Vector.Zero, 0, params, Color(0,0,0, 1, 0.15,0.15,0.15)):GetData().fallingShot = true
-						mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8)
-
-						entity.I1 = entity.I1 + 1
-
-						-- Longer delay after the final shot
-						if entity.I1 == 3 then
-							entity.I2 = 40
-						else
-							entity.I2 = 20
-						end
+						entity.StateFrame = 2
+						sprite:Play("CeilingShoot", true)
 					end
 
 				else
-					--entity.I2 = entity.I2 - 1
+					entity.I2 = entity.I2 - 1
 				end
 
-			-- Jump down
+
+			-- Shoot
 			elseif entity.StateFrame == 2 then
+				entity.Velocity = Vector.Zero
+
+				if sprite:IsEventTriggered("Shoot") then
+					-- Get position
+					entity.TargetPosition = target.Position + mod:RandomVector(mod:Random(60, 120))
+					entity.TargetPosition = room:GetClampedPosition(entity.TargetPosition, 20)
+
+					-- Target
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TARGET, 0, entity.TargetPosition, Vector.Zero, entity):ToEffect().Timeout = 25
+
+					-- Projectile
+					local params = ProjectileParams()
+					params.HeightModifier = -180
+					params.FallingAccelModifier = 1.75
+					params.FallingSpeedModifier = -15
+					params.Color = data.effectColor
+					params.Scale = 2.5
+
+					local speed = entity.Position:Distance(entity.TargetPosition) / 26 -- Cool magic number
+					mod:FireProjectiles(entity, entity.Position, (entity.TargetPosition - entity.Position):Resized(speed), 0, params, Color(0,0,0, 1, 0.15,0.15,0.15)):GetData().fallingShot = true
+					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8)
+				end
+
+				if sprite:IsFinished() then
+					entity.StateFrame = 1
+					entity.I1 = entity.I1 + 1
+					entity.I2 = Settings.ShotDelay
+				end
+
+
+			-- Jump down
+			elseif entity.StateFrame == 3 then
 				entity.Velocity = Vector.Zero
 
 				if sprite:IsEventTriggered("Land") then
@@ -390,6 +419,7 @@ function mod:gishUpdate(entity)
 				end
 			end
 
+
 			-- Bubbling effect for creep puddles
 			if data.bubblies and entity:IsFrame(3, 0) then
 				for i, bubbly in pairs(data.bubblies) do
@@ -399,7 +429,8 @@ function mod:gishUpdate(entity)
 			end
 
 
-		-- Spit out a Clot
+
+		--[[ Spit out a Clot ]]--
 		elseif entity.State == NpcState.STATE_SUMMON then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
@@ -436,7 +467,7 @@ function mod:gishUpdate(entity)
 
 
 
-		-- Jump onto a wall
+		--[[ Jump onto a wall ]]--
 		elseif entity.State == NpcState.STATE_JUMP then
 			-- Get close enough to a wall
 			if entity.StateFrame == 0 then
@@ -488,6 +519,7 @@ function mod:gishUpdate(entity)
 					end
 				end
 
+
 			-- Start jump
 			elseif entity.StateFrame == 1 then
 				entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -505,15 +537,17 @@ function mod:gishUpdate(entity)
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
 				end
 
+
 			-- Jumping to position
 			elseif entity.StateFrame == 2 then
 				-- Update height
 				entity.V2 = Vector(0, entity.V2.Y - Settings.Gravity)
-				entity.PositionOffset = Vector(0, entity.PositionOffset.Y - entity.V2.Y)
+				entity.PositionOffset = Vector(0, math.min(Settings.LandHeight, entity.PositionOffset.Y - entity.V2.Y))
 
 				if not sprite:IsPlaying("JumpToWall") then
 					mod:LoopingAnim(sprite, "JumpLoop")
 				end
+				mod:FlipTowardsMovement(entity, sprite)
 
 				-- Land
 				if entity.Position:Distance(entity.V1) < 20 then
@@ -542,6 +576,7 @@ function mod:gishUpdate(entity)
 					entity.Velocity = mod:Lerp(entity.Velocity, (entity.V1 - entity.Position):Resized(entity.V1:Distance(entity.Position) / 5), 0.25)
 				end
 
+
 			-- Landed
 			elseif entity.StateFrame == 3 then
 				keepOnWall()
@@ -553,7 +588,8 @@ function mod:gishUpdate(entity)
 			end
 
 
-		-- Moving on the wall
+
+		--[[ Moving on the wall ]]--
 		elseif entity.State == NpcState.STATE_MOVE then
 			keepOnWall()
 
@@ -571,6 +607,7 @@ function mod:gishUpdate(entity)
 				entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Resized(Settings.MoveSpeed), 0.25)
 			end
 
+
 			if entity.Velocity:Length() >= 0.5 then
 				mod:LoopingAnim(sprite, "WallWalk")
 				mod:FlipTowardsMovement(entity, sprite)
@@ -578,20 +615,21 @@ function mod:gishUpdate(entity)
 				mod:LoopingAnim(sprite, "WallIdle")
 			end
 
+
 			-- Attack
 			if entity.ProjectileCooldown <= 0 then
 				entity.StateFrame = 0
 				entity.ProjectileCooldown = Settings.Cooldown
 
-				-- Jump off the wall
+				-- Jump off the wall after 3 attacks
 				if entity.I1 >= 3 then
 					entity.State = NpcState.STATE_STOMP
 					sprite:Play("JumpFromWall", true)
 
 				-- Jump to the other side
-				elseif (entity.Position:Distance(entity.TargetPosition) < 30 and mod:Random(1) == 1) -- Target is close
-				or ((entity.Position.Y < room:GetCenterPos().Y) ~= (target.Position.Y < room:GetCenterPos().Y)) -- Target is on the other side of the room
-				or ((sprite.FlipY == false and target.Position.Y > entity.Position.Y) or (sprite.FlipY == true and target.Position.Y < entity.Position.Y)) then
+				elseif ( Vector(entity.Position.X, 0):Distance(Vector(target.Position.X, 0)) < 30 and mod:Random(2) == 0 ) -- Target is close horizontally
+				or Vector(0, entity.Position.Y):Distance(Vector(0, target.Position.Y)) > 170 -- Target is on the other side of the room
+				or (sprite.FlipY == false and target.Position.Y > entity.Position.Y) or (sprite.FlipY == true and target.Position.Y < entity.Position.Y) then -- For L rooms
 					entity.State = NpcState.STATE_ATTACK3
 					sprite:Play("JumpAcrossStart", true)
 
@@ -608,7 +646,8 @@ function mod:gishUpdate(entity)
 			end
 
 
-		-- Jump to the other side
+
+		--[[ Jump to the opposite side ]]--
 		elseif entity.State == NpcState.STATE_ATTACK3 then
 			-- Start jump
 			if entity.StateFrame == 0 then
@@ -636,6 +675,7 @@ function mod:gishUpdate(entity)
 					effect.Offset = Vector(5, mod:GetSign(effect.FlipY) * 10)
 					effect.Scale = Vector(0.75, 0.75)
 				end
+
 
 			-- Jumping to position
 			elseif entity.StateFrame == 1 then
@@ -675,6 +715,7 @@ function mod:gishUpdate(entity)
 					effect.Offset = Vector(5, mod:GetSign(effect.FlipY) * 10)
 				end
 
+
 			-- Landed
 			elseif entity.StateFrame == 2 then
 				keepOnWall()
@@ -686,7 +727,8 @@ function mod:gishUpdate(entity)
 			end
 
 
-		-- Shoot
+
+		--[[ Shoot ]]--
 		elseif entity.State == NpcState.STATE_ATTACK4 then
 			keepOnWall()
 			entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -710,7 +752,8 @@ function mod:gishUpdate(entity)
 			end
 
 
-		-- Jump off the wall
+
+		--[[ Jump off the wall ]]--
 		elseif entity.State == NpcState.STATE_STOMP then
 			-- Start jump
 			if entity.StateFrame == 0 then
@@ -737,15 +780,17 @@ function mod:gishUpdate(entity)
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
 				end
 
+
 			-- Jumping
 			elseif entity.StateFrame == 1 then
 				if not sprite:IsPlaying("JumpFromWall") then
 					mod:LoopingAnim(sprite, "JumpLoop")
 				end
+				mod:FlipTowardsMovement(entity, sprite)
 
 				-- Update height
 				entity.V2 = Vector(0, entity.V2.Y - Settings.Gravity)
-				entity.PositionOffset = Vector(0, entity.PositionOffset.Y - entity.V2.Y)
+				entity.PositionOffset = Vector(0, math.min(Settings.LandHeight, entity.PositionOffset.Y - entity.V2.Y))
 
 				-- Land
 				if entity.Position:Distance(entity.TargetPosition) < 20 then
@@ -761,6 +806,7 @@ function mod:gishUpdate(entity)
 				else
 					entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Resized(entity.TargetPosition:Distance(entity.Position) / 5), 0.25)
 				end
+
 
 			-- Landed
 			elseif entity.StateFrame == 2 then

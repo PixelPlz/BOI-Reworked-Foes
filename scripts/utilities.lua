@@ -206,7 +206,7 @@ function mod:GetDirectionString(angleDegrees, noSeparateHorizontal, useSide)
 	end
 end
 
-function mod:GetDirectionStringEX(angleDegrees)
+function mod:GetDirectionStringEX(angleDegrees) -- This sucks
 	if angleDegrees >= -22.5 and angleDegrees <= 22.5 then
 		return "Right"
 	elseif angleDegrees > 22.5 and angleDegrees < 67.5 then
@@ -832,7 +832,6 @@ function mod:CheckForRev()
 	end
 end
 
--- Dumb miniboss compatibility check
 function mod:CheckValidMiniboss(entity)
 	if mod:CheckForRev() == false and ((entity.Variant == 0 and entity.SubType <= 1) or entity.Variant == 1) then
 		return true

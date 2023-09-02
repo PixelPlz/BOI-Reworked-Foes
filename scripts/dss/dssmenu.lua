@@ -8,6 +8,7 @@ IRFConfig = {}
 IRFDefaultConfig = {
 	--General
 	breakableHosts   = true,
+    coinStealing     = true,
 	noChapter1Nests  = true,
 	matriarchFistula = true,
 	envyRework 		 = true,

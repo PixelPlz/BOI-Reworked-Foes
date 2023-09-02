@@ -211,10 +211,13 @@ function mod:postGameStarted()
 		-- Mask of Infamy
 		HPBars.BossIgnoreList["97.0"] = true
 
+		-- Triachnid feet
+		HPBars.BossIgnoreList["101.10"] = true
+
 		-- Forgotten body
 		HPBars.BossIgnoreList["200.4102"] = true
 
-		-- Stain tentacle
+		-- Stain tentacles
 		HPBars.BossIgnoreList["401.10"] = true
 
 		-- Forsaken clone
@@ -232,6 +235,9 @@ function mod:postGameStarted()
 
 	--[[ Off-screen Indicator blacklists ]]--
 	if OffscreenIndicators then
+		-- Gish
+		OffscreenIndicators:addOIblacklist(EntityType.ENTITY_MONSTRO2, 1, -1, "state", NpcState.STATE_ATTACK2) -- On the ceiling
+
 		-- Steven
 		OffscreenIndicators:addOIblacklist(EntityType.ENTITY_GEMINI, 1, -1, "state", NpcState.STATE_SPECIAL) -- 2nd phase
 		OffscreenIndicators:addOIblacklist(EntityType.ENTITY_GEMINI, 11, -1, "segmented") -- Little Steven

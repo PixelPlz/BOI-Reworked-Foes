@@ -11,12 +11,15 @@ local Settings = {
 
 --[[ Function to make greedy enemies collect coins ]]--
 function mod:CollectCoins(entity)
-	-- Don't pick up coins in greed mode or if the entity is dead / not fully spawned
-	if not Game():IsGreedMode() and entity.FrameCount > 20 and not entity:IsDead() then
+	if IRFConfig.coinStealing == true
+	and not Game():IsGreedMode() -- Don't pick up coins in Greed Mode
+	and entity.FrameCount > 20 and not entity:IsDead() then -- Don't try to pick up coins during the appear animation / post-mortem
+
 		for _, pickup in pairs(Isaac.FindInRadius(entity.Position, Settings.CoinMagnetRange, EntityPartition.PICKUP)) do
 			if pickup.Variant == PickupVariant.PICKUP_COIN and pickup.SubType ~= CoinSubType.COIN_STICKYNICKEL -- Don't try to pick up sticky nickels
 			and pickup:ToPickup():CanReroll() == true -- Don't try to pick up coins that haven't finished spawning
 			and not pickup:GetData().greedRobber then
+
 				-- In collecting range
 				if (entity.Position - pickup.Position):Length() <= Settings.CoinCollectRange then
 					pickup:GetData().greedRobber = entity
@@ -26,6 +29,7 @@ function mod:CollectCoins(entity)
 				elseif Game():GetRoom():CheckLine(entity.Position, pickup.Position, 0, 0, false, false) then
 					pickup.Velocity = mod:Lerp(pickup.Velocity, (entity.Position - pickup.Position):Resized(Settings.CoinMagnetSpeed), 0.25)
 				end
+
 			end
 		end
 	end

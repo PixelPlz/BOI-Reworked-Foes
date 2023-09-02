@@ -42,6 +42,11 @@ IRFentities = {
 	HolyTracer 	   = Isaac.GetEntityVariantByName("Holy Tracer"),
 	BrimstoneSwirl = Isaac.GetEntityVariantByName("Single Brimstone Swirl"),
 	HuskEffect 	   = Isaac.GetEntityVariantByName("Husk Effect"),
+
+	TriachnidLeg = Isaac.GetEntityVariantByName("Triachnid Leg Segment"),
+		TriachnidJoint    = 0,
+		TriachnidUpperLeg = 1,
+		TriachnidLowerLeg = 2,
 }
 
 
@@ -59,7 +64,6 @@ IRFcolors.BlackBony  = Color(0.18,0.18,0.18, 1)
 IRFcolors.PukeEffect = Color(0,0,0, 1, 0.48,0.36,0.3)
 IRFcolors.PukeOrange = Color(0.5,0.5,0.5, 1, 0.64,0.4,0.16)
 IRFcolors.Sketch	 = Color(0,0,0, 1, 0.48,0.4,0.36)
---IRFcolors.Delirium   = Color(2.5,2.5,2.5, 1);   				IRFcolors.Delirium:SetColorize(1.25, 1, 1, 1)
 
 IRFcolors.CrispyMeat   = Color(1,1,1, 1);   				 IRFcolors.CrispyMeat:SetColorize(0.32,0.25,0.2, 1)
 IRFcolors.EmberFade    = Color(0,0,0, 1.1, 1,0.514,0.004);   IRFcolors.EmberFade:SetColorize(0,0,0, 0);    IRFcolors.EmberFade:SetTint(0,0,0, 1.1)
@@ -88,9 +92,6 @@ IRFcolors.HushBlue 	   = Color(1,1,1, 1, 0,0.2,0.4)
 IRFcolors.HushDarkBlue = Color(0.6,0.6,0.6, 1, 0,0,0.1) -- For Blue Boils
 IRFcolors.HushOrange   = Color(1,1,1, 1, 0.4,0.2,0)
 IRFcolors.HushPink 	   = Color(1,1,1, 1, 0.2,0,0.2)
-
---IRFcolors.LambShot 		= Color(1,1,1, 1);   IRFcolors.LambShot:SetColorize(0.6,0.5,0.7, 1)
---IRFcolors.LambShotTrail = Color(0,0,0, 1, 0.3,0.2,0.4)
 
 IRFcolors.CageCreep 	 = Color(1,1,1, 1);   IRFcolors.CageCreep:SetColorize(3.25,3.25,2.25, 1) -- Not 100% accurate but it's close enough
 IRFcolors.CageGreenShot  = Color(1,1,1, 1);   IRFcolors.CageGreenShot:SetColorize(0.75,1,0.5, 1)
@@ -132,5 +133,4 @@ IRFsounds = {
 	StevenChange = Isaac.GetSoundIdByName("Steven Layer Change"),
 	StevenLand   = Isaac.GetSoundIdByName("Steven Land"),
 	StevenDie 	 = Isaac.GetSoundIdByName("Steven Die"),
-	--StevenFlip 	 = Isaac.GetSoundIdByName("Steven Flip"),
 }

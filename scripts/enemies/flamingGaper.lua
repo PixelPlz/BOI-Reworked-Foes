@@ -93,7 +93,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingGaperUpdate, EntityType.E
 
 -- Turn regular Gapers into flaming ones when burnt
 function mod:gaperIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 1 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
+	if Game():GetRoom():HasWater() == false and target.Variant == 1 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
 		target:ToNPC():Morph(EntityType.ENTITY_GAPER, 2, 0, target:ToNPC():GetChampionColorIdx())
 		target:Update()
 		mod:PlaySound(nil, SoundEffect.SOUND_FIREDEATH_HISS)
@@ -164,7 +164,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingGusherUpdate, EntityType.
 
 -- Turn regular Gushers into Braziers when burnt
 function mod:gusherIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant < 2 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
+	if Game():GetRoom():HasWater() == false and target.Variant < 2 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
 		target:ToNPC():Morph(EntityType.ENTITY_GUSHER, IRFentities.Brazier, 0, target:ToNPC():GetChampionColorIdx())
 		mod:PlaySound(nil, SoundEffect.SOUND_FIREDEATH_HISS)
 		return false

@@ -117,8 +117,8 @@ mod:LoadScripts(minibossScripts, "minibosses")
 
 -- Bosses
 local bossScripts = {
-	"carrionQueen",
 	"chad",
+	"carrionQueen",
 	"gish",
 	"mom",
 	"scolex",
@@ -133,6 +133,7 @@ local bossScripts = {
 	"satan",
 	"maskInfamy",
 	"daddyLongLegs",
+	"triachnid",
 	"blueBaby",
 	"hushBaby",
 	"gate",

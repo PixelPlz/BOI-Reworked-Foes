@@ -139,7 +139,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.rottyDeath, EntityType.ENTIT
 
 -- Turn Skinnies into Crispies when burnt
 function mod:skinnyIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 0 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
+	if Game():GetRoom():HasWater() == false and target.Variant == 0 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
 		target:ToNPC():Morph(target.Type, 2, 0, target:ToNPC():GetChampionColorIdx())
 		local sprite = target:GetSprite()
 
