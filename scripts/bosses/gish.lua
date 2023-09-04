@@ -29,7 +29,6 @@ local Settings = {
 
 function mod:gishInit(entity)
 	if entity.Variant == 1 then
-		--entity:SetSize(20, Vector(entity.Scale, entity.Scale), 12)
 		entity.ProjectileCooldown = Settings.Cooldown / 2
 		entity:GetData().counter = 1
 
@@ -296,44 +295,54 @@ function mod:gishUpdate(entity)
 
 				if sprite:IsFinished() then
 					entity.StateFrame = 1
-					entity.I2 = Settings.ShotDelay
+					entity.I2 = Settings.ShotDelay / 2
 					data.bubblies = {}
-
-					local screenHeight = Isaac.ScreenToWorld( Vector(0, Isaac.GetScreenHeight()) ).Y
-					--entity.Position = Vector(target.Position.X, screenHeight * entity.Scale + 120)
 				end
 
 
 			-- On the ceiling
 			elseif entity.StateFrame == 1 then
-				local screenHeight = Isaac.ScreenToWorld( Vector(0, Isaac.GetScreenHeight()) ).Y
-				local pos = Vector(target.Position.X, screenHeight * entity.Scale + 120)
+				mod:LoopingAnim(sprite, "CeilingIdle")
 
+				-- Get position to stay at
+				local height = room:GetTopLeftPos().Y + (160 * entity.Scale)
+
+				-- Follow the target in big rooms
+				local shape = room:GetRoomShape()
+				local inBigRoom = shape ~= RoomShape.ROOMSHAPE_1x1 and shape ~= RoomShape.ROOMSHAPE_IV and shape ~= RoomShape.ROOMSHAPE_2x1
+				if inBigRoom == true then
+					height = math.max(target.Position.Y, height)
+				end
+
+				local pos = Vector(target.Position.X, height)
+
+				-- Stay at the top of the screen or above the target
 				if entity.Position:Distance(pos) < 20 then
 					entity.Velocity = mod:StopLerp(entity.Velocity)
 				else
 					entity.Velocity = mod:Lerp(entity.Velocity, (pos - entity.Position):Resized(Settings.CeilingSpeed), 0.25)
 				end
 
-				mod:LoopingAnim(sprite, "CeilingIdle")
 
-				if entity.I2 <= 0 then
-					-- Jump down
-					if entity.I1 >= 3 then
-						entity.StateFrame = 3
-						sprite:Play("JumpDown", true)
-						--entity.Visible = true
-						--entity.Position = target.Position
-						mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
+				-- Only attack if he's close enough vertically to his target position or he's in a big room
+				local checkPos = Vector(entity.Position.X, height)
 
-					-- Shoot
+				if inBigRoom == true or entity.Position:Distance(checkPos) < 20 then
+					if entity.I2 <= 0 then
+						-- Go to a free position to land on
+						if entity.I1 >= 3 then
+							entity.StateFrame = 3
+							entity.TargetPosition = room:FindFreeTilePosition(entity.Position, entity.Size * entity.Scale)
+
+						-- Shoot
+						else
+							entity.StateFrame = 2
+							sprite:Play("CeilingShoot", true)
+						end
+
 					else
-						entity.StateFrame = 2
-						sprite:Play("CeilingShoot", true)
+						entity.I2 = entity.I2 - 1
 					end
-
-				else
-					entity.I2 = entity.I2 - 1
 				end
 
 
@@ -344,6 +353,10 @@ function mod:gishUpdate(entity)
 				if sprite:IsEventTriggered("Shoot") then
 					-- Get position
 					entity.TargetPosition = target.Position + mod:RandomVector(mod:Random(60, 120))
+
+					-- Limit distance
+					local length = math.min(320, (target.Position):Distance(entity.Position))
+					entity.TargetPosition = entity.Position + (entity.TargetPosition - entity.Position):Resized(length)
 					entity.TargetPosition = room:GetClampedPosition(entity.TargetPosition, 20)
 
 					-- Target
@@ -369,8 +382,24 @@ function mod:gishUpdate(entity)
 				end
 
 
-			-- Jump down
+			-- Go to a free position to land on
 			elseif entity.StateFrame == 3 then
+				mod:LoopingAnim(sprite, "CeilingIdle")
+
+				-- Jump down
+				if entity.Position:Distance(entity.TargetPosition) < 20 then
+					entity.StateFrame = 4
+					sprite:Play("JumpDown", true)
+					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
+
+				-- Go to position
+				else
+					entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Resized(Settings.CeilingSpeed), 0.25)
+				end
+
+
+			-- Jump down
+			elseif entity.StateFrame == 4 then
 				entity.Velocity = Vector.Zero
 
 				if sprite:IsEventTriggered("Land") then
@@ -419,6 +448,14 @@ function mod:gishUpdate(entity)
 				end
 			end
 
+
+			-- Droplets
+			if entity.StateFrame ~= 0 and entity.StateFrame ~= 4 and entity:IsFrame(45, 0) then
+				local drop = Vector(entity.Position.X + math.random(-20, 20), entity.Position.Y)
+				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_DROP, 0, drop, Vector.Zero, entity):ToEffect()
+				effect.PositionOffset = Vector(0, -200 * entity.Scale)
+				effect:GetSprite().Color = data.effectColor
+			end
 
 			-- Bubbling effect for creep puddles
 			if data.bubblies and entity:IsFrame(3, 0) then

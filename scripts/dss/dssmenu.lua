@@ -151,7 +151,7 @@ local exampledirectory = {
         buttons = {
             { str = 'general', fsize = 3, nosel = true },
             { str = '', fsize = 3, nosel = true },
-            {                
+            {
                 str = 'breakable hosts',
                 choices = {'true', 'false'},
                 setting = 1,
@@ -175,6 +175,31 @@ local exampledirectory = {
                     end
                 end,
                 tooltip = { strset = { 'host armor', 'can be broken', 'by a bomb', 'or high damage' } }
+            },
+            {
+                str = 'coin stealing foes',
+                choices = {'true', 'false'},
+                setting = 1,
+                variable = 'coinStealing',
+                load = function()
+                    if IRFConfig.coinStealing ~= nil then
+                        if IRFConfig.coinStealing then
+                            return 1
+                        else
+                            return 2
+                        end
+                    else
+                        return 1
+                    end
+                end,
+                store = function(var)
+                    if var == 1 then
+                        IRFConfig.coinStealing = true
+                    else
+                        IRFConfig.coinStealing = false
+                    end
+                end,
+                tooltip = { strset = { 'greed themed', 'enemies', 'will steal', 'nearby coins' } }
             },
             {
                 str = 'no basement nests',

@@ -138,7 +138,7 @@
 	<!-- Giant spike -->
 	<entity name="Giant Spike"   id="200" variant="4437"   anm2path="giant spike.anm2" hasFloorAlts="true" portrait="8"
 	shutdoors="false" tags="noreroll"
-	friction="1" collisionRadius="18" collisionMass="100" collisionDamage="2" numGridCollisionPoints="12" >
+	friction="1" collisionRadius="18" gridCollision="none" collisionMass="100" collisionDamage="2" numGridCollisionPoints="12" >
 		<gibs amount="6"   dust="1" rock="1" />
 	</entity>
 
@@ -202,5 +202,5 @@
 	<entity name="Holy Tracer"   			id="1000" variant="869"   			  anm2path="holy tracer.anm2"   			friction="1" />
 	<entity name="Single Brimstone Swirl"   id="1000" variant="870"   			  anm2path="1000.071_brimstoneswirl.anm2"   friction="1" />
 	<entity name="Husk Effect"   			id="1000" variant="871"   			  anm2path="1000.001_bomb explosion.anm2"   friction="1" />
-	<entity name="Triachnid Leg Segment"   	id="1000" variant="872"   			  anm2path="test/boss_duskhand.anm2"   		friction="1" />
+	<entity name="Triachnid Leg Segment"   	id="1000" variant="872"   			  anm2path="101.001_triachnid.anm2"   		friction="1" />
 </entities>
