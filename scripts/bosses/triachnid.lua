@@ -8,7 +8,8 @@ local Settings = {
 	MaxTrites = 3,
 
 	FootOffset = Vector(0, -16),
-	HeadOffset = Vector(0, -40),
+	HeadOffset = Vector(0, -36),
+	LegPointyness = -110,
 	WalkJumpStrength = 8,
 }
 
@@ -112,35 +113,48 @@ function mod:triachnidUpdate(entity)
 
 
 			if entity.State == 2 then
-				if entity.StateFrame == 0 then
-
-				elseif entity.StateFrame == 1 then
-
-				end
 				entity.Velocity = Vector.Zero
-				entity.PositionOffset = mod:Lerp(entity.PositionOffset, Vector(0, -80), 0.1)
+				
 
 				if not data.init then
+					
+					data.init = true
+					sprite:Play("HeadLiftStart", true)
+				end
+				--if sprite:IsFinished("HeadLiftStart") then
+				if sprite:IsPlaying("HeadLiftStart") and sprite:GetFrame() == 8 then
 					for i, leg in pairs(data.legs) do
 						local pos = entity.Position + Vector.FromAngle(-90 + i * 120):Resized(80)
 						startLegMove(leg.foot, pos)
 					end
-					data.init = true
+					sprite:Play("HeadLiftLoop", true)
+				end
+
+				if data.legs[1].foot.State == 3 and sprite:IsPlaying("HeadLiftLoop") then
+					if entity.ProjectileCooldown <= 0 then
+						entity.PositionOffset = mod:Lerp(entity.PositionOffset, Vector(0, -80), 0.1)
+					else
+						entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+					end
 				end
 
 				if entity.PositionOffset.Y <= -70 then
 					entity.PositionOffset = Vector(0, -70)
 					entity.State = 3
 					entity.ProjectileCooldown = 30
+					sprite:Play("HeadLiftStop", true)
+					data.counter = 1
 				end
 
 			-- Idle
 			elseif entity.State == NpcState.STATE_IDLE then
 				if not data.init then
 					entity.State = 2
-					entity.ProjectileCooldown = 10
+					entity.ProjectileCooldown = 3
 				end
-				mod:LoopingAnim(sprite, "HeadIdle")
+				if not sprite:IsPlaying("HeadLiftStop") then
+					mod:LoopingAnim(sprite, "HeadIdle")
+				end
 
 				if entity.ProjectileCooldown <= 0 then
 					data.counter = data.counter + 1
@@ -228,6 +242,7 @@ function mod:triachnidUpdate(entity)
 				entity.Position = Vector(centroidX, centroidY) / 3
 
 
+				--entity.I2 = 100
 				if entity.I2 <= 0 then
 					-- Move the first leg on the list
 					if data.sortedLegs[1] then
@@ -333,15 +348,15 @@ function mod:triachnidUpdate(entity)
 			elseif entity.State == NpcState.STATE_SUMMON then
 				if sprite:IsEventTriggered("Vomit") then
 					--Isaac.Spawn(EntityType.ENTITY_SINGE, 1, 0, entity.Position, (target.Position - entity.Position):Resized(6), entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
-					local trite = Isaac.Spawn(EntityType.ENTITY_HOPPER, 1, 0, entity.Position, Vector.Zero, entity):ToNPC()
+					local trite = Isaac.Spawn(EntityType.ENTITY_BLISTER, 0, 0, entity.Position, Vector.Zero, entity):ToNPC()
 					local triteSprite = trite:GetSprite()
 
-					trite.State = NpcState.STATE_MOVE
+					trite.State = NpcState.STATE_JUMP
 					triteSprite:Play("Hop", true)
-					triteSprite:SetFrame(4)
+					triteSprite:SetFrame(3)
 
-					local pos = entity.Position + (target.Position - entity.Position):Resized(240)
-					trite.TargetPosition = room:GetClampedPosition(pos, 10)
+					--local pos = entity.Position + (target.Position - entity.Position):Resized(240)
+					--trite.TargetPosition = room:GetClampedPosition(pos, 10)
 
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8)
 				end
@@ -555,12 +570,18 @@ function mod:triachnidRender(entity, offset)
 
 				-- Top leg is handled differently
 				if i == 3 then
-					leg.joint.Position = startpos + halfway + Vector(0, -100)
+					leg.joint.Position = startpos + halfway + Vector(0, Settings.LegPointyness + 10)
 
 				else
 					-- Get direction
 					local flippedness = leg.upperLeg:GetSprite().FlipX == true and -1 or 1
-					leg.joint.Position = startpos + halfway + halfway:Rotated(90 * flippedness):Resized(-110)
+
+					local multi = 1
+					if leg.foot.State == NpcState.STATE_ATTACK then
+						multi = -mod:GetSign(leg.foot.Position.Y < entity.Position.Y)
+					end
+
+					leg.joint.Position = startpos + halfway + halfway:Rotated(90 * flippedness):Resized(Settings.LegPointyness)
 				end
 			end
 		end
