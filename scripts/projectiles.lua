@@ -391,9 +391,11 @@ end
 
 local function featherProjectileUpdate(projectile)
 	local sprite = projectile:GetSprite()
-
 	mod:LoopingAnim(sprite, "Move")
-	sprite.Rotation = projectile.Velocity:GetAngleDegrees()
+
+	local pos = projectile.Position + projectile.PositionOffset
+	sprite.Rotation = (pos + projectile.Velocity + Vector(0, projectile.FallingSpeed) - pos):GetAngleDegrees()
+
 	sprite.Scale = Vector(projectile.Scale, projectile.Scale)
 end
 
@@ -416,9 +418,10 @@ end
 
 local function suckerProjectileUpdate(projectile)
 	local sprite = projectile:GetSprite()
-
 	mod:LoopingAnim(sprite, "Fly")
-	sprite.Rotation = projectile.Velocity:GetAngleDegrees() + 90
+
+	local pos = projectile.Position + projectile.PositionOffset
+	sprite.Rotation = (pos + projectile.Velocity + Vector(0, projectile.FallingSpeed) - pos):GetAngleDegrees() + 90
 end
 
 local function suckerProjectilePop(projectile)
@@ -433,6 +436,40 @@ local function suckerProjectilePop(projectile)
 end
 
 mod:AddCustomProjectile(IRFentities.SuckerProjectile, suckerProjectileInit, suckerProjectileUpdate, suckerProjectilePop)
+
+
+
+-- Egg sack projectile
+local function eggSackProjectileInit(projectile)
+	projectile.Scale = 1.5
+end
+
+local function eggSackProjectileUpdate(projectile)
+	local sprite = projectile:GetSprite()
+	mod:LoopingAnim(sprite, "String")
+	mod:LoopingOverlay(sprite, "Sack")
+
+	local pos = projectile.Position + projectile.PositionOffset
+	sprite.Rotation = (pos + projectile.Velocity + Vector(0, projectile.FallingSpeed) - pos):GetAngleDegrees() + 90
+end
+
+local function eggSackProjectilePop(projectile)
+	local blister = Isaac.Spawn(EntityType.ENTITY_BLISTER, 0, 0, projectile.Position, Vector.Zero, projectile.SpawnerEntity)
+	blister.MaxHitPoints = blister.MaxHitPoints / 2
+	blister.HitPoints = blister.MaxHitPoints
+
+	Isaac.GridSpawn(GridEntityType.GRID_SPIDERWEB, 0, Game():GetRoom():GetClampedPosition(projectile.Position, 10), false)
+	mod:QuickCreep(EffectVariant.CREEP_WHITE, projectile.SpawnerEntity, projectile.Position, 2.5, 90)
+
+	mod:PlaySound(nil, SoundEffect.SOUND_BOIL_HATCH)
+
+	local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SPIDER_EXPLOSION, 0, projectile.Position, Vector.Zero, projectile):GetSprite()
+	effect.Offset = Vector(projectile.PositionOffset.X, projectile.PositionOffset.Y * 0.65)
+	effect.Scale = Vector(1.4, 1.4)
+	effect.Color = IRFcolors.WhiteShot
+end
+
+mod:AddCustomProjectile(IRFentities.EggSackProjectile, eggSackProjectileInit, eggSackProjectileUpdate, eggSackProjectilePop)
 
 
 

@@ -37,7 +37,14 @@ function mod:gishInit(entity)
 			for i = -1, 1, 2 do
 				local pos = entity.Position + Vector(i * 70, 0)
 				pos = Game():GetRoom():FindFreePickupSpawnPosition(pos, 0, true, true)
-				Isaac.Spawn(EntityType.ENTITY_WHIPPER, 0, 0, pos, Vector.Zero, entity):GetSprite():Load("gfx/834.000_altar scamp.anm2", true)
+
+				local scamp = Isaac.Spawn(EntityType.ENTITY_WHIPPER, 0, 0, pos, Vector.Zero, entity):ToNPC()
+				scamp:GetSprite():Load("gfx/834.000_altar scamp.anm2", true)
+
+				-- Don't spawn them as champions
+				if scamp:IsChampion() then
+					scamp:Morph(scamp.Type, scamp.Variant, scamp.SubType, -1)
+				end
 			end
 		end
 	end
@@ -372,6 +379,8 @@ function mod:gishUpdate(entity)
 
 					local speed = entity.Position:Distance(entity.TargetPosition) / 26 -- Cool magic number
 					mod:FireProjectiles(entity, entity.Position, (entity.TargetPosition - entity.Position):Resized(speed), 0, params, Color(0,0,0, 1, 0.15,0.15,0.15)):GetData().fallingShot = true
+
+					mod:ShootEffect(entity, 5, Vector(0, 190 * entity.Scale * -0.65), data.effectColor, 1.5)
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8)
 				end
 
@@ -494,7 +503,15 @@ function mod:gishUpdate(entity)
 				entity:FireBossProjectiles(12, target.Position, 2, params)
 
 				-- Effects
-				mod:ShootEffect(entity, 5, Vector(0, -16), data.effectColor, 1.5)
+				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 5, entity.Position, Vector.Zero, entity):ToEffect()
+				effect:FollowParent(entity)
+				effect.DepthOffset = entity.DepthOffset + 10
+
+				local effectSprite = effect:GetSprite()
+				effectSprite.Offset = Vector(0, -20)
+				effectSprite.Color = data.effectColor
+				effectSprite.Scale = Vector(0.6, 0.6) * entity.Scale
+
 				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8)
 			end
 
@@ -765,7 +782,7 @@ function mod:gishUpdate(entity)
 
 
 
-		--[[ Shoot ]]--
+		--[[ Shoot on the wall ]]--
 		elseif entity.State == NpcState.STATE_ATTACK4 then
 			keepOnWall()
 			entity.Velocity = mod:StopLerp(entity.Velocity)

@@ -9,6 +9,7 @@ IRFentities = {
 	-- Projectiles
 	FeatherProjectile = Isaac.GetEntityVariantByName("Angelic Feather Projectile"),
 	SuckerProjectile  = Isaac.GetEntityVariantByName("Sucker Projectile"),
+	EggSackProjectile = Isaac.GetEntityVariantByName("Egg Sack Projectile"),
 
 
 	-- Enemies
@@ -133,4 +134,8 @@ IRFsounds = {
 	StevenChange = Isaac.GetSoundIdByName("Steven Layer Change"),
 	StevenLand   = Isaac.GetSoundIdByName("Steven Land"),
 	StevenDie 	 = Isaac.GetSoundIdByName("Steven Die"),
+
+	-- Triachnid
+	TriachnidHappy  = Isaac.GetSoundIdByName("Triachnid Happy"),
+	TriachnidHurt 	= Isaac.GetSoundIdByName("Triachnid Hurt"),
 }

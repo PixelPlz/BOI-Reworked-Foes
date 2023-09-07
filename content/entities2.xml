@@ -1,7 +1,8 @@
 <entities anm2root="gfx/" version="5" deathanm2="gfx/death_enemies.anm2">
 	<!-- Projectiles -->
-	<entity name="Angelic Feather Projectile"   id="9" variant="400"   anm2path="feather projectile.anm2" shadowSize="12"   friction="1" collisionRadius="5"  collisionMass="8" numGridCollisionPoints="8" />
-	<entity name="Sucker Projectile"   			id="9" variant="401"   anm2path="sucker projectile.anm2"  shadowSize="10"   friction="1" collisionRadius="10" collisionMass="8" numGridCollisionPoints="8" />
+	<entity name="Angelic Feather Projectile"   id="9" variant="400"   anm2path="feather projectile.anm2"  shadowSize="12"   friction="1" collisionRadius="5"  collisionMass="8" numGridCollisionPoints="8" />
+	<entity name="Sucker Projectile"   			id="9" variant="401"   anm2path="sucker projectile.anm2"   shadowSize="12"   friction="1" collisionRadius="10" collisionMass="8" numGridCollisionPoints="8" />
+	<entity name="Egg Sack Projectile"   		id="9" variant="402"   anm2path="egg sack projectile.anm2" shadowSize="12"   friction="1" collisionRadius="10" collisionMass="8" numGridCollisionPoints="8" />
 
 
 

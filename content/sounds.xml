@@ -49,4 +49,16 @@
 	<sound name="Steven Flip">
         <sample weight="1" path="steven_flip.wav" />
     </sound>
+
+
+    <!-- Triachnid -->
+	<sound name="Triachnid Happy">
+        <sample weight="1" path="triachnid_happy.wav" />
+    </sound>
+
+	<sound name="Triachnid Hurt">
+        <sample weight="1" path="triachnid_hurt1.wav" />
+		<sample weight="1" path="triachnid_hurt2.wav" />
+		<sample weight="1" path="triachnid_hurt3.wav" />
+    </sound>
 </sounds>
