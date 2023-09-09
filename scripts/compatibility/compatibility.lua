@@ -6,86 +6,41 @@ function mod:postGameStarted()
 		local path = "gfx/ui/bosshp_icons/"
 
 		-- Gish
-		HPBars.BossDefinitions["43.1"] = {
-			sprite = path .. "chapter3/gish.png",
-			offset = Vector(-5, 0),
-			bossColors = {"_white"}
-		}
+		HPBars.BossDefinitions["43.1"].bossColors = {"_white"}
 
 		-- Sloth
-		HPBars.BossDefinitions["46.0"] = {
-			sprite = path .. "minibosses/sloth.png",
-			offset = Vector(-6, 0),
-			bossColors = {"_grey"}
-		}
+		HPBars.BossDefinitions["46.0"].bossColors = {"_grey"}
 
 		-- Lust
-		HPBars.BossDefinitions["47.0"] = {
-			sprite = path .. "minibosses/lust.png",
-			offset = Vector(-6, 0),
-			bossColors = {"_purple"}
-		}
+		HPBars.BossDefinitions["47.0"].bossColors = {"_purple"}
 
 		-- Wrath
-		HPBars.BossDefinitions["48.0"] = {
-			sprite = path .. "minibosses/wrath.png",
-			offset = Vector(-5, 0),
-			bossColors = {"_grey"}
-		}
+		HPBars.BossDefinitions["48.0"].bossColors = {"_grey"}
 
 		-- Gluttony
-		HPBars.BossDefinitions["49.0"] = {
-			sprite = path .. "minibosses/gluttony.png",
-			offset = Vector(-6, 0),
-			bossColors = {"_green"}
-		}
+		HPBars.BossDefinitions["49.0"].bossColors = {"_green"}
 
 		-- Greed
-		HPBars.BossDefinitions["50.0"] = {
-			sprite = path .. "minibosses/greed.png",
-			offset = Vector(-6, 0),
-			bossColors = {"_yellow"}
-		}
+		HPBars.BossDefinitions["50.0"].bossColors = {"_yellow"}
 
 		-- Envy
-		HPBars.BossDefinitions["51.0"] = { -- Full
-			sprite = path .. "minibosses/envy_large.png",
-			offset = Vector(-5, 0),
-			bossColors = {"_pink"}
-		}
-		HPBars.BossDefinitions["51.10"] = { -- Large
-			sprite = path .. "minibosses/envy_large.png",
-			offset = Vector(-5, 0),
-			bossColors = {"_pink"}
-		}
-		HPBars.BossDefinitions["51.20"] = { -- Medium
-			sprite = path .. "minibosses/envy_medium.png",
-			offset = Vector(-4, 0),
-			bossColors = {"_pink"}
-		}
-		HPBars.BossDefinitions["51.30"] = { -- Small
-			sprite = path .. "minibosses/envy_small.png",
-			offset = Vector(-2, 0),
-			bossColors = {"_pink"}
-		}
+		HPBars.BossDefinitions["51.0"].bossColors  = {"_pink"} -- Full
+		HPBars.BossDefinitions["51.10"].bossColors = {"_pink"} -- Large
+		HPBars.BossDefinitions["51.20"].bossColors = {"_pink"} -- Medium
+		HPBars.BossDefinitions["51.30"].bossColors = {"_pink"} -- Small
 
 		-- Pride
-		HPBars.BossDefinitions["52.0"] = {
-			sprite = path .. "minibosses/pride.png",
-			offset = Vector(-6, 0),
-			bossColors = {"_yellow"}
-		}
+		HPBars.BossDefinitions["52.0"].bossColors = {"_yellow"}
+
+		-- Pin
+		HPBars.BossDefinitions["62.0"].bossColors[IRFentities.PinChampion] = "_blue"
 
 		-- Conquest
-		HPBars.BossDefinitions["65.1"] = { -- 1st phase
+		HPBars.BossDefinitions["65.1"].bossColors = {"_red"}
+		HPBars.BossDefinitions["65.11"] = { -- Without Horse
 			sprite = path .. "horsemen/conquest.png",
 			offset = Vector(-7, 0),
-			bossColors = {"_red"}
-		}
-		HPBars.BossDefinitions["65.11"] = { -- 2nd phase
-			sprite = path .. "horsemen/conquest.png",
-			offset = Vector(-7, 0),
-			conditionalSprites = {
+			conditionalSprites = { -- I don't remember why I did it like this
 				{function(entity) return entity.SubType == 1 end, path .. "horsemen/conquest_red.png"}
 			},
 		}
@@ -97,98 +52,52 @@ function mod:postGameStarted()
 			},
 		}
 
-		-- Scarred Womb Fistula
-		HPBars.BossDefinitions["71.0"] = { -- Large
-			sprite = path .. "chapter2/fistula_large.png",
-			offset = Vector(-7, 0),
-			bossColors = {"_grey"},
-			conditionalSprites = {
-				{function(entity) return entity.SubType == 1000 end, path .. "chapter2/fistula_large_scarred.png"}
-			},
+		-- Matriarch Fistula
+		HPBars.BossDefinitions["71.0"].conditionalSprites = { -- Large
+			{function(entity) return entity.SubType == 1000 end, path .. "chapter2/fistula_large_scarred.png"}
 		}
-		HPBars.BossDefinitions["72.0"] = { -- Medium
-			sprite = path .. "chapter2/fistula_medium.png",
-			offset = Vector(-4, 0),
-			bossColors = {"_grey"},
-			conditionalSprites = {
-				{function(entity) return entity.SubType == 1000 end, path .. "chapter2/fistula_medium_scarred.png"}
-			},
+		HPBars.BossDefinitions["72.0"].conditionalSprites = { -- Medium
+			{function(entity) return entity.SubType == 1000 end, path .. "chapter2/fistula_medium_scarred.png"}
 		}
-		HPBars.BossDefinitions["73.0"] = { -- Small
-			sprite = path .. "chapter2/fistula_small.png",
-			offset = Vector(-2, 0),
-			bossColors = {"_grey"},
-			conditionalSprites = {
-				{function(entity) return entity.SubType == 1000 end, path .. "chapter2/fistula_small_scarred.png"}
-			},
+		HPBars.BossDefinitions["73.0"].conditionalSprites = { -- Small
+			{function(entity) return entity.SubType == 1000 end, path .. "chapter2/fistula_small_scarred.png"}
 		}
 
 		-- Teratomar
 		HPBars.BossDefinitions["200.4071"] = {
 			sprite = path .. "chapter4/teratomar.png",
 			offset = Vector(-4, 0),
-			bossColors = {"_fuzzy"}
+			bossColors = {"_fuzzy"} -- For Fiend Folio
 		}
 
-		-- It lives
-		HPBars.BossDefinitions["78.1"] = {
-			sprite = path .. "final/it_lives.png",
-			offset = Vector(-8, 0),
-			conditionalSprites = {
-				{function(entity) return entity:GetData().enraged == true end, path .. "final/it_lives_angy.png"}
-			},
+		-- It Lives
+		HPBars.BossDefinitions["78.1"].conditionalSprites = {
+			{function(entity) return entity:GetData().enraged == true end, path .. "final/it_lives_angy.png"}
 		}
 
 		-- Steven
-		HPBars.BossDefinitions["79.1"] = {
-			sprite = path .. "chapter1/steven_big.png",
-			offset = Vector(-5, 0),
-			conditionalSprites = {
-				{function(entity) return entity:ToNPC().State == NpcState.STATE_SPECIAL end, path .. "chapter1/steven_wallace.png"}
-			},
-			barStyle = "Steven",
+		HPBars.BossDefinitions["79.1"].conditionalSprites = {
+			{function(entity) return entity:ToNPC().State == NpcState.STATE_SPECIAL end, path .. "chapter1/steven_wallace.png"}
 		}
 
 		-- Blighted Ovum
-		HPBars.BossDefinitions["79.2"] = {
-			sprite = path .. "chapter1/blighted_ovum.png",
-			offset = Vector(-4, 0),
-			conditionalSprites = {
-				{"isI1Equal", path .. "chapter1/blighted_ovum_phase2.png", {1}}
-			},
+		HPBars.BossDefinitions["79.2"].conditionalSprites = {
+			{"isI1Equal", path .. "chapter1/blighted_ovum_phase2.png", {1}}
 		}
 
 		-- Fallen
-		HPBars.BossDefinitions["81.0"] = {
-			sprite = path .. "chapter1/the_fallen.png",
-			offset = Vector(-7, 2),
-			bossColors = {"_red"}
-		}
+		HPBars.BossDefinitions["81.0"].bossColors = {"_red"}
+
 		-- Krampus
-		HPBars.BossDefinitions["81.1"] = {
-			sprite = path .. "minibosses/krampus.png",
-			offset = Vector(-6, 0),
-			bossColors = {"_red"}
-		}
+		HPBars.BossDefinitions["81.1"].bossColors = HPBars.BossDefinitions["81.1"].bossColors or {}
+		HPBars.BossDefinitions["81.1"].bossColors[IRFentities.KrampusChampion] = "_red"
 
 		-- Headless Horseman
-		HPBars.BossDefinitions["82.0"] = { -- Body
-			sprite = path .. "horsemen/headless_horsemen_body.png",
-			offset = Vector(-4, 0),
-			bossColors = {"_purple"}
-		}
-		HPBars.BossDefinitions["83.0"] = { -- Head
-			sprite = path .. "horsemen/headless_horsemen_head.png",
-			offset = Vector(-7, 0),
-			bossColors = {"_purple"}
-		}
+		HPBars.BossDefinitions["82.0"].bossColors = {"_purple"} -- Body
+		HPBars.BossDefinitions["83.0"].bossColors = {"_purple"} -- Head
 
 		-- Dark One
-		HPBars.BossDefinitions["267.0"] = {
-			sprite = path .. "chapter2/dark_one.png",
-			offset = Vector(-5, -2),
-			bossColors = {"_black"}
-		}
+		HPBars.BossDefinitions["267.0"].bossColors = {"_black"}
 
 		-- Forsaken clone (for Off-screen Indicators)
 		HPBars.BossDefinitions["403.10"] = {
@@ -222,6 +131,11 @@ function mod:postGameStarted()
 
 		-- Forsaken clone
 		HPBars.BossIgnoreList["403.10"] = true
+
+		-- Sister Vis corpse
+		HPBars.BossIgnoreList["410.0"] = function(entity)
+			return entity:GetData().corpse == true
+		end
 
 		-- Siren revive
 		HPBars.BossIgnoreList["904.0"] = function(entity)
@@ -311,8 +225,8 @@ function mod:postGameStarted()
 		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_SLOTH, 2, green)
 
 		-- Ultra Pride Sketches
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_CLOTTY, IRFentities.ClottySketch, sketch)
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_MAW, IRFentities.MawSketch, sketch)
+		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_CLOTTY, IRFentities.ClottySketch, sketch) -- Clotty Sketch
+		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_MAW, IRFentities.MawSketch, sketch) -- Maw Sketch
 
 		-- Champion Husk Sucker projectile
 		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_DUKE, 1, red)
@@ -325,6 +239,9 @@ function mod:postGameStarted()
 				end
 			end
 		)
+
+		-- Triachnid egg sack projectile
+		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_DADDYLONGLEGS, 1, IRFcolors.WhiteShot)
 
 		-- Hush baby fly attack
 		BulletTrails:BlacklistEntity(true, EntityType.ENTITY_HUSH_FLY, 0)

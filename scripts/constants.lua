@@ -34,7 +34,10 @@ IRFentities = {
 		ForgottenChain = 1,
 		LostHolyOrb	   = 2,
 
-	KrampusChampion = 1, -- It's defined here so it can be changed by the FF compatibility mod
+
+	-- Champion subtypes (They're defined here so they can be changed by the compatibility mods)
+	PinChampion 	= 2,
+	KrampusChampion = 1,
 
 
 	-- Effects
@@ -128,6 +131,9 @@ IRFsounds = {
 	ChadStunned    = Isaac.GetSoundIdByName("C.H.A.D. Stunned"),
 	ChadDie 	   = Isaac.GetSoundIdByName("C.H.A.D. Die"),
 
+	-- Blue Pin
+	LarryScream = Isaac.GetSoundIdByName("Larry Scream"),
+
 	-- Steven
 	StevenVoice  = Isaac.GetSoundIdByName("Steven Voice"),
 	StevenTP 	 = Isaac.GetSoundIdByName("Steven Teleport Loop"),
@@ -136,6 +142,6 @@ IRFsounds = {
 	StevenDie 	 = Isaac.GetSoundIdByName("Steven Die"),
 
 	-- Triachnid
-	TriachnidHappy  = Isaac.GetSoundIdByName("Triachnid Happy"),
-	TriachnidHurt 	= Isaac.GetSoundIdByName("Triachnid Hurt"),
+	TriachnidHappy = Isaac.GetSoundIdByName("Triachnid Happy"),
+	TriachnidHurt  = Isaac.GetSoundIdByName("Triachnid Hurt"),
 }

@@ -237,9 +237,15 @@ function mod:stevenUpdate(entity)
 						mod:PlaySound(nil, IRFsounds.StevenChange, 2.75, 1.05)
 						SFXManager():StopLoopingSounds()
 
+						-- Change position
 						entity.Position = entity.TargetPosition
 						entity.Child.Position = entity.Position
 						entity.Child:ToNPC().ProjectileCooldown = entity.Child:ToNPC().ProjectileCooldown + 30
+
+						-- Trigger Future enemy swap
+						if TheFuture then
+							Isaac.RunCallbackWithParam("POST_MANTIS_CLAP")
+						end
 					end
 
 					if sprite:IsFinished() then
@@ -276,6 +282,14 @@ function mod:stevenUpdate(entity)
 									room:DestroyGrid(room:GetGridIndex(pos), true)
 								end
 							end
+						end
+
+						-- Looping sound fix
+						SFXManager():StopLoopingSounds()
+
+						-- Trigger Future enemy swap
+						if TheFuture then
+							Isaac.RunCallbackWithParam("POST_MANTIS_CLAP")
 						end
 
 					else
@@ -430,7 +444,7 @@ function mod:stevenUpdate(entity)
 					if steven:ToNPC().State == NpcState.STATE_SPECIAL then
 						steven.MaxHitPoints = steven.MaxHitPoints + Settings.SecondPhaseHP
 						steven.HitPoints = steven.HitPoints + Settings.SecondPhaseHP
-						steven:ToNPC().I1 = steven:ToNPC().I1 - 3
+						steven:ToNPC().I1 = steven:ToNPC().I1 - 4
 
 						hasSteven = true
 						break
@@ -441,7 +455,7 @@ function mod:stevenUpdate(entity)
 				if hasSteven == false then
 					local newSteven = Isaac.Spawn(entity.Type, entity.Variant, entity.SubType, room:GetCenterPos(), Vector.Zero, entity):ToNPC()
 					newSteven.State = NpcState.STATE_SPECIAL
-					newSteven.I1 = 25
+					newSteven.I1 = 30
 					newSteven.I2 = 50
 					newSteven.ProjectileCooldown = 0
 
@@ -578,7 +592,7 @@ function mod:wallaceUpdate(entity)
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_FCUK
 					params.BulletFlags = ProjectileFlags.GHOST
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(12), 0, params)
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(11), 0, params)
 					mod:PlaySound(entity, IRFsounds.StevenDie)
 				end
 

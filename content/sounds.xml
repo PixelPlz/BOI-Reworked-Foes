@@ -21,6 +21,12 @@
     </sound>
 
 
+    <!-- Blue Pin -->
+    <sound name="Larry Scream">
+        <sample weight="1" path="larry_scream.wav" />
+    </sound>
+
+
 	<!-- Steven -->
 	<sound name="Steven Voice">
         <sample weight="1" path="steven_voice.wav" />

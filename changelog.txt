@@ -1,4 +1,30 @@
 ================================================
+    Version 3.1.0 - Across the Edmund-verse!
+================================================
+
+-- Reworks / Additions --
+- Ultra Pride has been reworked!
+- Steven has been re-reworked!
+- Gish has been re-reworked!
+- (TODO) Sister Vis has been reworked!
+- Triachnid has been re-reworked!
+- New Pin champion based off of the Larries from Super Meat Boy
+- Added a config option to toggle Greed-themed enemies stealing coin pickups
+
+
+-- Balance changes --
+- The Stain now only takes 20% reduced damage through his tentacles instead of 50%
+- Gapers, Fatties and Skinnies can no longer turn into their burnt versions in rooms with water
+
+
+-- Fixes --
+- Fixed friendly Black Bonies not working properly
+- Fixed Fiend Folio Krampus champion's Enhanced Boss Bars icon being overwritten by this mod
+
+
+
+
+================================================
     Version 3.0.7
 ================================================
 

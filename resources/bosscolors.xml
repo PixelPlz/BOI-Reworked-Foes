@@ -48,6 +48,7 @@
 	<!-- Pin -->
 	<boss id="62" variant="0">
 		<color suffix="_grey" scale="1.15" hp="1.25"/>
+		<color anm2path="062.000_pin_blue.anm2" scale="0.9" hp="0.5"/>
 	</boss>
 	<!-- Famine -->
 	<boss id="63" variant="0">

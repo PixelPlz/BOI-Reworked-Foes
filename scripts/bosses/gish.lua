@@ -888,8 +888,8 @@ function mod:gishUpdate(entity)
 
 		-- Remove Clots for Hera's boss rooms
 		elseif entity.SubType == 1 then
-			for i, stuff in pairs(Isaac.FindByType(EntityType.ENTITY_CLOTTY, 1, -1, false, false)) do
-				stuff:Remove()
+			for i, clot in pairs(Isaac.FindByType(EntityType.ENTITY_CLOTTY, 1, -1, false, false)) do
+				clot:Remove()
 			end
 		end
 	end

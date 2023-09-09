@@ -3,7 +3,8 @@ local mod = BetterMonsters
 local Settings = {
 	SideRange = 25,
 	FrontRange = 100,
-	WhipStrength = 5
+	WhipStrength = 5,
+	TentacleDamageReduction = 20,
 }
 
 
@@ -207,7 +208,10 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.stainTentacleUpdate, EntityT
 
 function mod:stainTentacleDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == 10 and target.Parent then
-		target.Parent:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
+		local onePercent = damageAmount / 100
+		local reduction = onePercent * Settings.LegDamageReduction
+
+		target.Parent:TakeDamage(damageAmount - reduction, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
 		target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
 		return false
 	end

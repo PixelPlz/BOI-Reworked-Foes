@@ -245,14 +245,14 @@ function mod:lokiiUpdate(entity)
 
 					entity.I2 = entity.I2 + 1
 				end
-				
+
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
 					entity.ProjectileCooldown = Settings.Cooldown
 					pair.ProjectileCooldown = Settings.Cooldown
 				end
-			
-			
+
+
 			-- Laser Attack
 			elseif entity.State == NpcState.STATE_ATTACK2 then
 				if sprite:IsEventTriggered("Jump") then
@@ -329,7 +329,7 @@ function mod:lokiiUpdate(entity)
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_SUMMON2
 					sprite:Play("FlyThrow", true)
-					
+
 					if entity.I2 == 0 then
 						pair.State = NpcState.STATE_SUMMON3
 						pairSprite:Play("FlyWaitStart", true)
@@ -371,7 +371,7 @@ function mod:lokiiUpdate(entity)
 				if sprite:IsFinished() then
 					sprite:Play("FlyWaitLoop", true)
 				end
-			
+
 			-- Catch fly
 			elseif entity.State == NpcState.STATE_SPECIAL then
 				entity.StateFrame = 1
@@ -427,8 +427,8 @@ function mod:lokiiUpdate(entity)
 							params.BulletFlags = ProjectileFlags.ORBIT_CCW
 						end
 						entity:FireProjectiles(entity.Position, Vector(11, 8), 8, params)
-					
-					
+
+
 					-- Triple attack
 					elseif entity.State == NpcState.STATE_ATTACK5 then
 						-- + shots

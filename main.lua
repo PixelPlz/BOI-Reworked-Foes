@@ -13,10 +13,7 @@ IRFflavorText = {
 	"Delirium rework coming out in 202X",
 	"All oiled up",
 	"Monstro rework when?",
-	"Follow the turning coin",
-	"Today's lucky numbers:\n"
-	.. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)),
-	"Now 10% funnier!",
+	"Now 11% funnier!",
 	"Not for baby gamers",
 	"01101000 01101001 00100000 00111010 00101001",
 	"Reworked Foes? More like STINKY Foes",
@@ -26,12 +23,10 @@ IRFflavorText = {
 	"ratratrat was here!",
 	"WARNING: Some reworks might require you to pay attention!",
 	"It will even fix your marriage!",
-	"The bosses finally got some training",
 	"The Husk was hiding the Forgotten this entire time",
+	"We will rework your wife. We will rework your son. We will rework your infant daughter.",
 }
-
-local flavorText = IRFflavorText[math.random(#IRFflavorText)]
-print(startupText .. " - " .. flavorText)
+print(startupText .. " - " .. IRFflavorText[math.random(#IRFflavorText)])
 
 
 
@@ -142,7 +137,7 @@ local bossScripts = {
 	"stain",
 	"forsaken",
 	"ragMega",
-	--"sisterVis",
+	"sisterVis",
 }
 mod:LoadScripts(bossScripts, "bosses")
 
@@ -150,6 +145,7 @@ mod:LoadScripts(bossScripts, "bosses")
 -- Champions
 local championScripts = {
 	"vanillaChanges",
+	"pin",
 	"fallen",
 	"headlessHorseman",
 	"darkOne",
@@ -159,7 +155,7 @@ mod:LoadScripts(championScripts, "champions")
 
 -- Compatibility
 local compatibilityScripts = {
-	"baptismal_preloader", -- This is retarded
+	"baptismal_preloader",
 	"compatibility",
 	"retribution",
 }

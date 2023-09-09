@@ -490,16 +490,16 @@ function mod:cageUpdate(entity)
 
 	-- Extra effects when bouncing off of walls
 	elseif entity.State == NpcState.STATE_ATTACK and entity:CollidesWithGrid() then
-		mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, entity.Scale * 0.5)
-		Game():ShakeScreen(math.floor(entity.Scale * 5))
+		mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, entity.Scale * 0.5, 1, 6)
+		Game():ShakeScreen(math.floor(entity.Scale * 4))
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.cageUpdate, EntityType.ENTITY_CAGE)
 
 function mod:cageCollide(entity, target, bool)
-	if entity.State == NpcState.STATE_ATTACK and target.Type == EntityType.ENTITY_CAGE then
-		mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, entity.Scale * 0.6)
+	if entity.State == NpcState.STATE_ATTACK and (target.Type == entity.Type or target.Type == EntityType.ENTITY_SISTERS_VIS) then
 		entity.Velocity = (entity.Position - target.Position):Normalized()
+		mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, entity.Scale * 0.5, 1, 6)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.cageCollide, EntityType.ENTITY_CAGE)

@@ -446,11 +446,23 @@ end
 
 local function eggSackProjectileUpdate(projectile)
 	local sprite = projectile:GetSprite()
-	mod:LoopingAnim(sprite, "String")
-	mod:LoopingOverlay(sprite, "Sack")
+	mod:LoopingAnim(sprite, "Sack")
+	mod:FlipTowardsMovement(projectile, sprite)
+	sprite.PlaybackSpeed = projectile.Velocity:Length() * 0.1
 
-	local pos = projectile.Position + projectile.PositionOffset
-	sprite.Rotation = (pos + projectile.Velocity + Vector(0, projectile.FallingSpeed) - pos):GetAngleDegrees() + 90
+	-- On bounce
+	if projectile:HasProjectileFlags(ProjectileFlags.BOUNCE_FLOOR) and projectile.Height >= -5 then
+		-- Stop bouncing
+		if projectile.FallingSpeed >= -12 then
+			projectile.FallingSpeed = 0
+
+		-- Reduce bounce height
+		else
+			projectile:AddFallingSpeed(5)
+			mod:QuickCreep(EffectVariant.CREEP_WHITE, projectile.SpawnerEntity, projectile.Position, 1.5, 90)
+			mod:PlaySound(nil, SoundEffect.SOUND_MEAT_IMPACTS, -projectile.FallingSpeed / 20)
+		end
+	end
 end
 
 local function eggSackProjectilePop(projectile)
@@ -458,7 +470,7 @@ local function eggSackProjectilePop(projectile)
 	blister.MaxHitPoints = blister.MaxHitPoints / 2
 	blister.HitPoints = blister.MaxHitPoints
 
-	Isaac.GridSpawn(GridEntityType.GRID_SPIDERWEB, 0, Game():GetRoom():GetClampedPosition(projectile.Position, 10), false)
+	Isaac.GridSpawn(GridEntityType.GRID_SPIDERWEB, 0, Game():GetRoom():FindFreeTilePosition(projectile.Position, 0), false)
 	mod:QuickCreep(EffectVariant.CREEP_WHITE, projectile.SpawnerEntity, projectile.Position, 2.5, 90)
 
 	mod:PlaySound(nil, SoundEffect.SOUND_BOIL_HATCH)

@@ -1,3 +1,55 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.0", [[
+
+{FSIZE2}Across the Edmund-verse!
+
+
+{FSIZE2}Reworks / Additions
+- Ultra Pride has been reworked!
+
+- Steven has been re-reworked!
+
+- Gish has been re-reworked!
+
+- (TODO) Sister Vis has been reworked!
+
+- Triachnid has been re-reworked!
+
+- New Pin champion based off of the
+Larries from Super Meat Boy
+
+- Added a config option to toggle
+Greed-themed enemies stealing coin pickups
+
+
+
+{FSIZE2}Balance changes
+
+- The Stain now only takes 20%
+reduced damage through his tentacles
+instead of 50%
+
+- Gapers, Fatties and Skinnies can
+no longer turn into their burnt versions
+in rooms with water
+
+
+
+{FSIZE2}Fixes
+
+- Fixed friendly Black Bonies
+not working properly
+
+- Fixed Fiend Folio Krampus champion's
+Enhanced Boss Bars icon being overwritten
+by this mod
+
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.0.7", [[
 
 {FSIZE2}Balance changes

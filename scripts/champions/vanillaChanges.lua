@@ -144,7 +144,6 @@ function mod:blackFrailUpdate(entity)
 					mod:PlaySound(entity, SoundEffect.SOUND_FRAIL_CHARGE)
 				end
 
-
 			-- Charge
 			elseif entity.ProjectileCooldown == 1 then
 				if sprite:IsFinished() then
@@ -152,10 +151,10 @@ function mod:blackFrailUpdate(entity)
 					data.attacking = true
 					data.attackTimer = 50
 					data.attacksDone = 0
+
 					mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_START)
 					mod:PlaySound(entity, SoundEffect.SOUND_FIRE_RUSH, 0.9)
 				end
-
 
 			-- Shooting
 			elseif entity.ProjectileCooldown == 2 then
@@ -209,20 +208,17 @@ function mod:blackFrailUpdate(entity)
 					end
 				end
 
-
 			-- End
 			else
 				if sprite:GetFrame() == 4 then
-					mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND)
+					mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.9)
 				end
-
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
-					mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND)
 				end
 			end
-		
-		
+
+
 		-- Custom tail attack
 		elseif entity.State == NpcState.STATE_ATTACK5 then
 			entity.Velocity = Vector.Zero
@@ -250,7 +246,7 @@ function mod:blackFrailUpdate(entity)
 
 			-- Sound
 			elseif sprite:GetFrame() == 85 then
-				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND)
+				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.9)
 			end
 
 			if sprite:IsFinished() then

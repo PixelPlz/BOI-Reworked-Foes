@@ -207,6 +207,8 @@ function mod:triachnidUpdate(entity)
 							local attack = mod:Random(1, attackCount)
 							if attack == 3 then attack = 2 end
 
+							--attack = 4
+
 							-- Vomit attack
 							if attack == 1 then
 								entity.State = NpcState.STATE_ATTACK
@@ -325,6 +327,9 @@ function mod:triachnidUpdate(entity)
 						if entity.I2 % 2 == 0 then
 							mod:QuickCreep(EffectVariant.CREEP_WHITE, entity, entity.Position + mod:RandomVector(mod:Random(50)), 2 + mod:Random(50) / 100, 240)
 							mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.75)
+						end
+						if entity.I2 % 5 == 0 then
+							Isaac.GridSpawn(GridEntityType.GRID_SPIDERWEB, 0, entity.Position + mod:RandomVector(10 + entity.I2 * 3), false)
 						end
 
 						entity.I2 = entity.I2 + 1
@@ -597,12 +602,11 @@ function mod:triachnidUpdate(entity)
 					local params = ProjectileParams()
 					params.Variant = IRFentities.EggSackProjectile
 					params.FallingAccelModifier = 1.5
-					params.FallingSpeedModifier = -25
+					params.FallingSpeedModifier = -15
 					params.HeightModifier = Settings.HeadHeight + 40
-
-					local speed = entity.Position:Distance(target.Position) / 20
-					speed = math.min(10, speed)
-					mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(speed), 0, params).DepthOffset = entity.DepthOffset + 10
+					params.BulletFlags = (ProjectileFlags.DECELERATE | ProjectileFlags.BOUNCE | ProjectileFlags.BOUNCE_FLOOR)
+					params.Acceleration = 1.015
+					mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(11), 0, params).DepthOffset = entity.DepthOffset + 10
 
 					-- Effects
 					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 5, entity.Position, Vector.Zero, entity):ToEffect()
@@ -838,7 +842,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.triachnidUpdate, EntityType.
 function mod:triachnidDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if target.Variant == 10 and target.Parent then
 		local onePercent = damageAmount / 100
-		local reduction = onePercent * Settings.LegDamageReduction -- The feet take reduced damage
+		local reduction = onePercent * Settings.LegDamageReduction
 
 		target.Parent:TakeDamage(damageAmount - reduction, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
 		target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
