@@ -204,4 +204,5 @@
 	<entity name="Single Brimstone Swirl"   id="1000" variant="870"   			  anm2path="1000.071_brimstoneswirl.anm2"   friction="1" />
 	<entity name="Husk Effect"   			id="1000" variant="871"   			  anm2path="1000.001_bomb explosion.anm2"   friction="1" />
 	<entity name="Triachnid Leg Segment"   	id="1000" variant="872"   			  anm2path="101.001_triachnid.anm2"   		friction="1" />
+	<entity name="Sister Vis Sky Laser"   	id="1000" variant="873"   			  anm2path="sister vis sky laser.anm2"   	friction="1" collisionRadius="33" collisionMass="0" collisionDamage="10" />
 </entities>

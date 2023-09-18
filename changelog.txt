@@ -15,11 +15,15 @@
 -- Balance changes --
 - The Stain now only takes 20% reduced damage through his tentacles instead of 50%
 - Gapers, Fatties and Skinnies can no longer turn into their burnt versions in rooms with water
+- Charmed Mama Gurdy's spikes will no longer target enemies and instantly kill them
+- It Lives now only does the blood cell attack in regular-sized rooms (mainly applies to the one Greed Mode wave he can spawn in)
 
 
 -- Fixes --
+- C.H.A.D. is now forced to surface if he is submerged for too long or if he doesn't have a path to his target position
 - Fixed friendly Black Bonies not working properly
 - Fixed Fiend Folio Krampus champion's Enhanced Boss Bars icon being overwritten by this mod
+- Fixed Clotty and Clot Curdle variants from Retribution using the wrong projectile types
 
 
 

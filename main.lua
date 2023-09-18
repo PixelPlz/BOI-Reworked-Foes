@@ -36,7 +36,7 @@ print(startupText .. " - " .. IRFflavorText[math.random(#IRFflavorText)])
 function mod:LoadScripts(scripts, subfolder)
 	subfolder = subfolder or ""
 	for i, script in pairs(scripts) do
-		include("scripts." .. subfolder .. "." .. script)
+		include("rf_scripts." .. subfolder .. "." .. script)
 	end
 end
 

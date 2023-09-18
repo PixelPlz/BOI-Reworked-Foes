@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2023. 09. 08. 23:36:53" Version="108" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2023. 09. 09. 23:56:32" Version="109" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="bosses\classic\boss_019_pin_blue.png" Id="0"/>
@@ -331,12 +331,11 @@
 			</NullAnimations>
 			<Triggers>
 				<Trigger EventId="1" AtFrame="45"/>
-				<Trigger EventId="2" AtFrame="46"/>
-				<Trigger EventId="2" AtFrame="52"/>
-				<Trigger EventId="2" AtFrame="58"/>
-				<Trigger EventId="3" AtFrame="64"/>
-				<Trigger EventId="3" AtFrame="70"/>
-				<Trigger EventId="3" AtFrame="76"/>
+				<Trigger EventId="2" AtFrame="51"/>
+				<Trigger EventId="2" AtFrame="57"/>
+				<Trigger EventId="3" AtFrame="63"/>
+				<Trigger EventId="3" AtFrame="69"/>
+				<Trigger EventId="3" AtFrame="75"/>
 				<Trigger EventId="4" AtFrame="85"/>
 			</Triggers>
 		</Animation>
