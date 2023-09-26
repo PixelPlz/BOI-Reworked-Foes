@@ -1,7 +1,7 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
-	NewHealth = 350,
+	NewHealth = 400,
 	Cooldown = 90,
 	TransparencyTimer = 10,
 	MinTPDistance = 50,
@@ -17,7 +17,7 @@ local Settings = {
 
 
 
-function mod:forsakenInit(entity)
+function mod:ForsakenInit(entity)
 	entity.MaxHitPoints = Settings.NewHealth
 	entity.HitPoints = entity.MaxHitPoints
 	entity.ProjectileCooldown = Settings.Cooldown / 2
@@ -33,9 +33,9 @@ function mod:forsakenInit(entity)
 		entity:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.forsakenInit, EntityType.ENTITY_FORSAKEN)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ForsakenInit, EntityType.ENTITY_FORSAKEN)
 
-function mod:forsakenUpdate(entity)
+function mod:ForsakenUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
 	local data = entity:GetData()
@@ -103,7 +103,7 @@ function mod:forsakenUpdate(entity)
 	-- Particles
 	local color = Color.Default
 	if entity.SubType == 0 then
-		color = IRFcolors.GhostTrail
+		color = mod.Colors.GhostTrail
 	end
 	mod:SmokeParticles(entity, Vector(0, -40), 25, Vector(100, 120), color)
 
@@ -148,7 +148,7 @@ function mod:forsakenUpdate(entity)
 
 			-- Transparency
 			if entity.I2 > 0 then
-				sprite.Color = IRFcolors.GhostTransparent
+				sprite.Color = mod.Colors.GhostTransparent
 				entity.I2 = entity.I2 - 1
 			else
 				sprite.Color = Color.Default
@@ -286,7 +286,7 @@ function mod:forsakenUpdate(entity)
 					end
 
 					local facing = directions[horizontalOrVertical][firstOrSecond]
-					
+
 
 					-- Get position
 					local pos = Vector(room:GetBottomRightPos().X, room:GetCenterPos().Y)
@@ -379,7 +379,7 @@ function mod:forsakenUpdate(entity)
 				trail.DepthOffset = entity.DepthOffset - 10
 
 				if entity.SubType == 1 then
-					trail:GetSprite().Color = IRFcolors.BlueFireShot
+					trail:GetSprite().Color = mod.Colors.BlueFireShot
 				else
 					trail:GetSprite().Color = Color(1,1,1, 0.5, 0.5,0,0)
 				end
@@ -397,7 +397,7 @@ function mod:forsakenUpdate(entity)
 				-- Champion fires
 				if entity.SubType == 1 then
 					params.Variant = ProjectileVariant.PROJECTILE_FIRE
-					params.Color = IRFcolors.BlueFire
+					params.Color = mod.Colors.BlueFire
 					params.BulletFlags = ProjectileFlags.FIRE
 					params.CircleAngle = entity.I1 * (entity.I2 * 35)
 					entity:FireProjectiles(entity.Position, Vector(8, 4), 9, params)
@@ -408,7 +408,7 @@ function mod:forsakenUpdate(entity)
 				-- Regular
 				else
 					params.Variant = ProjectileVariant.PROJECTILE_HUSH
-					params.Color = IRFcolors.BrimShot
+					params.Color = mod.Colors.BrimShot
 					params.Scale = 1.25
 					mod:FireProjectiles(entity, entity.Position, Vector(8, 8), 8, params, Color.Default)
 
@@ -481,15 +481,15 @@ function mod:forsakenUpdate(entity)
 			if sprite:IsEventTriggered("Shoot") then
 				local params = ProjectileParams()
 				params.Variant = ProjectileVariant.PROJECTILE_BONE
-				
+
 				if entity.SubType == 0 then
 					params.Spread = 1 + entity.I1 * 0.15
-					mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(11 - entity.I1), 3 + entity.I1, params, IRFcolors.GhostTrail)
+					mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(11 - entity.I1), 3 + entity.I1, params, mod.Colors.GhostTrail)
 
 				elseif entity.SubType == 1 then
 					params.BulletFlags = (ProjectileFlags.FIRE | ProjectileFlags.BLUE_FIRE_SPAWN)
 					params.Scale = 1.5
-					params.Color = IRFcolors.BlackBony
+					params.Color = mod.Colors.BlackBony
 					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(11), 0, params)
 				end
 
@@ -610,7 +610,7 @@ function mod:forsakenUpdate(entity)
 				if entity.ProjectileDelay <= 0 then
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_FIRE
-					params.Color = IRFcolors.BlueFire
+					params.Color = mod.Colors.BlueFire
 					params.BulletFlags = ProjectileFlags.FIRE
 					entity:FireProjectiles(entity.Position - Vector(0, 18) + Vector.FromAngle(entity.I2 * 90):Resized(10), Vector.FromAngle(entity.I2 * 90 + mod:Random(-5, 5)):Resized(9), 0, params)
 
@@ -683,30 +683,32 @@ function mod:forsakenUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.forsakenUpdate, EntityType.ENTITY_FORSAKEN)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ForsakenUpdate, EntityType.ENTITY_FORSAKEN)
 
-function mod:forsakenDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:ForsakenDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	local entity = entity:ToNPC()
+
 	-- Bony phase
-	if target:ToNPC().State == NpcState.STATE_APPEAR or (target:ToNPC().State == NpcState.STATE_SUMMON and target:ToNPC().StateFrame < 3) then
-		target:ToNPC().I2 = Settings.TransparencyTimer
+	if entity.State == NpcState.STATE_APPEAR or (entity.State == NpcState.STATE_SUMMON and entity.StateFrame < 3) then
+		entity.I2 = Settings.TransparencyTimer
 		return false
 
 	-- Prevent champion's Black Bonies from pretty much killing him if killed next to him
-	elseif damageSource.SpawnerType == target.Type or damageSource.SpawnerType == EntityType.ENTITY_BLACK_BONY then
+	elseif damageSource.SpawnerType == entity.Type or damageSource.SpawnerType == EntityType.ENTITY_BLACK_BONY then
 		return false
 
 	-- Clones
-	elseif target.Variant == 10 and target.Parent then
-		target.Parent:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
-		target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+	elseif entity.Variant == 10 and entity.Parent then
+		entity.Parent:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
+		entity:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.forsakenDMG, EntityType.ENTITY_FORSAKEN)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ForsakenDMG, EntityType.ENTITY_FORSAKEN)
 
-function mod:forsakenCollide(entity, target, bool)
+function mod:ForsakenCollision(entity, target, bool)
 	if target.SpawnerType == entity.Type then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.forsakenCollide, EntityType.ENTITY_FORSAKEN)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.ForsakenCollision, EntityType.ENTITY_FORSAKEN)

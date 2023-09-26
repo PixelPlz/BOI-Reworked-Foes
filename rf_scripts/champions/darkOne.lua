@@ -1,8 +1,8 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:darkOneUpdate(entity)
+function mod:DarkestOneUpdate(entity)
 	if entity.SubType == 1 then
 		local sprite = entity:GetSprite()
 		local data = entity:GetData()
@@ -185,7 +185,7 @@ function mod:darkOneUpdate(entity)
 		elseif entity.State == NpcState.STATE_ATTACK2 and sprite:IsEventTriggered("Shoot") then
 			local params = ProjectileParams()
 			params.Variant = ProjectileVariant.PROJECTILE_HUSH
-			params.Color = IRFcolors.BrimShot
+			params.Color = mod.Colors.BrimShot
 			params.Scale = 1.25
 			params.CircleAngle = 0
 			mod:FireProjectiles(entity, Vector(entity.Position.X, room:GetBottomRightPos().Y - 1), Vector(11, 12), 9, params, Color.Default)
@@ -198,4 +198,4 @@ function mod:darkOneUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.darkOneUpdate, EntityType.ENTITY_DARK_ONE)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DarkestOneUpdate, EntityType.ENTITY_DARK_ONE)

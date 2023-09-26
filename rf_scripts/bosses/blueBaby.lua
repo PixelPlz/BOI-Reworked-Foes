@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	NewHP = 3000,
@@ -21,7 +21,7 @@ local Settings = {
 
 
 
-function mod:blueBabyInit(entity)
+function mod:BlueBabyInit(entity)
 	if entity.Variant == 1 then
 		local data = entity:GetData()
 
@@ -41,9 +41,9 @@ function mod:blueBabyInit(entity)
 		data.damageReduction = Settings.SpawnDmgReduction
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blueBabyInit, EntityType.ENTITY_ISAAC)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.BlueBabyInit, EntityType.ENTITY_ISAAC)
 
-function mod:blueBabyUpdate(entity)
+function mod:BlueBabyUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -53,7 +53,7 @@ function mod:blueBabyUpdate(entity)
 
 		-- Change to soul form
 		local function soulGetOut()
-			local body = Isaac.Spawn(IRFentities.Type, IRFentities.BlueBabyExtras, IRFentities.ForgottenBody, entity.Position, Vector.Zero, entity)
+			local body = Isaac.Spawn(mod.Entities.Type, mod.Entities.BlueBabyExtras, mod.Entities.ForgottenBody, entity.Position, Vector.Zero, entity)
 			body.Parent = entity
 			entity.Child = body
 			data.isSoul = true
@@ -63,7 +63,7 @@ function mod:blueBabyUpdate(entity)
 
 			data.chain = {}
 			for i = 1, Settings.ChainLength do
-				data.chain[i] = Isaac.Spawn(IRFentities.Type, IRFentities.BlueBabyExtras, IRFentities.ForgottenChain, entity.Position, Vector.Zero, entity):ToNPC()
+				data.chain[i] = Isaac.Spawn(mod.Entities.Type, mod.Entities.BlueBabyExtras, mod.Entities.ForgottenChain, entity.Position, Vector.Zero, entity):ToNPC()
 				data.chain[i].V1 = Vector(i + 0.5, 0)
 				data.chain[i].Child = entity.Child
 				data.chain[i].Parent = entity
@@ -76,7 +76,7 @@ function mod:blueBabyUpdate(entity)
 			end
 
 			-- Update parents
-			for _,bone in pairs(Isaac.FindByType(IRFentities.Type, IRFentities.BoneOrbital, -1, false, true)) do
+			for _,bone in pairs(Isaac.FindByType(mod.Entities.Type, mod.Entities.BoneOrbital, -1, false, true)) do
 				if bone.Parent.Index == entity.Index then
 					bone.Parent = entity.Child
 				end
@@ -110,7 +110,7 @@ function mod:blueBabyUpdate(entity)
 			mod:PlaySound(nil, SoundEffect.SOUND_RECALL)
 
 			-- Update parents
-			for _,bone in pairs(Isaac.FindByType(IRFentities.Type, IRFentities.BoneOrbital, -1, false, true)) do
+			for _,bone in pairs(Isaac.FindByType(mod.Entities.Type, mod.Entities.BoneOrbital, -1, false, true)) do
 				if bone.Parent.Index == entity.Child.Index then
 					bone.Parent = entity
 				end
@@ -126,7 +126,7 @@ function mod:blueBabyUpdate(entity)
 			end
 			data.chain = nil
 		end
-		
+
 		-- Reset back to idle phase
 		local function backToIdle()
 			entity.State = NpcState.STATE_IDLE
@@ -192,7 +192,7 @@ function mod:blueBabyUpdate(entity)
 			elseif entity.I1 == 2 and data.isSoul ~= true then
 				-- Spawn one for every 10% HP lost in this phase
 				if entity.HitPoints > entity.MaxHitPoints - ((entity.MaxHitPoints / 3) * 2) and entity.HitPoints <= entity.MaxHitPoints - (thirdHp + (thirdHp / 10) * (data.spawnTimer + 1)) then
-					Isaac.Spawn(IRFentities.Type, IRFentities.BoneOrbital, 1, entity.Position, Vector.Zero, entity).Parent = entity
+					Isaac.Spawn(mod.Entities.Type, mod.Entities.BoneOrbital, 1, entity.Position, Vector.Zero, entity).Parent = entity
 					mod:PlaySound(nil, SoundEffect.SOUND_BONE_SNAP, 0.5)
 					data.spawnTimer = data.spawnTimer + 1
 				end
@@ -252,7 +252,7 @@ function mod:blueBabyUpdate(entity)
 				if entity.I1 == 2 and data.isSoul ~= true then
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_BONE
-					params.Color = IRFcolors.ForgottenBone
+					params.Color = mod.Colors.ForgottenBone
 
 					local mode = 0
 					if data.shotCount % 3 == 0 then
@@ -276,9 +276,9 @@ function mod:blueBabyUpdate(entity)
 					else
 						params.Variant = ProjectileVariant.PROJECTILE_TEAR
 						if entity.I1 == 2 then
-							params.Color = IRFcolors.SoulShot
+							params.Color = mod.Colors.SoulShot
 						elseif entity.I1 == 3 then
-							params.Color = IRFcolors.LostShot
+							params.Color = mod.Colors.LostShot
 						end
 					end
 
@@ -288,7 +288,7 @@ function mod:blueBabyUpdate(entity)
 						params.FallingAccelModifier = -0.1
 						params.BulletFlags = ProjectileFlags.BURST
 						params.Scale = 1.9
-						params.Color = IRFcolors.SoulShot
+						params.Color = mod.Colors.SoulShot
 						for i = 0, 2 do
 							entity:FireProjectiles(entity.Position, Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees() + (i * 120)):Resized(8), 0, params)
 						end
@@ -406,7 +406,7 @@ function mod:blueBabyUpdate(entity)
 					mod:PlaySound(nil, SoundEffect.SOUND_BONE_HEART)
 
 					-- Get rid of bone orbitals
-					for _,bone in pairs(Isaac.FindByType(IRFentities.Type, IRFentities.BoneOrbital, -1, false, true)) do
+					for _,bone in pairs(Isaac.FindByType(mod.Entities.Type, mod.Entities.BoneOrbital, -1, false, true)) do
 						if bone.Parent.Index == entity.Index then
 							bone:Kill()
 						end
@@ -477,7 +477,7 @@ function mod:blueBabyUpdate(entity)
 
 						params.Scale = 1.65
 						params.BulletFlags = ProjectileFlags.CURVE_LEFT
-						params.Color = IRFcolors.SoulShot
+						params.Color = mod.Colors.SoulShot
 						entity:FireProjectiles(entity.Position, Vector(5, 12), 9, params)
 						mod:PlaySound(nil, SoundEffect.SOUND_THUMBS_DOWN, 0.6)
 					end
@@ -561,14 +561,14 @@ function mod:blueBabyUpdate(entity)
 					elseif sprite:IsEventTriggered("Shoot") then
 						-- 1st attack is Holy Orb
 						if entity.StateFrame == 0 and not data.wasDelirium then
-							Isaac.Spawn(IRFentities.Type, IRFentities.BlueBabyExtras, IRFentities.LostHolyOrb, entity.Position, (target.Position - entity.Position):Resized(20), entity).Parent = entity
+							Isaac.Spawn(mod.Entities.Type, mod.Entities.BlueBabyExtras, mod.Entities.LostHolyOrb, entity.Position, (target.Position - entity.Position):Resized(20), entity).Parent = entity
 							mod:PlaySound(nil, SoundEffect.SOUND_THUMBSUP, 0.6)
 							mod:PlaySound(nil, SoundEffect.SOUND_LIGHTBOLT)
 
 						-- Feather shots for the rest
 						else
 							local params = ProjectileParams()
-							params.Variant = IRFentities.FeatherProjectile
+							params.Variant = mod.Entities.FeatherProjectile
 							params.FallingSpeedModifier = 1
 							params.FallingAccelModifier = -0.15
 							entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(5), 4, params)
@@ -638,7 +638,7 @@ function mod:blueBabyUpdate(entity)
 						local params = ProjectileParams()
 						params.Variant = ProjectileVariant.PROJECTILE_TEAR
 						params.Scale = 1.35
-						
+
 						-- 1st phase spiral shots
 						if entity.I1 == 1 then
 							params.CircleAngle = entity.V1.X + entity.StateFrame * 0.2
@@ -650,7 +650,7 @@ function mod:blueBabyUpdate(entity)
 							params.FallingSpeedModifier = -1
 
 							if entity.StateFrame < 3 then
-								params.Color = IRFcolors.SoulShot
+								params.Color = mod.Colors.SoulShot
 								params.CircleAngle = 0.8 + entity.StateFrame * 0.3
 								entity:FireProjectiles(entity.Position, Vector(11, 4), 9, params)
 
@@ -663,7 +663,7 @@ function mod:blueBabyUpdate(entity)
 
 						-- 3rd phase boomerang shots
 						elseif entity.I1 == 3 then
-							params.Color = IRFcolors.LostShot
+							params.Color = mod.Colors.LostShot
 							params.CircleAngle = entity.V1.X + entity.StateFrame * 0.4
 							params.FallingSpeedModifier = 1
 							params.FallingAccelModifier = -0.1
@@ -704,7 +704,7 @@ function mod:blueBabyUpdate(entity)
 					local params = ProjectileParams()
 					params.BulletFlags = ProjectileFlags.SMART
 					params.FallingSpeedModifier = -1
-					
+
 					-- 1st phase
 					if entity.I1 == 1 then
 						params.Scale = 1.65
@@ -753,7 +753,7 @@ function mod:blueBabyUpdate(entity)
 				if sprite:IsEventTriggered("Start") then
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_BONE
-					params.Color = IRFcolors.ForgottenBone
+					params.Color = mod.Colors.ForgottenBone
 					params.FallingSpeedModifier = 1
 					params.FallingAccelModifier = -0.1
 					entity:FireProjectiles(entity.Position, Vector(10, 6), 9, params)
@@ -809,7 +809,7 @@ function mod:blueBabyUpdate(entity)
 								data.lightTracers = {}
 
 								for i = 1, 3 + entity.StateFrame do
-									local tracer = Isaac.Spawn(EntityType.ENTITY_EFFECT, IRFentities.HolyTracer, 0, data.beamTarget.Position + mod:RandomVector(600), Vector.Zero, entity):ToEffect()
+									local tracer = Isaac.Spawn(EntityType.ENTITY_EFFECT, mod.Entities.HolyTracer, 0, data.beamTarget.Position + mod:RandomVector(600), Vector.Zero, entity):ToEffect()
 									tracer.Timeout = 32
 									tracer.TargetPosition = (data.beamTarget.Position - tracer.Position):Normalized()
 									tracer:GetSprite():Play("FadeIn", true)
@@ -872,28 +872,28 @@ function mod:blueBabyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blueBabyUpdate, EntityType.ENTITY_ISAAC)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.BlueBabyUpdate, EntityType.ENTITY_ISAAC)
 
-function mod:blueBabyDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 1 then
+function mod:BlueBabyDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == 1 then
 		-- Don't take damage during transitioning
-		if (target:ToNPC().State == NpcState.STATE_SPECIAL or (damageSource.SpawnerType == target.Type and damageSource.SpawnerVariant == target.Variant)) then
+		if (entity:ToNPC().State == NpcState.STATE_SPECIAL or (damageSource.SpawnerType == entity.Type and damageSource.SpawnerVariant == entity.Variant)) then
 			return false
 
 		-- Damage reduction after transitioning
-		elseif target:GetData().damageReduction > 0 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+		elseif entity:GetData().damageReduction > 0 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
 			local onePercent = damageAmount / 100
-			target:TakeDamage(damageAmount - target:GetData().damageReduction * onePercent, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+			entity:TakeDamage(damageAmount - entity:GetData().damageReduction * onePercent, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
 			return false
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.blueBabyDMG, EntityType.ENTITY_ISAAC)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.BlueBabyDMG, EntityType.ENTITY_ISAAC)
 
 
 
 --[[ Butt bombs ]]--
-function mod:blueBabyBomb(entity)
+function mod:BlueBabyButtBomb(entity)
 	if entity.SpawnerType == EntityType.ENTITY_ISAAC and entity.SpawnerVariant == 1 then
 		if entity:IsDead() and entity.SpawnerEntity then
 			local spawner = entity.SpawnerEntity:ToNPC()
@@ -912,45 +912,45 @@ function mod:blueBabyBomb(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_BOMB_UPDATE, mod.blueBabyBomb, BombVariant.BOMB_BUTT)
+mod:AddCallback(ModCallbacks.MC_POST_BOMB_UPDATE, mod.BlueBabyButtBomb, BombVariant.BOMB_BUTT)
 
 
 
 --[[ Forgotten body and chain, Lost Holy orb ]]--
-function mod:forgottenBodyInit(entity)
-	if entity.Variant == IRFentities.BlueBabyExtras then
+function mod:BlueBabyExtrasInit(entity)
+	if entity.Variant == mod.Entities.BlueBabyExtras then
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_BLOOD_SPLASH | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
 		entity.State = NpcState.STATE_IDLE
 
 		-- Body
-		if entity.SubType == IRFentities.ForgottenBody then
+		if entity.SubType == mod.Entities.ForgottenBody then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 			entity:GetSprite():Play("Appear", true)
 			entity:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
 
 		-- Chain
-		elseif entity.SubType == IRFentities.ForgottenChain then
+		elseif entity.SubType == mod.Entities.ForgottenChain then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 			entity:GetSprite():Play("Chain", true)
 
 		-- Holy orb
-		elseif entity.SubType == IRFentities.LostHolyOrb then
+		elseif entity.SubType == mod.Entities.LostHolyOrb then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYERONLY
 			entity:GetSprite():Play("Idle", true)
 			entity.ProjectileCooldown = 12
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.forgottenBodyInit, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.BlueBabyExtrasInit, mod.Entities.Type)
 
-function mod:forgottenBodyUpdate(entity)
-	if entity.Variant == IRFentities.BlueBabyExtras then
+function mod:BlueBabyExtrasUpdate(entity)
+	if entity.Variant == mod.Entities.BlueBabyExtras then
 		local sprite = entity:GetSprite()
 
 
-		if entity.Parent and (entity.SubType ~= IRFentities.ForgottenChain or entity.Child) then
+		if entity.Parent and (entity.SubType ~= mod.Entities.ForgottenChain or entity.Child) then
 			-- Body
-			if entity.SubType == IRFentities.ForgottenBody then
+			if entity.SubType == mod.Entities.ForgottenBody then
 				if sprite:IsFinished("Appear") then
 					mod:LoopingAnim(sprite, "Idle")
 				end
@@ -962,14 +962,14 @@ function mod:forgottenBodyUpdate(entity)
 
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_BONE
-					params.Color = IRFcolors.ForgottenBone
+					params.Color = mod.Colors.ForgottenBone
 					entity:FireProjectiles(entity.Position, (entity.Parent:ToNPC():GetPlayerTarget().Position - entity.Position):Resized(9), 0, params)
 					mod:PlaySound(nil, SoundEffect.SOUND_SCAMPER)
 				end
 
 
 			-- Chain
-			elseif entity.SubType == IRFentities.ForgottenChain then
+			elseif entity.SubType == mod.Entities.ForgottenChain then
 				local vector = entity.Child.Position - entity.Parent.Position
 				local length = vector:Length()
 				entity.TargetPosition = entity.Parent.Position + vector:Resized((length / (Settings.ChainLength + 2)) * entity.V1.X)
@@ -982,7 +982,7 @@ function mod:forgottenBodyUpdate(entity)
 
 
 			-- Holy orb
-			elseif entity.SubType == IRFentities.LostHolyOrb then
+			elseif entity.SubType == mod.Entities.LostHolyOrb then
 				-- Go towards target
 				if entity.State == NpcState.STATE_IDLE then
 					entity.Velocity = mod:Lerp(entity.Velocity, (entity:GetPlayerTarget().Position - entity.Position):Resized(1.5), 0.25)
@@ -992,7 +992,7 @@ function mod:forgottenBodyUpdate(entity)
 						local params = ProjectileParams()
 						params.Variant = ProjectileVariant.PROJECTILE_HUSH
 						params.Scale = 1.35
-						params.Color = IRFcolors.HolyOrbShot
+						params.Color = mod.Colors.HolyOrbShot
 						params.FallingSpeedModifier = 1
 						params.FallingAccelModifier = -0.1
 						params.CircleAngle = 0 + (entity.StateFrame * 0.25)
@@ -1052,12 +1052,12 @@ function mod:forgottenBodyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.forgottenBodyUpdate, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BlueBabyExtrasUpdate, mod.Entities.Type)
 
 
 
 --[[ Holy tracers ]]--
-function mod:holyTracerUpdate(effect)
+function mod:HolyTracerUpdate(effect)
 	local sprite = effect:GetSprite()
 
 	sprite.Rotation = effect.TargetPosition:GetAngleDegrees() - 90
@@ -1077,10 +1077,10 @@ function mod:holyTracerUpdate(effect)
 			effect.Timeout = effect.Timeout - 1
 		end
 
-	elseif effect.State == 2 then	
+	elseif effect.State == 2 then
 		if sprite:IsFinished("FadeOut") then
 			effect:Remove()
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.holyTracerUpdate, IRFentities.HolyTracer)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.HolyTracerUpdate, mod.Entities.HolyTracer)

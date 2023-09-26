@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	NewHealth = 1000, -- Crazy 50 hp buff
@@ -7,8 +7,8 @@ local Settings = {
 }
 
 -- Example on how to add custom spawns: (variant and subtype can be left out to default it to 0)
--- table.insert( IRFitLivesSpawns.Fetus[1], {CoolMod.EpicEnemy, 21}, 69 )
-IRFitLivesSpawns = {
+-- table.insert( ReworkedFoes.ItLivesSpawns.Fetus[1], {200, 21, 69} )
+mod.ItLivesSpawns = {
 	Fetus = {
 		{ -- 100% - 75%
 			{EntityType.ENTITY_MEMBRAIN, 1},
@@ -48,7 +48,7 @@ IRFitLivesSpawns = {
 
 
 
-function mod:itLivesInit(entity)
+function mod:ItLivesInit(entity)
 	-- Fetus
 	if entity.Variant == 1 then
 		entity.MaxHitPoints = Settings.NewHealth
@@ -80,9 +80,9 @@ function mod:itLivesInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.itLivesInit, EntityType.ENTITY_MOMS_HEART)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ItLivesInit, EntityType.ENTITY_MOMS_HEART)
 
-function mod:itLivesUpdate(entity)
+function mod:ItLivesUpdate(entity)
 	if entity.Variant == 1 or (entity.Variant == 10 and entity.SubType == 1) then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -429,7 +429,7 @@ function mod:itLivesUpdate(entity)
 					-- Summon spikes to kill all enemies
 					for i, enemy in pairs(Isaac.GetRoomEntities()) do
 						if isValidEnemy(enemy) == true then
-							Isaac.Spawn(IRFentities.Type, IRFentities.GiantSpike, 0, enemy.Position, Vector.Zero, entity).Parent = enemy
+							Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, 0, enemy.Position, Vector.Zero, entity).Parent = enemy
 						end
 					end
 
@@ -793,7 +793,6 @@ function mod:itLivesUpdate(entity)
 								params.Scale = 1.5
 								params.BulletFlags = (ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
 								params.ChangeTimeout = 9999
-								params.ChangeVelocity = 11
 								params.Acceleration = 1.1
 								params.FallingAccelModifier = -0.175
 
@@ -846,7 +845,7 @@ function mod:itLivesUpdate(entity)
 
 									-- Effects
 									local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 5, projectile.Position, Vector.Zero, entity):GetSprite()
-									effect.Offset = Vector(projectile.PositionOffset.X, projectile.Height * 0.5)
+									effect.Offset = Vector(projectile.PositionOffset.X, projectile.Height * 0.65)
 									effect.Color = Color(1,1,1, 0.75)
 									effect.Scale = Vector(0.75, 0.75)
 								end
@@ -921,7 +920,7 @@ function mod:itLivesUpdate(entity)
 			--[[ Summon ]]--
 			elseif entity.State == NpcState.STATE_SUMMON then
 				if sprite:IsEventTriggered("Spawn") then
-					local spawnGroup = IRFitLivesSpawns.Fetus[data.phase]
+					local spawnGroup = mod.ItLivesSpawns.Fetus[data.phase]
 
 					local selectedSpawn = mod:RandomIndex(spawnGroup)
 					local type    = selectedSpawn[1]
@@ -1157,7 +1156,7 @@ function mod:itLivesUpdate(entity)
 				--[[ Summon ]]--
 				elseif entity.State == NpcState.STATE_SUMMON then
 					if sprite:IsEventTriggered("Shoot") then
-						local spawnGroup = IRFitLivesSpawns.Guts[fetus:GetData().phase]
+						local spawnGroup = mod.ItLivesSpawns.Guts[fetus:GetData().phase]
 						local selectedSpawn = mod:RandomIndex(spawnGroup)
 
 						for i = -1, 1, 2 do
@@ -1304,35 +1303,37 @@ function mod:itLivesUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.itLivesUpdate, EntityType.ENTITY_MOMS_HEART)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ItLivesUpdate, EntityType.ENTITY_MOMS_HEART)
 
-function mod:itLivesDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 1 then
+function mod:ItLivesDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == 1 then
 		-- Don't take damage from his spawns
-		if damageSource.SpawnerType == target.Type then
+		if damageSource.SpawnerType == entity.Type then
 			return false
 
 		-- Grunt on high damage (like Mom's Heart)
 		elseif damageAmount >= 40 then
-			mod:PlaySound(target, SoundEffect.SOUND_MOM_VOX_FILTERED_HURT, 1, 1, 40)
+			mod:PlaySound(entity, SoundEffect.SOUND_MOM_VOX_FILTERED_HURT, 1, 1, 40)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.itLivesDMG, EntityType.ENTITY_MOMS_HEART)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ItLivesDMG, EntityType.ENTITY_MOMS_HEART)
 
-function mod:itLivesCollide(entity, target, bool)
+function mod:ItLivesCollision(entity, target, bool)
 	if entity.Variant == 1 and target.SpawnerType == entity.Type or (target.SpawnerEntity and target.SpawnerEntity.SpawnerType == entity.Type) then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.itLivesCollide, EntityType.ENTITY_MOMS_HEART)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.ItLivesCollision, EntityType.ENTITY_MOMS_HEART)
 
 
 
 -- Laugh if the player gets hit while retreated
-function mod:itLivesHit(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:ItLivesHit(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	-- Only if the damage was done by an enemy
-	if damageSource.Entity and (damageSource.Entity:ToNPC() or (damageSource.Entity.SpawnerEntity and damageSource.Entity.SpawnerEntity:ToNPC())) then
+	if damageSource.Entity
+	and (damageSource.Entity:ToNPC() -- From It Lives himself
+	or (damageSource.Entity.SpawnerEntity and damageSource.Entity.SpawnerEntity:ToNPC())) then -- From one of his spawns
 		for i, itLives in pairs(Isaac.FindByType(EntityType.ENTITY_MOMS_HEART, 1, -1, false, false)) do
 			if itLives:ToNPC().State == NpcState.STATE_SUMMON2 then
 				itLives:ToNPC().I2 = 1
@@ -1341,12 +1342,12 @@ function mod:itLivesHit(target, damageAmount, damageFlags, damageSource, damageC
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.itLivesHit, EntityType.ENTITY_PLAYER)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ItLivesHit, EntityType.ENTITY_PLAYER)
 
 
 
--- Projectiles
-function mod:itLivesProjectileUpdate(projectile)
+--[[ Burst projectiles ]]--
+function mod:ItLivesProjectileUpdate(projectile)
 	if projectile.SpawnerType == EntityType.ENTITY_MOMS_HEART and projectile.SpawnerVariant == 1 then
 		local data = projectile:GetData()
 
@@ -1375,4 +1376,4 @@ function mod:itLivesProjectileUpdate(projectile)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.itLivesProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.ItLivesProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)

@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	MoveSpeed = 3.5,
@@ -9,9 +9,9 @@ local Settings = {
 
 
 --[[ Big ]]--
-function mod:bigTeratomaUpdate(entity)
+function mod:TeratomaBigUpdate(entity)
 	if entity.Variant == 1 and entity:IsDead() then
-		local center = Isaac.Spawn(IRFentities.Type, IRFentities.Teratomar, 0, entity.Position, Vector.Zero, entity):ToNPC()
+		local center = Isaac.Spawn(mod.Entities.Type, mod.Entities.Teratomar, 0, entity.Position, Vector.Zero, entity):ToNPC()
 		local data = center:GetData()
 
 		-- Orbiting chunks
@@ -40,30 +40,33 @@ function mod:bigTeratomaUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.bigTeratomaUpdate, EntityType.ENTITY_FISTULA_BIG)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.TeratomaBigUpdate, EntityType.ENTITY_FISTULA_BIG)
+
+
 
 --[[ Medium ]]--
-function mod:mediumTeratomaUpdate(entity)
+function mod:TeratomaMediumUpdate(entity)
 	-- Orbit parent
 	if entity.Variant == 1 and entity.Parent then
 		if entity.Parent:IsDead() then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
+
 		else
+			mod:OrbitParent(entity, entity.Parent, 2, entity.V1.X)
+
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
-
-			mod:OrbitParent(entity, entity.Parent, 2, entity.V1.X)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.mediumTeratomaUpdate, EntityType.ENTITY_FISTULA_MEDIUM)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.TeratomaMediumUpdate, EntityType.ENTITY_FISTULA_MEDIUM)
 
 
 
---[[ Look Teratomar, it's you! ]]--
-function mod:teratomarInit(entity)
-	if entity.Variant == IRFentities.Teratomar then
+--[[ Teratomar ]]--
+function mod:TeratomarInit(entity)
+	if entity.Variant == mod.Entities.Teratomar then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
@@ -72,10 +75,10 @@ function mod:teratomarInit(entity)
 		entity.SplatColor = Color(0.15,0,0, 1, 0.13,0.13,0.13)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.teratomarInit, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.TeratomarInit, mod.Entities.Type)
 
-function mod:teratomarUpdate(entity)
-	if entity.Variant == IRFentities.Teratomar then
+function mod:TeratomarUpdate(entity)
+	if entity.Variant == mod.Entities.Teratomar then
 		local sprite = entity:GetSprite()
 		local data = entity:GetData()
 		local target = entity:GetPlayerTarget()
@@ -149,4 +152,4 @@ function mod:teratomarUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.teratomarUpdate, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.TeratomarUpdate, mod.Entities.Type)

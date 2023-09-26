@@ -1,8 +1,8 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:dankDeathsHeadUpdate(entity)
+function mod:DankDeathsHeadUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 
@@ -28,20 +28,20 @@ function mod:dankDeathsHeadUpdate(entity)
 				sprite:Play("Bounce", true)
 
 				mod:QuickCreep(EffectVariant.CREEP_BLACK, entity, entity.Position, 1.6)
-				mod:ShootEffect(entity, 2, Vector(0, -15), IRFcolors.Tar, 1, true)
+				mod:ShootEffect(entity, 2, Vector(0, -15), mod.Colors.Tar, 1, true)
 				mod:PlaySound(nil, SoundEffect.SOUND_GOOATTACH0, 0.5)
 			end
 		end
 
 		-- Splat color
 		if entity:HasMortalDamage() then
-			entity.SplatColor = IRFcolors.Tar
+			entity.SplatColor = mod.Colors.Tar
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.dankDeathsHeadUpdate, EntityType.ENTITY_DEATHS_HEAD)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DankDeathsHeadUpdate, EntityType.ENTITY_DEATHS_HEAD)
 
-function mod:dankDeathsHeadCollide(entity, target, bool)
+function mod:DankDeathsHeadCollision(entity, target, bool)
 	if entity.Variant == 1 and target.Type == entity.Type and target.Variant == entity.Variant then
 		entity:ToNPC().I2 = 1
 		entity.Velocity = (entity.Position - target.Position):Normalized()
@@ -49,4 +49,4 @@ function mod:dankDeathsHeadCollide(entity, target, bool)
 		target:ToNPC().I2 = 1
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.dankDeathsHeadCollide, EntityType.ENTITY_DEATHS_HEAD)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.DankDeathsHeadCollision, EntityType.ENTITY_DEATHS_HEAD)

@@ -1,19 +1,19 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:overwriteRetributionDeathEffect(entity)
+function mod:OverwriteRetributionDeathEffect(entity)
 	if Retribution and entity.Variant == 1873 and entity:IsDead() then
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.overwriteRetributionDeathEffect, EntityType.ENTITY_MAGGOT)
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.overwriteRetributionDeathEffect, EntityType.ENTITY_SPITTY)
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.overwriteRetributionDeathEffect, EntityType.ENTITY_CONJOINED_SPITTY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.OverwriteRetributionDeathEffect, EntityType.ENTITY_MAGGOT)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.OverwriteRetributionDeathEffect, EntityType.ENTITY_SPITTY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.OverwriteRetributionDeathEffect, EntityType.ENTITY_CONJOINED_SPITTY)
 
 
 
-function mod:drownedMaggotDeath(entity)
+function mod:DrownedMaggotDeath(entity)
 	if Retribution and entity.Variant == 1873 then
 		local params = ProjectileParams()
 		params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
@@ -32,4 +32,4 @@ function mod:drownedMaggotDeath(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.drownedMaggotDeath, EntityType.ENTITY_MAGGOT)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.DrownedMaggotDeath, EntityType.ENTITY_MAGGOT)

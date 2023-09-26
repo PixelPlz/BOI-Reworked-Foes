@@ -1,37 +1,37 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
 --[[ Clotty variants ]]--
-function mod:clottyUpdate(entity)
+function mod:ClottyUpdate(entity)
 	if entity.State == NpcState.STATE_ATTACK and entity:GetSprite():GetFrame() > 2 then
 		entity.Velocity = Vector.Zero
 	end
 
-	-- Better I.Blob (+ Retardribution Curdle) effect colors
+	-- Better I.Blob (+ Retribution Curdle) effect colors
 	if entity.Variant == 2 or (Retribution and entity.Variant == 1873) then
 		if entity:HasMortalDamage() then
 			entity.SplatColor = Color.Default
 
 		elseif entity.FrameCount == 25 then
-			local c = IRFcolors.TearEffect
+			local c = mod.Colors.TearEffect
 			entity.SplatColor = Color(c.R,c.G,c.B, 0.35, c.RO,c.GO,c.BO)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.clottyUpdate, EntityType.ENTITY_CLOTTY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ClottyUpdate, EntityType.ENTITY_CLOTTY)
 
-function mod:cloggyUpdate(entity)
+function mod:CloggyUpdate(entity)
 	if entity.State == NpcState.STATE_ATTACK and entity:GetSprite():GetFrame() > 2 then
 		entity.Velocity = Vector.Zero
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.cloggyUpdate, EntityType.ENTITY_CLOGGY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.CloggyUpdate, EntityType.ENTITY_CLOGGY)
 
 
 
 --[[ Drowned Hive ]]--
-function mod:drownedHiveUpdate(entity, target, bool)
+function mod:DrownedHiveUpdate(entity, target, bool)
 	if entity.Variant == 1 then
 		-- Only have up to 2 chargers
 		if entity.State == NpcState.STATE_ATTACK and entity:GetSprite():GetOverlayFrame() <= 1 and Isaac.CountEntities(entity, EntityType.ENTITY_CHARGER, 1, -1) >= 2 then
@@ -49,12 +49,12 @@ function mod:drownedHiveUpdate(entity, target, bool)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.drownedHiveUpdate, EntityType.ENTITY_HIVE)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.DrownedHiveUpdate, EntityType.ENTITY_HIVE)
 
 
 
 --[[ Launched Boom Flies ]]--
-function mod:launchedBoomFlyUpdate(entity)
+function mod:LaunchedBoomFlyUpdate(entity)
 	if entity.State == NpcState.STATE_SPECIAL and not entity:IsDead() and not entity:HasMortalDamage() then
 		local sprite = entity:GetSprite()
 
@@ -82,21 +82,21 @@ function mod:launchedBoomFlyUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.launchedBoomFlyUpdate, EntityType.ENTITY_BOOMFLY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.LaunchedBoomFlyUpdate, EntityType.ENTITY_BOOMFLY)
 
 
 
 --[[ Chubber ]]--
-function mod:chubberInit(entity)
+function mod:ChubberWormInit(entity)
 	if entity.Variant == 22 then
 		entity.Mass = 0.1
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.chubberInit, EntityType.ENTITY_VIS)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ChubberWormInit, EntityType.ENTITY_VIS)
 
-function mod:chubberUpdate(entity)
+function mod:ChubberUpdate(entity)
 	if entity.Variant == 2 then
 		local sprite = entity:GetSprite()
 
@@ -110,12 +110,12 @@ function mod:chubberUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.chubberUpdate, EntityType.ENTITY_VIS)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ChubberUpdate, EntityType.ENTITY_VIS)
 
 
 
 --[[ Scarred Guts ]]--
-function mod:scarredGutsDeath(entity)
+function mod:ScarredGutsDeath(entity)
 	if entity.Variant == 1 then
 		local flesh = Isaac.Spawn(EntityType.ENTITY_LEPER, 1, 0, entity.Position, entity.Velocity * 0.6, entity):ToNPC()
 		flesh.State = NpcState.STATE_INIT
@@ -125,12 +125,12 @@ function mod:scarredGutsDeath(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.scarredGutsDeath, EntityType.ENTITY_GUTS)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.ScarredGutsDeath, EntityType.ENTITY_GUTS)
 
 
 
 --[[ Reduce Monstro 2 and Gish HP ]]--
-function mod:monstro2Init(entity)
+function mod:Monstro2Init(entity)
 	local newHealth = 540
 	if entity.SubType == 1 then
 		newHealth = 460
@@ -139,13 +139,13 @@ function mod:monstro2Init(entity)
 	entity.MaxHitPoints = newHealth
 	entity.HitPoints = entity.MaxHitPoints
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.monstro2Init, EntityType.ENTITY_MONSTRO2)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.Monstro2Init, EntityType.ENTITY_MONSTRO2)
 
 
 
 --[[ Death ]]--
 -- Better Scythes
-function mod:scytheInit(entity)
+function mod:ScytheInit(entity)
 	if entity.Variant == 10 then
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 		entity.Mass = 0.1
@@ -156,41 +156,39 @@ function mod:scytheInit(entity)
 			entity.SubType = entity.SpawnerEntity.SubType
 		end
 
+		-- Black champion's scythes are bigger
 		if entity.SubType == 1 then
 			entity.Scale = 1.1
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.scytheInit, EntityType.ENTITY_DEATH)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ScytheInit, EntityType.ENTITY_DEATH)
 
--- Extra sounds
-function mod:deathUpdate(entity)
-	local sprite = entity:GetSprite()
-
-	-- Hourglass sound
-	if entity.Variant == 0 and entity.State == NpcState.STATE_ATTACK and sprite:GetFrame() == 21 then
+-- Hourglass sound
+function mod:DeathUpdate(entity)
+	if entity.Variant == 0 and entity.State == NpcState.STATE_ATTACK and entity:GetSprite():GetFrame() == 21 then
 		mod:PlaySound(nil, SoundEffect.SOUND_MENU_FLIP_DARK, 2)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.deathUpdate, EntityType.ENTITY_DEATH)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DeathUpdate, EntityType.ENTITY_DEATH)
 
 
 
 --[[ Make Peep and the Bloat's eyes bounce off of them and each other ]]--
-function mod:peepEyeCollision(entity, target, cock)
+function mod:PeepEyeCollision(entity, target, cock)
 	if (entity.Variant == 10 or entity.Variant == 11) and target.Type == entity.Type then
 		entity.Velocity = (entity.Position - target.Position):Normalized()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.peepEyeCollision, EntityType.ENTITY_PEEP)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.PeepEyeCollision, EntityType.ENTITY_PEEP)
 
 
 
 --[[ Fistula Scarred Womb skin ]]--
-function mod:fistulaScarredSkin(entity)
-	if IRFConfig.matriarchFistula == true and entity.Variant == 0 then
+function mod:FistulaScarredSkin(entity)
+	if entity.Variant == 0 then
 		if entity.SubType == 0 and Game():GetRoom():GetBackdropType() == BackdropType.SCARRED_WOMB then
-			entity.SubType = 1000 -- The subtype that Matriarch fistula pieces use
+			entity.SubType = 1000 -- The subtype that Matriarch Fistula pieces use
 		end
 
 		if entity.SubType == 1000 then
@@ -200,37 +198,38 @@ function mod:fistulaScarredSkin(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fistulaScarredSkin, EntityType.ENTITY_FISTULA_BIG)
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fistulaScarredSkin, EntityType.ENTITY_FISTULA_MEDIUM)
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fistulaScarredSkin, EntityType.ENTITY_FISTULA_SMALL)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.FistulaScarredSkin, EntityType.ENTITY_FISTULA_BIG)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.FistulaScarredSkin, EntityType.ENTITY_FISTULA_MEDIUM)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.FistulaScarredSkin, EntityType.ENTITY_FISTULA_SMALL)
 
 
 
---[[ Big Spiders ]]--
-function mod:bigSpiderInit(entity)
+--[[ Big Spiders HP nerf ]]--
+function mod:BigSpiderInit(entity)
 	entity.MaxHitPoints = 13
 	entity.HitPoints = entity.MaxHitPoints
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.bigSpiderInit, EntityType.ENTITY_BIGSPIDER)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.BigSpiderInit, EntityType.ENTITY_BIGSPIDER)
 
 
 
 --[[ Classic eternal flies ]]--
-function mod:eternalFlyInit(entity)
+function mod:EternalFlyInit(entity)
 	if entity.Type == EntityType.ENTITY_ETERNALFLY or (FiendFolio and entity.Type == FiendFolio.FF.DeadFlyOrbital.ID and entity.Variant == FiendFolio.FF.DeadFlyOrbital.Var) then
 		entity:GetData().isEternalFly = true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.eternalFlyInit)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.EternalFlyInit)
 
-function mod:eternalFlyUpdate(entity)
+function mod:EternalFlyUpdate(entity)
+	-- Make them properly keep up with their parents
 	if entity.Parent then
 		entity.Velocity = entity.Parent.Velocity
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.eternalFlyUpdate, EntityType.ENTITY_ETERNALFLY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.EternalFlyUpdate, EntityType.ENTITY_ETERNALFLY)
 
-function mod:eternalFlyConvert(entity)
+function mod:EternalFlyConvert(entity)
 	if entity:GetData().isEternalFly then
 		local sprite = entity:GetSprite()
 		sprite:Load("gfx/attack eternal fly.anm2", true)
@@ -244,25 +243,35 @@ function mod:eternalFlyConvert(entity)
 		entity:GetData().isEternalFly = nil
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.eternalFlyConvert, EntityType.ENTITY_ATTACKFLY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.EternalFlyConvert, EntityType.ENTITY_ATTACKFLY)
 
 
 
 --[[ Gurdy Jr. ]]--
-function mod:gurdyJrUpdate(entity)
+function mod:GurdyJrUpdate(entity)
 	local sprite = entity:GetSprite()
 
 	if entity.State == NpcState.STATE_ATTACK and sprite:IsPlaying("Attack03Start") and sprite:GetFrame() < 8 then
 		entity.Velocity = Vector.Zero
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gurdyJrUpdate, EntityType.ENTITY_GURDY_JR)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GurdyJrUpdate, EntityType.ENTITY_GURDY_JR)
+
+
+
+--[[ Isaac / ??? / Hush baby wing flap sounds ]]--
+function mod:IsaacUpdate(entity)
+	if entity:GetSprite():IsEventTriggered("Flap") then
+		mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_WING, 0.75)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.IsaacUpdate, EntityType.ENTITY_ISAAC)
 
 
 
 --[[ Bone orbitals ]]--
-function mod:boneOrbitalInit(entity)
-	if entity.Variant == IRFentities.BoneOrbital then
+function mod:BoneOrbitalInit(entity)
+	if entity.Variant == mod.Entities.BoneOrbital then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_BLOOD_SPLASH | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
@@ -271,21 +280,21 @@ function mod:boneOrbitalInit(entity)
 		entity:GetSprite():Play("Idle" .. math.random(0, 7), true)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.boneOrbitalInit, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.BoneOrbitalInit, mod.Entities.Type)
 
-function mod:boneOrbitalUpdate(entity)
-	if entity.Variant == IRFentities.BoneOrbital then
+function mod:BoneOrbitalUpdate(entity)
+	if entity.Variant == mod.Entities.BoneOrbital then
 		if mod:OrbitParent(entity, entity.Parent, 4, 30 - entity.SubType * 12) == false then
 			entity:Kill()
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.boneOrbitalUpdate, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BoneOrbitalUpdate, mod.Entities.Type)
 
 
 
---[[ Thrown Dip ]]--
-function mod:thrownDipUpdate(entity)
+--[[ Thrown Dips ]]--
+function mod:ThrownDipUpdate(entity)
 	local data = entity:GetData()
 
 	if data.thrownDip and (entity.State ~= NpcState.STATE_JUMP or entity:IsDead()) then
@@ -303,13 +312,13 @@ function mod:thrownDipUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.thrownDipUpdate, EntityType.ENTITY_SPIDER)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ThrownDipUpdate, EntityType.ENTITY_SPIDER)
 
 
 
 --[[ Gurglings ]]--
 -- Different sprites for boss Gurglings
-function mod:gurglingsInit(entity)
+function mod:GurglingInit(entity)
 	if entity.Variant == 1 and (entity.SubType == 0 or entity.SubType == 500) then
 		local sprite = entity:GetSprite()
 		sprite:ReplaceSpritesheet(1, "gfx/monsters/rebirth/monster_237_gurgling_boss.png")
@@ -317,22 +326,22 @@ function mod:gurglingsInit(entity)
 		sprite:LoadGraphics()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.gurglingsInit, EntityType.ENTITY_GURGLING)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GurglingInit, EntityType.ENTITY_GURGLING)
 
--- Make them immuno to knockback while charging
-function mod:gurglingsUpdate(entity)
+-- Make them immune to knockback while charging
+function mod:GurglingUpdate(entity)
 	if entity.State == NpcState.STATE_ATTACK then
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	else
 		entity:ClearEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gurglingsUpdate, EntityType.ENTITY_GURGLING)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GurglingUpdate, EntityType.ENTITY_GURGLING)
 
 
 
 --[[ Tube Worm effect color ]]--
-function mod:tubeWormEffects(effect)
+function mod:TubeWormEffects(effect)
 	for i, worm in pairs(Isaac.FindByType(EntityType.ENTITY_ROUND_WORM, 1, -1, false, false)) do
 		if worm:ToNPC().State == NpcState.STATE_ATTACK and worm.Position:Distance(effect.Position) <= 2 and effect.FrameCount == 0 then -- Of course they don't have a spawner entity set...
 			local bg = Game():GetRoom():GetBackdropType()
@@ -343,20 +352,20 @@ function mod:tubeWormEffects(effect)
 				effect:GetSprite().Color = Color(0,0,0, 1, c.R,c.G,c.B)
 			-- Regular water
 			elseif bg == BackdropType.FLOODED_CAVES or bg == BackdropType.DOWNPOUR then
-				effect:GetSprite().Color = IRFcolors.TearEffect
+				effect:GetSprite().Color = mod.Colors.TearEffect
 			-- Shit water
 			elseif bg == BackdropType.DROSS then
-				effect:GetSprite().Color = IRFcolors.PukeEffect
+				effect:GetSprite().Color = mod.Colors.PukeEffect
 			end
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_RENDER, mod.tubeWormEffects, EffectVariant.BLOOD_EXPLOSION)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_RENDER, mod.TubeWormEffects, EffectVariant.BLOOD_EXPLOSION)
 
 
 
 --[[ Homunculus, Begotten chain break ]]--
-function mod:homunculusUpdate(entity)
+function mod:HomunculusUpdate(entity)
 	if entity.Variant == 0 then
 		local data = entity:GetData()
 
@@ -384,9 +393,9 @@ function mod:homunculusUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.homunculusUpdate, EntityType.ENTITY_HOMUNCULUS)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.HomunculusUpdate, EntityType.ENTITY_HOMUNCULUS)
 
-function mod:begottenUpdate(entity)
+function mod:BegottenUpdate(entity)
 	if entity.Variant == 0 then
 		local data = entity:GetData()
 
@@ -414,46 +423,47 @@ function mod:begottenUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.begottenUpdate, EntityType.ENTITY_BEGOTTEN)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BegottenUpdate, EntityType.ENTITY_BEGOTTEN)
 
 
 
 --[[ Imp extra sounds ]]--
-function mod:impUpdate(entity)
+function mod:ImpUpdate(entity)
 	local sprite = entity:GetSprite()
 
 	if sprite:IsPlaying("Attack") and sprite:GetFrame() == 4 then
 		mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT, 0.9, 0.9, 5)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.impUpdate, EntityType.ENTITY_IMP)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ImpUpdate, EntityType.ENTITY_IMP)
 
 
 
 --[[ Mega Maw ]]--
-function mod:megaMawUpdate(entity)
+function mod:MegaMawUpdate(entity)
 	local sprite = entity:GetSprite()
 	local hopperCount = Isaac.CountEntities(nil, EntityType.ENTITY_HOPPER, -1, -1) + Isaac.CountEntities(nil, EntityType.ENTITY_FLAMINGHOPPER, -1, -1)
 
+	-- Limit his Hopper count to 3
 	if entity.State == NpcState.STATE_SUMMON and sprite:GetFrame() == 0 and hopperCount >= 3 then
 		entity.State = NpcState.STATE_ATTACK2
 		SFXManager():Stop(SoundEffect.SOUND_MOUTH_FULL)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.megaMawUpdate, EntityType.ENTITY_MEGA_MAW)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MegaMawUpdate, EntityType.ENTITY_MEGA_MAW)
 
 -- Prevent him from taking damage from his Flaming Hoppers
-function mod:megaMawDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:MegaMawDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.Type == EntityType.ENTITY_FLAMINGHOPPER or damageSource.SpawnerType == EntityType.ENTITY_FLAMINGHOPPER then
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.megaMawDMG, EntityType.ENTITY_MEGA_MAW)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.MegaMawDMG, EntityType.ENTITY_MEGA_MAW)
 
 
 
 --[[ Mega Fatty suction effects ]]--
-function mod:megaFattyUpdate(entity)
+function mod:MegaFattyUpdate(entity)
 	local sprite = entity:GetSprite()
 
 	if sprite:IsPlaying("Sucking") then
@@ -480,12 +490,12 @@ function mod:megaFattyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.megaFattyUpdate, EntityType.ENTITY_MEGA_FATTY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MegaFattyUpdate, EntityType.ENTITY_MEGA_FATTY)
 
 
 
 --[[ The Cage ]]--
-function mod:cageUpdate(entity)
+function mod:CageUpdate(entity)
 	-- Fix him having a hitbox before he lands
 	if entity.State == NpcState.STATE_STOMP then
 		if entity:GetSprite():GetFrame() < 4 then
@@ -500,23 +510,24 @@ function mod:cageUpdate(entity)
 		Game():ShakeScreen(math.floor(entity.Scale * 4))
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.cageUpdate, EntityType.ENTITY_CAGE)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.CageUpdate, EntityType.ENTITY_CAGE)
 
-function mod:cageCollide(entity, target, bool)
+-- Make them bounce off of each other
+function mod:CageCollide(entity, target, bool)
 	if entity.State == NpcState.STATE_ATTACK and (target.Type == entity.Type or target.Type == EntityType.ENTITY_SISTERS_VIS) then
 		entity.Velocity = (entity.Position - target.Position):Normalized()
 		mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, entity.Scale * 0.5, 1, 6)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.cageCollide, EntityType.ENTITY_CAGE)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.CageCollide, EntityType.ENTITY_CAGE)
 
 
 
 --[[ Red Ghost ]]--
-function mod:redGhostUpdate(entity)
+function mod:RedGhostUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	if not entity:GetData().IndicatorBrim and IRFConfig.laserRedGhost == true and entity.State == NpcState.STATE_ATTACK and sprite:GetFrame() == 0 then
+	if not entity:GetData().IndicatorBrim and entity.State == NpcState.STATE_ATTACK and sprite:GetFrame() == 0 then
 		local angle = 0
 		if sprite:GetAnimation() == "ShootDown" then
 			angle = 90
@@ -529,20 +540,20 @@ function mod:redGhostUpdate(entity)
 		mod:QuickTracer(entity, angle, Vector(0, entity.SpriteScale.Y * -25), 15, 1, 2)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.redGhostUpdate, EntityType.ENTITY_RED_GHOST)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.RedGhostUpdate, EntityType.ENTITY_RED_GHOST)
 
 
 
---[[ Hush fixes ]]--
-function mod:hushInit(entity)
+--[[ Hush fixes by hgrfff ]]--
+function mod:HushInit(entity)
 	entity:GetData().hushFix = {
 		lastState = 0,
 		animation = "Idle"
 	}
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.hushInit, EntityType.ENTITY_HUSH)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.HushInit, EntityType.ENTITY_HUSH)
 
-function mod:hushUpdate(entity)
+function mod:HushUpdate(entity)
 	local sprite = entity:GetSprite()
 	local data = entity:GetData()
 
@@ -569,7 +580,7 @@ function mod:hushUpdate(entity)
 		end
 
 
-	-- Chill tf out
+	-- Chill the fuck out
 	elseif entity.State == NpcState.STATE_IDLE and data.hushFix.lastState ~= NpcState.STATE_IDLE
 	and entity.HitPoints / math.max(entity.MaxHitPoints, 0.001) < .5
 	and entity.HitPoints / math.max(entity.MaxHitPoints, 0.001) > .01 then
@@ -580,9 +591,9 @@ function mod:hushUpdate(entity)
 
 	data.hushFix.lastState = entity.State
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hushUpdate, EntityType.ENTITY_HUSH)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.HushUpdate, EntityType.ENTITY_HUSH)
 
-function mod:hushLaserUpdate(effect)
+function mod:HushLaserUpdate(effect)
 	local room = Game():GetRoom()
 
 	if room:HasSlowDown() or room:GetBrokenWatchState() == 1 then
@@ -593,22 +604,22 @@ function mod:hushLaserUpdate(effect)
 		effect.Velocity = effect.Velocity:Resized(targetLength)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.hushLaserUpdate, EffectVariant.HUSH_LASER)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.HushLaserUpdate, EffectVariant.HUSH_LASER)
 
 
 
 --[[ Delirium helper ]]--
-function mod:deliriumHelper(entity)
+function mod:DeliriumHelper(entity)
 	if not entity:GetData().wasDelirium then
 		entity:GetData().wasDelirium = true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.deliriumHelper, EntityType.ENTITY_DELIRIUM)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DeliriumHelper, EntityType.ENTITY_DELIRIUM)
 
 
 
 --[[ Tainted Faceless ]]--
-function mod:tFacelessUpdate(entity)
+function mod:TaintedFacelessUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 
@@ -620,37 +631,37 @@ function mod:tFacelessUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.tFacelessUpdate, EntityType.ENTITY_FACELESS)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.TaintedFacelessUpdate, EntityType.ENTITY_FACELESS)
 
 
 
 --[[ Cyst effect ]]--
-function mod:cystEffect(effect)
+function mod:CystEffect(effect)
 	for i, cyst in pairs(Isaac.FindByType(EntityType.ENTITY_CYST, -1, -1, false, false)) do
 		if cyst.Position:Distance(effect.Position) <= 0 then -- Of course they don't have a spawner entity set...
-			effect:GetSprite().Color = IRFcolors.CorpseYellow
+			effect:GetSprite().Color = mod.Colors.CorpseYellow
 			effect:GetSprite().Offset = Vector(0, -6)
 			effect:FollowParent(cyst)
 			effect.DepthOffset = cyst.DepthOffset + 1
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.cystEffect, EffectVariant.BULLET_POOF)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.CystEffect, EffectVariant.BULLET_POOF)
 
 
 
 --[[ Evis Cord ]]--
-function mod:evisCordUpdate(entity)
+function mod:EvisCordUpdate(entity)
 	if entity.Variant == 10 and entity.Parent then
 		entity.SplatColor = entity.Parent.SplatColor
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.evisCordUpdate, EntityType.ENTITY_EVIS)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.EvisCordUpdate, EntityType.ENTITY_EVIS)
 
 
 
 --[[ Siren revive ]]--
-function mod:sirenUpdate(entity)
+function mod:SirenUpdate(entity)
 	local sprite = entity:GetSprite()
 	local data = entity:GetData()
 
@@ -738,17 +749,17 @@ function mod:sirenUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.sirenUpdate, EntityType.ENTITY_SIREN)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.SirenUpdate, EntityType.ENTITY_SIREN)
 
-function mod:sirenDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target:ToNPC().State == NpcState.STATE_SPECIAL and not target:GetSprite():WasEventTriggered("Sound") then
+function mod:SirenDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity:ToNPC().State == NpcState.STATE_SPECIAL and not entity:GetSprite():WasEventTriggered("Sound") then
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.sirenDMG, EntityType.ENTITY_SIREN)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.SirenDMG, EntityType.ENTITY_SIREN)
 
 -- Create new Siren from revive
-function mod:sirenDeath(entity)
+function mod:SirenDeath(entity)
 	if entity.I2 == 100 then
 		local newSiren = Isaac.Spawn(entity.Type, entity.Variant, entity.SubType, entity.Position, entity.Velocity, entity):ToNPC()
 		newSiren:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
@@ -769,12 +780,12 @@ function mod:sirenDeath(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.sirenDeath, EntityType.ENTITY_SIREN)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.SirenDeath, EntityType.ENTITY_SIREN)
 
 -- Fix for revive familiars not going back to the player
-function mod:sirenHelperDeath(entity)
+function mod:SirenHelperDeath(entity)
 	if entity.Target then
 		entity.Target.Parent = nil
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.sirenHelperDeath, EntityType.ENTITY_SIREN_HELPER)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.SirenHelperDeath, EntityType.ENTITY_SIREN_HELPER)

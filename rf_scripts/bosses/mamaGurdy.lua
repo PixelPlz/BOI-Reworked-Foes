@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	Cooldown = 50,
@@ -8,7 +8,7 @@ local Settings = {
 
 
 
-function mod:mamaGurdyUpdate(entity)
+function mod:MamaGurdyUpdate(entity)
 	if entity.Variant == 0 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -41,7 +41,7 @@ function mod:mamaGurdyUpdate(entity)
 			elseif sprite:IsEventTriggered("Shoot") then
 				local params = ProjectileParams()
 				params.Scale = 1.75
-				params.Color = IRFcolors.PukeOrange
+				params.Color = mod.Colors.PukeOrange
 				params.FallingSpeedModifier = 1
 				params.FallingAccelModifier = -0.13
 
@@ -53,7 +53,7 @@ function mod:mamaGurdyUpdate(entity)
 					mod:QuickTrail(projectile, 0.09, Color(0.64,0.4,0.16, 1), projectile.Scale * 1.6)
 				end
 
-				mod:ShootEffect(entity, 4, Vector(0, 8), IRFcolors.PukeOrange)
+				mod:ShootEffect(entity, 4, Vector(0, 8), mod.Colors.PukeOrange)
 				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF)
 			end
 
@@ -81,7 +81,7 @@ function mod:mamaGurdyUpdate(entity)
 
 							-- Don't spawn them out of bounds
 							if room:IsPositionInRoom(pos, 10) then
-								local spike = Isaac.Spawn(IRFentities.Type, IRFentities.GiantSpike, 0, pos, Vector.Zero, entity):ToNPC()
+								local spike = Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, 0, pos, Vector.Zero, entity):ToNPC()
 								spike.State = NpcState.STATE_ATTACK
 								spike:GetSprite():Play("Extend", true)
 								spike:GetSprite().FlipX = i == 1
@@ -107,12 +107,12 @@ function mod:mamaGurdyUpdate(entity)
 					if entity.ProjectileCooldown <= 0 then
 						local params = ProjectileParams()
 						params.Scale = 1.5
-						params.Color = IRFcolors.PukeOrange
+						params.Color = mod.Colors.PukeOrange
 						params.FallingSpeedModifier = 1
 						params.FallingAccelModifier = -0.13
 						params.Spread = 1.1
 						entity:FireProjectiles(shootPos, (target.Position - shootPos):Resized(6.5), 5 - entity.I1, params)
-						mod:ShootEffect(entity, 4, Vector(0, 8), IRFcolors.PukeOrange)
+						mod:ShootEffect(entity, 4, Vector(0, 8), mod.Colors.PukeOrange)
 
 						entity.ProjectileCooldown = 6
 						entity.I1 = entity.I1 + 1
@@ -137,7 +137,7 @@ function mod:mamaGurdyUpdate(entity)
 
 			-- Puke effects
 			elseif sprite:IsPlaying("Puke") and sprite:WasEventTriggered("Shoot") and entity:IsFrame(5, 0) and not sprite:WasEventTriggered("BloodStop") and sprite:GetFrame() < 65 then
-				mod:ShootEffect(entity, 4, Vector(0, 8), IRFcolors.PukeOrange)
+				mod:ShootEffect(entity, 4, Vector(0, 8), mod.Colors.PukeOrange)
 			end
 
 
@@ -150,7 +150,7 @@ function mod:mamaGurdyUpdate(entity)
 					-- Spawn spikes in random places
 					if entity.ProjectileDelay <= 0 then
 						for i = 0, 2 do
-							Isaac.Spawn(IRFentities.Type, IRFentities.GiantSpike, 0, room:FindFreePickupSpawnPosition(Isaac:GetRandomPosition(), 0, true, false), Vector.Zero, entity)
+							Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, 0, room:FindFreePickupSpawnPosition(Isaac:GetRandomPosition(), 0, true, false), Vector.Zero, entity)
 						end
 						entity.ProjectileDelay = Settings.Cooldown
 
@@ -166,25 +166,25 @@ function mod:mamaGurdyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.mamaGurdyUpdate, EntityType.ENTITY_MAMA_GURDY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MamaGurdyUpdate, EntityType.ENTITY_MAMA_GURDY)
 
 -- Replace default spikes
-function mod:mamaGurdySpawns(entity)
-	if entity.SpawnerType == EntityType.ENTITY_MAMA_GURDY and entity.Type == EntityType.ENTITY_EFFECT and entity.Variant == EffectVariant.SPIKE then
-		entity.Visible = false
-		entity:Remove()
+function mod:MamaGurdySpawns(effect)
+	if effect.SpawnerType == EntityType.ENTITY_MAMA_GURDY then
+		effect.Visible = false
+		effect:Remove()
 
 
-		local spawner = entity.SpawnerEntity:ToNPC()
+		local spawner = effect.SpawnerEntity:ToNPC()
 
 		-- Giant spikes
 		if spawner.State == NpcState.STATE_ATTACK2 then
 			-- Only spawn a set amount of big spikes
-			local spikeCount = Isaac.CountEntities(spawner, IRFentities.Type, IRFentities.GiantSpike, -1)
+			local spikeCount = Isaac.CountEntities(spawner, mod.Entities.Type, mod.Entities.GiantSpike, -1)
 
 			if spikeCount < Settings.SpikeCount then
 				local room = Game():GetRoom()
-				local pos = room:FindFreePickupSpawnPosition(entity.Position, 0, true, false)
+				local pos = room:FindFreePickupSpawnPosition(effect.Position, 0, true, false)
 
 				-- One of them always spawns under the player
 				if spikeCount == 0 then
@@ -192,7 +192,7 @@ function mod:mamaGurdySpawns(entity)
 					pos = room:GetGridPosition(room:GetGridIndex(pos))
 				end
 
-				Isaac.Spawn(IRFentities.Type, IRFentities.GiantSpike, 0, pos, Vector.Zero, spawner)
+				Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, 0, pos, Vector.Zero, spawner)
 			end
 
 
@@ -201,14 +201,14 @@ function mod:mamaGurdySpawns(entity)
 			-- Only spawn a set amount of worms
 			local wormCount = Isaac.CountEntities(spawner, EntityType.ENTITY_PARA_BITE, -1, -1)
 
-			if wormCount < Settings.WormCount and entity.Position:Distance(Game():GetNearestPlayer(entity.Position).Position) >= 100 then
+			if wormCount < Settings.WormCount and effect.Position:Distance(Game():GetNearestPlayer(effect.Position).Position) >= 100 then
 				-- Have a chance to spawn Scarred Para-Bites in the Scarred Womb
 				local variant = 0
 				if Game():GetLevel():GetStageType() == StageType.STAGETYPE_AFTERBIRTH and mod:Random(2) == 1 then
 					variant = 1
 				end
 
-				local pos = Game():GetRoom():FindFreePickupSpawnPosition(entity.Position, 0, true, false)
+				local pos = Game():GetRoom():FindFreePickupSpawnPosition(effect.Position, 0, true, false)
 				local worm = Isaac.Spawn(EntityType.ENTITY_PARA_BITE, variant, 0, pos, Vector.Zero, spawner):ToNPC()
 				worm:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 				worm.State = NpcState.STATE_SPECIAL
@@ -219,4 +219,4 @@ function mod:mamaGurdySpawns(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.mamaGurdySpawns)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.MamaGurdySpawns, EffectVariant.SPIKE)

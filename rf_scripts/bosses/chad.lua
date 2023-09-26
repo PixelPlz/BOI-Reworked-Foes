@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	HeadSize = 20,
@@ -21,7 +21,7 @@ local Settings = {
 
 
 
-function mod:chadInit(entity)
+function mod:ChadInit(entity)
 	if entity.Variant == 1 then
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 		entity.ProjectileCooldown = Settings.Cooldown / 2
@@ -29,9 +29,9 @@ function mod:chadInit(entity)
 		mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, entity.Scale + 2, Settings.CreepTime)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.chadInit, EntityType.ENTITY_CHUB)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ChadInit, EntityType.ENTITY_CHUB)
 
-function mod:chadUpdate(entity)
+function mod:ChadUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -167,7 +167,7 @@ function mod:chadUpdate(entity)
 			mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 2.5, Settings.CreepTime * 4)
 
 			if entity.I1 == 0 then
-				mod:PlaySound(entity, IRFsounds.ChadDie, 3)
+				mod:PlaySound(entity, mod.Sounds.ChadDeath, 3)
 			end
 		end
 
@@ -468,7 +468,7 @@ function mod:chadUpdate(entity)
 						if entity.I1 == 0 then
 							entity.ProjectileDelay = 0
 							entity.Velocity = (entity.V1 - entity.Position):Normalized()
-							mod:PlaySound(entity, IRFsounds.ChadAttackSwim, 2)
+							mod:PlaySound(entity, mod.Sounds.ChadAttackSwim, 2)
 						end
 
 						local anim = "HeadSwim"
@@ -491,7 +491,7 @@ function mod:chadUpdate(entity)
 						if entity.I1 == 0 then
 							jumpAttackProjectiles()
 							bigSplash()
-							mod:PlaySound(entity, IRFsounds.ChadAttackJump, 2)
+							mod:PlaySound(entity, mod.Sounds.ChadAttackJump, 2)
 						end
 
 
@@ -503,7 +503,7 @@ function mod:chadUpdate(entity)
 						-- Head only
 						if entity.I1 == 0 then
 							bigSplash()
-							mod:PlaySound(entity, IRFsounds.ChadAttackSpit, 2.5)
+							mod:PlaySound(entity, mod.Sounds.ChadAttackSpit, 2.5)
 						end
 					end
 
@@ -731,7 +731,7 @@ function mod:chadUpdate(entity)
 						local shotSpeed = 11
 
 						local params = ProjectileParams()
-						params.Variant = IRFentities.SuckerProjectile
+						params.Variant = mod.Entities.SuckerProjectile
 						params.HeightModifier = -90 * entity.Scale
 						params.FallingSpeedModifier = 10 * entity.Scale
 						params.FallingAccelModifier = -0.1 - (entity.Position:Distance(target.Position) / params.HeightModifier / shotSpeed) -- Can't decide if this is smart or stupid
@@ -779,30 +779,30 @@ function mod:chadUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.chadUpdate, EntityType.ENTITY_CHUB)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ChadUpdate, EntityType.ENTITY_CHUB)
 
-function mod:chadDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 1 and not (damageFlags & DamageFlag.DAMAGE_COUNTDOWN > 0) then
-		local segment = target:ToNPC()
+function mod:ChadDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == 1 and not (damageFlags & DamageFlag.DAMAGE_COUNTDOWN > 0) then
+		local segment = entity:ToNPC()
 		local data = segment:GetData()
 
 		-- Head damage color
 		if segment.I1 == 0 then
-			segment:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+			segment:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
 
 		-- Redirect damage from body segments to the head
 		elseif data.head then
 			damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
 			data.head:TakeDamage(damageAmount, damageFlags, damageSource, 1)
-			data.head:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+			data.head:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
 
 			return false
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.chadDMG, EntityType.ENTITY_CHUB)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ChadDMG, EntityType.ENTITY_CHUB)
 
-function mod:chadCollision(entity, target, bool)
+function mod:ChadCollision(entity, target, bool)
 	if entity.Variant == 1 then
 		-- Jump over the player
 		if entity.PositionOffset.Y <= -44 and (target.Type == EntityType.ENTITY_PLAYER or target.Type == EntityType.ENTITY_FAMILIAR or target.Type == EntityType.ENTITY_BOMB) then
@@ -832,7 +832,7 @@ function mod:chadCollision(entity, target, bool)
 
 					entity:ToNPC().State = NpcState.STATE_SUICIDE
 					entity:ToNPC().StateFrame = 35
-					mod:PlaySound(entity:ToNPC(), IRFsounds.ChadStunned, 3)
+					mod:PlaySound(entity:ToNPC(), mod.Sounds.ChadStunned, 3)
 					return true -- Ignore collision
 				end
 
@@ -843,4 +843,4 @@ function mod:chadCollision(entity, target, bool)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.chadCollision, EntityType.ENTITY_CHUB)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.ChadCollision, EntityType.ENTITY_CHUB)

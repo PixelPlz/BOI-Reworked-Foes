@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	MoveSpeed = 5,
@@ -10,7 +10,7 @@ local Settings = {
 
 
 
-function mod:hushBabyInit(entity)
+function mod:HushBabyInit(entity)
 	if entity.Variant == 2 then
 		local data = entity:GetData()
 
@@ -24,14 +24,9 @@ function mod:hushBabyInit(entity)
 		data.soundTimer = 0
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.hushBabyInit, EntityType.ENTITY_ISAAC)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.HushBabyInit, EntityType.ENTITY_ISAAC)
 
-function mod:hushBabyUpdate(entity)
-	if entity:GetSprite():IsEventTriggered("Flap") then
-		mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_WING, 0.75)
-	end
-
-
+function mod:HushBabyUpdate(entity)
 	if entity.Variant == 2 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -119,12 +114,12 @@ function mod:hushBabyUpdate(entity)
 						if entity.I1 == 1 then
 							mode = 2
 						end
-						params.Color = IRFcolors.HushGreen
+						params.Color = mod.Colors.HushGreen
 
 						entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(9 - entity.I1), mode, params)
 
 					else
-						params.Color = IRFcolors.HushBlue
+						params.Color = mod.Colors.HushBlue
 						for i = -1, 1, 2 do
 							entity:FireProjectiles(entity.Position + (target.Position - entity.Position):Resized(8):Rotated(i * 90), (target.Position - entity.Position):Resized(10), 0, params)
 						end
@@ -291,7 +286,7 @@ function mod:hushBabyUpdate(entity)
 						params.FallingSpeedModifier = 1
 						params.FallingAccelModifier = -0.09
 						params.CircleAngle = entity.V1.X
-						params.Color = IRFcolors.HushOrange
+						params.Color = mod.Colors.HushOrange
 						params.TargetPosition = entity.Position
 
 						params.BulletFlags = ProjectileFlags.ORBIT_CCW
@@ -334,7 +329,7 @@ function mod:hushBabyUpdate(entity)
 					-- Sawtooth wiggle shots
 					else
 						params.BulletFlags = ProjectileFlags.TRIANGLE
-						params.Color = IRFcolors.HushOrange
+						params.Color = mod.Colors.HushOrange
 						entity:FireProjectiles(entity.Position, Vector(12, 6), 9, params)
 					end
 
@@ -442,19 +437,19 @@ function mod:hushBabyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.hushBabyUpdate, EntityType.ENTITY_ISAAC)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.HushBabyUpdate, EntityType.ENTITY_ISAAC)
 
-function mod:hushBabyDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 2 and target:ToNPC().I1 == 0 then
-		target:ToNPC().I1 = 1
+function mod:HushBabyDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == 2 and entity:ToNPC().I1 == 0 then
+		entity:ToNPC().I1 = 1
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.hushBabyDMG, EntityType.ENTITY_ISAAC)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.HushBabyDMG, EntityType.ENTITY_ISAAC)
 
 
 
 --[[ Circling fly attack ]]--
-function mod:hushFlyAttackUpdate(entity)
+function mod:HushFlyAttackUpdate(entity)
 	if entity.State == NpcState.STATE_SPECIAL then
 		if entity.Parent and entity.I1 > 0 then
 			-- Orbit spawn position
@@ -479,13 +474,13 @@ function mod:hushFlyAttackUpdate(entity)
 			if entity.FrameCount >= 8 and entity:IsFrame(4, 0) then
 				local params = ProjectileParams()
 				params.Variant = ProjectileVariant.PROJECTILE_HUSH
-				params.Color = IRFcolors.HushPink
+				params.Color = mod.Colors.HushPink
 				params.FallingSpeedModifier = 1
 				params.FallingAccelModifier = -0.2
 
 				params.BulletFlags = ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT
 				params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
-				params.ChangeTimeout = 120
+				params.ChangeTimeout = 90
 
 				entity:FireProjectiles(entity.Position, Vector.Zero, 0, params)
 			end
@@ -497,12 +492,12 @@ function mod:hushFlyAttackUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.hushFlyAttackUpdate, EntityType.ENTITY_HUSH_FLY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.HushFlyAttackUpdate, EntityType.ENTITY_HUSH_FLY)
 
 
 
 --[[ Hush Gaper special appear animation ]]--
-function mod:hushGaperUpdate(entity)
+function mod:HushGaperUpdate(entity)
 	if entity.State == NpcState.STATE_SPECIAL and entity:GetSprite():IsPlaying("JumpOut") then
 		entity.Velocity = Vector.Zero
 
@@ -512,4 +507,4 @@ function mod:hushGaperUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hushGaperUpdate, EntityType.ENTITY_HUSH_GAPER)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.HushGaperUpdate, EntityType.ENTITY_HUSH_GAPER)

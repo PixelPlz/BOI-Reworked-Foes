@@ -1,8 +1,9 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:headlessHorsemanBodyUpdate(entity)
+--[[ Body ]]--
+function mod:PurpleHeadlessHorsemanBodyUpdate(entity)
 	if entity.SubType == 1 then
 		local sprite = entity:GetSprite()
 
@@ -22,9 +23,12 @@ function mod:headlessHorsemanBodyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.headlessHorsemanBodyUpdate, EntityType.ENTITY_HEADLESS_HORSEMAN)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.PurpleHeadlessHorsemanBodyUpdate, EntityType.ENTITY_HEADLESS_HORSEMAN)
 
-function mod:headlessHorsemanHeadUpdate(entity)
+
+
+--[[ Head ]]--
+function mod:PurpleHeadlessHorsemanHeadUpdate(entity)
 	if entity.SubType == 1 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -41,7 +45,7 @@ function mod:headlessHorsemanHeadUpdate(entity)
 		-- Replace shooting attack
 		elseif entity.State == NpcState.STATE_ATTACK2 then
 			entity.State = NpcState.STATE_ATTACK3
-		
+
 		elseif entity.State == NpcState.STATE_ATTACK3 then
 			if sprite:GetFrame() == 13 then
 				entity:FireBossProjectiles(10, target.Position, 2, ProjectileParams())
@@ -54,11 +58,11 @@ function mod:headlessHorsemanHeadUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.headlessHorsemanHeadUpdate, EntityType.ENTITY_HORSEMAN_HEAD)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.PurpleHeadlessHorsemanHeadUpdate, EntityType.ENTITY_HORSEMAN_HEAD)
 
-function mod:headlessHorsemanCollide(entity, target, bool)
+function mod:PurpleHeadlessHorsemanCollision(entity, target, bool)
 	if target.Type == EntityType.ENTITY_HORSEMAN_HEAD then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.headlessHorsemanCollide, EntityType.ENTITY_HEADLESS_HORSEMAN)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.PurpleHeadlessHorsemanCollision, EntityType.ENTITY_HEADLESS_HORSEMAN)

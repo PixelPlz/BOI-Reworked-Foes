@@ -1,18 +1,18 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
 -- Uriel
-function mod:fallenUrielInit(entity)
+function mod:FallenUrielInit(entity)
 	if entity.Variant == 1 then
 		entity:GetSprite():Load("gfx/271.001_fallen uriel.anm2", true)
 		entity.MaxHitPoints = 500
 		entity.HitPoints = entity.MaxHitPoints
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fallenUrielInit, EntityType.ENTITY_URIEL)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.FallenUrielInit, EntityType.ENTITY_URIEL)
 
-function mod:fallenUrielUpdate(entity)
+function mod:FallenUrielUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -49,11 +49,11 @@ function mod:fallenUrielUpdate(entity)
 				local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 40), 90, 20, Vector.Zero, entity), entity}
 				data.brim = laser_ent_pair.laser
 				data.brim.DepthOffset = entity.DepthOffset + 100
-				
+
 				-- Shots
 				local params = ProjectileParams()
 				params.Variant = ProjectileVariant.PROJECTILE_HUSH
-				params.Color = IRFcolors.BrimShot
+				params.Color = mod.Colors.BrimShot
 				params.Scale = 1.25
 				params.CircleAngle = 0
 				mod:FireProjectiles(entity, Vector(entity.Position.X, Game():GetRoom():GetBottomRightPos().Y - 1), Vector(11, 16), 9, params, Color.Default)
@@ -111,12 +111,12 @@ function mod:fallenUrielUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.fallenUrielUpdate, EntityType.ENTITY_URIEL)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.FallenUrielUpdate, EntityType.ENTITY_URIEL)
 
 
 
 -- Gabriel
-function mod:fallenGabrielInit(entity)
+function mod:GabrielInit(entity)
 	local newHp = 520
 	if entity.Variant == 1 then
 		entity:GetSprite():Load("gfx/272.001_fallen gabriel.anm2", true)
@@ -126,9 +126,9 @@ function mod:fallenGabrielInit(entity)
 	entity.MaxHitPoints = newHp
 	entity.HitPoints = entity.MaxHitPoints
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.fallenGabrielInit, EntityType.ENTITY_GABRIEL)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GabrielInit, EntityType.ENTITY_GABRIEL)
 
-function mod:fallenGabrielUpdate(entity)
+function mod:FallenGabrielUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 		local data = entity:GetData()
@@ -160,7 +160,7 @@ function mod:fallenGabrielUpdate(entity)
 			-- Laser swirls
 			if sprite:IsEventTriggered("Shoot") then
 				for i = 0, 2, 2 do
-					local swirl = Isaac.Spawn(EntityType.ENTITY_EFFECT, IRFentities.BrimstoneSwirl, 0, entity.Position - Vector(0, 40) + Vector.FromAngle(i * 90):Resized(10), Vector.FromAngle(i * 90):Resized(8), entity)
+					local swirl = Isaac.Spawn(EntityType.ENTITY_EFFECT, mod.Entities.BrimstoneSwirl, 0, entity.Position - Vector(0, 40) + Vector.FromAngle(i * 90):Resized(10), Vector.FromAngle(i * 90):Resized(8), entity)
 					swirl.Parent = entity
 					swirl:GetSprite():Play("IdleQuick", true)
 					data.brim = swirl
@@ -206,19 +206,19 @@ function mod:fallenGabrielUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.fallenGabrielUpdate, EntityType.ENTITY_GABRIEL)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.FallenGabrielUpdate, EntityType.ENTITY_GABRIEL)
 
-function mod:gabrielCollision(entity, target, cock)
+function mod:GabrielCollision(entity, target, cock)
 	if target.SpawnerType == entity.Type then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.gabrielCollision, EntityType.ENTITY_GABRIEL)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.GabrielCollision, EntityType.ENTITY_GABRIEL)
 
 
 
 --[[ Single Laser Brimstone Swirl ]]--
-function mod:singleBrimstoneSwirlUpdate(effect)
+function mod:SingleBrimstoneSwirlUpdate(effect)
 	local sprite = effect:GetSprite()
 	local data = effect:GetData()
 
@@ -255,4 +255,4 @@ function mod:singleBrimstoneSwirlUpdate(effect)
 		effect:Remove()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.singleBrimstoneSwirlUpdate, IRFentities.BrimstoneSwirl)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.SingleBrimstoneSwirlUpdate, mod.Entities.BrimstoneSwirl)

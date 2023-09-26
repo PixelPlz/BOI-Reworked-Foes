@@ -1,9 +1,9 @@
 <AnimatedActor>
-	<Info CreatedBy="Pixel" CreatedOn="2023. 05. 04. 12:40:20" Version="126" Fps="30"/>
+	<Info CreatedBy="Pixel" CreatedOn="2023. 09. 20. 13:02:34" Version="127" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="monsters\better\277.000_blackboney body.png" Id="0"/>
-			<Spritesheet Path="monsters\better\277.000_blackboney head.png" Id="1"/>
+			<Spritesheet Path="monsters\better\black boney\277.000_blackboney body.png" Id="0"/>
+			<Spritesheet Path="monsters\better\black boney\277.000_blackboney head.png" Id="1"/>
 			<Spritesheet Path="items\pick ups\bomb_spark.png" Id="2"/>
 			<Spritesheet Path="monsters\afterbirth\enemy_fire.png" Id="3"/>
 		</Spritesheets>

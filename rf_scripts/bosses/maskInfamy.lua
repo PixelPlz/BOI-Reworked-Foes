@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	-- Mask
@@ -38,7 +38,7 @@ local States = {
 
 
 --[[ Mask ]]--
-function mod:maskInfamyReplace(entity)
+function mod:MaskInfamyInit(entity)
 	local data = entity:GetData()
 
 	data.state = States.Appear
@@ -47,14 +47,14 @@ function mod:maskInfamyReplace(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_NO_STATUS_EFFECTS)
 
 	if entity.SubType == 1 then
-		entity.SplatColor = IRFcolors.RagManBlood
+		entity.SplatColor = mod.Colors.RagManBlood
 	elseif entity.SubType == 2 and FiendFolio then
 		entity.SplatColor = FiendFolio.ColorLemonYellow
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.maskInfamyReplace, EntityType.ENTITY_MASK_OF_INFAMY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.MaskInfamyInit, EntityType.ENTITY_MASK_OF_INFAMY)
 
-function mod:maskInfamyUpdate(entity)
+function mod:MaskInfamyUpdate(entity)
 	local sprite = entity:GetSprite()
 	local data = entity:GetData()
 	local target = entity:GetPlayerTarget()
@@ -190,24 +190,24 @@ function mod:maskInfamyUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.maskInfamyUpdate, EntityType.ENTITY_MASK_OF_INFAMY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.MaskInfamyUpdate, EntityType.ENTITY_MASK_OF_INFAMY)
 
-function mod:maskInfamyDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:MaskInfamyDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	return false
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.maskInfamyDMG, EntityType.ENTITY_MASK_OF_INFAMY)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.MaskInfamyDMG, EntityType.ENTITY_MASK_OF_INFAMY)
 
-function mod:maskInfamyCollide(entity, target, bool)
+function mod:MaskInfamyCollision(entity, target, bool)
 	if target.Type == EntityType.ENTITY_HEART_OF_INFAMY then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.maskInfamyCollide, EntityType.ENTITY_MASK_OF_INFAMY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.MaskInfamyCollision, EntityType.ENTITY_MASK_OF_INFAMY)
 
 
 
 --[[ Heart ]]--
-function mod:heartInfamyReplace(entity)
+function mod:HeartInfamyInit(entity)
 	local data = entity:GetData()
 
 	data.state = States.Appear
@@ -216,14 +216,14 @@ function mod:heartInfamyReplace(entity)
 	entity.HitPoints = entity.MaxHitPoints
 
 	if entity.SubType == 1 then
-		entity.SplatColor = IRFcolors.RagManBlood
+		entity.SplatColor = mod.Colors.RagManBlood
 	elseif entity.SubType == 2 then
 		entity.SplatColor = FiendFolio.ColorLemonYellow
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.heartInfamyReplace, EntityType.ENTITY_HEART_OF_INFAMY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.HeartInfamyInit, EntityType.ENTITY_HEART_OF_INFAMY)
 
-function mod:heartInfamyUpdate(entity)
+function mod:HeartInfamyUpdate(entity)
 	local sprite = entity:GetSprite()
 	local data = entity:GetData()
 	local target = entity:GetPlayerTarget()
@@ -273,7 +273,7 @@ function mod:heartInfamyUpdate(entity)
 		if sprite:IsEventTriggered("Jump") then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 			mod:PlaySound(nil, SoundEffect.SOUND_HEARTOUT)
-		
+
 		elseif sprite:IsEventTriggered("GetPos") then
 			entity.Position = target.Position
 
@@ -425,11 +425,12 @@ function mod:heartInfamyUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.heartInfamyUpdate, EntityType.ENTITY_HEART_OF_INFAMY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.HeartInfamyUpdate, EntityType.ENTITY_HEART_OF_INFAMY)
 
-function mod:kidneyBulletsFuckYouFF(projectile)
+-- Fiend Folio kidney champion bullets
+function mod:FiendFolioKidneyBullets(projectile)
 	if projectile.SpawnerType == EntityType.ENTITY_HEART_OF_INFAMY and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 then
 		projectile:GetData().customSpawn = true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_INIT, mod.kidneyBulletsFuckYouFF, ProjectileVariant.PROJECTILE_NORMAL)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_INIT, mod.FiendFolioKidneyBullets, ProjectileVariant.PROJECTILE_NORMAL)

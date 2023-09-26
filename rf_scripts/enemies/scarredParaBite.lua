@@ -1,15 +1,15 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:scarredParaBiteInit(entity)
+function mod:ScarredParaBiteInit(entity)
 	if entity.Variant == 1 then
 		entity.I1 = mod:Random(60, 120)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.scarredParaBiteInit, EntityType.ENTITY_PARA_BITE)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ScarredParaBiteInit, EntityType.ENTITY_PARA_BITE)
 
-function mod:scarredParaBiteUpdate(entity)
+function mod:ScarredParaBiteUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 
@@ -41,4 +41,4 @@ function mod:scarredParaBiteUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.scarredParaBiteUpdate, EntityType.ENTITY_PARA_BITE)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ScarredParaBiteUpdate, EntityType.ENTITY_PARA_BITE)

@@ -1,9 +1,9 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
 --[[ Tumor ]]--
-function mod:tumorUpdate(entity)
+function mod:TumorUpdate(entity)
 	local sprite = entity:GetSprite()
 	local data = entity:GetData()
 
@@ -23,18 +23,18 @@ function mod:tumorUpdate(entity)
 		data.previousAnim = {sprite:GetAnimation(), sprite:GetFrame()}
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.tumorUpdate, EntityType.ENTITY_TUMOR)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.TumorUpdate, EntityType.ENTITY_TUMOR)
 
 
 
 --[[ Camillo Jr. ]]--
-function mod:camilloJrInit(entity)
+function mod:CamilloJrInit(entity)
 	entity.ProjectileCooldown = mod:Random(120, 180)
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.camilloJrInit, EntityType.ENTITY_CAMILLO_JR)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.CamilloJrInit, EntityType.ENTITY_CAMILLO_JR)
 
 -- It's easier to remake these fuckers from scratch then to try to fix them...
-function mod:camilloJrUpdate(entity)
+function mod:CamilloJrUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
 
@@ -115,20 +115,22 @@ function mod:camilloJrUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.camilloJrUpdate, EntityType.ENTITY_CAMILLO_JR)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.CamilloJrUpdate, EntityType.ENTITY_CAMILLO_JR)
 
-function mod:camilloJrDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target:ToNPC().State == NpcState.STATE_MOVE and target:ToNPC().ProjectileDelay <= 0 then
-		target:ToNPC().ProjectileCooldown = 0
-		target:ToNPC().I1 = 1
+function mod:CamilloJrDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	local entity = entity:ToNPC()
+
+	if entity.State == NpcState.STATE_MOVE and entity.ProjectileDelay <= 0 then
+		entity.ProjectileCooldown = 0
+		entity.I1 = 1
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.camilloJrDMG, EntityType.ENTITY_CAMILLO_JR)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.CamilloJrDMG, EntityType.ENTITY_CAMILLO_JR)
 
 
 
 --[[ Psy Tumor ]]--
-function mod:psyTumorUpdate(entity)
+function mod:PsyTumorUpdate(entity)
 	local sprite = entity:GetSprite()
 	local data = entity:GetData()
 
@@ -146,12 +148,12 @@ function mod:psyTumorUpdate(entity)
 			params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.SMART)
 			params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
 			params.ChangeTimeout = 90
-	
+
 			params.Acceleration = 1.1
 			params.FallingSpeedModifier = 1
 			params.FallingAccelModifier = -0.1
 			params.Scale = 1.5
-	
+
 			entity:FireProjectiles(entity.Position, Vector(6, 3), 9, params)
 			mod:PlaySound(entity, SoundEffect.SOUND_WHEEZY_COUGH, 1.1)
 		end
@@ -161,4 +163,4 @@ function mod:psyTumorUpdate(entity)
 		data.previousAnim = {sprite:GetAnimation(), sprite:GetFrame()}
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.psyTumorUpdate, EntityType.ENTITY_PSY_TUMOR)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.PsyTumorUpdate, EntityType.ENTITY_PSY_TUMOR)

@@ -1,21 +1,25 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:eyeUpdate(entity)
+function mod:EyeUpdate(entity)
 	local sprite = entity:GetSprite()
 
 	if entity.State == NpcState.STATE_ATTACK then
 		-- Give them a cooldown
-		if (entity.Variant == 0 and sprite:GetFrame() == 19) or (entity.Variant == 1 and sprite:GetOverlayFrame() == 19) then
+		if (entity.Variant == 0 and sprite:GetFrame() == 19) -- Regular eye
+		or (entity.Variant == 1 and sprite:GetOverlayFrame() == 19) then -- Bloodshot eye
 			entity.ProjectileCooldown = (entity.Variant + 1) * 15
 		end
 
 		-- Prevent them from shooting if they're on cooldown
 		if entity.ProjectileCooldown > 0 then
+			-- Regular eye
 			if entity.Variant == 0 then
 				sprite:Stop()
 				entity.State = NpcState.STATE_IDLE
+
+			-- Bloodshot eye
 			elseif entity.Variant == 1 then
 				sprite:SetOverlayFrame("ShootOverlay", 0)
 			end
@@ -23,7 +27,9 @@ function mod:eyeUpdate(entity)
 
 
 		-- Tracer
-		if not entity:GetData().IndicatorBrim and IRFConfig.laserEyes == true and ((entity.Variant == 0 and sprite:GetFrame() == 1) or (entity.Variant == 1 and sprite:GetOverlayFrame() == 1)) then
+		if not entity:GetData().IndicatorBrim
+		and ((entity.Variant == 0 and sprite:GetFrame() == 1) -- Regular eye
+		or (entity.Variant == 1 and sprite:GetOverlayFrame() == 1)) then -- Bloodshot eye
 			local pitch = 1.1
 			local xScale = 1
 			local offset = 20
@@ -44,4 +50,4 @@ function mod:eyeUpdate(entity)
 		entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.eyeUpdate, EntityType.ENTITY_EYE)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.EyeUpdate, EntityType.ENTITY_EYE)

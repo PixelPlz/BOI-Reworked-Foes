@@ -1,12 +1,12 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:raglingInit(entity)
+function mod:RaglingInit(entity)
 	-- Rag Man's Ragling
 	if entity.Variant == 1 then
 		entity.MaxHitPoints = 25 -- Same as the HP for Ragman's head
-		entity.SplatColor = IRFcolors.RagManBlood
+		entity.SplatColor = mod.Colors.RagManBlood
 
 		-- Inherit the rolling head's subtype
 		if entity.SpawnerType == EntityType.ENTITY_RAG_MAN and entity.SpawnerVariant == 1 and entity.SpawnerEntity then
@@ -15,12 +15,12 @@ function mod:raglingInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.raglingInit, EntityType.ENTITY_RAGLING)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.RaglingInit, EntityType.ENTITY_RAGLING)
 
-function mod:raglingUpdate(entity)
+function mod:RaglingUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	mod:stopSlidingAfterHop(entity)
+	mod:StopSlidingAfterHop(entity)
 
 
 	-- Replace default attack
@@ -47,7 +47,7 @@ function mod:raglingUpdate(entity)
 
 			-- Red champion ones don't have homing
 			if entity.SubType == 1 then
-				params.Color = IRFcolors.RagManPink
+				params.Color = mod.Colors.RagManPink
 			else
 				params.BulletFlags = params.BulletFlags + ProjectileFlags.SMART
 			end
@@ -87,12 +87,12 @@ function mod:raglingUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.raglingUpdate, EntityType.ENTITY_RAGLING)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.RaglingUpdate, EntityType.ENTITY_RAGLING)
 
-function mod:raglingDeath(entity)
+function mod:RaglingDeath(entity)
 	if entity.Variant == 0 then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, 1, entity.Position, Vector.Zero, entity)
 		mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END, 0.9)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.raglingDeath, EntityType.ENTITY_RAGLING)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.RaglingDeath, EntityType.ENTITY_RAGLING)

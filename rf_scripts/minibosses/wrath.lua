@@ -1,8 +1,8 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:wrathInit(entity)
+function mod:WrathInit(entity)
 	-- Bestiary fix
 	if not (entity.Variant == 0 and entity.SubType == 1) then
 		local sprite = entity:GetSprite()
@@ -10,9 +10,9 @@ function mod:wrathInit(entity)
 		sprite:LoadGraphics()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.wrathInit, EntityType.ENTITY_WRATH)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.WrathInit, EntityType.ENTITY_WRATH)
 
-function mod:wrathUpdate(entity)
+function mod:WrathUpdate(entity)
 	if mod:CheckValidMiniboss(entity) == true then
 		local sprite = entity:GetSprite()
 
@@ -118,9 +118,20 @@ function mod:wrathUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.wrathUpdate, EntityType.ENTITY_WRATH)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.WrathUpdate, EntityType.ENTITY_WRATH)
 
-function mod:wrathBombInit(bomb)
+-- Don't take damage from non-player explosions
+function mod:WrathDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if mod:CheckForRev() == false and damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
+		return false
+	end
+end
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.WrathDMG, EntityType.ENTITY_WRATH)
+
+
+
+-- Replace Wrath's bombs
+function mod:WrathBombInit(bomb)
 	if bomb.SpawnerType == EntityType.ENTITY_WRATH and bomb.SpawnerEntity and mod:CheckValidMiniboss(bomb.SpawnerEntity) == true and bomb.SpawnerVariant == 0 then
 		-- Hot Bombs for champion Wrath
 		if bomb.SpawnerEntity.SubType == 1 then
@@ -133,22 +144,14 @@ function mod:wrathBombInit(bomb)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_BOMB_INIT, mod.wrathBombInit, BombVariant.BOMB_NORMAL)
-
--- Don't take damage from non-player explosions
-function mod:wrathDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if mod:CheckForRev() == false and damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
-		return false
-	end
-end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.wrathDMG, EntityType.ENTITY_WRATH)
+mod:AddCallback(ModCallbacks.MC_POST_BOMB_INIT, mod.WrathBombInit, BombVariant.BOMB_NORMAL)
 
 
 
-function mod:championWrathReward(entity)
+function mod:ChampionWrathReward(entity)
 	-- Hot Bombs
 	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_WRATH and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= CollectibleType.COLLECTIBLE_HOT_BOMBS then
 		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_HOT_BOMBS, false, true, false)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championWrathReward, PickupVariant.PICKUP_COLLECTIBLE)
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.ChampionWrathReward, PickupVariant.PICKUP_COLLECTIBLE)

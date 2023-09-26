@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	SpeedMultiplier = 1.15,
@@ -8,14 +8,14 @@ local Settings = {
 
 
 
-function mod:flamingGaperInit(entity)
+function mod:FlamingGaperInit(entity)
 	if entity.Variant == 2 then
 		entity.ProjectileCooldown = mod:Random(Settings.Cooldown / 2, Settings.Cooldown)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.flamingGaperInit, EntityType.ENTITY_GAPER)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.FlamingGaperInit, EntityType.ENTITY_GAPER)
 
-function mod:flamingGaperUpdate(entity)
+function mod:FlamingGaperUpdate(entity)
 	local data = entity:GetData()
 
 
@@ -89,26 +89,27 @@ function mod:flamingGaperUpdate(entity)
 		data.wasFlamingGaper = nil
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingGaperUpdate, EntityType.ENTITY_GAPER)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.FlamingGaperUpdate, EntityType.ENTITY_GAPER)
 
 -- Turn regular Gapers into flaming ones when burnt
-function mod:gaperIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if Game():GetRoom():HasWater() == false and target.Variant == 1 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
-		target:ToNPC():Morph(EntityType.ENTITY_GAPER, 2, 0, target:ToNPC():GetChampionColorIdx())
-		target:Update()
+function mod:GaperIgnite(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if Game():GetRoom():HasWater() == false -- Not in a flooded room
+	and entity.Variant == 1 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
+		entity:ToNPC():Morph(EntityType.ENTITY_GAPER, 2, 0, entity:ToNPC():GetChampionColorIdx())
+		entity:Update()
 		mod:PlaySound(nil, SoundEffect.SOUND_FIREDEATH_HISS)
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.gaperIgnite, EntityType.ENTITY_GAPER)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.GaperIgnite, EntityType.ENTITY_GAPER)
 
 
 
 --[[ Brazier ]]--
-function mod:flamingGusherUpdate(entity)
+function mod:FlamingGusherUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	if entity.Variant == IRFentities.Brazier then
+	if entity.Variant == mod.Entities.Brazier then
 		mod:LoopingOverlay(sprite, "Fire", true)
 		mod:EmberParticles(entity, Vector(0, -28))
 
@@ -144,8 +145,8 @@ function mod:flamingGusherUpdate(entity)
 
 	-- Turn Gushers and Pacers from Flaming Gapers into Braziers
 	elseif entity:GetData().wasFlamingGaper then
-		if IRFConfig.burningGushers == true then
-			entity:Morph(EntityType.ENTITY_GUSHER, IRFentities.Brazier, 0, entity:GetChampionColorIdx())
+		if mod.Config.BurningGushers == true then
+			entity:Morph(EntityType.ENTITY_GUSHER, mod.Entities.Brazier, 0, entity:GetChampionColorIdx())
 
 		else
 			local suffix = ""
@@ -160,14 +161,15 @@ function mod:flamingGusherUpdate(entity)
 		entity:GetData().wasFlamingGaper = nil
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.flamingGusherUpdate, EntityType.ENTITY_GUSHER)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.FlamingGusherUpdate, EntityType.ENTITY_GUSHER)
 
 -- Turn regular Gushers into Braziers when burnt
-function mod:gusherIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if Game():GetRoom():HasWater() == false and target.Variant < 2 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
-		target:ToNPC():Morph(EntityType.ENTITY_GUSHER, IRFentities.Brazier, 0, target:ToNPC():GetChampionColorIdx())
+function mod:GusherIgnite(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if Game():GetRoom():HasWater() == false -- Not in a flooded room
+	and entity.Variant < 2 and (damageFlags & DamageFlag.DAMAGE_FIRE > 0) then
+		entity:ToNPC():Morph(EntityType.ENTITY_GUSHER, mod.Entities.Brazier, 0, entity:ToNPC():GetChampionColorIdx())
 		mod:PlaySound(nil, SoundEffect.SOUND_FIREDEATH_HISS)
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.gusherIgnite, EntityType.ENTITY_GUSHER)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.GusherIgnite, EntityType.ENTITY_GUSHER)

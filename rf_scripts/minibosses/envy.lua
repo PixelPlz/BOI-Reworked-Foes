@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	InitialSpeed = 7,
@@ -17,8 +17,8 @@ local Settings = {
 
 
 
-function mod:envyUpdate(entity)
-	if mod:CheckForRev() == false and IRFConfig.envyRework == true then
+function mod:EnvyUpdate(entity)
+	if mod:CheckForRev() == false and mod.Config.EnvyRework == true then
 		if entity.Variant >= 10 and entity.FrameCount == 0 then
 			entity.I2 = 1
 			entity.ProjectileCooldown = Settings.InitialTimer
@@ -42,10 +42,10 @@ function mod:envyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.envyUpdate, EntityType.ENTITY_ENVY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.EnvyUpdate, EntityType.ENTITY_ENVY)
 
-function mod:envyCollide(entity, target, bool)
-	if mod:CheckForRev() == false and IRFConfig.envyRework == true and target.Type == EntityType.ENTITY_ENVY and (entity.I1 == 1 or entity.Variant < 2) then
+function mod:EnvyCollision(entity, target, bool)
+	if mod:CheckForRev() == false and mod.Config.EnvyRework == true and target.Type == EntityType.ENTITY_ENVY and (entity.I1 == 1 or entity.Variant < 2) then
 		-- Get bounce strength
 		local eSize = math.floor(entity.Variant / 10)
 		local tSize = math.floor(target.Variant / 10)
@@ -79,11 +79,12 @@ function mod:envyCollide(entity, target, bool)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.envyCollide, EntityType.ENTITY_ENVY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.EnvyCollision, EntityType.ENTITY_ENVY)
 
-function mod:envyDeath(entity)
+-- Pink champion projectiles
+function mod:EnvyDeath(entity)
 	if mod:CheckForRev() == false and entity.SubType == 1
-	and (entity.Variant == 0 or (IRFConfig.envyRework == false and (entity.Variant == 10 or entity.Variant == 20))) then
+	and (entity.Variant == 0 or (mod.Config.EnvyRework == false and (entity.Variant == 10 or entity.Variant == 20))) then
 		local amount = 8 - (entity.Variant / 10) * 2
 
 		local params = ProjectileParams()
@@ -91,11 +92,11 @@ function mod:envyDeath(entity)
 		entity:FireProjectiles(entity.Position, Vector(Settings.BaseShotSpeed + 1, amount), 9, params)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.envyDeath, EntityType.ENTITY_ENVY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.EnvyDeath, EntityType.ENTITY_ENVY)
 
 
 
-function mod:envyRewards(entity)
+function mod:EnvyRewards(entity)
 	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_ENVY then
 		-- Tammy's Head
 		if entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= CollectibleType.COLLECTIBLE_TAMMYS_HEAD then
@@ -107,4 +108,4 @@ function mod:envyRewards(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.envyRewards)
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.EnvyRewards)

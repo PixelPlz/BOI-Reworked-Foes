@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	SpeedMultiplier = 0.95,
@@ -12,7 +12,7 @@ local Settings = {
 
 
 
-function mod:selflessKnightUpdate(entity)
+function mod:SelflessKnightUpdate(entity)
 	if entity.Variant == 1 then
 		entity.Velocity = entity.Velocity * Settings.SpeedMultiplier
 
@@ -30,15 +30,20 @@ function mod:selflessKnightUpdate(entity)
 			if entity.StateFrame == 0 then
 				entity.TargetPosition = entity.TargetPosition:Resized(Settings.ChargeSpeed)
 
+			-- Shot delay
 			elseif entity.StateFrame > 5 then
 				if entity.ProjectileCooldown <= 0 then
+					-- Projectile
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_TEAR
 					params.FallingAccelModifier = 0.175
 					entity:FireProjectiles(entity.Position, -entity.Velocity:Resized(Settings.ShotSpeed), 0, params)
 
+					-- Effects
+					local offset = Vector(0, -16) + -entity.Velocity:Resized(8)
+					mod:ShootEffect(entity, 5, offset, mod.Colors.TearEffect, 0.65, entity.TargetPosition.Y >= 0)
 					mod:PlaySound(nil, SoundEffect.SOUND_TEARS_FIRE, 0.8)
-					mod:ShootEffect(entity, 5, Vector(0, -16) + -entity.Velocity:Resized(8), IRFcolors.TearEffect, 0.65, entity.TargetPosition.Y >= 0)
+
 					entity.ProjectileCooldown = Settings.TearCooldown
 
 				else
@@ -50,4 +55,4 @@ function mod:selflessKnightUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.selflessKnightUpdate, EntityType.ENTITY_KNIGHT)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.SelflessKnightUpdate, EntityType.ENTITY_KNIGHT)

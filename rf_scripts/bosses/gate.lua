@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	Cooldown = 30,
@@ -10,13 +10,13 @@ local Settings = {
 
 
 
-function mod:gateInit(entity)
+function mod:GateInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	entity:SetSize(66, Vector(1, 0.5), 12)
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.gateInit, EntityType.ENTITY_GATE)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GateInit, EntityType.ENTITY_GATE)
 
-function mod:gateUpdate(entity)
+function mod:GateUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
 
@@ -26,7 +26,7 @@ function mod:gateUpdate(entity)
 	if entity.SubType ~= 1 then
 		local color = Color.Default
 		if entity.SubType == 2 then
-			color = IRFcolors.BlueFire
+			color = mod.Colors.BlueFire
 		end
 		mod:EmberParticles(entity, Vector(0, -math.random(110, 120)), 40, color)
 	end
@@ -92,7 +92,7 @@ function mod:gateUpdate(entity)
 					params.Variant = ProjectileVariant.PROJECTILE_BONE
 					params.BulletFlags = (ProjectileFlags.FIRE | ProjectileFlags.BLUE_FIRE_SPAWN)
 					params.Scale = 1.5
-					params.Color = IRFcolors.BlackBony
+					params.Color = mod.Colors.BlackBony
 					params.FallingAccelModifier = 1.25
 					params.FallingSpeedModifier = -10
 					params.HeightModifier = -54
@@ -197,7 +197,7 @@ function mod:gateUpdate(entity)
 				if sprite:WasEventTriggered("Shoot") and not sprite:WasEventTriggered("Close") and entity:IsFrame(2, 0) then
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_FIRE
-					params.Color = IRFcolors.BlueFire
+					params.Color = mod.Colors.BlueFire
 					params.BulletFlags = ProjectileFlags.FIRE
 					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Rotated(mod:Random(-15, 15)):Resized(9), 0, params)
 				end
@@ -246,7 +246,7 @@ function mod:gateUpdate(entity)
 			elseif sprite:IsEventTriggered("Shoot") then
 				mod:PlaySound(entity, SoundEffect.SOUND_FIRE_RUSH)
 			end
-		
+
 		elseif entity.SubType == 2 and sprite:GetFrame() == 0 and entity.I2 ~= 1 then
 			entity.State = NpcState.STATE_SUMMON
 		end
@@ -282,7 +282,7 @@ function mod:gateUpdate(entity)
 			elseif entity.SubType == 2 then
 				params.BulletFlags = ProjectileFlags.FIRE
 				params.Scale = 2
-				params.Color = IRFcolors.BlueFireShot
+				params.Color = mod.Colors.BlueFireShot
 				params.FallingAccelModifier = 1.25
 				params.FallingSpeedModifier = -20
 				local projectile = mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(entity.Position:Distance(target.Position) / 24), 0, params):GetData()
@@ -350,9 +350,11 @@ function mod:gateUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gateUpdate, EntityType.ENTITY_GATE)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GateUpdate, EntityType.ENTITY_GATE)
 
-function mod:gateDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:GateDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	local entity = entity:ToNPC()
+
 	-- Prevent him from taking damage from his Flaming Hoppers or other Gates
 	if damageSource.Type == EntityType.ENTITY_FLAMINGHOPPER or damageSource.SpawnerType == EntityType.ENTITY_FLAMINGHOPPER
 	or damageSource.Type == EntityType.ENTITY_GATE or damageSource.SpawnerType == EntityType.ENTITY_GATE then
@@ -360,39 +362,40 @@ function mod:gateDMG(target, damageAmount, damageFlags, damageSource, damageCoun
 
 
 	-- Stagger from explosions
-	elseif target.SubType ~= 1 and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) and target:ToNPC().ProjectileDelay <= 0 and target:ToNPC().State ~= NpcState.STATE_ATTACK3 then
-		target:ToNPC().State = NpcState.STATE_SPECIAL
-		target:GetSprite():Play("Stagger", true)
-		target:ToNPC().ProjectileDelay = 120
+	elseif entity.SubType ~= 1 and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) and entity.ProjectileDelay <= 0 and entity.State ~= NpcState.STATE_ATTACK3 then
+		entity.State = NpcState.STATE_SPECIAL
+		entity:GetSprite():Play("Stagger", true)
+		entity.ProjectileDelay = 120
 
 		mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE)
-		mod:PlaySound(target, SoundEffect.SOUND_MONSTER_GRUNT_4)
+		mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_4)
 
 
 	-- Reduced damage if skull is not raised
-	elseif target.SubType ~= 1 and target:ToNPC().ProjectileCooldown ~= 1 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+	elseif entity.SubType ~= 1 and entity.ProjectileCooldown ~= 1 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
 		local onePercent = damageAmount / 100
 		local reduction = onePercent * Settings.DamageReduction
 
-		target:TakeDamage(damageAmount - reduction, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
-		target:SetColor(IRFcolors.ArmorFlash, 2, 0, false, false)
+		entity:TakeDamage(damageAmount - reduction, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+		entity:SetColor(mod.Colors.ArmorFlash, 2, 0, false, false)
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.gateDMG, EntityType.ENTITY_GATE)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.GateDMG, EntityType.ENTITY_GATE)
 
-function mod:gateCollide(entity, target, bool)
+function mod:GateCollision(entity, target, bool)
 	if target.SpawnerType == entity.Type then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.gateCollide, EntityType.ENTITY_GATE)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.GateCollision, EntityType.ENTITY_GATE)
+
 
 
 -- Remove default spawns
-function mod:gateSpawns(entity)
+function mod:GateRemoveSpawns(entity)
 	if entity.SpawnerType == EntityType.ENTITY_GATE and (entity.Type == EntityType.ENTITY_LEAPER or entity.Type == EntityType.ENTITY_BIGSPIDER) then
 		entity:Remove()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.gateSpawns)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GateRemoveSpawns)

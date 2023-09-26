@@ -1,14 +1,14 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
-
-
-IRFbreakableHosts = {
+mod.BreakableHosts = {
 	{Type = EntityType.ENTITY_HOST, 		 Variant = 0,   SubType = 0,   '   -->   ', BrokenType = nil, 								  BrokenVariant = 1,   BrokenSubType = nil}, -- Host
 	{Type = EntityType.ENTITY_HOST, 		 Variant = 0,   SubType = 250, '   -->   ', BrokenType = nil, 								  BrokenVariant = 1,   BrokenSubType = 251}, -- Fiend Folio Hostlet
 	{Type = EntityType.ENTITY_HOST, 		 Variant = 3,   SubType = 0,   '   -->   ', BrokenType = nil, 								  BrokenVariant = nil, BrokenSubType = 40},  -- Hard Host
 	{Type = EntityType.ENTITY_MOBILE_HOST,   Variant = nil, SubType = nil, '   -->   ', BrokenType = EntityType.ENTITY_FLESH_MOBILE_HOST, BrokenVariant = nil, BrokenSubType = nil}, -- Mobile Host
 	{Type = EntityType.ENTITY_FLOATING_HOST, Variant = 0,   SubType = nil, '   -->   ', BrokenType = nil, 								  BrokenVariant = 1,   BrokenSubType = nil}, -- Floast
 }
+
+
 
 -- Putting nil as the Variant or SubType will make it work on any of that type's variants or subtypes
 -- Putting nil as any of the broken values will make them not change it when they get broken
@@ -29,14 +29,14 @@ function mod:AddBreakableHost(Type, Variant, SubType, BrokenType, BrokenVariant,
 		BrokenSubType = BrokenSubType,
 		BrokenScript  = BrokenScript
 	}
-	table.insert(IRFbreakableHosts, brokenData)
+	table.insert(mod.BreakableHosts, brokenData)
 end
 
 
 
 -- Check if this entity is a Host that can be broken and return the needed data if it is
 function mod:IsBreakableHost(entity)
-	for i, entry in pairs(IRFbreakableHosts) do
+	for i, entry in pairs(mod.BreakableHosts) do
 		if entity.Type == entry.Type
 		and (entry.Variant == nil or entity.Variant == entry.Variant)
 		and (entry.SubType == nil or entity.SubType == entry.SubType) then
@@ -91,7 +91,7 @@ end
 
 -- Check if this entity is a Host that should be broken
 function mod:hostBreakCheck(entity)
-	if IRFConfig.breakableHosts == true then
+	if mod.Config.BreakableHosts == true then
 		local brokenData = mod:IsBreakableHost(entity)
 
 		if brokenData ~= false -- Is a Host that can be broken
@@ -108,8 +108,21 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hostBreakCheck)
 
 
 --[[ New broken variants ]]--
+-- Fake damage for Soft Hosts and Flesh Floasts
+function mod:HostFakeDMG(entity, damageAmount)
+	entity.HitPoints = entity.HitPoints - damageAmount
+	entity:SetColor(mod.Colors.DamageFlash, 2, 0, false, false)
+
+	if entity.HitPoints <= 0 then
+		entity:Kill()
+	end
+	return false
+end
+
+
+
 -- Soft Host
-function mod:softHostUpdate(entity)
+function mod:SoftHostUpdate(entity)
 	if entity.Variant == 3 and entity.SubType == 40 then
 		entity:ClearEntityFlags(EntityFlag.FLAG_NO_TARGET)
 
@@ -119,39 +132,28 @@ function mod:softHostUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.softHostUpdate, EntityType.ENTITY_HOST)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.SoftHostUpdate, EntityType.ENTITY_HOST)
+
+function mod:SoftHostFakeDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == 3 and entity.SubType == 40 then
+		return mod:HostFakeDMG(entity, damageAmount)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.SoftHostFakeDMG, EntityType.ENTITY_HOST)
+
+
 
 -- Flesh Floast
-function mod:fleshFloastUpdate(entity)
+function mod:FleshFloastUpdate(entity)
 	if entity.Variant == 1 then
 		entity:ClearEntityFlags(EntityFlag.FLAG_NO_TARGET)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.fleshFloastUpdate, EntityType.ENTITY_FLOATING_HOST)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.FleshFloastUpdate, EntityType.ENTITY_FLOATING_HOST)
 
-
-
--- Fake damage for Soft Hosts and Flesh Floasts
-local function hostFakeDMG(target, damageAmount)
-	target.HitPoints = target.HitPoints - damageAmount
-	target:SetColor(IRFcolors.DamageFlash, 2, 0, false, false)
-
-	if target.HitPoints <= 0 then
-		target:Kill()
-	end
-	return false
-end
-
-function mod:softHostFakeDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 3 and target.SubType == 40 then
-		return hostFakeDMG(target, damageAmount)
+function mod:FleshFloastFakeDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == 1 then
+		return mod:HostFakeDMG(entity, damageAmount)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.softHostFakeDMG, EntityType.ENTITY_HOST)
-
-function mod:fleshFloastFakeDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 1 then
-		return hostFakeDMG(target, damageAmount)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.fleshFloastFakeDMG, EntityType.ENTITY_FLOATING_HOST)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.FleshFloastFakeDMG, EntityType.ENTITY_FLOATING_HOST)

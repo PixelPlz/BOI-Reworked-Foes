@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	NewHealth = 150,
@@ -20,7 +20,7 @@ local Settings = {
 
 
 
-function mod:stevenInit(entity)
+function mod:StevenInit(entity)
 	if entity.Variant == 1 or entity.Variant == 11 then
 		entity.ProjectileCooldown = mod:Random(Settings.Cooldown / 2, Settings.Cooldown * 2)
 
@@ -49,9 +49,9 @@ function mod:stevenInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.stevenInit, EntityType.ENTITY_GEMINI)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.StevenInit, EntityType.ENTITY_GEMINI)
 
-function mod:stevenUpdate(entity)
+function mod:StevenUpdate(entity)
 	if entity.Variant == 1 or entity.Variant == 11 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -79,8 +79,8 @@ function mod:stevenUpdate(entity)
 						sprite:Play("TeleportStart", true)
 						entity.StateFrame = 0
 
-						mod:PlaySound(entity, IRFsounds.StevenVoice, 1.3)
-						mod:PlaySound(nil, IRFsounds.StevenTP, 1.1, 1, 0, true)
+						mod:PlaySound(entity, mod.Sounds.StevenVoice, 1.3)
+						mod:PlaySound(nil, mod.Sounds.StevenTP, 1.1, 1, 0, true)
 
 					else
 						entity.I2 = entity.I2 - 1
@@ -108,7 +108,7 @@ function mod:stevenUpdate(entity)
 					entity.Velocity = mod:StopLerp(entity.Velocity)
 
 					if sprite:IsEventTriggered("Shoot") then
-						mod:PlaySound(nil, IRFsounds.StevenLand, 1.5)
+						mod:PlaySound(nil, mod.Sounds.StevenLand, 1.5)
 					end
 					if sprite:IsFinished() then
 						entity.StateFrame = 1
@@ -167,7 +167,7 @@ function mod:stevenUpdate(entity)
 					entity.Velocity = mod:StopLerp(entity.Velocity)
 
 					if sprite:IsEventTriggered("Shoot") then
-						mod:PlaySound(nil, IRFsounds.StevenLand, 1.25)
+						mod:PlaySound(nil, mod.Sounds.StevenLand, 1.25)
 					end
 					if sprite:IsFinished() then
 						entity.State = NpcState.STATE_MOVE
@@ -234,7 +234,7 @@ function mod:stevenUpdate(entity)
 						entity:GetData().effect = nil
 
 						-- Sounds
-						mod:PlaySound(nil, IRFsounds.StevenChange, 2.75, 1.05)
+						mod:PlaySound(nil, mod.Sounds.StevenChange, 2.75, 1.05)
 						SFXManager():StopLoopingSounds()
 
 						-- Change position
@@ -268,10 +268,10 @@ function mod:stevenUpdate(entity)
 						entity.StateFrame = 1
 
 						-- Static effect
-						if not IRF_Steven_Static then
-							IRF_Steven_Static = Sprite()
-							IRF_Steven_Static:Load("gfx/steven static.anm2", true)
-							mod:PlaySound(nil, IRFsounds.StevenChange, 2.75, 1.05)
+						if not mod.StevenStatic then
+							mod.StevenStatic = Sprite()
+							mod.StevenStatic:Load("gfx/steven static.anm2", true)
+							mod:PlaySound(nil, mod.Sounds.StevenChange, 2.75, 1.05)
 						end
 
 						-- Get rid of rocks in the middle
@@ -318,7 +318,7 @@ function mod:stevenUpdate(entity)
 								pos = room:GetBottomRightPos() + Settings.WallaceOffset
 							end
 
-							local wallace = Isaac.Spawn(IRFentities.Type, IRFentities.Wallace, entity.SubType, pos, Vector.Zero, entity):ToNPC()
+							local wallace = Isaac.Spawn(mod.Entities.Type, mod.Entities.Wallace, entity.SubType, pos, Vector.Zero, entity):ToNPC()
 							wallace.Parent = entity
 							wallace.TargetPosition = Vector(-i, 0)
 							wallace.V1 = Vector(i ,pos.Y)
@@ -419,7 +419,7 @@ function mod:stevenUpdate(entity)
 					params.Variant = ProjectileVariant.PROJECTILE_FCUK
 					params.BulletFlags = ProjectileFlags.GHOST
 					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(12), 0, params)
-					mod:PlaySound(entity, IRFsounds.StevenDie)
+					mod:PlaySound(entity, mod.Sounds.StevenDeath)
 				end
 
 				if sprite:IsFinished() then
@@ -434,7 +434,7 @@ function mod:stevenUpdate(entity)
 		if entity.FrameCount > 1 then
 			-- Big Steven death
 			if entity.Variant == 1 and entity:IsDead() and entity.State ~= NpcState.STATE_SPECIAL then
-				mod:PlaySound(nil, IRFsounds.StevenDie, 1.25)
+				mod:PlaySound(nil, mod.Sounds.StevenDeath, 1.25)
 
 				-- Start 2nd phase
 				local hasSteven = false
@@ -483,33 +483,33 @@ function mod:stevenUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.stevenUpdate, EntityType.ENTITY_GEMINI)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.StevenUpdate, EntityType.ENTITY_GEMINI)
 
-function mod:stevenDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:StevenDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	-- 2nd phase only takes damage when Wallaces take damage
-	if target.Variant == 1 and target:ToNPC().State == NpcState.STATE_SPECIAL then
+	if entity.Variant == 1 and entity:ToNPC().State == NpcState.STATE_SPECIAL then
 		if not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
 			return false
 		end
 
 	-- Little Steven
-	elseif target.Variant == 11 and target:ToNPC().I1 ~= 1 then
-		if target.Parent then
+	elseif entity.Variant == 11 and entity:ToNPC().I1 ~= 1 then
+		if entity.Parent then
 			damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
-			target.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 1)
-			target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+			entity.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 1)
+			entity:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
 		end
 
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.stevenDMG, EntityType.ENTITY_GEMINI)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.StevenDMG, EntityType.ENTITY_GEMINI)
 
 
 
 --[[ Wallace ]]--
-function mod:wallaceInit(entity)
-	if entity.Variant == IRFentities.Wallace then
+function mod:WallaceInit(entity)
+	if entity.Variant == mod.Entities.Wallace then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_NO_REWARD)
 		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR | EntityFlag.FLAG_NO_TARGET)
@@ -519,10 +519,10 @@ function mod:wallaceInit(entity)
 		entity.SplatColor = Color(0,0,0, 1)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.wallaceInit, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.WallaceInit, mod.Entities.Type)
 
-function mod:wallaceUpdate(entity)
-	if entity.Variant == IRFentities.Wallace then
+function mod:WallaceUpdate(entity)
+	if entity.Variant == mod.Entities.Wallace then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
 		local room = Game():GetRoom()
@@ -593,7 +593,7 @@ function mod:wallaceUpdate(entity)
 					params.Variant = ProjectileVariant.PROJECTILE_FCUK
 					params.BulletFlags = ProjectileFlags.GHOST
 					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(11), 0, params)
-					mod:PlaySound(entity, IRFsounds.StevenDie)
+					mod:PlaySound(entity, mod.Sounds.StevenDeath)
 				end
 
 				if sprite:IsFinished() then
@@ -614,8 +614,8 @@ function mod:wallaceUpdate(entity)
 				if entity.StateFrame == 0 then
 					if sprite:IsEventTriggered("Shoot") then
 						entity.StateFrame = 1
-						mod:PlaySound(entity, IRFsounds.StevenVoice, 0.8, 1, 5)
-						mod:PlaySound(nil, IRFsounds.StevenLand, 1.5)
+						mod:PlaySound(entity, mod.Sounds.StevenVoice, 0.8, 1, 5)
+						mod:PlaySound(nil, mod.Sounds.StevenLand, 1.5)
 
 						-- Get jump height
 						local jumpHeight = 12
@@ -644,7 +644,7 @@ function mod:wallaceUpdate(entity)
 					if (entity.V1.X == 1 and entity.Position.Y >= entity.V1.Y) or (entity.V1.X == -1 and entity.Position.Y <= entity.V1.Y) then
 						entity.State = NpcState.STATE_MOVE
 						entity.StateFrame = 1
-						mod:PlaySound(nil, IRFsounds.StevenLand, 2)
+						mod:PlaySound(nil, mod.Sounds.StevenLand, 2)
 
 						-- Effect
 						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position + Vector(0, entity.V1.X * 30), Vector.Zero, entity):GetSprite()
@@ -657,32 +657,33 @@ function mod:wallaceUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.wallaceUpdate, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.WallaceUpdate, mod.Entities.Type)
 
-function mod:wallaceDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == IRFentities.Wallace then
-		if target.Parent then
+function mod:WallaceDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == mod.Entities.Wallace then
+		if entity.Parent then
 			damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
-			target.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 1)
-			target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+			entity.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 1)
+			entity:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
 		end
 
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.wallaceDMG, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.WallaceDMG, mod.Entities.Type)
 
 
 
-function mod:stevenStaticOverlay()
-	if IRF_Steven_Static then
-		IRF_Steven_Static:Render(Game():GetRoom():GetRenderSurfaceTopLeft(), Vector.Zero, Vector.Zero)
-		IRF_Steven_Static:Play("Static", false)
-		IRF_Steven_Static:Update()
+--[[ Static overlay ]]--
+function mod:StevenStaticOverlay()
+	if mod.StevenStatic then
+		mod.StevenStatic:Render(Game():GetRoom():GetRenderSurfaceTopLeft(), Vector.Zero, Vector.Zero)
+		mod.StevenStatic:Play("Static", false)
+		mod.StevenStatic:Update()
 
-		if IRF_Steven_Static:IsFinished() then
-			IRF_Steven_Static = nil
+		if mod.StevenStatic:IsFinished() then
+			mod.StevenStatic = nil
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_RENDER, mod.stevenStaticOverlay)
+mod:AddCallback(ModCallbacks.MC_POST_RENDER, mod.StevenStaticOverlay)

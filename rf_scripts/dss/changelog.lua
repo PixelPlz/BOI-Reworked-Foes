@@ -25,6 +25,20 @@ Greed-themed enemies stealing coin pickups
 
 {FSIZE2}Balance changes
 
+- Coffers now drop half of their
+picked up coins and shoot
+the other half as projectiles,
+instead of shooting all of them
+
+- Increased Teratomar's health
+from 100 to 150
+
+- Increased Rag Mega's health
+from 300 to 350
+
+- Increased the Forsaken's health
+from 350 to 400
+
 - The Stain now only takes 20%
 reduced damage through his tentacles
 instead of 50%

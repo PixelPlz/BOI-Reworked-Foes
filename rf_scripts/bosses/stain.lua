@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	SideRange = 25,
@@ -9,9 +9,9 @@ local Settings = {
 
 
 
-function mod:stainInit(entity)
+function mod:StainInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-		
+
 	-- Tentacle
 	if entity.Variant == 10 then
 		local sprite = entity:GetSprite()
@@ -30,9 +30,9 @@ function mod:stainInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.stainInit, EntityType.ENTITY_STAIN)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.StainInit, EntityType.ENTITY_STAIN)
 
-function mod:stainUpdate(entity)
+function mod:StainUpdate(entity)
 	if entity.Variant == 0 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -117,24 +117,24 @@ function mod:stainUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.stainUpdate, EntityType.ENTITY_STAIN)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.StainUpdate, EntityType.ENTITY_STAIN)
 
-function mod:stainCollision(entity, target, cock)
+function mod:StainCollision(entity, target, bool)
 	if target.SpawnerType == EntityType.ENTITY_STAIN then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.stainCollision, EntityType.ENTITY_STAIN)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.StainCollision, EntityType.ENTITY_STAIN)
 
 
 
 -- Tentacle
-function mod:stainTentacleUpdate(entity)
+function mod:StainTentacleUpdate(entity)
 	if entity.Variant == 10 then
 		if entity.Parent then
 			local sprite = entity:GetSprite()
 			local target = entity.Parent:ToNPC():GetPlayerTarget()
-			
+
 			entity.Velocity = Vector.Zero
 			entity.MaxHitPoints = entity.Parent.MaxHitPoints
 			entity.HitPoints = entity.Parent.HitPoints
@@ -166,7 +166,7 @@ function mod:stainTentacleUpdate(entity)
 			elseif sprite:IsEventTriggered("Sound") then
 				mod:PlaySound(nil, SoundEffect.SOUND_WHIP)
 
-			elseif sprite:IsEventTriggered("Hit") then				
+			elseif sprite:IsEventTriggered("Hit") then
 				local hurt = false
 
 				-- Check if it hit the target
@@ -200,20 +200,20 @@ function mod:stainTentacleUpdate(entity)
 		else
 			entity:Kill()
 		end
-		
+
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.stainTentacleUpdate, EntityType.ENTITY_STAIN)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.StainTentacleUpdate, EntityType.ENTITY_STAIN)
 
-function mod:stainTentacleDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 10 and target.Parent then
+function mod:StainTentacleDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == 10 and entity.Parent then
 		local onePercent = damageAmount / 100
 		local reduction = onePercent * Settings.LegDamageReduction
 
-		target.Parent:TakeDamage(damageAmount - reduction, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
-		target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+		entity.Parent:TakeDamage(damageAmount - reduction, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
+		entity:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.stainTentacleDMG, EntityType.ENTITY_STAIN)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.StainTentacleDMG, EntityType.ENTITY_STAIN)

@@ -1,17 +1,19 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:drownedChargerInit(entity)
+function mod:DrownedChargerInit(entity)
 	if entity.Variant == 1 and entity.SpawnerType == EntityType.ENTITY_HIVE then
 		entity.State = NpcState.STATE_ATTACK
-		entity.V1 = mod:ClampVector((entity:GetPlayerTarget().Position - entity.Position):Normalized(), 90)
 		mod:PlaySound(entity, SoundEffect.SOUND_MAGGOTCHARGE)
+
+		local vector = (entity:GetPlayerTarget().Position - entity.Position):Normalized()
+		entity.V1 = mod:ClampVector(vector, 90)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.drownedChargerInit, EntityType.ENTITY_CHARGER)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.DrownedChargerInit, EntityType.ENTITY_CHARGER)
 
-function mod:drownedChargerUpdate(entity)
+function mod:DrownedChargerUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 
@@ -88,9 +90,13 @@ function mod:drownedChargerUpdate(entity)
 					params.FallingSpeedModifier = -entity.I2
 					mod:FireProjectiles(entity, entity.Position + entity.V1:Resized(6), entity.V1:Rotated(mod:Random(-10, 10)):Resized(8 + entity.I2 * 2), 0, params).CollisionDamage = 1
 
+					-- Effects
 					if entity:IsFrame(3, 0) then
 						mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.5 + entity.I2 * 0.1)
-						mod:ShootEffect(entity, 1, entity.V1:Resized(8 + entity.I2), IRFcolors.TearEffect, 0.5 + entity.I2 * 0.2, entity.V1.Y < 0)
+
+						local offset = entity.V1:Resized(8 + entity.I2)
+						local scale = 0.5 + entity.I2 * 0.2
+						mod:ShootEffect(entity, 1, offset, mod.Colors.TearEffect, scale, entity.V1.Y < 0)
 					end
 				end
 
@@ -146,11 +152,11 @@ function mod:drownedChargerUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.drownedChargerUpdate, EntityType.ENTITY_CHARGER)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.DrownedChargerUpdate, EntityType.ENTITY_CHARGER)
 
-function mod:drownedChargerCollide(entity, target, bool)
+function mod:DrownedChargerCollision(entity, target, bool)
 	if target.Type == EntityType.ENTITY_HIVE then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.drownedChargerCollide, EntityType.ENTITY_CHARGER)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.DrownedChargerCollision, EntityType.ENTITY_CHARGER)

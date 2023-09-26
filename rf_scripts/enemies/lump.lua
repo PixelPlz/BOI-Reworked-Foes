@@ -1,13 +1,13 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:lumpInit(entity)
+function mod:LumpInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.lumpInit, EntityType.ENTITY_LUMP)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.LumpInit, EntityType.ENTITY_LUMP)
 
-function mod:lumpUpdate(entity)
+function mod:LumpUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
 	local room = Game():GetRoom()
@@ -19,6 +19,7 @@ function mod:lumpUpdate(entity)
 	end
 
 
+	-- Idle
 	if entity.State == NpcState.STATE_IDLE then
 		mod:LoopingAnim(sprite, "Shake")
 
@@ -80,7 +81,7 @@ function mod:lumpUpdate(entity)
 		if sprite:IsEventTriggered("Sound") then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 		end
-		
+
 		if sprite:IsFinished("Emerge") then
 			entity.State = NpcState.STATE_IDLE
 			entity.StateFrame = 90
@@ -102,7 +103,7 @@ function mod:lumpUpdate(entity)
 	end
 
 
-	-- FF waiting Lump (This is such a dumb variant why does it even exist...)
+	-- FF waiting Lump bullshit
 	if (entity.SubType == 95 and entity.State == NpcState.STATE_INIT) then
 		entity.State = NpcState.STATE_IDLE
 		entity.StateFrame = 90
@@ -112,4 +113,4 @@ function mod:lumpUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.lumpUpdate, EntityType.ENTITY_LUMP)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.LumpUpdate, EntityType.ENTITY_LUMP)

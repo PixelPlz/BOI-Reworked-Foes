@@ -1,13 +1,15 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:babyLongLegsUpdate(entity)
+function mod:BabyLongLegsUpdate(entity)
 	local sprite = entity:GetSprite()
 
-
+	-- Slow the fuck down
 	entity.Velocity = entity.Velocity * 0.85
 
+
+	-- Swap spawns
 	if entity.State == NpcState.STATE_ATTACK then
 		-- Get types to check for / spawn
 		local checkType = EntityType.ENTITY_SPIDER
@@ -22,8 +24,7 @@ function mod:babyLongLegsUpdate(entity)
 			spawnVariant = 0
 		end
 
-
-		-- Only spawn a maximum of 3 at a time
+		-- Only have a maximum of 3 at a time
 		if sprite:GetFrame() == 0 then
 			if Isaac.CountEntities(entity, spawnType, spawnVariant, -1) > 2 then
 				entity.State = NpcState.STATE_MOVE
@@ -31,7 +32,7 @@ function mod:babyLongLegsUpdate(entity)
 		end
 
 
-		-- Swap spawns
+		-- Replace default spawn
 		if entity:GetSprite():IsEventTriggered("Lay") then
 			for i, stuff in pairs(Isaac.FindByType(checkType, checkVariant, -1, false, false)) do
 				if stuff.SpawnerType == EntityType.ENTITY_BABY_LONG_LEGS and stuff.SpawnerVariant == entity.Variant then
@@ -40,7 +41,7 @@ function mod:babyLongLegsUpdate(entity)
 			end
 
 			Isaac.Spawn(spawnType, spawnVariant, 0, entity.Position, Vector.Zero, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
-			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SPIDER_EXPLOSION, 0, entity.Position, Vector.Zero, entity):GetSprite().Color = Color(1,1,1, 1, 1,1,1)
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SPIDER_EXPLOSION, 0, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.WhiteShot
 
 			if entity.Variant == 0 then
 				mod:QuickCreep(EffectVariant.CREEP_WHITE, entity, entity.Position, 1.5)
@@ -48,4 +49,4 @@ function mod:babyLongLegsUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.babyLongLegsUpdate, EntityType.ENTITY_BABY_LONG_LEGS)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BabyLongLegsUpdate, EntityType.ENTITY_BABY_LONG_LEGS)

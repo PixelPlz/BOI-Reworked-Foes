@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	Cooldown = 60,
@@ -10,25 +10,27 @@ local Settings = {
 	ShotSpeed = 11,
 	AngryShotSpeed = 12,
 
+	-- Fly volleyball
 	FlySpeed = 20,
 	PushBack = 15,
 	MaxFlies = 2,
 
+	-- Laser attack
 	LaserSpeed = 5,
 	LaserBurstSpeed = 10
 }
 
 
 
-function mod:lokiiInit(entity)
+function mod:LokiiInit(entity)
 	if entity.Variant == 1 and entity.SubType == 0 then
 		entity.ProjectileCooldown = Settings.Cooldown / 2
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.lokiiInit, EntityType.ENTITY_LOKI)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.LokiiInit, EntityType.ENTITY_LOKI)
 
-function mod:lokiiUpdate(entity)
+function mod:LokiiUpdate(entity)
 	if entity.Variant == 1 and entity.SubType == 0 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -61,6 +63,7 @@ function mod:lokiiUpdate(entity)
 
 				if data.brim then
 					data.brim:SetTimeout(1)
+					data.brim = nil
 				end
 			end
 
@@ -275,7 +278,7 @@ function mod:lokiiUpdate(entity)
 						local params = ProjectileParams()
 						params.Scale = 1.25
 						params.Variant = ProjectileVariant.PROJECTILE_HUSH
-						params.Color = IRFcolors.BrimShot
+						params.Color = mod.Colors.BrimShot
 						mod:FireProjectiles(entity, entity.Position + Vector(entity.Position:Distance(pair.Position) / 2, 0), Vector(Settings.LaserBurstSpeed, 8), 8, params, Color.Default)
 					end
 				end
@@ -458,12 +461,12 @@ function mod:lokiiUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.lokiiUpdate, EntityType.ENTITY_LOKI)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.LokiiUpdate, EntityType.ENTITY_LOKI)
 
 
 
--- Red boom fly ball
-function mod:redBoomFlyCollide(entity, target, bool)
+--[[ Red boom fly ball ]]--
+function mod:RedBoomFlyCollision(entity, target, bool)
 	if entity.Variant == 1 and target.Type == EntityType.ENTITY_LOKI and target.Variant == 1 then
 		if entity:ToNPC().State == NpcState.STATE_SPECIAL and target:ToNPC().State == NpcState.STATE_SUMMON3 and target:GetData().pair.Index == entity.SpawnerEntity.Index then
 			entity:Remove()
@@ -475,11 +478,11 @@ function mod:redBoomFlyCollide(entity, target, bool)
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.redBoomFlyCollide, EntityType.ENTITY_BOOMFLY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.RedBoomFlyCollision, EntityType.ENTITY_BOOMFLY)
 
-function mod:redBoomFlyDeath(entity)
+function mod:RedBoomFlyDeath(entity)
 	if entity.Variant == 1 and entity.State == NpcState.STATE_SPECIAL and entity.SpawnerEntity and entity.SpawnerEntity:GetData().pair and entity.SpawnerEntity:GetData().pair:ToNPC().State == NpcState.STATE_SUMMON3 then
 		entity.SpawnerEntity:GetData().pair:ToNPC().State = NpcState.STATE_IDLE
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.redBoomFlyDeath, EntityType.ENTITY_BOOMFLY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.RedBoomFlyDeath, EntityType.ENTITY_BOOMFLY)

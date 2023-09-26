@@ -1,7 +1,7 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
-	NewHealth = 300,
+	NewHealth = 350,
 	Cooldown = 90,
 
 	MoveSpeed = 2.5,
@@ -15,7 +15,7 @@ local Settings = {
 
 
 --[[ Rag Mega ]]--
-function mod:ragMegaInit(entity)
+function mod:RagMegaInit(entity)
 	-- Rag Mega
 	if entity.Variant == 0 then
 		entity.MaxHitPoints = Settings.NewHealth
@@ -26,12 +26,12 @@ function mod:ragMegaInit(entity)
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-		entity.SplatColor = IRFcolors.RagManBlood
+		entity.SplatColor = mod.Colors.RagManBlood
 
 		-- Spawn the plasmas
 		entity:GetData().balls = {}
 		for i = 1, 3 do
-			local plasma = Isaac.Spawn(IRFentities.Type, IRFentities.RagPlasma, 0, entity.Position, Vector.Zero, entity)
+			local plasma = Isaac.Spawn(mod.Entities.Type, mod.Entities.RagPlasma, 0, entity.Position, Vector.Zero, entity)
 			plasma.Parent = entity
 			entity:GetData().balls[i] = plasma
 		end
@@ -48,9 +48,9 @@ function mod:ragMegaInit(entity)
 		mod:PlaySound(nil, SoundEffect.SOUND_LIGHTBOLT_CHARGE, 1.25)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ragMegaInit, EntityType.ENTITY_RAG_MEGA)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.RagMegaInit, EntityType.ENTITY_RAG_MEGA)
 
-function mod:ragMegaUpdate(entity)
+function mod:RagMegaUpdate(entity)
 	if entity.Variant == 0 or entity.Variant == 2 then
 		local sprite = entity:GetSprite()
 
@@ -168,7 +168,7 @@ function mod:ragMegaUpdate(entity)
 					mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP, 1.2)
 
 					for i = 1, 3 do
-						local plasma = Isaac.Spawn(IRFentities.Type, IRFentities.RagPlasma, 0, entity.Position, Vector.Zero, entity)
+						local plasma = Isaac.Spawn(mod.Entities.Type, mod.Entities.RagPlasma, 0, entity.Position, Vector.Zero, entity)
 						plasma.Parent = entity
 						data.balls[i] = plasma
 					end
@@ -195,7 +195,7 @@ function mod:ragMegaUpdate(entity)
 							ball.ProjectileCooldown = 10
 						end
 					end
-				
+
 				-- Covered
 				elseif entity.StateFrame == 1 then
 					mod:LoopingAnim(sprite, "Covered")
@@ -214,7 +214,7 @@ function mod:ragMegaUpdate(entity)
 					else
 						entity.I2 = entity.I2 + 1
 					end
-				
+
 				-- Uncover
 				elseif entity.StateFrame == 2 then
 					if sprite:IsEventTriggered("Sound") then
@@ -241,7 +241,7 @@ function mod:ragMegaUpdate(entity)
 							local ball = data.balls[i]:ToNPC()
 							ball.State = NpcState.STATE_MOVE
 							ball.Velocity = (ball.Position - entity.Position):Resized(15)
-							mod:QuickTrail(ball, 0.1, IRFcolors.RagManPurple, 3)
+							mod:QuickTrail(ball, 0.1, mod.Colors.RagManPurple, 3)
 						end
 					end
 
@@ -409,48 +409,48 @@ function mod:ragMegaUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ragMegaUpdate, EntityType.ENTITY_RAG_MEGA)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.RagMegaUpdate, EntityType.ENTITY_RAG_MEGA)
 
-function mod:ragMegaDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:RagMegaDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	-- Reduced damage while curled up
-	if target.Variant == 0 and target:ToNPC().State == NpcState.STATE_ATTACK and target:ToNPC().StateFrame == 1 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
-		target:TakeDamage(damageAmount / 2, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
-		target:SetColor(IRFcolors.ArmorFlash, 2, 0, false, false)
+	if entity.Variant == 0 and entity:ToNPC().State == NpcState.STATE_ATTACK and entity:ToNPC().StateFrame == 1 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+		entity:TakeDamage(damageAmount / 2, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+		entity:SetColor(mod.Colors.ArmorFlash, 2, 0, false, false)
 		return false
 
 	-- Rebirth pillar
-	elseif target.Variant == 2 then
+	elseif entity.Variant == 2 then
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ragMegaDMG, EntityType.ENTITY_RAG_MEGA)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.RagMegaDMG, EntityType.ENTITY_RAG_MEGA)
 
-function mod:ragMegaDeath(entity)
+function mod:RagMegaDeath(entity)
 	if entity.Variant == 0 then
 		for i, ragling in pairs(Isaac.FindByType(EntityType.ENTITY_RAGLING, 1, -1, false, true)) do
 			ragling:Kill()
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.ragMegaDeath, EntityType.ENTITY_RAG_MEGA)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.RagMegaDeath, EntityType.ENTITY_RAG_MEGA)
 
 
 
---[[ Plasmas ]]--
-function mod:ragPlasmaInit(entity)
-	if entity.Variant == IRFentities.RagPlasma then
+--[[ Plasma balls ]]--
+function mod:RagPlasmaInit(entity)
+	if entity.Variant == mod.Entities.RagPlasma then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
 
 		entity.V1 = Vector(Settings.OrbitDistance, 0) -- Distance from parent
 		entity.State = NpcState.STATE_IDLE
-		entity.SplatColor = IRFcolors.PurpleFade
+		entity.SplatColor = mod.Colors.PurpleFade
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ragPlasmaInit, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.RagPlasmaInit, mod.Entities.Type)
 
-function mod:ragPlasmaUpdate(entity)
-	if entity.Variant == IRFentities.RagPlasma then
+function mod:RagPlasmaUpdate(entity)
+	if entity.Variant == mod.Entities.RagPlasma then
 		if entity.Parent then
 			local sprite = entity:GetSprite()
 
@@ -496,7 +496,7 @@ function mod:ragPlasmaUpdate(entity)
 							params.Variant = ProjectileVariant.PROJECTILE_HUSH
 							params.Scale = 1.65
 							params.BulletFlags = (ProjectileFlags.SMART | ProjectileFlags.NO_WALL_COLLIDE)
-							mod:FireProjectiles(entity, entity.Position, (entity.Parent:ToNPC():GetPlayerTarget().Position - entity.Parent.Position):Resized(9), 0, params, IRFcolors.RagManPurple).CollisionDamage = 1
+							mod:FireProjectiles(entity, entity.Position, (entity.Parent:ToNPC():GetPlayerTarget().Position - entity.Parent.Position):Resized(9), 0, params, mod.Colors.RagManPurple).CollisionDamage = 1
 							mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP_STRONG)
 						end
 
@@ -540,4 +540,4 @@ function mod:ragPlasmaUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ragPlasmaUpdate, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.RagPlasmaUpdate, mod.Entities.Type)

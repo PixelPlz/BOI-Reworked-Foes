@@ -1,8 +1,8 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
---[[ Utility functions ]]--
+--[[ General functions ]]--
 -- Lerp
 function mod:Lerp(first, second, percent)
 	return (first + (second - first) * percent)
@@ -14,9 +14,84 @@ function mod:StopLerp(vector)
 end
 
 
+-- Get sign from 1 or 0 / true or false
+function mod:GetSign(value)
+	if (type(value) == "number"  and value == 1)
+	or (type(value) == "boolean" and value == true) then
+		return 1
+	else
+		return -1
+	end
+end
+
+
+-- Clamp a vector
+function mod:ClampVector(vector, clampDegrees)
+	local length = vector:Length()
+
+	local timesClampDegree = vector:GetAngleDegrees() / clampDegrees
+	-- Round the amount
+	if timesClampDegree % 1 >= 0.5 then
+		timesClampDegree = math.ceil(timesClampDegree)
+	else
+		timesClampDegree = math.floor(timesClampDegree)
+	end
+
+	return Vector.FromAngle(clampDegrees * timesClampDegree):Resized(length)
+end
+
+
+-- Better shoot function
+function mod:FireProjectiles(entity, from, velocity, shootType, params, trailColor)
+	-- Start recording projectiles
+	mod.RecordedProjectiles = {}
+    mod.RecordProjectiles = true
+
+	-- Shoot projectiles
+	entity:FireProjectiles(from, velocity, shootType, params or ProjectileParams())
+
+	-- Stop recording
+	mod.RecordProjectiles = false
+
+	-- Return the projectiles (seriously, why doesn't the vanilla one do it?)
+	if #mod.RecordedProjectiles > 1 then
+		-- Apply trail
+		if trailColor then
+			for i, projectile in pairs(mod.RecordedProjectiles) do
+				projectile:GetData().trailColor = trailColor
+			end
+		end
+		return mod.RecordedProjectiles
+
+	else
+		-- Apply trail
+		if trailColor then
+			mod.RecordedProjectiles[1]:GetData().trailColor = trailColor
+		end
+		return mod.RecordedProjectiles[1]
+	end
+end
+
+-- Better sound function
+function mod:PlaySound(entity, id, volume, pitch, cooldown, loop, pan)
+	volume = volume or 1
+	pitch = pitch or 1
+	cooldown = cooldown or 0
+	pan = pan or 0
+
+	if entity then
+		entity:ToNPC():PlaySound(id, volume, cooldown, loop, pitch)
+	else
+		SFXManager():Play(id, volume, cooldown, loop, pitch, pan)
+	end
+end
+
+
+
+--[[ Random functions ]]--
 -- Replaces math.random 
 function mod:Random(min, max, rng)
-	rng = rng or IRFrng
+	rng = rng or mod.RNG
 
 	-- Float
 	if not min and not max then
@@ -52,90 +127,19 @@ function mod:RandomVector(length)
 	return vector
 end
 
--- Clamp a vector
-function mod:ClampVector(vector, clampDegrees)
-	local length = vector:Length()
-
-	local timesClampDegree = vector:GetAngleDegrees() / clampDegrees
-	-- Round the amount
-	if timesClampDegree % 1 >= 0.5 then
-		timesClampDegree = math.ceil(timesClampDegree)
-	else
-		timesClampDegree = math.floor(timesClampDegree)
-	end
-
-	return Vector.FromAngle(clampDegrees * timesClampDegree):Resized(length)
-end
-
 
 -- Get a random sign
 function mod:RandomSign()
 	if mod:Random(1) == 0 then
 		return -1
-	else
-		return 1
 	end
-end
-
--- Get sign from 1 or 0 / true or false
-function mod:GetSign(value)
-	if (type(value) == "number" and value == 1) or (type(value) == "boolean" and value == true) then
-		return 1
-	else
-		return -1
-	end
+	return 1
 end
 
 
 -- Get a random index from a table
 function mod:RandomIndex(fromTable)
 	return fromTable[mod:Random(1, #fromTable)]
-end
-
-
--- Better shoot function
-function mod:FireProjectiles(entity, from, velocity, shootType, params, trailColor)
-	-- Start recording projectiles
-	IRF_RecordedProjectiles = {}
-    IRF_RecordProjectiles = true
-
-	-- Shoot projectiles
-	entity:FireProjectiles(from, velocity, shootType, params or ProjectileParams())
-
-	-- Stop recording
-	IRF_RecordProjectiles = false
-
-	-- Return the projectiles (seriously, why doesn't the vanilla one do it?)
-	if #IRF_RecordedProjectiles > 1 then
-		-- Apply trail
-		if trailColor then
-			for i, projectile in pairs(IRF_RecordedProjectiles) do
-				projectile:GetData().trailColor = trailColor
-			end
-		end
-		return IRF_RecordedProjectiles
-
-	else
-		-- Apply trail
-		if trailColor then
-			IRF_RecordedProjectiles[1]:GetData().trailColor = trailColor
-		end
-		return IRF_RecordedProjectiles[1]
-	end
-end
-
--- Better sound function
-function mod:PlaySound(entity, id, volume, pitch, cooldown, loop, pan)
-	volume = volume or 1
-	pitch = pitch or 1
-	cooldown = cooldown or 0
-	pan = pan or 0
-
-	if entity then
-		entity:ToNPC():PlaySound(id, volume, cooldown, loop, pitch)
-	else
-		SFXManager():Play(id, volume, cooldown, loop, pitch, pan)
-	end
 end
 
 
@@ -161,7 +165,8 @@ end
 
 -- Flip towards the entity's movement
 function mod:FlipTowardsMovement(entity, sprite, otherWay)
-	if (otherWay == true and entity.Velocity.X > 0) or (otherWay ~= true and entity.Velocity.X < 0) then
+	if (otherWay ~= true and entity.Velocity.X < 0)
+	or (otherWay == true and entity.Velocity.X > 0) then
 		sprite.FlipX = true
 	else
 		sprite.FlipX = false
@@ -171,7 +176,9 @@ end
 -- Flip towards the entity's target
 function mod:FlipTowardsTarget(entity, sprite, otherWay)
 	local target = entity:GetPlayerTarget()
-	if (otherWay == true and target.Position.X > entity.Position.X) or (otherWay ~= true and target.Position.X < entity.Position.X) then
+
+	if (otherWay ~= true and target.Position.X < entity.Position.X)
+	or (otherWay == true and target.Position.X > entity.Position.X) then
 		sprite.FlipX = true
 	else
 		sprite.FlipX = false
@@ -228,7 +235,7 @@ end
 
 
 
---[[ Movement functions ]]--
+--[[ Movement presets ]]--
 -- Wander around randomly
 function mod:WanderAround(entity, speed)
 	entity.Pathfinder:MoveRandomlyBoss(false)

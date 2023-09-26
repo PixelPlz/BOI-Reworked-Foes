@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	SpeedMultiplier = 1.5,
@@ -9,7 +9,7 @@ local Settings = {
 
 
 
-function mod:boneKnightInit(entity)
+function mod:BoneKnightInit(entity)
 	entity:Morph(EntityType.ENTITY_KNIGHT, 40, 0, entity:GetChampionColorIdx())
 
 	-- Bestiary fix
@@ -17,9 +17,9 @@ function mod:boneKnightInit(entity)
 	sprite:ReplaceSpritesheet(2, "")
 	sprite:LoadGraphics()
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.boneKnightInit, EntityType.ENTITY_BONE_KNIGHT)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.BoneKnightInit, EntityType.ENTITY_BONE_KNIGHT)
 
-function mod:boneKnightUpdate(entity)
+function mod:BoneKnightUpdate(entity)
 	if entity.Variant == 40 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -78,4 +78,4 @@ function mod:boneKnightUpdate(entity)
 		mod:LoopingOverlay(sprite, anim .. "_" .. sprite:GetAnimation())
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.boneKnightUpdate, EntityType.ENTITY_KNIGHT)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BoneKnightUpdate, EntityType.ENTITY_KNIGHT)

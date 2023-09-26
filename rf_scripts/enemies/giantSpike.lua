@@ -1,9 +1,9 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:giantSpikeInit(entity)
-	if entity.Variant == IRFentities.GiantSpike then
+function mod:GiantSpikeInit(entity)
+	if entity.Variant == mod.Entities.GiantSpike then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
 
@@ -22,10 +22,10 @@ function mod:giantSpikeInit(entity)
 		room:DestroyGrid(room:GetGridIndex(entity.Position), true)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.giantSpikeInit, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GiantSpikeInit, mod.Entities.Type)
 
-function mod:giantSpikeUpdate(entity)
-	if entity.Variant == IRFentities.GiantSpike then
+function mod:GiantSpikeUpdate(entity)
+	if entity.Variant == mod.Entities.GiantSpike then
 		local sprite = entity:GetSprite()
 		local target = nil
 
@@ -141,11 +141,11 @@ function mod:giantSpikeUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.giantSpikeUpdate, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GiantSpikeUpdate, mod.Entities.Type)
 
-function mod:giantSpikeCollide(entity, target, bool)
-	if entity.Variant == IRFentities.GiantSpike and entity.Parent and target.Index == entity.Parent.Index then
+function mod:GiantSpikeCollision(entity, target, bool)
+	if entity.Variant == mod.Entities.GiantSpike and entity.Parent and target.Index == entity.Parent.Index then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.giantSpikeCollide, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.GiantSpikeCollision, mod.Entities.Type)

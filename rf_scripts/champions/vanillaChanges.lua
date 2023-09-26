@@ -1,21 +1,21 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
 --[[ Blue Larry Jr. ]]--
-function mod:blueLarryJrUpdate(entity)
+function mod:BlueLarryJrUpdate(entity)
 	if entity.Variant == 0 and entity.SubType == 2 and not entity.Parent and entity:IsFrame(3, 0) then
-		mod:QuickCreep(EffectVariant.CREEP_SLIPPERY_BROWN, entity, entity.Position, 1, 120):GetSprite().Color = IRFcolors.TearTrail
+		mod:QuickCreep(EffectVariant.CREEP_SLIPPERY_BROWN, entity, entity.Position, 1, 120):GetSprite().Color = mod.Colors.TearTrail
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.blueLarryJrUpdate, EntityType.ENTITY_LARRYJR)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BlueLarryJrUpdate, EntityType.ENTITY_LARRYJR)
 
 
 
 --[[ Golden Hollow hitting a player ]]--
-function mod:goldenHollowHit(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:GoldenHollowHit(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.Type == EntityType.ENTITY_LARRYJR and damageSource.Variant == 1 and damageSource.Entity.SubType == 3 then
-		local player = target:ToPlayer()
+		local player = entity:ToPlayer()
 
 		-- Remove coins
 		local amount = math.min(player:GetNumCoins(), mod:Random(2, 4))
@@ -29,12 +29,12 @@ function mod:goldenHollowHit(target, damageAmount, damageFlags, damageSource, da
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.goldenHollowHit, EntityType.ENTITY_PLAYER)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.GoldenHollowHit, EntityType.ENTITY_PLAYER)
 
 
 
 --[[ Gray Monstro ]]--
-function mod:grayMonstroUpdate(entity)
+function mod:GrayMonstroUpdate(entity)
 	if entity.SubType == 2 then
 		local sprite = entity:GetSprite()
 
@@ -69,12 +69,12 @@ function mod:grayMonstroUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.grayMonstroUpdate, EntityType.ENTITY_MONSTRO)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GrayMonstroUpdate, EntityType.ENTITY_MONSTRO)
 
 
 
 --[[ Green Gurdy ]]--
-function mod:gurdyUpdate(entity)
+function mod:GreenGurdyUpdate(entity)
 	if entity.SubType == 1 and entity.State == NpcState.STATE_ATTACK and entity:GetSprite():GetFrame() == 0 then
 		-- Limit the amount of spawns
 		local enemyPoints = Isaac.CountEntities(nil, EntityType.ENTITY_ATTACKFLY, -1, -1)
@@ -86,9 +86,9 @@ function mod:gurdyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gurdyUpdate, EntityType.ENTITY_GURDY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GreenGurdyUpdate, EntityType.ENTITY_GURDY)
 
-function mod:greenGurdySpawns(entity)
+function mod:GreenGurdyReplaceSpawns(entity)
 	if entity.SpawnerType == EntityType.ENTITY_GURDY and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1
 	and ((entity.Type == EntityType.ENTITY_POOTER and entity.Variant == 0) or entity.Type == EntityType.ENTITY_BOIL) then
 		local spawn = {entity.Type, entity.Variant}
@@ -106,12 +106,12 @@ function mod:greenGurdySpawns(entity)
 		Isaac.Spawn(spawn[1], spawn[2], 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.greenGurdySpawns)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GreenGurdyReplaceSpawns)
 
 
 
 --[[ Black Frail ]]--
-function mod:blackFrailUpdate(entity)
+function mod:BlackFrailUpdate(entity)
 	if entity.Variant == 2 and entity.SubType == 1 and not entity.Parent then
 		local sprite = entity:GetSprite()
 
@@ -176,7 +176,7 @@ function mod:blackFrailUpdate(entity)
 					if entity:IsFrame(3, 0) then
 						local params = ProjectileParams()
 						params.Variant = ProjectileVariant.PROJECTILE_FIRE
-						params.Color = IRFcolors.BlueFire
+						params.Color = mod.Colors.BlueFire
 						params.BulletFlags = ProjectileFlags.FIRE
 						params.HeightModifier = -40
 						params.FallingSpeedModifier = 5
@@ -231,7 +231,7 @@ function mod:blackFrailUpdate(entity)
 			elseif sprite:GetFrame() == 45 then
 				local params = ProjectileParams()
 				params.Variant = ProjectileVariant.PROJECTILE_BONE
-				params.Color = IRFcolors.BlackBony
+				params.Color = mod.Colors.BlackBony
 				params.HeightModifier = -30
 				params.FallingAccelModifier = 1.25
 				params.FallingSpeedModifier = -15
@@ -255,20 +255,20 @@ function mod:blackFrailUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.blackFrailUpdate, EntityType.ENTITY_PIN)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BlackFrailUpdate, EntityType.ENTITY_PIN)
 
-function mod:frailDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 2 and damageSource.SpawnerType == EntityType.ENTITY_PIN then
+function mod:FrailDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == 2 and damageSource.SpawnerType == EntityType.ENTITY_PIN then
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.frailDMG, EntityType.ENTITY_PIN)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.FrailDMG, EntityType.ENTITY_PIN)
 
 
 
 --[[ Black Death ]]--
 -- Horse
-function mod:blackDeathUpdate(entity)
+function mod:BlackDeathUpdate(entity)
 	if entity.Variant == 20 then
 		-- Get the parent's subtype
 		if entity.SubType == 0 and entity.SpawnerEntity and entity.SpawnerEntity.SubType > 0 then
@@ -284,10 +284,10 @@ function mod:blackDeathUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.blackDeathUpdate, EntityType.ENTITY_DEATH)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BlackDeathUpdate, EntityType.ENTITY_DEATH)
 
--- Replace Red Maws with homing Scythes
-function mod:replaceRedMaws(entity)
+-- Replace Death's Red Maws with homing Scythes
+function mod:RedMawReplace(entity)
 	if entity.Variant == 1 and entity.SpawnerType == EntityType.ENTITY_DEATH and entity.SpawnerEntity then
 		entity:Remove()
 
@@ -297,12 +297,12 @@ function mod:replaceRedMaws(entity)
 		scythe:GetSprite():LoadGraphics()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.replaceRedMaws, EntityType.ENTITY_MAW)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.RedMawReplace, EntityType.ENTITY_MAW)
 
 
 
 --[[ Peep ]]--
-function mod:peepUpdate(entity)
+function mod:PeepUpdate(entity)
 	local sprite = entity:GetSprite()
 
 	if entity.Variant == 0 then
@@ -311,6 +311,7 @@ function mod:peepUpdate(entity)
 			entity.State = NpcState.STATE_ATTACK
 			sprite:Play("Attack01", true)
 			mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_SLOPPY_ROAR)
+
 
 		-- Remove Blue champions jump attack
 		elseif entity.SubType == 2 and entity.State == NpcState.STATE_JUMP and sprite:GetFrame() == 0 then
@@ -350,7 +351,7 @@ function mod:peepUpdate(entity)
 					entity:FireProjectiles(entity.Position, (entity:GetPlayerTarget().Position - entity.Position):Resized(10), 0, params)
 
 					mod:PlaySound(nil, SoundEffect.SOUND_TEARS_FIRE, 0.8)
-					mod:ShootEffect(entity, 5, Vector(0, -24), IRFcolors.TearEffect, 0.8, true)
+					mod:ShootEffect(entity, 5, Vector(0, -24), mod.Colors.TearEffect, 0.8, true)
 				end
 
 				if sprite:IsFinished() then
@@ -365,10 +366,10 @@ function mod:peepUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.peepUpdate, EntityType.ENTITY_PEEP)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.PeepUpdate, EntityType.ENTITY_PEEP)
 
 -- Blue effect colors
-function mod:bluePeepEffects(effect)
+function mod:BluePeepEffects(effect)
 	if effect.FrameCount <= 1 and effect.SpawnerType == EntityType.ENTITY_PEEP and effect.SpawnerVariant == 0 and effect.SpawnerEntity and effect.SpawnerEntity.SubType == 2 then
 		local sprite = effect:GetSprite()
 
@@ -379,38 +380,38 @@ function mod:bluePeepEffects(effect)
 			sprite:Play(anim, true)
 
 			effect.Variant = EffectVariant.CREEP_SLIPPERY_BROWN
-			sprite.Color = IRFcolors.TearTrail
+			sprite.Color = mod.Colors.TearTrail
 
 		-- Effects
 		elseif effect.Variant == EffectVariant.POOF02 then
-			sprite.Color = IRFcolors.TearEffect
+			sprite.Color = mod.Colors.TearEffect
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.bluePeepEffects)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.BluePeepEffects)
 
-function mod:bluePeepPissEffects(effect)
+function mod:BluePeepPissEffects(effect)
 	for i, peep in pairs(Isaac.FindByType(EntityType.ENTITY_PEEP, 0, 2, false, false)) do
 		if peep:ToNPC().State == NpcState.STATE_SUMMON and peep.Position:Distance(effect.Position) <= 40 and effect.FrameCount == 0 then -- Of course they don't have a spawner entity set...
-			effect:GetSprite().Color = IRFcolors.TearEffect
+			effect:GetSprite().Color = mod.Colors.TearEffect
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_RENDER, mod.bluePeepPissEffects, EffectVariant.BLOOD_EXPLOSION)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_RENDER, mod.BluePeepPissEffects, EffectVariant.BLOOD_EXPLOSION)
 
 
 
 --[[ Green Bloat ]]--
-function mod:bloatInit(entity)
+function mod:GreenBloatInit(entity)
 	-- Replace the eyes with Spitties
 	if entity.Variant == 11 and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
 		entity:Remove()
 		Isaac.Spawn(EntityType.ENTITY_SPITTY, 0, 0, entity.Position, Vector.Zero, entity)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.bloatInit, EntityType.ENTITY_PEEP)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GreenBloatInit, EntityType.ENTITY_PEEP)
 
-function mod:bloatUpdate(entity)
+function mod:GreenBloatUpdate(entity)
 	if entity.Variant == 1 and entity.SubType == 1 then
 		local sprite = entity:GetSprite()
 
@@ -438,7 +439,7 @@ function mod:bloatUpdate(entity)
 					worm.DepthOffset = entity.DepthOffset + 50
 					worm.PositionOffset = Vector(0, -40)
 
-					mod:ShootEffect(entity, 2, Vector(i * 12, -46), IRFcolors.GreenBlood, 1, true)
+					mod:ShootEffect(entity, 2, Vector(i * 12, -46), mod.Colors.GreenBlood, 1, true)
 				end
 			end
 
@@ -452,12 +453,12 @@ function mod:bloatUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.bloatUpdate, EntityType.ENTITY_PEEP)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GreenBloatUpdate, EntityType.ENTITY_PEEP)
 
 
 
 --[[ Gemini ]]--
-function mod:geminiUpdate(entity)
+function mod:GeminiUpdate(entity)
 	if entity.Variant == 0 and entity:IsFrame(3, 0) then
 		-- Green champion
 		if entity.SubType == 1 and entity.State == NpcState.STATE_ATTACK then
@@ -465,17 +466,17 @@ function mod:geminiUpdate(entity)
 
 		-- Blue champion
 		elseif entity.SubType == 2 then
-			mod:QuickCreep(EffectVariant.CREEP_SLIPPERY_BROWN, entity, entity.Position, 1, 150):GetSprite().Color = IRFcolors.TearTrail
+			mod:QuickCreep(EffectVariant.CREEP_SLIPPERY_BROWN, entity, entity.Position, 1, 150):GetSprite().Color = mod.Colors.TearTrail
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.geminiUpdate, EntityType.ENTITY_GEMINI)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GeminiUpdate, EntityType.ENTITY_GEMINI)
 
 
 
 --[[ The Haunt ]]--
 -- Lil Haunts
-function mod:lilHauntInit(entity)
+function mod:LilHauntInit(entity)
 	if entity.Variant == 10 and entity.SpawnerType == entity.Type and entity.SpawnerEntity and entity.SpawnerEntity.SubType > 0 then
 		local sprite = entity:GetSprite()
 		local suffix = {"black", "pink"}
@@ -486,10 +487,10 @@ function mod:lilHauntInit(entity)
 		sprite:LoadGraphics()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.lilHauntInit, EntityType.ENTITY_THE_HAUNT)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.LilHauntInit, EntityType.ENTITY_THE_HAUNT)
 
 -- Black Haunt spiders
-function mod:hauntUpdate(entity)
+function mod:HauntUpdate(entity)
 	if entity.Variant == 0 and entity.SubType == 1 and entity.State == NpcState.STATE_ATTACK2 then
 		local sprite = entity:GetSprite()
 
@@ -511,23 +512,23 @@ function mod:hauntUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hauntUpdate, EntityType.ENTITY_THE_HAUNT)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.HauntUpdate, EntityType.ENTITY_THE_HAUNT)
 
 
 
 --[[ Red Dingle ]]--
 -- Turn red poops into regular ones
-function mod:dingleDeath(entity)
+function mod:DingleDeath(entity)
 	if entity.SubType == 1 and Isaac.CountEntities(nil, entity.Type, entity.Variant, -1) <= 1 then
 		mod:RemoveRedPoops()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.dingleDeath, EntityType.ENTITY_DINGLE)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.DingleDeath, EntityType.ENTITY_DINGLE)
 
 
 
 --[[ Mega Maw ]]--
-function mod:championMegaMawUpdate(entity)
+function mod:ChampionMegaMawUpdate(entity)
 	local sprite = entity:GetSprite()
 
 	-- Red champion
@@ -560,7 +561,7 @@ function mod:championMegaMawUpdate(entity)
 				local params = ProjectileParams()
 				params.BulletFlags = (ProjectileFlags.SMART | ProjectileFlags.BURST8)
 				params.Scale = 2
-				mod:FireProjectiles(entity, entity.Position, (entity:GetPlayerTarget().Position - entity.Position):Resized(12), 0, params, IRFcolors.RagManPurple)
+				mod:FireProjectiles(entity, entity.Position, (entity:GetPlayerTarget().Position - entity.Position):Resized(12), 0, params, mod.Colors.RagManPurple)
 				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_5)
 			end
 
@@ -570,16 +571,16 @@ function mod:championMegaMawUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.championMegaMawUpdate, EntityType.ENTITY_MEGA_MAW)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ChampionMegaMawUpdate, EntityType.ENTITY_MEGA_MAW)
 
 
 
 --[[ Red Mega Fatty ]]--
--- Replace vomit attack
-function mod:redMegaFattyUpdate(entity)
+function mod:RedMegaFattyUpdate(entity)
 	if entity.SubType == 1 then
 		local sprite = entity:GetSprite()
 
+		-- Replace vomit attack with a working version
 		if entity.State == NpcState.STATE_ATTACK and sprite:GetFrame() == 0 then
 			entity.State = NpcState.STATE_ATTACK4
 
@@ -590,6 +591,7 @@ function mod:redMegaFattyUpdate(entity)
 				mod:PlaySound(entity, SoundEffect.SOUND_MEGA_PUKE)
 			end
 
+			-- Shooting
 			if sprite:WasEventTriggered("Shoot") and not sprite:WasEventTriggered("StopShooting") then
 				if entity.ProjectileDelay <= 0 then
 					local params = ProjectileParams()
@@ -613,20 +615,20 @@ function mod:redMegaFattyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.redMegaFattyUpdate, EntityType.ENTITY_MEGA_FATTY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.RedMegaFattyUpdate, EntityType.ENTITY_MEGA_FATTY)
 
 -- Turn red poops into regular ones
-function mod:megaFattyDeath(entity)
+function mod:RedMegaFattyDeath(entity)
 	if entity.SubType == 1 and Isaac.CountEntities(nil, entity.Type, entity.Variant, -1) <= 1 then
 		mod:RemoveRedPoops()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.megaFattyDeath, EntityType.ENTITY_MEGA_FATTY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.RedMegaFattyDeath, EntityType.ENTITY_MEGA_FATTY)
 
 
 
 --[[ The Cage ]]--
-function mod:cageChampionUpdate(entity)
+function mod:ChampionCageUpdate(entity)
 	local sprite = entity:GetSprite()
 
 	-- Green champion
@@ -683,7 +685,7 @@ function mod:cageChampionUpdate(entity)
 
 						-- Effect
 						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 4 - math.ceil(entity.I1 / 3), position, Vector.Zero, entity):GetSprite()
-						effect.Color = IRFcolors.CageGreenCreep
+						effect.Color = mod.Colors.CageGreenCreep
 						effect.Scale = Vector(0.85, 0.85)
 					end
 				end
@@ -704,21 +706,21 @@ function mod:cageChampionUpdate(entity)
 		sprite:Play("Puking", true)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.cageChampionUpdate, EntityType.ENTITY_CAGE)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ChampionCageUpdate, EntityType.ENTITY_CAGE)
 
 -- Green champion creep
-function mod:cageCreepUpdate(effect)
+function mod:CageCreepUpdate(effect)
 	if effect.SpawnerType == EntityType.ENTITY_CAGE and effect.SpawnerEntity and effect.SpawnerEntity.SubType == 1 then
 		effect:GetSprite():Load("gfx/1000.022_creep (red).anm2", true)
-		effect:GetSprite().Color = IRFcolors.CageGreenCreep
+		effect:GetSprite().Color = mod.Colors.CageGreenCreep
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.cageCreepUpdate, EffectVariant.CREEP_GREEN)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.CageCreepUpdate, EffectVariant.CREEP_GREEN)
 
 
 
 --[[ Replace Dank Squirts from black Brownie with black Dingle ]]--
-function mod:brownieDeath(entity)
+function mod:BrownieDeath(entity)
 	if entity.SubType == 1 and entity.State == NpcState.STATE_SPECIAL and entity:GetSprite():IsFinished() then
 		local dingle = Isaac.Spawn(EntityType.ENTITY_DINGLE, 0, 2, entity.Position, Vector.Zero, entity):ToNPC()
 		dingle:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
@@ -727,28 +729,29 @@ function mod:brownieDeath(entity)
 		dingle:Update()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.brownieDeath, EntityType.ENTITY_BROWNIE)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.BrownieDeath, EntityType.ENTITY_BROWNIE)
 
-function mod:replaceDankSquirts(entity)
+function mod:RemoveDankSquirts(entity)
 	if entity.Variant == 1 and entity.SpawnerType == EntityType.ENTITY_BROWNIE then
 		entity:Remove()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.replaceDankSquirts, EntityType.ENTITY_SQUIRT)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.RemoveDankSquirts, EntityType.ENTITY_SQUIRT)
 
 
 
 --[[ Little Horn ]]--
 -- Prevent unfair damage from hot troll bombs
-function mod:hotTrollBombHit(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:HotTrollBombHit(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.Type == EntityType.ENTITY_BOMB and damageSource.Variant == BombVariant.BOMB_HOT and damageSource.Entity:GetSprite():IsPlaying("BombReturn") then
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.hotTrollBombHit, EntityType.ENTITY_PLAYER)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.HotTrollBombHit, EntityType.ENTITY_PLAYER)
+
 
 -- Black champion
-function mod:littleHornUpdate(entity)
+function mod:LittleHornUpdate(entity)
 	if entity.Variant == 0 and entity.SubType == 2 then
 		local sprite = entity:GetSprite()
 
@@ -770,19 +773,19 @@ function mod:littleHornUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.littleHornUpdate, EntityType.ENTITY_LITTLE_HORN)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.LittleHornUpdate, EntityType.ENTITY_LITTLE_HORN)
 
 -- Shadow pitfalls
-function mod:shadowPitFallInit(entity)
+function mod:ShadowPitInit(entity)
 	if entity.SpawnerEntity and entity.SpawnerType == EntityType.ENTITY_LITTLE_HORN and entity.SpawnerEntity.SubType == 2 then
 		entity:GetSprite():Load("gfx/291.000_pitfall_shadow.anm2", true)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.shadowPitFallInit, EntityType.ENTITY_PITFALL)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ShadowPitInit, EntityType.ENTITY_PITFALL)
 
-function mod:shadowPitFallUpdate(entity)
+function mod:ShadowPitUpdate(entity)
 	if entity:GetData().skipAppear and entity.State == 2 then
 		entity:GetSprite():SetFrame(10)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.shadowPitFallUpdate, EntityType.ENTITY_PITFALL)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ShadowPitUpdate, EntityType.ENTITY_PITFALL)

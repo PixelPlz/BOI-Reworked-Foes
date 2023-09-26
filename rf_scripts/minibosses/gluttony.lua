@@ -1,10 +1,10 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:gluttonyInit(entity)
+function mod:GluttonyInit(entity)
 	if entity.Variant == 0 and entity.SubType == 1 then
-		entity.SplatColor = IRFcolors.GreenBlood
+		entity.SplatColor = mod.Colors.GreenBlood
 
 	-- Replace Gluttony worm with regular one
 	elseif entity.Variant == 22 then
@@ -14,9 +14,9 @@ function mod:gluttonyInit(entity)
 		entity:Morph(EntityType.ENTITY_VIS, 22, 0, entity:GetChampionColorIdx())
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.gluttonyInit, EntityType.ENTITY_GLUTTONY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GluttonyInit, EntityType.ENTITY_GLUTTONY)
 
-function mod:gluttonyUpdate(entity)
+function mod:GluttonyUpdate(entity)
 	if mod:CheckValidMiniboss(entity) == true then
 		local sprite = entity:GetSprite()
 
@@ -106,27 +106,27 @@ function mod:gluttonyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.gluttonyUpdate, EntityType.ENTITY_GLUTTONY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GluttonyUpdate, EntityType.ENTITY_GLUTTONY)
 
-function mod:gluttonyDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:GluttonyDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.SpawnerType == EntityType.ENTITY_GLUTTONY and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.gluttonyDMG, EntityType.ENTITY_GLUTTONY)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.GluttonyDMG, EntityType.ENTITY_GLUTTONY)
 
 
 
-function mod:championGluttonyReward(entity)
+function mod:ChampionGluttonyReward(entity)
 	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_GLUTTONY and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
 		-- Infestation
 		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= CollectibleType.COLLECTIBLE_INFESTATION then
 			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_INFESTATION, false, true, false)
-		
+
 		-- Rotten hearts
 		elseif entity.Variant == PickupVariant.PICKUP_HEART and entity.SubType >= HeartSubType.HEART_SOUL and entity.SubType ~= HeartSubType.HEART_ROTTEN then
 			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_HEART, HeartSubType.HEART_ROTTEN, false, true, false)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championGluttonyReward)
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.ChampionGluttonyReward)

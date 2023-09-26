@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	MoveSpeed = 2,
@@ -11,7 +11,7 @@ local Settings = {
 
 
 
-function mod:skinnyInit(entity)
+function mod:SkinnyInit(entity)
 	if entity.Variant <= 1 then
 		entity.I2 = math.random(Settings.SoundTimer[1], Settings.SoundTimer[2])
 
@@ -21,9 +21,9 @@ function mod:skinnyInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.skinnyInit, EntityType.ENTITY_SKINNY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.SkinnyInit, EntityType.ENTITY_SKINNY)
 
-function mod:skinnyUpdate(entity)
+function mod:SkinnyUpdate(entity)
 	if entity.Variant <= 1 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -51,11 +51,11 @@ function mod:skinnyUpdate(entity)
 			else
 				mod:LoopingOverlay(sprite, "HeadAngry")
 
-				-- Creep
+				-- Skinny creep
 				if entity.Variant == 0 and entity:IsFrame(4, 0) then
 					mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 0.5, Settings.CreepTime)
 
-				-- Rotty projectile
+				-- Rotty attack
 				elseif entity.Variant == 1 then
 					if entity.ProjectileCooldown <= 0 then
 						if entity.Position:Distance(target.Position) <= 220 and Game():GetRoom():CheckLine(entity.Position, target.Position, 3, 0, false, false) then
@@ -89,6 +89,12 @@ function mod:skinnyUpdate(entity)
 		-- 1st phase
 		else
 			sprite:SetOverlayFrame("Head", sprite:GetFrame())
+
+			-- Transition
+			if entity.HitPoints <= (entity.MaxHitPoints / 3) * 2 then
+				entity.State = NpcState.STATE_SPECIAL
+				sprite:PlayOverlay("HeadTransition", true)
+			end
 		end
 
 
@@ -96,24 +102,19 @@ function mod:skinnyUpdate(entity)
 		mod:ChasePlayer(entity, speed)
 		entity:AnimWalkFrame("WalkHori", "WalkVert", 0.1)
 
+
 		-- Sounds
 		if entity.I2 <= 0 then
 			local sound = SoundEffect.SOUND_ANGRY_GURGLE
 			if entity.Variant == 1 and entity.State ~= NpcState.STATE_MOVE then
 				sound = SoundEffect.SOUND_MONSTER_ROAR_1
 			end
-
 			mod:PlaySound(entity, sound)
+
 			entity.I2 = math.random(Settings.SoundTimer[1], Settings.SoundTimer[2])
+
 		else
 			entity.I2 = entity.I2 - 1
-		end
-
-
-		-- Transition
-		if entity.State == NpcState.STATE_MOVE and entity.HitPoints <= ((entity.MaxHitPoints / 3) * 2) then
-			entity.State = NpcState.STATE_SPECIAL
-			sprite:PlayOverlay("HeadTransition", true)
 		end
 
 
@@ -126,29 +127,32 @@ function mod:skinnyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.skinnyUpdate, EntityType.ENTITY_SKINNY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.SkinnyUpdate, EntityType.ENTITY_SKINNY)
 
-function mod:rottyDeath(entity)
+function mod:SkinnyDeath(entity)
 	if entity.Variant == 1 then
 		for i = 0, 1 do
-			Isaac.Spawn(EntityType.ENTITY_ATTACKFLY, 0, 0, entity.Position, mod:RandomVector(5), entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+			Isaac.Spawn(EntityType.ENTITY_ATTACKFLY, 0, 0, entity.Position, mod:RandomVector(4), entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.rottyDeath, EntityType.ENTITY_SKINNY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.SkinnyDeath, EntityType.ENTITY_SKINNY)
 
 -- Turn Skinnies into Crispies when burnt
-function mod:skinnyIgnite(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if Game():GetRoom():HasWater() == false and target.Variant == 0 and damageFlags & DamageFlag.DAMAGE_FIRE > 0 then
-		target:ToNPC():Morph(target.Type, 2, 0, target:ToNPC():GetChampionColorIdx())
-		local sprite = target:GetSprite()
+function mod:SkinnyIgnite(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if Game():GetRoom():HasWater() == false -- Not in a flooded room
+	and entity.Variant == 0 and (damageFlags & DamageFlag.DAMAGE_FIRE > 0) then
+		local entity = entity:ToNPC()
+		local sprite = entity:GetSprite()
+
+		entity:Morph(entity.Type, 2, 0, entity:GetChampionColorIdx())
 
 		-- Unique appearance for ones that took off their skin already
-		if target:ToNPC().State == NpcState.STATE_SPECIAL or target:ToNPC().State == NpcState.STATE_ATTACK then
-			target:ToNPC().State = NpcState.STATE_MOVE
+		if entity.State == NpcState.STATE_SPECIAL or entity.State == NpcState.STATE_ATTACK then
+			entity.State = NpcState.STATE_MOVE
 
 			local suffix = ""
-			if target:ToNPC():IsChampion() then
+			if entity:IsChampion() then
 				suffix = "_champion"
 			end
 
@@ -161,9 +165,9 @@ function mod:skinnyIgnite(target, damageAmount, damageFlags, damageSource, damag
 			sprite:PlayOverlay("Head", true)
 		end
 
-		target:Update()
+		entity:Update()
 		mod:PlaySound(nil, SoundEffect.SOUND_FIREDEATH_HISS)
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.skinnyIgnite, EntityType.ENTITY_SKINNY)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.SkinnyIgnite, EntityType.ENTITY_SKINNY)

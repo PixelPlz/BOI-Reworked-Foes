@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	HeadSmashSpeed = 16,
@@ -9,12 +9,12 @@ local Settings = {
 
 
 
-function mod:daddyLongLegsInit(entity)
+function mod:DaddyLongLegsInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.daddyLongLegsInit, EntityType.ENTITY_DADDYLONGLEGS)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.DaddyLongLegsInit, EntityType.ENTITY_DADDYLONGLEGS)
 
-function mod:daddyLongLegsUpdate(entity)
+function mod:DaddyLongLegsUpdate(entity)
 	if entity.Variant == 0 then
 		local sprite = entity:GetSprite()
 		local data = entity:GetData()
@@ -73,11 +73,11 @@ function mod:daddyLongLegsUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.daddyLongLegsUpdate, EntityType.ENTITY_DADDYLONGLEGS)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DaddyLongLegsUpdate, EntityType.ENTITY_DADDYLONGLEGS)
 
-function mod:daddyLongLegsCollide(entity, target, bool)
+function mod:DaddyLongLegsCollision(entity, target, bool)
 	if target.Type == EntityType.ENTITY_DADDYLONGLEGS or target.Type == EntityType.ENTITY_BLISTER or target.Type == EntityType.ENTITY_BOIL then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.daddyLongLegsCollide, EntityType.ENTITY_DADDYLONGLEGS)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.DaddyLongLegsCollision, EntityType.ENTITY_DADDYLONGLEGS)

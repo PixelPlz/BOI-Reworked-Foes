@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	NewHealth = 800,
@@ -9,7 +9,7 @@ local Settings = {
 
 
 
-function mod:satanInit(entity)
+function mod:SatanInit(entity)
 	entity.MaxHitPoints = Settings.NewHealth
 	entity.HitPoints = entity.MaxHitPoints
 
@@ -18,11 +18,10 @@ function mod:satanInit(entity)
 		entity.ProjectileCooldown = Settings.DoubleStompCooldown
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.satanInit, EntityType.ENTITY_SATAN)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.SatanInit, EntityType.ENTITY_SATAN)
 
-function mod:satanUpdate(entity)
+function mod:SatanUpdate(entity)
 	local sprite = entity:GetSprite()
-	local target = entity:GetPlayerTarget()
 
 
 	--[[ 1st phase ]]--
@@ -36,7 +35,7 @@ function mod:satanUpdate(entity)
 
 			local params = ProjectileParams()
 			params.Variant = ProjectileVariant.PROJECTILE_HUSH
-			params.Color = IRFcolors.BrimShot
+			params.Color = mod.Colors.BrimShot
 
 			params.Scale = 1.25
 			params.CircleAngle = 0.2
@@ -131,10 +130,10 @@ function mod:satanUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.satanUpdate, EntityType.ENTITY_SATAN)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.SatanUpdate, EntityType.ENTITY_SATAN)
 
 -- Replace Kamikaze Leeches
-function mod:kLeechInit(entity)
+function mod:KamikazeLeechReplace(entity)
 	if entity.Variant == 1 and entity.SpawnerType == EntityType.ENTITY_SATAN then
 		entity:Remove()
 
@@ -144,4 +143,4 @@ function mod:kLeechInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.kLeechInit, EntityType.ENTITY_LEECH)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.KamikazeLeechReplace, EntityType.ENTITY_LEECH)

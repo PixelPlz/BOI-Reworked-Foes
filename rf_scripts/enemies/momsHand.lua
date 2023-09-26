@@ -1,25 +1,26 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
--- Mom's Hand --
-function mod:momsHandUpdate(entity)
+--[[ Mom's Hand ]]--
+function mod:MomsHandUpdate(entity)
 	-- Go to previous room if Isaac is grabbed
 	if entity.State == NpcState.STATE_SPECIAL and entity.I1 == 1 then
 		if entity.StateFrame == 1 then
 			mod:PlaySound(entity, SoundEffect.SOUND_MOM_VOX_EVILLAUGH)
 
 		elseif entity.StateFrame == 25 then
-			Game():StartRoomTransition(Game():GetLevel():GetPreviousRoomIndex(), -1, RoomTransitionAnim.FADE, nil, -1)
+			local previousRoom = Game():GetLevel():GetPreviousRoomIndex()
+			Game():StartRoomTransition(previousRoom, -1, RoomTransitionAnim.FADE, nil, -1)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.momsHandUpdate, EntityType.ENTITY_MOMS_HAND)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MomsHandUpdate, EntityType.ENTITY_MOMS_HAND)
 
 
 
--- Mom's Dead Hand --
-function mod:momsDeadHandUpdate(entity)
+--[[ Mom's Dead Hand ]]--
+function mod:MomsDeadHandUpdate(entity)
 	local sprite = entity:GetSprite()
 
 	-- Replace appear sound
@@ -37,6 +38,10 @@ function mod:momsDeadHandUpdate(entity)
 			end
 		end
 
+		-- New rock waves
+		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SHOCKWAVE, 0, entity.Position, Vector.Zero, entity):ToEffect().Timeout = 10
+		Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
+
 
 		-- Projectiles
 		local params = ProjectileParams()
@@ -52,28 +57,23 @@ function mod:momsDeadHandUpdate(entity)
 		end
 
 		entity:FireProjectiles(entity.Position, Vector(11, 8), 8, params)
-
-
-		-- New shockwave
-		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SHOCKWAVE, 0, entity.Position, Vector.Zero, entity):ToEffect().Timeout = 10
-		Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.momsDeadHandUpdate, EntityType.ENTITY_MOMS_DEAD_HAND)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MomsDeadHandUpdate, EntityType.ENTITY_MOMS_DEAD_HAND)
 
-function mod:momsDeadHandDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if damageFlags & DamageFlag.DAMAGE_CRUSH > 0 then
+function mod:MomsDeadHandDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if (damageFlags & DamageFlag.DAMAGE_CRUSH > 0) then
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.momsDeadHandDMG, EntityType.ENTITY_MOMS_DEAD_HAND)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.MomsDeadHandDMG, EntityType.ENTITY_MOMS_DEAD_HAND)
 
-function mod:momsDeadHandDeath(entity, target, bool)
-	-- Remove spiders
+function mod:MomsDeadHandDeath(entity, target, bool)
+	-- Remove the spiders
 	for i, spider in pairs(Isaac.FindByType(EntityType.ENTITY_SPIDER, -1, -1, false, false)) do
 		if spider.SpawnerType == EntityType.ENTITY_MOMS_DEAD_HAND then
 			spider:Remove()
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.momsDeadHandDeath, EntityType.ENTITY_MOMS_DEAD_HAND)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.MomsDeadHandDeath, EntityType.ENTITY_MOMS_DEAD_HAND)

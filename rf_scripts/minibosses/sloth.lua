@@ -1,8 +1,8 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:slothUpdate(entity)
+function mod:SlothUpdate(entity)
 	if mod:CheckValidMiniboss(entity) == true then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -12,11 +12,10 @@ function mod:slothUpdate(entity)
 			entity.State = entity.State + 2
 
 
-		-- Enemy spawning attack
+		-- Spawn
 		elseif entity.State == NpcState.STATE_ATTACK3 then
 			if sprite:GetFrame() == 4 then
 				local vector = (target.Position - entity.Position):Normalized()
-				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_2)
 
 				-- Flies / spiders
 				if entity.Variant == 0 then
@@ -41,6 +40,8 @@ function mod:slothUpdate(entity)
 					maggot.V1 = chargeVector
 					mod:PlaySound(maggot, SoundEffect.SOUND_MAGGOTCHARGE)
 				end
+
+				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_2)
 			end
 
 			if sprite:IsFinished() then
@@ -48,26 +49,28 @@ function mod:slothUpdate(entity)
 			end
 
 
-		-- Projectile attack
+		-- Shoot
 		elseif entity.State == NpcState.STATE_ATTACK4 then
 			if sprite:GetFrame() == 4 then
-				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_4)
-
 				local params = ProjectileParams()
+
 				-- White champion
 				if entity.SubType == 1 then
-					params.Color = IRFcolors.WhiteShot
+					params.Color = mod.Colors.WhiteShot
 					params.Scale = 1.1
-					entity:FireBossProjectiles(9, target.Position, 7, params):GetData().whiteSlothCreep = true
+					entity:FireBossProjectiles(9, target.Position, 7, params)
 
+				-- Regular
 				else
 					params.FallingAccelModifier = 1.25
 					params.FallingSpeedModifier = -20
 					params.BulletFlags = ProjectileFlags.EXPLODE
-					params.Color = IRFcolors.Ipecac
+					params.Color = mod.Colors.Ipecac
 					params.Scale = 1.5
 					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(7), 0, params)
 				end
+
+				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_4)
 			end
 
 			if sprite:IsFinished() or (entity.Variant == 1 and entity.I1 == 0 and sprite:GetFrame() == 19) then
@@ -85,46 +88,52 @@ function mod:slothUpdate(entity)
 		end
 
 
+		-- Champion blood color
 		if entity:HasMortalDamage() and entity.SubType == 1 then
-			entity.SplatColor = IRFcolors.WhiteShot
+			entity.SplatColor = mod.Colors.WhiteShot
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.slothUpdate, EntityType.ENTITY_SLOTH)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.SlothUpdate, EntityType.ENTITY_SLOTH)
 
-function mod:slothCollision(entity, target, cock)
+function mod:SlothCollision(entity, target, bool)
 	if target.SpawnerType == EntityType.ENTITY_SLOTH then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.slothCollision, EntityType.ENTITY_SLOTH)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.SlothCollision, EntityType.ENTITY_SLOTH)
 
-function mod:slothDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:SlothDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.SpawnerType == EntityType.ENTITY_SLOTH and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.slothDMG, EntityType.ENTITY_SLOTH)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.SlothDMG, EntityType.ENTITY_SLOTH)
 
-function mod:slothProjectileUpdate(projectile)
-	if mod:CheckForRev() == false and projectile.SpawnerType == EntityType.ENTITY_SLOTH and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 and projectile:IsDead() then
+
+
+-- Champion Sloth creep projectile
+function mod:ChampionSlothCreepProjectile(projectile)
+	if mod:CheckForRev() == false and projectile.SpawnerType == EntityType.ENTITY_SLOTH
+	and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1
+	and projectile:IsDead() then
 		mod:QuickCreep(EffectVariant.CREEP_WHITE, projectile.SpawnerEntity, projectile.Position, 1.25)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.slothProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.ChampionSlothCreepProjectile, ProjectileVariant.PROJECTILE_NORMAL)
 
 
 
-function mod:championSlothReward(entity)
+function mod:ChampionSlothReward(entity)
 	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_SLOTH and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
 		-- Spider Bite
 		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= CollectibleType.COLLECTIBLE_SPIDER_BITE then
 			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_SPIDER_BITE, false, true, false)
-		
+
 		-- Pills
 		elseif entity.Variant == PickupVariant.PICKUP_TAROTCARD then
 			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_PILL, 0, false, true, false)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championSlothReward)
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.ChampionSlothReward)

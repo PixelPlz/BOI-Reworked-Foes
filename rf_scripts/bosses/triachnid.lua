@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	NewHealth = 700,
@@ -24,7 +24,7 @@ local Settings = {
 
 
 --[[ Head and feet ]]--
-function mod:triachnidInit(entity)
+function mod:TriachnidInit(entity)
 	if entity.Variant == 1 then
 		entity.MaxHitPoints = Settings.NewHealth
 		entity.HitPoints = entity.MaxHitPoints
@@ -56,15 +56,15 @@ function mod:triachnidInit(entity)
 
 
 			-- Joint
-			local joint = Isaac.Spawn(EntityType.ENTITY_EFFECT, IRFentities.TriachnidLeg, IRFentities.TriachnidJoint, entity.Position, Vector.Zero, entity):ToEffect()
+			local joint = Isaac.Spawn(EntityType.ENTITY_EFFECT, mod.Entities.TriachnidLeg, mod.Entities.TriachnidJoint, entity.Position, Vector.Zero, entity):ToEffect()
 			joint:GetData().index = i
 			joint.Parent = entity
 			joint.DepthOffset = 200
 
 
 			-- Leg segments
-			local upperLeg = Isaac.Spawn(EntityType.ENTITY_EFFECT, IRFentities.TriachnidLeg, IRFentities.TriachnidUpperLeg, entity.Position, Vector.Zero, entity):ToEffect()
-			local lowerLeg = Isaac.Spawn(EntityType.ENTITY_EFFECT, IRFentities.TriachnidLeg, IRFentities.TriachnidLowerLeg, entity.Position, Vector.Zero, entity):ToEffect()
+			local upperLeg = Isaac.Spawn(EntityType.ENTITY_EFFECT, mod.Entities.TriachnidLeg, mod.Entities.TriachnidUpperLeg, entity.Position, Vector.Zero, entity):ToEffect()
+			local lowerLeg = Isaac.Spawn(EntityType.ENTITY_EFFECT, mod.Entities.TriachnidLeg, mod.Entities.TriachnidLowerLeg, entity.Position, Vector.Zero, entity):ToEffect()
 
 			upperLeg:GetData().index = i
 			upperLeg.Parent = entity
@@ -101,9 +101,9 @@ function mod:triachnidInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.triachnidInit, EntityType.ENTITY_DADDYLONGLEGS)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.TriachnidInit, EntityType.ENTITY_DADDYLONGLEGS)
 
-function mod:triachnidUpdate(entity)
+function mod:TriachnidUpdate(entity)
 	if entity.Variant == 1 or entity.Variant == 10 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -176,7 +176,7 @@ function mod:triachnidUpdate(entity)
 					sprite:Play("HeadLiftStart", true)
 					entity.StateFrame = 0
 					entity.I2 = 3
-					mod:PlaySound(entity, IRFsounds.TriachnidHappy, 1.2)
+					mod:PlaySound(entity, mod.Sounds.TriachnidHappy, 1.2)
 
 
 				else
@@ -317,7 +317,7 @@ function mod:triachnidUpdate(entity)
 						-- Projectiles
 						local params = ProjectileParams()
 						params.Scale = 1 + mod:Random(10, 80) / 100
-						params.Color = IRFcolors.WhiteShot
+						params.Color = mod.Colors.WhiteShot
 
 						local angle = entity.V1.X + entity.I2 * 666
 						entity:FireProjectiles(entity.Position, Vector.FromAngle(angle):Resized(mod:Random(6, 12)), 0, params)
@@ -328,6 +328,8 @@ function mod:triachnidUpdate(entity)
 							mod:QuickCreep(EffectVariant.CREEP_WHITE, entity, entity.Position + mod:RandomVector(mod:Random(50)), 2 + mod:Random(50) / 100, 240)
 							mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.75)
 						end
+
+						-- Cobwebs
 						if entity.I2 % 5 == 0 then
 							Isaac.GridSpawn(GridEntityType.GRID_SPIDERWEB, 0, entity.Position + mod:RandomVector(10 + entity.I2 * 3), false)
 						end
@@ -471,7 +473,7 @@ function mod:triachnidUpdate(entity)
 							local pos = entity.TargetPosition + Vector.FromAngle(-90 + data.sortedLegs[1]:GetData().index * 120):Resized(80)
 							--local pos = entity.Position + (target.Position - entity.Position):Resized(200) + Vector.FromAngle(-90 + data.sortedLegs[1]:GetData().index * 120):Resized(80)
 
-							startLegMove(data.sortedLegs[1], pos, true)
+							startLegMove(data.sortedLegs[1], pos)
 							data.lastLeg = data.sortedLegs[1]:GetData().index
 							table.remove(data.sortedLegs, 1)
 
@@ -532,7 +534,7 @@ function mod:triachnidUpdate(entity)
 
 						-- Projectiles + creep
 						local params = ProjectileParams()
-						params.Color = IRFcolors.WhiteShot
+						params.Color = mod.Colors.WhiteShot
 						params.CircleAngle = 0
 						entity:FireProjectiles(entity.Position, Vector(10, 16), 9, params)
 
@@ -545,7 +547,7 @@ function mod:triachnidUpdate(entity)
 						-- Effects
 						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity)
 						effect.DepthOffset = entity.DepthOffset + 10
-						effect:GetSprite().Color = IRFcolors.WhiteShot
+						effect:GetSprite().Color = mod.Colors.WhiteShot
 
 						mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.2)
 						mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.2)
@@ -561,7 +563,7 @@ function mod:triachnidUpdate(entity)
 
 						-- Damage enemies he slams
 						for i, enemy in pairs(Isaac.FindInRadius(entity.Position, entity.Size * entity.Scale + 15, EntityPartition.ENEMY)) do
-							if enemy.Type ~= entity.Type and enemy.EntityCollisionClass >= 3 and enemy.Visible == true and enemy:IsActiveEnemy() == true then
+							if enemy.Type ~= entity.Type and enemy.EntityCollisionClass >= 3 and enemy:IsActiveEnemy() == true then
 								enemy:TakeDamage(Settings.StompDamage * 2, DamageFlag.DAMAGE_CRUSH, EntityRef(entity.Parent), 0)
 							end
 						end
@@ -600,7 +602,7 @@ function mod:triachnidUpdate(entity)
 			elseif entity.State == NpcState.STATE_SUMMON then
 				if sprite:IsEventTriggered("Vomit") then
 					local params = ProjectileParams()
-					params.Variant = IRFentities.EggSackProjectile
+					params.Variant = mod.Entities.EggSackProjectile
 					params.FallingAccelModifier = 1.5
 					params.FallingSpeedModifier = -15
 					params.HeightModifier = Settings.HeadHeight + 40
@@ -636,7 +638,7 @@ function mod:triachnidUpdate(entity)
 
 			-- Death sound
 			if entity:HasMortalDamage() then
-				mod:PlaySound(entity, IRFsounds.TriachnidHurt, 1.2)
+				mod:PlaySound(entity, mod.Sounds.TriachnidHurt, 1.2)
 			end
 
 
@@ -776,14 +778,14 @@ function mod:triachnidUpdate(entity)
 
 							-- Projectiles + creep
 							local params = ProjectileParams()
-							params.Color = IRFcolors.WhiteShot
+							params.Color = mod.Colors.WhiteShot
 							entity:FireProjectiles(entity.Position, Vector(10, 8), 8, params)
 							mod:QuickCreep(EffectVariant.CREEP_WHITE, entity, entity.Position, 2)
 
 							-- Effects
 							local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity)
 							effect.DepthOffset = entity.DepthOffset + 10
-							effect:GetSprite().Color = IRFcolors.WhiteShot
+							effect:GetSprite().Color = mod.Colors.WhiteShot
 
 							mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS)
 							mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND)
@@ -794,7 +796,7 @@ function mod:triachnidUpdate(entity)
 
 							-- Damage enemies he slams
 							for i, enemy in pairs(Isaac.FindInRadius(entity.Position, entity.Size * entity.Scale + 15, EntityPartition.ENEMY)) do
-								if enemy.Type ~= entity.Type and enemy.EntityCollisionClass >= 3 and enemy.Visible == true and enemy:IsActiveEnemy() == true then
+								if enemy.Type ~= entity.Type and enemy.EntityCollisionClass >= 3 and enemy:IsActiveEnemy() == true then
 									enemy:TakeDamage(Settings.StompDamage, DamageFlag.DAMAGE_CRUSH, EntityRef(entity.Parent), 0)
 								end
 							end
@@ -837,24 +839,24 @@ function mod:triachnidUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.triachnidUpdate, EntityType.ENTITY_DADDYLONGLEGS)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.TriachnidUpdate, EntityType.ENTITY_DADDYLONGLEGS)
 
-function mod:triachnidDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 10 and target.Parent then
+function mod:TriachnidDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == 10 and entity.Parent then
 		local onePercent = damageAmount / 100
 		local reduction = onePercent * Settings.LegDamageReduction
 
-		target.Parent:TakeDamage(damageAmount - reduction, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
-		target:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+		entity.Parent:TakeDamage(damageAmount - reduction, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
+		entity:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.triachnidDMG, EntityType.ENTITY_DADDYLONGLEGS)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.TriachnidDMG, EntityType.ENTITY_DADDYLONGLEGS)
 
 
 
 --[[ Legs ]]--			Heavily based off of Dusk's elbow code from Fiend Folio (thanks Erfly!)
-function mod:triachnidRender(entity, offset)
+function mod:TriachnidRender(entity, offset)
 	if not Game():IsPaused() and entity.Variant == 1 and entity:GetData().legs then
 		local data = entity:GetData()
 		local sprite = entity:GetSprite()
@@ -944,16 +946,16 @@ function mod:triachnidRender(entity, offset)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.triachnidRender, EntityType.ENTITY_DADDYLONGLEGS)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.TriachnidRender, EntityType.ENTITY_DADDYLONGLEGS)
 
 -- Update leg segments
-function mod:triachnidLegSegmentUpdate(entity)
+function mod:TriachnidLegSegmentUpdate(entity)
 	if entity.SpawnerEntity then
 		local sprite = entity:GetSprite()
 		local data = entity:GetData()
 
 		-- Joint
-		if entity.SubType == IRFentities.TriachnidJoint then
+		if entity.SubType == mod.Entities.TriachnidJoint then
 			mod:LoopingAnim(sprite, "Joint")
 
 
@@ -966,13 +968,13 @@ function mod:triachnidLegSegmentUpdate(entity)
 				joint = entity.SpawnerEntity:GetData().legs[data.index].joint.Position
 			end
 
-			if joint and ((entity.SubType == IRFentities.TriachnidUpperLeg and entity.Parent) or (entity.SubType == IRFentities.TriachnidLowerLeg and entity.Child)) then
+			if joint and ((entity.SubType == mod.Entities.TriachnidUpperLeg and entity.Parent) or (entity.SubType == mod.Entities.TriachnidLowerLeg and entity.Child)) then
 				-- Get direction
 				local flippedness = sprite.FlipX == true and -1 or 1
 
 				-- Get where to point towards
 				local endpos = entity.Parent.Position + entity.Parent.PositionOffset + Settings.HeadOffset
-				if entity.SubType == IRFentities.TriachnidLowerLeg then
+				if entity.SubType == mod.Entities.TriachnidLowerLeg then
 					endpos = entity.Child.Position + entity.Child.PositionOffset + Settings.FootOffset
 				end
 
@@ -987,4 +989,4 @@ function mod:triachnidLegSegmentUpdate(entity)
 		entity:Remove()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.triachnidLegSegmentUpdate, IRFentities.TriachnidLeg)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.TriachnidLegSegmentUpdate, mod.Entities.TriachnidLeg)

@@ -1,16 +1,16 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:blisterInit(entity)
+function mod:BlisterInit(entity)
 	if entity.Variant == 0 and entity.SubType == 0 then
 		entity.StateFrame = mod:Random(15, 45)
 		entity.ProjectileCooldown = mod:Random(1, 2)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blisterInit, EntityType.ENTITY_BLISTER)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.BlisterInit, EntityType.ENTITY_BLISTER)
 
-function mod:blisterUpdate(entity)
+function mod:BlisterUpdate(entity)
 	if entity.Variant == 0 and entity.SubType == 0 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -95,14 +95,14 @@ function mod:blisterUpdate(entity)
 
 				local params = ProjectileParams()
 				params.Scale = 1 + (mod:Random(5) * 0.1)
-				params.Color = IRFcolors.WhiteShot
+				params.Color = mod.Colors.WhiteShot
 				params.FallingAccelModifier = 1.5
 				params.FallingSpeedModifier = -25
 
 				local vector = entity.V1 + (entity.V1 - entity.Position):Resized(20 * entity.I2)
 				entity:FireProjectiles(entity.Position, (vector - entity.Position):Rotated(mod:Random(-10, 10)):Resized(entity.Position:Distance(vector) / 20), 0, params)
 				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.75)
-				mod:ShootEffect(entity, 1, Vector(0, -25), IRFcolors.WhiteShot)
+				mod:ShootEffect(entity, 1, Vector(0, -25), mod.Colors.WhiteShot)
 			end
 
 			if sprite:IsFinished() then
@@ -118,19 +118,22 @@ function mod:blisterUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blisterUpdate, EntityType.ENTITY_BLISTER)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.BlisterUpdate, EntityType.ENTITY_BLISTER)
 
-function mod:blisterDeath(entity)
+function mod:BlisterDeath(entity)
 	if entity.Variant == 0 and entity.SubType == 0 then
 		mod:QuickCreep(EffectVariant.CREEP_WHITE, entity, entity.Position, 1.25)
 		Isaac.Spawn(EntityType.ENTITY_BOIL, 2, 0, entity.Position, Vector.Zero, nil)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.blisterDeath, EntityType.ENTITY_BLISTER)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.BlisterDeath, EntityType.ENTITY_BLISTER)
 
-function mod:blisterProjectileUpdate(projectile)
+
+
+-- Creep projectiles
+function mod:BlisterProjectileUpdate(projectile)
 	if projectile.SpawnerType == EntityType.ENTITY_BLISTER and projectile:IsDead() then
 		mod:QuickCreep(EffectVariant.CREEP_WHITE, projectile.SpawnerEntity, projectile.Position, 1.25)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.blisterProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.BlisterProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)

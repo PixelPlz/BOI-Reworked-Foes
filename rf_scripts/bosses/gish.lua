@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	MoveSpeed = 5,
@@ -27,7 +27,7 @@ local Settings = {
 
 
 
-function mod:gishInit(entity)
+function mod:GishInit(entity)
 	if entity.Variant == 1 then
 		entity.ProjectileCooldown = Settings.Cooldown / 2
 		entity:GetData().counter = 1
@@ -49,9 +49,9 @@ function mod:gishInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.gishInit, EntityType.ENTITY_MONSTRO2)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GishInit, EntityType.ENTITY_MONSTRO2)
 
-function mod:gishUpdate(entity)
+function mod:GishUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -59,13 +59,13 @@ function mod:gishUpdate(entity)
 		local room = Game():GetRoom()
 
 		-- Get effect color and creep type
-		data.effectColor = IRFcolors.Tar
+		data.effectColor = mod.Colors.Tar
 		data.creepType   = EffectVariant.CREEP_BLACK
 
 		if entity.SubType == 1 or data.wasDelirium then
-			data.effectColor  = IRFcolors.WhiteShot
+			data.effectColor  = mod.Colors.WhiteShot
 			data.creepType    = EffectVariant.CREEP_WHITE
-			entity.SplatColor = IRFcolors.WhiteShot
+			entity.SplatColor = mod.Colors.WhiteShot
 		end
 
 
@@ -894,9 +894,9 @@ function mod:gishUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.gishUpdate, EntityType.ENTITY_MONSTRO2)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.GishUpdate, EntityType.ENTITY_MONSTRO2)
 
-function mod:gishCollide(entity, target, bool)
+function mod:GishCollision(entity, target, bool)
 	if entity.Variant == 1 then
 		-- Kill Clots he charges into
 		if target.Type == EntityType.ENTITY_CLOTTY and target.Variant == 1
@@ -908,12 +908,12 @@ function mod:gishCollide(entity, target, bool)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.gishCollide, EntityType.ENTITY_MONSTRO2)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.GishCollision, EntityType.ENTITY_MONSTRO2)
 
 
 
 --[[ Falling shots ]]--
-function mod:gishFallingShot(projectile)
+function mod:GishFallingShots(projectile)
 	if projectile.SpawnerType == EntityType.ENTITY_MONSTRO2 and projectile.SpawnerVariant == 1 and projectile.SpawnerEntity and projectile:IsDead()
 	and (projectile:GetData().fallingShot or projectile:GetData().kickedUp) then
 		local spawner = projectile.SpawnerEntity:ToNPC()
@@ -948,12 +948,12 @@ function mod:gishFallingShot(projectile)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.gishFallingShot, ProjectileVariant.PROJECTILE_NORMAL)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.GishFallingShots, ProjectileVariant.PROJECTILE_NORMAL)
 
 
 
 --[[ Lobbed Clot ]]--
-function mod:clotUpdate(entity)
+function mod:ClotUpdate(entity)
 	if entity.Variant == 1 and entity.State == NpcState.STATE_APPEAR_CUSTOM and not entity:HasMortalDamage() then
 		local sprite = entity:GetSprite()
 		mod:LoopingAnim(sprite, "Midair")
@@ -973,4 +973,4 @@ function mod:clotUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.clotUpdate, EntityType.ENTITY_CLOTTY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ClotUpdate, EntityType.ENTITY_CLOTTY)

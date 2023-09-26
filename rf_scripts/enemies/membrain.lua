@@ -1,8 +1,8 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:membrainUpdate(entity)
+function mod:MembrainUpdate(entity)
 	if entity.Variant < 2 then
 		local sprite = entity:GetSprite()
 		local params = ProjectileParams()
@@ -14,55 +14,59 @@ function mod:membrainUpdate(entity)
 		params.Scale = 1.4
 
 
-		-- Membrain
+		--[[ Membrain ]]--
 		if entity.Variant == 0 then
+			local data = entity:GetData()
+
+			-- Shoot
 			if sprite:IsEventTriggered("ShootNew") then
-				params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.CHANGE_VELOCITY_AFTER_TIMEOUT)
-				params.ChangeFlags = (ProjectileFlags.ACCELERATE_TO_POSITION | ProjectileFlags.SMART | ProjectileFlags.DECELERATE)
-				params.ChangeTimeout = 16
-				params.ChangeVelocity = 0
+				params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
+				params.ChangeFlags = (ProjectileFlags.SMART | ProjectileFlags.ACCELERATE)
+				params.ChangeTimeout = 9999
 
-				entity:FireProjectiles(entity.Position, Vector(8, 0), 8, params)
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity).SpriteScale = Vector(entity.Scale * 0.75, entity.Scale * 0.75)
-				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.75)
+				data.stoppedProjectiles = {}
+				for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, Vector(8, 8), 8, params)) do
+					table.insert(data.stoppedProjectiles, projectile)
+				end
 
+				-- Effects
+				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity)
+				effect.SpriteScale = Vector(entity.Scale * 0.75, entity.Scale * 0.75)
+				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.8)
+
+
+			-- Send the bullets at the player
 			elseif sprite:IsEventTriggered("Activate") then
-				mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP, 0.75)
+				for i, projectile in pairs(data.stoppedProjectiles) do
+					projectile.ChangeTimeout = 0
+					projectile.Acceleration = 1.025
+					projectile.FallingAccel = -0.075
+					projectile.Velocity = (entity:GetPlayerTarget().Position - projectile.Position):Resized(8)
+
+					-- Effect
+					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 5, projectile.Position, Vector.Zero, entity):GetSprite()
+					effect.Offset = Vector(projectile.PositionOffset.X, projectile.Height * 0.65)
+					effect.Scale = Vector(0.75, 0.75)
+
+					local c = mod.Colors.RagManPurple
+					effect.Color = Color(c.R,c.G,c.B, 0.75, c.RO,c.GO,c.BO)
+				end
+
+				mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP, 0.8)
 			end
 
 
-		-- Mama guts
+
+		--[[ Mama guts ]]--
 		elseif entity.Variant == 1 and sprite:IsEventTriggered("Shoot") then
 			params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
 			params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
 			params.ChangeTimeout = 90
-
 			entity:FireProjectiles(entity.Position, Vector(8, 0), 8, params)
-			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity).SpriteScale = Vector(entity.Scale * 0.75, entity.Scale * 0.75)
+
+			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity)
+			effect.SpriteScale = Vector(entity.Scale * 0.75, entity.Scale * 0.75)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.membrainUpdate, EntityType.ENTITY_MEMBRAIN)
-
-function mod:membrainBulletUpdate(entity)
-	if entity.SpawnerType == EntityType.ENTITY_MEMBRAIN and entity.SpawnerVariant == 0 then
-		if not entity.SpawnerEntity then
-			entity:Die()
-
-		else
-			-- Change color
-			if entity.FrameCount == 15 then
-				entity:SetColor(Color(0.5,0.5,0.7, 1, 0.3,0.3,0.6), 5, 1, true, false)
-
-			-- Move towards target
-			elseif entity.FrameCount < 50 then
-				entity.TargetPosition = entity.SpawnerEntity:ToNPC():GetPlayerTarget().Position
-
-			-- Disappear
-			elseif entity.FrameCount > 60 then
-				entity:Die()
-			end
-		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.membrainBulletUpdate, ProjectileVariant.PROJECTILE_NORMAL)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MembrainUpdate, EntityType.ENTITY_MEMBRAIN)

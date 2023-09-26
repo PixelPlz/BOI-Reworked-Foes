@@ -1,12 +1,13 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:fallenUpdate(entity)
+function mod:FallenUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
 
-	-- Fallen
+
+	--[[ The Fallen ]]--
 	if entity.Variant == 0 and entity.SubType == 1 then
 		-- 2nd phase
 		if entity.SpawnerType == EntityType.ENTITY_FALLEN then
@@ -33,6 +34,7 @@ function mod:fallenUpdate(entity)
 				if sprite:IsFinished("Attack1") then
 					entity.State = NpcState.STATE_MOVE
 				end
+
 
 			-- Skip brimstone attack
 			elseif entity.State == NpcState.STATE_ATTACK2 then
@@ -64,8 +66,9 @@ function mod:fallenUpdate(entity)
 		end
 
 
-	-- Krampus
-	elseif entity.Variant == 1 and entity.SubType == IRFentities.KrampusChampion then
+
+	--[[ Krampus ]]--
+	elseif entity.Variant == 1 and entity.SubType == mod.Entities.KrampusChampion then
 		-- Replace brimstone attack
 		if sprite:IsEventTriggered("StartShoot") then
 			entity.I2 = 1
@@ -94,4 +97,4 @@ function mod:fallenUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.fallenUpdate, EntityType.ENTITY_FALLEN)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.FallenUpdate, EntityType.ENTITY_FALLEN)

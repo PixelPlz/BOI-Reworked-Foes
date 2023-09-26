@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	MoveSpeed = 6,
@@ -17,7 +17,8 @@ local Settings = {
 
 
 
-function mod:conquestInit(entity)
+--[[ 1st phase ]]--
+function mod:ConquestInit(entity)
 	-- Red Conquest clones
 	if entity.Variant == 1 and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
 		-- Only 5 of them can spawn
@@ -30,9 +31,9 @@ function mod:conquestInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.conquestInit, EntityType.ENTITY_WAR)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ConquestInit, EntityType.ENTITY_WAR)
 
-function mod:conquestUpdate(entity)
+function mod:ConquestUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 
@@ -114,24 +115,24 @@ function mod:conquestUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.conquestUpdate, EntityType.ENTITY_WAR)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ConquestUpdate, EntityType.ENTITY_WAR)
 
-function mod:conquestDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:ConquestDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.Type == EntityType.ENTITY_WAR or damageSource.SpawnerType == EntityType.ENTITY_WAR then
 		return false
 	end
 
-	if target.Variant == 1 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0)
-	and ((target.HitPoints <= target.MaxHitPoints / 2) or (target.SpawnerEntity and target.SpawnerType == target.Type and target.SpawnerEntity.HitPoints <= target.SpawnerEntity.MaxHitPoints / 2)) then
-		target:TakeDamage(damageAmount / 4, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+	-- Take less damage while charging when he's low enough for the 2nd phase
+	if entity.Variant == 1 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0)
+	and ((entity.HitPoints <= entity.MaxHitPoints / 2) -- Main Conquest
+	or (entity.SpawnerEntity and entity.SpawnerEntity.HitPoints <= entity.SpawnerEntity.MaxHitPoints / 2)) then -- Clones
+		entity:TakeDamage(damageAmount / 4, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.conquestDMG, EntityType.ENTITY_WAR)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ConquestDMG, EntityType.ENTITY_WAR)
 
-
-
-function mod:conquestCollide(entity, target, bool)
+function mod:ConquestCollision(entity, target, bool)
 	if target.Type == EntityType.ENTITY_WAR or target.Type == EntityType.ENTITY_GLOBIN then
 		-- Damage Globins it charges into
 		if target.Type == EntityType.ENTITY_GLOBIN and target:ToNPC().State ~= NpcState.STATE_IDLE
@@ -142,12 +143,15 @@ function mod:conquestCollide(entity, target, bool)
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.conquestCollide, EntityType.ENTITY_WAR)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.ConquestCollision, EntityType.ENTITY_WAR)
+
+
 
 -- Red champion globins
-function mod:conquestLightBeamUpdate(effect)
+function mod:ConquestLightBeamReplace(effect)
 	if effect.SpawnerEntity and effect.SpawnerType == EntityType.ENTITY_WAR and effect.SpawnerEntity.SubType == 1 then
-		if Isaac.CountEntities(effect.SpawnerEntity, EntityType.ENTITY_GLOBIN, -1, -1) < Settings.MaxGlobins and effect.Position:Distance(Game():GetNearestPlayer(effect.Position).Position) >= 100 then
+		if Isaac.CountEntities(nil, EntityType.ENTITY_GLOBIN, -1, -1) < Settings.MaxGlobins -- Less than the max amount
+		and effect.Position:Distance(Game():GetNearestPlayer(effect.Position).Position) >= 100 then -- Far enough away from any players
 			Isaac.Spawn(EntityType.ENTITY_GLOBIN, 0, 0, effect.Position, Vector.Zero, effect.SpawnerEntity)
 			mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND, 0.75)
 		end
@@ -155,12 +159,12 @@ function mod:conquestLightBeamUpdate(effect)
 		effect:Remove()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.conquestLightBeamUpdate, EffectVariant.CRACK_THE_SKY)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.ConquestLightBeamReplace, EffectVariant.CRACK_THE_SKY)
 
 
 
--- 2nd phase
-function mod:conquestPreUpdate(entity)
+--[[ 2nd phase ]]--
+function mod:ConquestPreUpdate(entity)
 	if entity.Variant == 11 or entity.Variant == 20 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -300,9 +304,9 @@ function mod:conquestPreUpdate(entity)
 			end
 		end
 
-		if entity.FrameCount > 1 and not (entity:HasMortalDamage() or entity:IsDead()) then
+		if entity.FrameCount > 1 then
 			return true
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.conquestPreUpdate, EntityType.ENTITY_WAR)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ConquestPreUpdate, EntityType.ENTITY_WAR)

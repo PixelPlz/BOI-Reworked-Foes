@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	SideRange = 25,
@@ -9,18 +9,19 @@ local Settings = {
 
 
 
-function mod:nerveEnding2Init(entity)
+function mod:NerveEnding2Init(entity)
 	if entity.Variant == 1 then
 		entity.ProjectileCooldown = 20
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.nerveEnding2Init, EntityType.ENTITY_NERVE_ENDING)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.NerveEnding2Init, EntityType.ENTITY_NERVE_ENDING)
 
-function mod:nerveEnding2Update(entity)
+function mod:NerveEnding2Update(entity)
 	if entity.Variant == 1 then
 		local data = entity:GetData()
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
+		local room = Game():GetRoom()
 
 		entity.Velocity = Vector.Zero
 
@@ -31,7 +32,7 @@ function mod:nerveEnding2Update(entity)
 
 			if entity.ProjectileCooldown <= 0 then
 				-- Attack if in range
-				if Game():GetRoom():CheckLine(entity.Position, target.Position, 3, 0, false, false) then
+				if room:CheckLine(entity.Position, target.Position, 3, 0, false, false) then
 					-- Horizontal
 					if entity.Position.Y <= target.Position.Y + Settings.SideRange and entity.Position.Y >= target.Position.Y - Settings.SideRange then
 						if target.Position.X > (entity.Position.X - Settings.FrontRange) and target.Position.X < entity.Position.X then
@@ -70,11 +71,11 @@ function mod:nerveEnding2Update(entity)
 			if sprite:IsEventTriggered("Sound") then
 				mod:PlaySound(nil, SoundEffect.SOUND_WHIP)
 
-			elseif sprite:IsEventTriggered("Hit") then				
+			elseif sprite:IsEventTriggered("Hit") then
 				local hurt = false
 
 				-- Check if it hit the target
-				if Game():GetRoom():CheckLine(entity.Position, target.Position, 3 - entity.Variant, 0, false, false) then
+				if room:CheckLine(entity.Position, target.Position, 3 - entity.Variant, 0, false, false) then
 					if data.swingDir == "Left" or data.swingDir == "Right" then
 						if entity.Position.Y <= target.Position.Y + Settings.SideRange and entity.Position.Y >= target.Position.Y - Settings.SideRange then
 							if data.swingDir == "Left" and target.Position.X > (entity.Position.X - Settings.FrontRange) and target.Position.X < entity.Position.X
@@ -101,7 +102,7 @@ function mod:nerveEnding2Update(entity)
 				end
 			end
 
-			if sprite:IsFinished(sprite:GetAnimation()) then
+			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_IDLE
 				entity.ProjectileCooldown = Settings.Cooldown
 			end
@@ -113,4 +114,4 @@ function mod:nerveEnding2Update(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.nerveEnding2Update, EntityType.ENTITY_NERVE_ENDING)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.NerveEnding2Update, EntityType.ENTITY_NERVE_ENDING)

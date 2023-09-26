@@ -1,6 +1,11 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
-function mod:postGameStarted()
+-- For backwards compatibility
+BetterMonsters = mod
+
+
+
+function mod:LoadCompatibility()
 	--[[ Enhanced Boss Bars ]]--
 	if HPBars then
 		local path = "gfx/ui/bosshp_icons/"
@@ -33,7 +38,7 @@ function mod:postGameStarted()
 		HPBars.BossDefinitions["52.0"].bossColors = {"_yellow"}
 
 		-- Pin
-		HPBars.BossDefinitions["62.0"].bossColors[IRFentities.PinChampion] = "_blue"
+		HPBars.BossDefinitions["62.0"].bossColors[mod.Entities.PinChampion] = "_blue"
 
 		-- Conquest
 		HPBars.BossDefinitions["65.1"].bossColors = {"_red"}
@@ -90,7 +95,7 @@ function mod:postGameStarted()
 
 		-- Krampus
 		HPBars.BossDefinitions["81.1"].bossColors = HPBars.BossDefinitions["81.1"].bossColors or {}
-		HPBars.BossDefinitions["81.1"].bossColors[IRFentities.KrampusChampion] = "_red"
+		HPBars.BossDefinitions["81.1"].bossColors[mod.Entities.KrampusChampion] = "_red"
 
 		-- Headless Horseman
 		HPBars.BossDefinitions["82.0"].bossColors = {"_purple"} -- Body
@@ -145,8 +150,6 @@ function mod:postGameStarted()
 
 
 
-
-
 	--[[ Off-screen Indicator blacklists ]]--
 	if OffscreenIndicators then
 		-- Gish
@@ -155,13 +158,11 @@ function mod:postGameStarted()
 		-- Steven
 		OffscreenIndicators:addOIblacklist(EntityType.ENTITY_GEMINI, 1, -1, "state", NpcState.STATE_SPECIAL) -- 2nd phase
 		OffscreenIndicators:addOIblacklist(EntityType.ENTITY_GEMINI, 11, -1, "segmented") -- Little Steven
-		OffscreenIndicators:addOIblacklist(IRFentities.Type, IRFentities.Wallace, -1) -- Wallace
+		OffscreenIndicators:addOIblacklist(mod.Entities.Type, mod.Entities.Wallace, -1) -- Wallace
 
 		-- Forgotten body
-		OffscreenIndicators:addOIblacklist(IRFentities.Type, IRFentities.BlueBabyExtras, IRFentities.ForgottenBody)
+		OffscreenIndicators:addOIblacklist(mod.Entities.Type, mod.Entities.BlueBabyExtras, mod.Entities.ForgottenBody)
 	end
-
-
 
 
 
@@ -169,9 +170,9 @@ function mod:postGameStarted()
 	if FiendFolio then
 		-- Non-males
 		local nonMale = {
-			{ID = {EntityType.ENTITY_HOST, 3, 40}, Affliction = "Woman"}, -- Soft Host
+			{ID = {EntityType.ENTITY_HOST, 3, 40},    Affliction = "Woman"}, -- Soft Host
 			{ID = {EntityType.ENTITY_MONSTRO2, 1, 1}, Affliction = "Woman"}, -- Hera (Gish champion)
-			{ID = {EntityType.ENTITY_MULLIGAN, 40}, Affliction = "Woman"}, -- Mullicocoon
+			{ID = {EntityType.ENTITY_MULLIGAN, 40},   Affliction = "Woman"}, -- Mullicocoon
 		}
 		for i, entry in pairs(nonMale) do
 			table.insert(FiendFolio.Nonmale, entry)
@@ -180,9 +181,9 @@ function mod:postGameStarted()
 
 		-- LGBTQIA
 		local based = {
-			{ID = {EntityType.ENTITY_PRIDE, 0, 1}, Affliction = "Closeted gay"}, -- Champion Pride
-			{ID = {IRFentities.Type, IRFentities.Wallace}, Affliction = "Pan"}, -- Wallace
-			{ID = {EntityType.ENTITY_HIVE, 40}, Affliction = "Trans"}, -- Nest (new)
+			{ID = {EntityType.ENTITY_PRIDE, 0, 1}, 			 Affliction = "Closeted gay"}, -- Champion Pride
+			{ID = {mod.Entities.Type, mod.Entities.Wallace}, Affliction = "Pan"}, -- Wallace
+			{ID = {EntityType.ENTITY_HIVE, 40}, 			 Affliction = "Trans"}, -- Nest (new)
 		}
 		for i, entry in pairs(based) do
 			table.insert(FiendFolio.LGBTQIA, entry)
@@ -191,21 +192,19 @@ function mod:postGameStarted()
 
 		-- Outliers
 		local outliers = {
-			{ID = {EntityType.ENTITY_CLOTTY, IRFentities.ClottySketch}, Affliction = "Drawing"}, -- Clotty Sketch
-			{ID = {EntityType.ENTITY_CHARGER, IRFentities.ChargerSketch}, Affliction = "Drawing"}, -- Charger Sketch
-			{ID = {EntityType.ENTITY_GLOBIN, IRFentities.GlobinSketch}, Affliction = "Drawing"}, -- Globin Sketch
-			{ID = {EntityType.ENTITY_MAW, IRFentities.MawSketch}, Affliction = "Drawing"}, -- Maw Sketch
+			{ID = {EntityType.ENTITY_CLOTTY, mod.Entities.ClottySketch},   Affliction = "Drawing"}, -- Clotty Sketch
+			{ID = {EntityType.ENTITY_CHARGER, mod.Entities.ChargerSketch}, Affliction = "Drawing"}, -- Charger Sketch
+			{ID = {EntityType.ENTITY_GLOBIN, mod.Entities.GlobinSketch},   Affliction = "Drawing"}, -- Globin Sketch
+			{ID = {EntityType.ENTITY_MAW, mod.Entities.MawSketch}, 		   Affliction = "Drawing"}, -- Maw Sketch
 
-			{ID = {EntityType.ENTITY_WAR, 20}, Affliction = "Horse"}, -- Conquest Horse
-			{ID = {IRFentities.Type, IRFentities.Teratomar}, Affliction = "War criminal"}, -- Teratomar
-			{ID = {EntityType.ENTITY_KEEPER, IRFentities.Coffer}, Affliction = "Inflation fetishist"}, -- Coffer
+			{ID = {EntityType.ENTITY_WAR, 20}, 					   Affliction = "Horse"}, -- Conquest Horse
+			{ID = {mod.Entities.Type, mod.Entities.Teratomar}, 	   Affliction = "War criminal"}, -- Teratomar
+			{ID = {EntityType.ENTITY_KEEPER, mod.Entities.Coffer}, Affliction = "Inflation fetishist"}, -- Coffer
 		}
 		for i, entry in pairs(outliers) do
 			table.insert(FiendFolio.Outlier, entry)
 		end
 	end
-
-
 
 
 
@@ -225,8 +224,8 @@ function mod:postGameStarted()
 		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_SLOTH, 2, green)
 
 		-- Ultra Pride Sketches
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_CLOTTY, IRFentities.ClottySketch, sketch) -- Clotty Sketch
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_MAW, IRFentities.MawSketch, sketch) -- Maw Sketch
+		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_CLOTTY, mod.Entities.ClottySketch, sketch) -- Clotty Sketch
+		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_MAW, mod.Entities.MawSketch, sketch) -- Maw Sketch
 
 		-- Champion Husk Sucker projectile
 		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_DUKE, 1, red)
@@ -241,7 +240,7 @@ function mod:postGameStarted()
 		)
 
 		-- Triachnid egg sack projectile
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_DADDYLONGLEGS, 1, IRFcolors.WhiteShot)
+		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_DADDYLONGLEGS, 1, mod.Colors.WhiteShot)
 
 		-- Hush baby fly attack
 		BulletTrails:BlacklistEntity(true, EntityType.ENTITY_HUSH_FLY, 0)
@@ -250,7 +249,7 @@ function mod:postGameStarted()
 		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_MEGA_MAW, 0,
 			function(entity)
 				if entity and entity.SubType == 0 then
-					return IRFcolors.RagManPurple
+					return mod.Colors.RagManPurple
 				end
 			end
 		)
@@ -261,11 +260,11 @@ function mod:postGameStarted()
 				if entity then
 					-- Green champion
 					if entity.SubType == 1 then
-						return IRFcolors.CageGreenShot
+						return mod.Colors.CageGreenShot
 
 					-- Pink champion
 					elseif entity.SubType == 2 then
-						return IRFcolors.CagePinkShot
+						return mod.Colors.CagePinkShot
 
 					-- Non-champion
 					else
@@ -278,11 +277,9 @@ function mod:postGameStarted()
 
 
 
-
-
 	--[[ Retribution ]]--
 	if Retribution then
-		local GED = BaptismalPreloader.GenerateEntityDataset -- Can't you just be fucking normal
+		local GED = BaptismalPreloader.GenerateEntityDataset
 
 		local downgrades = {
 			{GED("Soft Host"),    GED("#HARD_HOST")},
@@ -309,4 +306,4 @@ function mod:postGameStarted()
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.postGameStarted)
+mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.LoadCompatibility)

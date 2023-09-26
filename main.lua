@@ -1,34 +1,6 @@
-BetterMonsters = RegisterMod("Improved & Reworked Foes", 1)
-local mod = BetterMonsters
-
-
-
-local startupText = mod.Name .. " v3.1.0 Initialized"
-Isaac.DebugString(startupText)
-
-IRFflavorText = {
-	"The reworkening",
-	"Look Teratomar, it's you!",
-	"Thank you for playing :)",
-	"Delirium rework coming out in 202X",
-	"All oiled up",
-	"Monstro rework when?",
-	"Now 11% funnier!",
-	"Not for baby gamers",
-	"01101000 01101001 00100000 00111010 00101001",
-	"Reworked Foes? More like STINKY Foes",
-	"Hi YouTube / Twitch!",
-	"Also check out Improved Backdrops and Visuals!",
-	"Ruining Tainted Lost runs since 2022!",
-	"ratratrat was here!",
-	"WARNING: Some reworks might require you to pay attention!",
-	"It will even fix your marriage!",
-	"The Husk was hiding the Forgotten this entire time",
-	"We will rework your wife. We will rework your son. We will rework your infant daughter.",
-}
-print(startupText .. " - " .. IRFflavorText[math.random(#IRFflavorText)])
-
-
+ReworkedFoes = RegisterMod("Improved & Reworked Foes", 1)
+local mod = ReworkedFoes
+mod.Version = "3.1.0"
 
 
 
@@ -44,7 +16,7 @@ end
 -- General
 local generalScripts = {
 	"constants",
-	"utilities",
+	"library",
 	"dss.dssmenu",
 	"projectiles",
 	"misc",
@@ -65,6 +37,7 @@ local enemyScripts = {
 	"angelicBaby",
 	"selflessKnight",
 	"pokies",
+	"sketches",
 	"holyLeech",
 	"lump",
 	"membrain",
@@ -160,3 +133,33 @@ local compatibilityScripts = {
 	"retribution",
 }
 mod:LoadScripts(compatibilityScripts, "compatibility")
+
+
+
+
+
+--[[ Startup text ]]--
+local startupText = mod.Name .. " " .. mod.Version .. " Initialized"
+Isaac.DebugString(startupText)
+
+local flavorText = {
+	"The reworkening",
+	"Look Teratomar, it's you!",
+	"Thank you for playing :)",
+	"Delirium rework coming out in 202X",
+	"All oiled up",
+	"Monstro rework when?",
+	"Now 11% funnier!",
+	"Not for baby gamers",
+	"01101000 01101001 00100000 00111010 00101001",
+	"Reworked Foes? More like STINKY Foes",
+	"Hi YouTube / Twitch!",
+	"Also check out Improved Backdrops and Visuals!",
+	"Ruining Tainted Lost runs since 2022!",
+	"ratratrat was here!",
+	"WARNING: Some reworks might require you to pay attention!",
+	"It will even fix your marriage!",
+	"The Husk was hiding the Forgotten this entire time",
+	"We will rework your wife. We will rework your son. We will rework your infant daughter.",
+}
+print(startupText .. " - " .. mod:RandomIndex(flavorText))

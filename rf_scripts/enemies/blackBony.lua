@@ -1,16 +1,16 @@
-local mod = BetterMonsters
-
-
+local mod = ReworkedFoes
 
 local path = "monsters/better/black boney/277.000_blackboney head_"
 
-IRFblackBonyTypes = {
+mod.BlackBonyTypes = {
 	{effect = TearFlags.TEAR_CROSS_BOMB,   spriteType = "sprite", spriteFile = path .. "1", hasSpark = false},
 	{effect = TearFlags.TEAR_SCATTER_BOMB, spriteType = "sprite", spriteFile = path .. "2"},
 	{effect = TearFlags.TEAR_POISON, 	   spriteType = "sprite", spriteFile = path .. "3"},
 	{effect = TearFlags.TEAR_BURN, 		   spriteType = "sprite", spriteFile = path .. "4", hasSpark = false},
 	{effect = TearFlags.TEAR_SAD_BOMB, 	   spriteType = "sprite", spriteFile = path .. "5"},
 }
+
+
 
 -- effect can be either a function or a tear flag (if it's a function it won't explode by default to allow for more flexible behaviour)
 -- sprite should be a table with the first value determening if it's a head sprite or anm2 replacement ("sprite" or "anm2"), and the second value being the actual file (the 'gfx/' and '.png' / '.anm2' are included by default)
@@ -22,20 +22,20 @@ function mod:AddBlackBonyType(effect, spriteType, spriteFile, hasSpark)
 		spriteFile = spriteFile,
 		hasSpark   = hasSpark
 	}
-	table.insert(IRFblackBonyTypes, typeData)
+	table.insert(mod.BlackBonyTypes, typeData)
 end
 
 
 
-function mod:blackBonyInit(entity)
+function mod:BlackBonyInit(entity)
 	-- Get random bomb type
-	if IRFConfig.blackBonyBombs == true and entity.SubType == 0 then
-		entity.SubType = mod:Random(1, #IRFblackBonyTypes)
+	if mod.Config.BlackBonyBombs == true and entity.SubType == 0 then
+		entity.SubType = mod:Random(1, #mod.BlackBonyTypes)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blackBonyInit, EntityType.ENTITY_BLACK_BONY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.BlackBonyInit, EntityType.ENTITY_BLACK_BONY)
 
-function mod:blackBonyUpdate(entity)
+function mod:BlackBonyUpdate(entity)
 	local sprite = entity:GetSprite()
 
 	if entity.FrameCount <= 1 then
@@ -46,7 +46,7 @@ function mod:blackBonyUpdate(entity)
 
 		-- Bomb costumes
 		elseif entity.SubType > 0 then
-			local entry = IRFblackBonyTypes[entity.SubType]
+			local entry = mod.BlackBonyTypes[entity.SubType]
 
 			-- Animation replacement
 			if entry.spriteType == "anm2" then
@@ -74,7 +74,7 @@ function mod:blackBonyUpdate(entity)
 
 
 	-- Fire effects for Hot Bombs variant
-	if entity.SubType > 0 and IRFblackBonyTypes[entity.SubType].effect == TearFlags.TEAR_BURN then
+	if entity.SubType > 0 and mod.BlackBonyTypes[entity.SubType].effect == TearFlags.TEAR_BURN then
 		if entity.I2 == 0 then
 			mod:LoopingOverlay(sprite, "FireAppear", true)
 			if sprite:GetOverlayFrame() == 11 then
@@ -99,12 +99,12 @@ function mod:blackBonyUpdate(entity)
 		entity.State = NpcState.STATE_DEATH
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.blackBonyUpdate, EntityType.ENTITY_BLACK_BONY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BlackBonyUpdate, EntityType.ENTITY_BLACK_BONY)
 
-function mod:blackBonyDeath(entity)
+function mod:BlackBonyDeath(entity)
 	-- Special variants
 	if entity.SubType > 0 then
-		local effect = IRFblackBonyTypes[entity.SubType].effect
+		local effect = mod.BlackBonyTypes[entity.SubType].effect
 
 		-- Custom effect
 		if type(effect) == "function" then
@@ -125,4 +125,4 @@ function mod:blackBonyDeath(entity)
 		bomb:SetExplosionCountdown(0)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.blackBonyDeath, EntityType.ENTITY_BLACK_BONY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.BlackBonyDeath, EntityType.ENTITY_BLACK_BONY)

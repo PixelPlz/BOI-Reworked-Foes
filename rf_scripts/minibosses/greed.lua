@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	CoinHealPercentage = 3,
@@ -9,9 +9,9 @@ local Settings = {
 
 
 
---[[ Function to make greedy enemies collect coins ]]--
+--[[ Make greedy enemies collect coins ]]--
 function mod:CollectCoins(entity)
-	if IRFConfig.coinStealing == true
+	if mod.Config.CoinStealing == true
 	and not Game():IsGreedMode() -- Don't pick up coins in Greed Mode
 	and entity.FrameCount > 20 and not entity:IsDead() then -- Don't try to pick up coins during the appear animation / post-mortem
 
@@ -61,7 +61,7 @@ function mod:CollectedCoin(entity)
 			data.greedRobber:AddHealth((data.greedRobber.MaxHitPoints / 100) * Settings.CoinHealPercentage * multiplier)
 
 			-- Add to Coffer coin projectiles
-			if data.greedRobber.Type == EntityType.ENTITY_KEEPER and data.greedRobber.Variant == IRFentities.Coffer then
+			if data.greedRobber.Type == EntityType.ENTITY_KEEPER and data.greedRobber.Variant == mod.Entities.Coffer then
 				data.greedRobber.I1 = data.greedRobber.I1 + multiplier
 			end
 		end
@@ -80,7 +80,7 @@ mod:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, mod.CollectedCoin, PickupVar
 
 
 --[[ Greed ]]--
-function mod:greedUpdate(entity)
+function mod:GreedUpdate(entity)
 	if mod:CheckValidMiniboss(entity) == true then
 		local sprite = entity:GetSprite()
 
@@ -130,20 +130,22 @@ function mod:greedUpdate(entity)
 
 	mod:CollectCoins(entity)
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.greedUpdate, EntityType.ENTITY_GREED)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GreedUpdate, EntityType.ENTITY_GREED)
 
-function mod:greedDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:GreedDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.SpawnerType == EntityType.ENTITY_GREED and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.greedDMG, EntityType.ENTITY_GREED)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.GreedDMG, EntityType.ENTITY_GREED)
+
+
 
 -- Super Greed hitting a player
-function mod:greedHit(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:GreedHit(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if (damageSource.Type == EntityType.ENTITY_PROJECTILE and damageSource.SpawnerType == EntityType.ENTITY_GREED and damageSource.SpawnerVariant == 1)
 	or (damageSource.Type == EntityType.ENTITY_GREED and damageSource.Variant == 1) then
-		local player = target:ToPlayer()
+		local player = entity:ToPlayer()
 
 		-- Remove bombs
 		local amount = math.min(player:GetNumBombs(), mod:Random(1, 2))
@@ -163,20 +165,22 @@ function mod:greedHit(target, damageAmount, damageFlags, damageSource, damageCou
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.greedHit, EntityType.ENTITY_PLAYER)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.GreedHit, EntityType.ENTITY_PLAYER)
 
-function mod:championGreedReward(entity)
+
+
+function mod:ChampionGreedReward(entity)
 	-- Midas' Touch
 	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_GREED and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= CollectibleType.COLLECTIBLE_MIDAS_TOUCH then
 		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_MIDAS_TOUCH, false, true, false)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championGreedReward, PickupVariant.PICKUP_COLLECTIBLE)
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.ChampionGreedReward, PickupVariant.PICKUP_COLLECTIBLE)
 
 
 
 --[[ Replace Greed's Hoppers ]]--
-function mod:greedHopperReplace(entity)
+function mod:GreedHopperReplace(entity)
 	if entity.Variant == 0 and entity.SubType == 0 and entity.SpawnerType == EntityType.ENTITY_GREED then
 		entity:Remove() -- Properly sets their stage HP this way
 
@@ -189,18 +193,18 @@ function mod:greedHopperReplace(entity)
 
 		-- Regular Greed Coffers
 		else
-			Isaac.Spawn(EntityType.ENTITY_KEEPER, IRFentities.Coffer, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):Update()
+			Isaac.Spawn(EntityType.ENTITY_KEEPER, mod.Entities.Coffer, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):Update()
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.greedHopperReplace, EntityType.ENTITY_HOPPER)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GreedHopperReplace, EntityType.ENTITY_HOPPER)
 
 
 
 --[[ Coffer / Keeper ]]--
-function mod:cofferUpdate(entity)
+function mod:KeeperUpdate(entity)
 	local sprite = entity:GetSprite()
-	
+
 	-- For both
 	mod:CollectCoins(entity)
 
@@ -211,7 +215,7 @@ function mod:cofferUpdate(entity)
 
 
 	-- For Coffers
-	if entity.Variant == IRFentities.Coffer then
+	if entity.Variant == mod.Entities.Coffer then
 		-- Follow the turning coin
 		if not Game():IsGreedMode() and not entity:IsDead() then
 			for _, pickup in pairs(Isaac.FindInRadius(entity.Position, Settings.CoinMagnetRange * 3, EntityPartition.PICKUP)) do
@@ -227,52 +231,49 @@ function mod:cofferUpdate(entity)
 		entity.ProjectileCooldown = 3
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.cofferUpdate, EntityType.ENTITY_KEEPER)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.KeeperUpdate, EntityType.ENTITY_KEEPER)
 
-function mod:cofferDeath(entity)
-	if entity.Variant == IRFentities.Coffer and entity.I1 > 0 then
-		local target = entity:GetPlayerTarget()
+function mod:CofferDeath(entity)
+	if entity.Variant == mod.Entities.Coffer and entity.I1 > 0 then
+		-- Projectiles
+		local coinsToShoot = math.floor(entity.I1 / 2)
+
 		local params = ProjectileParams()
 		params.Variant = ProjectileVariant.PROJECTILE_COIN
 
 		-- Single shot aimed at the player
-		if entity.I1 == 1 then
-			entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(8), 0, params)
+		if coinsToShoot == 1 then
+			entity:FireProjectiles(entity.Position, (entity:GetPlayerTarget().Position - entity.Position):Resized(8), 0, params)
 
 		-- 4 shots in a X / + pattern
-		elseif entity.I1 == 4 then
+		elseif coinsToShoot == 4 then
 			entity:FireProjectiles(entity.Position, Vector(8, 4), mod:Random(6, 7), params)
 
 		-- Ring of 8 shots
-		elseif entity.I1 >= 8 then
+		elseif coinsToShoot >= 8 then
 			entity:FireProjectiles(entity.Position, Vector(8, 8), 8, params)
 
 		else
-			entity:FireProjectiles(entity.Position, Vector(8, entity.I1), 9, params)
+			entity:FireProjectiles(entity.Position, Vector(8, coinsToShoot), 9, params)
+		end
+
+
+		-- Pickups
+		local coinsToDrop = math.ceil(entity.I1 / 2)
+
+		for i = 1, coinsToDrop do
+			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COIN, CoinSubType.COIN_PENNY, entity.Position, mod:RandomVector(mod:Random(4, 6)), entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.cofferDeath, EntityType.ENTITY_KEEPER)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.CofferDeath, EntityType.ENTITY_KEEPER)
 
 
 
 --[[ Other greedy enemies ]]--
 -- Hanger
-function mod:hangerUpdate(entity)
-	mod:CollectCoins(entity)
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.hangerUpdate, EntityType.ENTITY_HANGER)
-
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.CollectCoins, EntityType.ENTITY_HANGER)
 -- Greed Gaper
-function mod:greedGaperUpdate(entity)
-	mod:CollectCoins(entity)
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.greedGaperUpdate, EntityType.ENTITY_GREED_GAPER)
-
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.CollectCoins, EntityType.ENTITY_GREED_GAPER)
 -- Fiend Folio Dangler
-function mod:danglerUpdate(entity)
-	if FiendFolio then
-		mod:CollectCoins(entity)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.danglerUpdate, 610)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.CollectCoins, 610)

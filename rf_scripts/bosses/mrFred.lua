@@ -1,8 +1,8 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:mrFredInit(entity)
+function mod:MrFredInit(entity)
 	if entity.Variant == 0 and entity.SubType == 0 then
 		entity.MaxHitPoints = 650
 		entity.HitPoints = entity.MaxHitPoints
@@ -10,9 +10,9 @@ function mod:mrFredInit(entity)
 		entity.ProjectileCooldown = 30
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.mrFredInit, EntityType.ENTITY_MR_FRED)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.MrFredInit, EntityType.ENTITY_MR_FRED)
 
-function mod:mrFredUpdate(entity)
+function mod:MrFredUpdate(entity)
 	if entity.Variant == 0 and entity.SubType == 0 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -219,7 +219,7 @@ function mod:mrFredUpdate(entity)
 			elseif sprite:IsEventTriggered("Land") then
 				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity)
 				mod:PlaySound(nil, SoundEffect.SOUND_HEARTOUT, 0.8)
-			
+
 			elseif sprite:IsEventTriggered("Shoot") then
 				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.9)
 				entity.I2 = entity.I2 + 1
@@ -303,10 +303,12 @@ function mod:mrFredUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.mrFredUpdate, EntityType.ENTITY_MR_FRED)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.MrFredUpdate, EntityType.ENTITY_MR_FRED)
 
--- Trail projectile
-function mod:trailProjectileUpdate(projectile)
+
+
+--[[ Trailing projectile ]]--
+function mod:TrailingProjectileUpdate(projectile)
 	if projectile.SpawnerType == EntityType.ENTITY_MR_FRED and projectile:GetData().mrFredTrail and projectile.SpawnerEntity and projectile.FrameCount % 3 == 0 then
 		local params = ProjectileParams()
 		params.BulletFlags = (ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
@@ -322,4 +324,4 @@ function mod:trailProjectileUpdate(projectile)
 		mod:QuickCreep(EffectVariant.CREEP_RED, projectile.SpawnerEntity, projectile.Position, 1.25, 120)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.trailProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.TrailingProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)

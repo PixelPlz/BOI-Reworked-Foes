@@ -1,44 +1,43 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 local json = require("json")
 local DSSMenu = {}
 
-IRFConfig = {}
+mod.Config = {}
+
+
 
 --Default DSS Data
-IRFDefaultConfig = {
+local defaultConfig = {
 	--General
-	breakableHosts   = true,
-    coinStealing     = true,
-	noChapter1Nests  = true,
-	matriarchFistula = true,
-	envyRework 		 = true,
-	blackBonyBombs   = true,
-	burningGushers   = true,
+	BreakableHosts  = true,
+    CoinStealing    = true,
+	NoChapter1Nests = true,
+	EnvyRework 		= true,
+	BlackBonyBombs  = true,
+	BurningGushers  = true,
 
 	--Hidden enemy visuals
-	noHiddenPins  = true,
-	noHiddenPoly  = true,
-	noHiddenDust  = true,
-	
+	NoHiddenPins = true,
+	NoHiddenPoly = true,
+	NoHiddenDust = true,
+
 	--Extra appear animations
-	appearPins 		= true,
-	appearMomsHands = true,
-	appearNeedles 	= true,
-	
-	--Laser indicators
-	laserEyes 	  = true,
-	laserRedGhost = true,
+	AppearPins 		= true,
+	AppearMomsHands = true,
+	AppearNeedles 	= true,
 }
+
+
 
 --Load settings
 function DSSMenu:LoadSaveData()
     if mod:HasData() then
-		IRFConfig = json.decode(mod:LoadData())
+		mod.Config = json.decode(mod:LoadData())
     end
 
-    for k, v in pairs(IRFDefaultConfig) do
-        if IRFConfig[k] == nil then
-            IRFConfig[k] = v
+    for k, v in pairs(defaultConfig) do
+        if mod.Config[k] == nil then
+            mod.Config[k] = v
         end
     end
 end
@@ -46,81 +45,82 @@ mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, DSSMenu.LoadSaveData)
 
 --Save settings
 function DSSMenu:SaveData()
-	mod:SaveData(json.encode(IRFConfig))
+	mod:SaveData(json.encode(mod.Config))
 end
 mod:AddCallback(ModCallbacks.MC_PRE_GAME_EXIT, DSSMenu.SaveData)
 
 
---Menu START!!!
 
+-- Initialize Dead Sea Scrolls
 --boring variables
 local DSSModName = "Dead Sea Scrolls (Reworked Foes)"
 local DSSCoreVersion = 7
 local MenuProvider = {}
 
---why why why why why whyyyyyy
 function MenuProvider.SaveSaveData()
     DSSMenu.SaveData()
 end
 function MenuProvider.GetPaletteSetting()
-    return IRFConfig.PaletteSetting
+    return mod.Config.PaletteSetting
 end
 function MenuProvider.SavePaletteSetting(var)
-    IRFConfig.PaletteSetting = var
+    mod.Config.PaletteSetting = var
 end
 function MenuProvider.GetHudOffsetSetting()
     if not REPENTANCE then
-        return IRFConfig.HudOffset
+        return mod.Config.HudOffset
     else
         return Options.HUDOffset * 10
     end
 end
 function MenuProvider.SaveHudOffsetSetting(var)
     if not REPENTANCE then
-        IRFConfig.HudOffset = var
+        mod.Config.HudOffset = var
     end
 end
 function MenuProvider.GetGamepadToggleSetting()
-    return IRFConfig.GamepadToggle
+    return mod.Config.GamepadToggle
 end
 function MenuProvider.SaveGamepadToggleSetting(var)
-    IRFConfig.GamepadToggle = var
+    mod.Config.GamepadToggle = var
 end
 function MenuProvider.GetMenuKeybindSetting()
-    return IRFConfig.MenuKeybind
+    return mod.Config.MenuKeybind
 end
 function MenuProvider.SaveMenuKeybindSetting(var)
-    IRFConfig.MenuKeybind = var
+    mod.Config.MenuKeybind = var
 end
 function MenuProvider.GetMenuHintSetting()
-    return IRFConfig.MenuHint
+    return mod.Config.MenuHint
 end
 function MenuProvider.SaveMenuHintSetting(var)
-    IRFConfig.MenuHint = var
+    mod.Config.MenuHint = var
 end
 function MenuProvider.GetMenuBuzzerSetting()
-    return IRFConfig.MenuBuzzer
+    return mod.Config.MenuBuzzer
 end
 function MenuProvider.SaveMenuBuzzerSetting(var)
-    IRFConfig.MenuBuzzer = var
+    mod.Config.MenuBuzzer = var
 end
 function MenuProvider.GetMenusNotified()
-    return IRFConfig.MenusNotified
+    return mod.Config.MenusNotified
 end
 function MenuProvider.SaveMenusNotified(var)
-    IRFConfig.MenusNotified = var
+    mod.Config.MenusNotified = var
 end
 function MenuProvider.GetMenusPoppedUp()
-    return IRFConfig.MenusPoppedUp
+    return mod.Config.MenusPoppedUp
 end
 function MenuProvider.SaveMenusPoppedUp(var)
-    IRFConfig.MenusPoppedUp = var
+    mod.Config.MenusPoppedUp = var
 end
 
 local DSSInitializerFunction = require("rf_scripts.dss.dssmenucore")
 local dssmod = DSSInitializerFunction(DSSModName, DSSCoreVersion, MenuProvider)
 
 
+
+-- Changelog
 include("rf_scripts.dss.changelog")
 
 local changeLogButton = dssmod.changelogsButton
@@ -129,14 +129,15 @@ if changeLogButton == true then
 end
 
 
--- Adding a Menu
-local exampledirectory = {
+
+-- Menus
+local directory = {
     main = {
         title = 'reworked foes',
         buttons = {
             { str = 'resume game', action = 'resume' },
-            { str = 'settings',    dest = 'settings' },
-			{ str = 'credits',     dest = 'credits' },
+            { str = 'settings',    dest   = 'settings' },
+			{ str = 'credits',     dest   = 'credits' },
             changeLogButton,
         },
         tooltip = dssmod.menuOpenToolTip
@@ -151,10 +152,10 @@ local exampledirectory = {
                 str = 'breakable hosts',
                 choices = {'true', 'false'},
                 setting = 1,
-                variable = 'breakableHosts',
+                variable = 'BreakableHosts',
                 load = function()
-                    if IRFConfig.breakableHosts ~= nil then
-                        if IRFConfig.breakableHosts then
+                    if mod.Config.BreakableHosts ~= nil then
+                        if mod.Config.BreakableHosts then
                             return 1
                         else
                             return 2
@@ -165,9 +166,9 @@ local exampledirectory = {
                 end,
                 store = function(var)
                     if var == 1 then
-                        IRFConfig.breakableHosts = true
+                        mod.Config.BreakableHosts = true
                     else
-                        IRFConfig.breakableHosts = false
+                        mod.Config.BreakableHosts = false
                     end
                 end,
                 tooltip = { strset = { 'host armor', 'can be broken', 'by a bomb', 'or high damage' } }
@@ -176,10 +177,10 @@ local exampledirectory = {
                 str = 'coin stealing foes',
                 choices = {'true', 'false'},
                 setting = 1,
-                variable = 'coinStealing',
+                variable = 'CoinStealing',
                 load = function()
-                    if IRFConfig.coinStealing ~= nil then
-                        if IRFConfig.coinStealing then
+                    if mod.Config.CoinStealing ~= nil then
+                        if mod.Config.CoinStealing then
                             return 1
                         else
                             return 2
@@ -190,9 +191,9 @@ local exampledirectory = {
                 end,
                 store = function(var)
                     if var == 1 then
-                        IRFConfig.coinStealing = true
+                        mod.Config.CoinStealing = true
                     else
-                        IRFConfig.coinStealing = false
+                        mod.Config.CoinStealing = false
                     end
                 end,
                 tooltip = { strset = { 'greed themed', 'enemies', 'will steal', 'nearby coins' } }
@@ -201,10 +202,10 @@ local exampledirectory = {
                 str = 'no basement nests',
                 choices = {'true', 'false'},
                 setting = 1,
-                variable = 'noChapter1Nests',
+                variable = 'NoChapter1Nests',
                 load = function()
-                    if IRFConfig.noChapter1Nests ~= nil then
-                        if IRFConfig.noChapter1Nests then
+                    if mod.Config.NoChapter1Nests ~= nil then
+                        if mod.Config.NoChapter1Nests then
                             return 1
                         else
                             return 2
@@ -215,46 +216,21 @@ local exampledirectory = {
                 end,
                 store = function(var)
                     if var == 1 then
-                        IRFConfig.noChapter1Nests = true
+                        mod.Config.NoChapter1Nests = true
                     else
-                        IRFConfig.noChapter1Nests = false
+                        mod.Config.NoChapter1Nests = false
                     end
                 end,
                 tooltip = { strset = { 'replace nests', 'in chapter 1', 'with easier', 'mullicocoons' } }
             },
             {
-                str = 'matriarch fistula',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'matriarchFistula',
-                load = function()
-                    if IRFConfig.matriarchFistula ~= nil then
-                        if IRFConfig.matriarchFistula then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.matriarchFistula = true
-                    else
-                        IRFConfig.matriarchFistula = false
-                    end
-                end,
-                tooltip = { strset = { 'fistula chunks', 'spawned by', 'matriarch will', 'have better', 'colors' } }
-            },
-            {
                 str = 'envy rework',
                 choices = {'true', 'false'},
                 setting = 1,
-                variable = 'envyRework',
+                variable = 'EnvyRework',
                 load = function()
-                    if IRFConfig.envyRework ~= nil then
-                        if IRFConfig.envyRework then
+                    if mod.Config.EnvyRework ~= nil then
+                        if mod.Config.EnvyRework then
                             return 1
                         else
                             return 2
@@ -265,9 +241,9 @@ local exampledirectory = {
                 end,
                 store = function(var)
                     if var == 1 then
-                        IRFConfig.envyRework = true
+                        mod.Config.EnvyRework = true
                     else
-                        IRFConfig.envyRework = false
+                        mod.Config.EnvyRework = false
                     end
                 end,
                 tooltip = { strset = { 'envy heads', 'will bounce', 'off of each', 'other' } }
@@ -276,10 +252,10 @@ local exampledirectory = {
                 str = 'black bony bombs',
                 choices = {'true', 'false'},
                 setting = 1,
-                variable = 'blackBonyBombs',
+                variable = 'BlackBonyBombs',
                 load = function()
-                    if IRFConfig.blackBonyBombs ~= nil then
-                        if IRFConfig.blackBonyBombs then
+                    if mod.Config.BlackBonyBombs ~= nil then
+                        if mod.Config.BlackBonyBombs then
                             return 1
                         else
                             return 2
@@ -290,9 +266,9 @@ local exampledirectory = {
                 end,
                 store = function(var)
                     if var == 1 then
-                        IRFConfig.blackBonyBombs = true
+                        mod.Config.BlackBonyBombs = true
                     else
-                        IRFConfig.blackBonyBombs = false
+                        mod.Config.BlackBonyBombs = false
                     end
                 end,
                 tooltip = { strset = { 'black bonies', 'will spawn', 'with random', 'bomb effects' } }
@@ -301,10 +277,10 @@ local exampledirectory = {
                 str = 'burning gushers',
                 choices = {'true', 'false'},
                 setting = 1,
-                variable = 'burningGushers',
+                variable = 'BurningGushers',
                 load = function()
-                    if IRFConfig.burningGushers ~= nil then
-                        if IRFConfig.burningGushers then
+                    if mod.Config.BurningGushers ~= nil then
+                        if mod.Config.BurningGushers then
                             return 1
                         else
                             return 2
@@ -315,24 +291,26 @@ local exampledirectory = {
                 end,
                 store = function(var)
                     if var == 1 then
-                        IRFConfig.burningGushers = true
+                        mod.Config.BurningGushers = true
                     else
-                        IRFConfig.burningGushers = false
+                        mod.Config.BurningGushers = false
                     end
                 end,
                 tooltip = { strset = { 'gushers', 'spawned by', 'flaming gapers', 'will have', 'new behaviour' } }
             },
+
             { str = '', fsize = 3, nosel = true },
             { str = 'enemy indicators', fsize = 3, nosel = true },
             { str = '', fsize = 3, nosel = true },
-            {                
+
+            {
                 str = 'pin',
                 choices = {'true', 'false'},
                 setting = 1,
-                variable = 'pin',
+                variable = 'NoHiddenPins',
                 load = function()
-                    if IRFConfig.noHiddenPins ~= nil then
-                        if IRFConfig.noHiddenPins then
+                    if mod.Config.NoHiddenPins ~= nil then
+                        if mod.Config.NoHiddenPins then
                             return 1
                         else
                             return 2
@@ -343,21 +321,21 @@ local exampledirectory = {
                 end,
                 store = function(var)
                     if var == 1 then
-                        IRFConfig.noHiddenPins = true
+                        mod.Config.NoHiddenPins = true
                     else
-                        IRFConfig.noHiddenPins = false
+                        mod.Config.NoHiddenPins = false
                     end
                 end,
                 tooltip = { strset = { 'show indicator', 'when pin and', 'similar bosses', 'are hidden'} }
             },
-            {                
+            {
                 str = 'polycephalus',
                 choices = {'true', 'false'},
                 setting = 1,
-                variable = 'polycephalus',
+                variable = 'NoHiddenPoly',
                 load = function()
-                    if IRFConfig.noHiddenPoly ~= nil then
-                        if IRFConfig.noHiddenPoly then
+                    if mod.Config.NoHiddenPoly ~= nil then
+                        if mod.Config.NoHiddenPoly then
                             return 1
                         else
                             return 2
@@ -368,21 +346,21 @@ local exampledirectory = {
                 end,
                 store = function(var)
                     if var == 1 then
-                        IRFConfig.noHiddenPoly = true
+                        mod.Config.NoHiddenPoly = true
                     else
-                        IRFConfig.noHiddenPoly = false
+                        mod.Config.NoHiddenPoly = false
                     end
                 end,
                 tooltip = { strset = { 'show', 'indicator when', 'polycephalus', 'and similar', 'bosses are', 'hidden' } }
             },
-            {                
+            {
                 str = 'dust',
                 choices = {'true', 'false'},
                 setting = 1,
-                variable = 'dust',
+                variable = 'NoHiddenDust',
                 load = function()
-                    if IRFConfig.noHiddenDust ~= nil then
-                        if IRFConfig.noHiddenDust then
+                    if mod.Config.NoHiddenDust ~= nil then
+                        if mod.Config.NoHiddenDust then
                             return 1
                         else
                             return 2
@@ -393,24 +371,26 @@ local exampledirectory = {
                 end,
                 store = function(var)
                     if var == 1 then
-                        IRFConfig.noHiddenDust = true
+                        mod.Config.NoHiddenDust = true
                     else
-                        IRFConfig.noHiddenDust = false
+                        mod.Config.NoHiddenDust = false
                     end
                 end,
                 tooltip = { strset = { 'show indicator', 'when dust and', 'similar enemies',  'are hidden' } }
             },
+
             { str = '', fsize = 3, nosel = true },
             { str = 'spawn indicators', fsize = 3, nosel = true },
             { str = '', fsize = 3, nosel = true },
-            {                
+
+            {
                 str = 'pin',
                 choices = {'true', 'false'},
                 setting = 1,
-                variable = 'pintwo',
+                variable = 'AppearPins',
                 load = function()
-                    if IRFConfig.appearPins ~= nil then
-                        if IRFConfig.appearPins then
+                    if mod.Config.AppearPins ~= nil then
+                        if mod.Config.AppearPins then
                             return 1
                         else
                             return 2
@@ -421,21 +401,21 @@ local exampledirectory = {
                 end,
                 store = function(var)
                     if var == 1 then
-                        IRFConfig.appearPins = true
+                        mod.Config.AppearPins = true
                     else
-                        IRFConfig.appearPins = false
+                        mod.Config.AppearPins = false
                     end
                 end,
                 tooltip = { strset = { 'play animation', 'when pin and', 'similar bosses', 'spawn'} }
             },
-            {                
+            {
                 str = 'needles',
                 choices = {'true', 'false'},
                 setting = 1,
-                variable = 'needles',
+                variable = 'AppearNeedles',
                 load = function()
-                    if IRFConfig.appearNeedles ~= nil then
-                        if IRFConfig.appearNeedles then
+                    if mod.Config.AppearNeedles ~= nil then
+                        if mod.Config.AppearNeedles then
                             return 1
                         else
                             return 2
@@ -446,21 +426,21 @@ local exampledirectory = {
                 end,
                 store = function(var)
                     if var == 1 then
-                        IRFConfig.appearNeedles = true
+                        mod.Config.AppearNeedles = true
                     else
-                        IRFConfig.appearNeedles = false
+                        mod.Config.AppearNeedles = false
                     end
                 end,
                 tooltip = { strset = { 'play animation', 'when needles', 'and similar' , 'enemies spawn' } }
             },
-            {                
+            {
                 str = 'moms hand',
                 choices = {'true', 'false'},
                 setting = 1,
-                variable = 'momshand',
+                variable = 'AppearMomsHands',
                 load = function()
-                    if IRFConfig.appearMomsHands ~= nil then
-                        if IRFConfig.appearMomsHands then
+                    if mod.Config.AppearMomsHands ~= nil then
+                        if mod.Config.AppearMomsHands then
                             return 1
                         else
                             return 2
@@ -471,66 +451,14 @@ local exampledirectory = {
                 end,
                 store = function(var)
                     if var == 1 then
-                        IRFConfig.appearMomsHands = true
+                        mod.Config.AppearMomsHands = true
                     else
-                        IRFConfig.appearMomsHands = false
+                        mod.Config.AppearMomsHands = false
                     end
                 end,
                 tooltip = { strset = {  'play', 'animation when', 'moms hand', 'and similar' , 'enemies spawn' } }
             },
-            { str = '', fsize = 3, nosel = true },
-            { str = 'laser indicators', fsize = 3, nosel = true },
-            { str = '', fsize = 3, nosel = true },
-            {                
-                str = 'laser eyes',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'eyes',
-                load = function()
-                    if IRFConfig.laserEyes ~= nil then
-                        if IRFConfig.laserEyes then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.laserEyes = true
-                    else
-                        IRFConfig.laserEyes = false
-                    end
-                end,
-                tooltip = { strset = { 'show', 'indicator when', 'laser eyes', 'fire lasers'} }
-            },
-            {                
-                str = 'red ghosts',
-                choices = {'true', 'false'},
-                setting = 1,
-                variable = 'ghosts',
-                load = function()
-                    if IRFConfig.laserRedGhost ~= nil then
-                        if IRFConfig.laserRedGhost then
-                            return 1
-                        else
-                            return 2
-                        end
-                    else
-                        return 1
-                    end
-                end,
-                store = function(var)
-                    if var == 1 then
-                        IRFConfig.laserRedGhost = true
-                    else
-                        IRFConfig.laserRedGhost = false
-                    end
-                end,
-                tooltip = { strset = { 'show', 'indicator when', 'red ghosts', 'fire lasers' } }
-            },
+
 			{ str = '', fsize = 3, nosel = true },
             dssmod.gamepadToggleButton,
             dssmod.menuKeybindButton,
@@ -586,13 +514,11 @@ local exampledirectory = {
 }
 
 
-local exampledirectorykey = {
-    -- This is the initial item of the menu, generally you want to set it to your main item
-    Item = exampledirectory.main,
-    -- The main item of the menu is the item that gets opened first when opening your mod's menu.
+
+-- Add the menu
+local directorykey = {
+    Item = directory.main,
     Main = 'main',
-    -- These are default state variables for the menu; they're important to have in here, but you
-    -- don't need to change them at all.
     Idle = false,
     MaskAlpha = 1,
     Settings = {},
@@ -601,30 +527,10 @@ local exampledirectorykey = {
 }
 
 DeadSeaScrollsMenu.AddMenu("reworked foes", {
-    -- The Run, Close, and Open functions define the core loop of your menu. Once your menu is
-    -- opened, all the work is shifted off to your mod running these functions, so each mod can have
-    -- its own independently functioning menu. The `init` function returns a table with defaults
-    -- defined for each function, as "runMenu", "openMenu", and "closeMenu". Using these defaults
-    -- will get you the same menu you see in Bertran and most other mods that use DSS. But, if you
-    -- did want a completely custom menu, this would be the way to do it!
-
-    -- This function runs every render frame while your menu is open, it handles everything!
-    -- Drawing, inputs, etc.
     Run = dssmod.runMenu,
-    -- This function runs when the menu is opened, and generally initializes the menu.
     Open = dssmod.openMenu,
-    -- This function runs when the menu is closed, and generally handles storing of save data /
-    -- general shut down.
     Close = dssmod.closeMenu,
-    -- If UseSubMenu is set to true, when other mods with UseSubMenu set to false / nil are enabled,
-    -- your menu will be hidden behind an "Other Mods" button.
-    -- A good idea to use to help keep menus clean if you don't expect players to use your menu very
-    -- often!
     UseSubMenu = false,
-    Directory = exampledirectory,
-    DirectoryKey = exampledirectorykey
+    Directory = directory,
+    DirectoryKey = directorykey
 })
-
--- There are a lot more features that DSS supports not covered here, like sprite insertion and
--- scroller menus, that you'll have to look at other mods for reference to use. But, this should be
--- everything you need to create a simple menu for configuration or other simple use cases!

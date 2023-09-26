@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	RegenTime = 90,
@@ -11,7 +11,7 @@ local Settings = {
 
 
 --[[ Black Globin ]]--
-function mod:blackGlobinUpdate(entity)
+function mod:BlackGlobinUpdate(entity)
 	if entity:IsDead() or entity.State == NpcState.STATE_APPEAR_CUSTOM then
 		-- Spawn from head
 		if entity.State == NpcState.STATE_APPEAR_CUSTOM then	
@@ -25,20 +25,21 @@ function mod:blackGlobinUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blackGlobinUpdate, EntityType.ENTITY_BLACK_GLOBIN)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.BlackGlobinUpdate, EntityType.ENTITY_BLACK_GLOBIN)
 
-function mod:blackGlobinDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	target:ToNPC().V2 = damageSource.Position
+function mod:BlackGlobinDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	entity:ToNPC().V2 = (entity.Position - damageSource.Position):Normalized()
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.blackGlobinDMG, EntityType.ENTITY_BLACK_GLOBIN)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.BlackGlobinDMG, EntityType.ENTITY_BLACK_GLOBIN)
 
-function mod:blackGlobinDeath(entity)
+function mod:BlackGlobinDeath(entity)
 	local head = Isaac.Spawn(EntityType.ENTITY_BLACK_GLOBIN_HEAD, 0, 0, entity.Position, Vector.Zero, entity):ToNPC()
 	head.State = NpcState.STATE_STOMP
+	head:GetSprite():Play("KnockedOff", true)
+
+	head.Velocity = entity.V2:Resized(Settings.SlideSpeed)
 	head.I1 = 1
 	head.I2 = Settings.SlideTime
-	head.Velocity = (entity.Position - entity.V2):Resized(Settings.SlideSpeed)
-	head:GetSprite():Play("KnockedOff", true)
 	head.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 
 	local body = Isaac.Spawn(EntityType.ENTITY_BLACK_GLOBIN_BODY, 0, 0, entity.Position, Vector.Zero, entity):ToNPC()
@@ -49,12 +50,12 @@ function mod:blackGlobinDeath(entity)
 		body:MakeChampion(1, entity:GetChampionColorIdx(), true)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.blackGlobinDeath, EntityType.ENTITY_BLACK_GLOBIN)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.BlackGlobinDeath, EntityType.ENTITY_BLACK_GLOBIN)
 
 
 
 --[[ Black Globin Head ]]--
-function mod:blackGlobinHeadUpdate(entity)
+function mod:BlackGlobinHeadUpdate(entity)
 	local sprite = entity:GetSprite()
 
 	-- Regen
@@ -124,4 +125,4 @@ function mod:blackGlobinHeadUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blackGlobinHeadUpdate, EntityType.ENTITY_BLACK_GLOBIN_HEAD)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.BlackGlobinHeadUpdate, EntityType.ENTITY_BLACK_GLOBIN_HEAD)

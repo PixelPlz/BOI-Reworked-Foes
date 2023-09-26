@@ -1,19 +1,4 @@
-local mod = BetterMonsters
-
--- Available variables:
--- GroupIdx - Index of the segment (0 - head, Settings.Length - tail)
--- I1 - Burrow time
--- I2 - Shell state (0 - full health, 1 - half health, 2 - cracked)
-
--- ProjectileCooldown - Cooldown for attack in jumps
--- ProjectileDelay - How much time should pass after jumping for the attack
--- StateFrame - Secondary state
-
--- V1 - Armor health (X only)
--- V2 - Where this segment landed / jumped out
--- TargetPosition - Head jumping vector
-
-
+local mod = ReworkedFoes
 
 local Settings = {
 	Length = 19, -- Doesn't include head
@@ -37,7 +22,7 @@ local Settings = {
 
 
 
-function mod:scolexInit(entity)
+function mod:ScolexInit(entity)
 	if entity.Variant == 1 then
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
@@ -45,7 +30,7 @@ function mod:scolexInit(entity)
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 
-		if IRFConfig.appearPins == false then
+		if mod.Config.AppearPins == false then
 			entity.Visible = false
 		end
 
@@ -57,9 +42,9 @@ function mod:scolexInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.scolexInit, EntityType.ENTITY_PIN)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ScolexInit, EntityType.ENTITY_PIN)
 
-function mod:scolexUpdate(entity)
+function mod:ScolexUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -72,7 +57,7 @@ function mod:scolexUpdate(entity)
 			local hasDirt = false
 
 			-- Update existing one
-			for i, dirt in pairs(Isaac.FindByType(IRFentities.Type, IRFentities.DirtHelper, -1, false, false)) do
+			for i, dirt in pairs(Isaac.FindByType(mod.Entities.Type, mod.Entities.DirtHelper, -1, false, false)) do
 				if dirt.Position:Distance(entity.V2) <= 20 then
 					dirt.Position = entity.V2
 					dirt:ToNPC().StateFrame = 10
@@ -84,7 +69,7 @@ function mod:scolexUpdate(entity)
 
 			-- Create new one
 			if hasDirt == false then
-				Isaac.Spawn(IRFentities.Type, IRFentities.DirtHelper, 0, entity.Position, Vector.Zero, entity):ToNPC().StateFrame = 10
+				Isaac.Spawn(mod.Entities.Type, mod.Entities.DirtHelper, 0, entity.Position, Vector.Zero, entity):ToNPC().StateFrame = 10
 			end
 		end
 
@@ -97,7 +82,7 @@ function mod:scolexUpdate(entity)
 			data.zVelocity = 0
 			entity.ProjectileCooldown = 1
 
-			if IRFConfig.appearPins == true then
+			if mod.Config.AppearPins == true then
 				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND, 0.75)
 			end
 			entity.Visible = false
@@ -169,7 +154,7 @@ function mod:scolexUpdate(entity)
 					entity.HitPoints = entity.Parent.HitPoints
 
 					-- Shell phases
-					if entity.V1.X <= Settings.ArmorHealth - (Settings.ArmorHealth / 2) * (entity.I2 + 1) then
+					if entity.I2 < 2 and entity.V1.X <= Settings.ArmorHealth - (Settings.ArmorHealth / 2) * (entity.I2 + 1) then
 						entity.I2 = entity.I2 + 1
 
 						-- Effects
@@ -185,6 +170,7 @@ function mod:scolexUpdate(entity)
 							rockSprite:ReplaceSpritesheet(0, "gfx/grid/rocks_womb.png")
 							rockSprite:LoadGraphics()
 						end
+
 						mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.9)
 					end
 				end
@@ -271,7 +257,7 @@ function mod:scolexUpdate(entity)
 					if entity.StateFrame == 2 then
 						data.zVelocity = Settings.LongJumpSpeed
 						entity.TargetPosition = Vector(entity.ProjectileDelay, 0)
-						
+
 						if entity.GroupIdx == 0 or entity.GroupIdx == Settings.Length then
 							delay = Settings.AttackDelay * 2
 						else
@@ -309,7 +295,7 @@ function mod:scolexUpdate(entity)
 
 							-- Get fitting projectile
 							if bg == BackdropType.CORPSE or bg == BackdropType.CORPSE2 then
-								params.Color = IRFcolors.CorpseGreen
+								params.Color = mod.Colors.CorpseGreen
 							elseif bg ~= BackdropType.WOMB and bg ~= BackdropType.UTERO and bg ~= BackdropType.SCARRED_WOMB and bg ~= BackdropType.CORPSE3 then
 								params.Variant = ProjectileVariant.PROJECTILE_ROCK
 							end
@@ -564,22 +550,24 @@ function mod:scolexUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.scolexUpdate, EntityType.ENTITY_PIN)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ScolexUpdate, EntityType.ENTITY_PIN)
 
-function mod:scolexDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 1 then
-		if damageSource.Type == EntityType.ENTITY_PIN or damageSource.SpawnerType == EntityType.ENTITY_PIN then
+function mod:ScolexDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == 1 then
+		-- Don't take damage from his and other Pin variants' explosive shots
+		if damageSource.SpawnerType == entity.Type and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
 			return false
 
 		else
-			local segment = target:ToNPC()
+			local segment = entity:ToNPC()
 			local data = segment:GetData()
 
-			-- Head
+			-- Head only takes damage through its body segments
 			if segment.GroupIdx == 0 then
 				if not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
 					return false
 				end
+
 
 			-- Body segments
 			elseif data.head then
@@ -592,12 +580,12 @@ function mod:scolexDMG(target, damageAmount, damageFlags, damageSource, damageCo
 
 					damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
 					data.head:TakeDamage(damageAmount, damageFlags, damageSource, 1)
-					data.head:SetColor(IRFcolors.DamageFlash, 2, 0, false, true)
+					data.head:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
 
 				-- Damage the shell
 				else
-					segment.V1 = Vector(math.max(0, segment.V1.X - damageAmount), 0)
-					data.head:SetColor(IRFcolors.ArmorFlash, 2, 0, false, true)
+					segment.V1 = Vector(segment.V1.X - damageAmount, 0)
+					data.head:SetColor(mod.Colors.ArmorFlash, 2, 0, false, true)
 				end
 
 				return false
@@ -605,22 +593,22 @@ function mod:scolexDMG(target, damageAmount, damageFlags, damageSource, damageCo
 		end
 	end
 end
-mod:AddPriorityCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, CallbackPriority.LATE, mod.scolexDMG, EntityType.ENTITY_PIN)
+mod:AddPriorityCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, CallbackPriority.LATE, mod.ScolexDMG, EntityType.ENTITY_PIN)
 
-function mod:scolexCollision(entity, target, bool)
+function mod:ScolexCollision(entity, target, bool)
 	-- Jump over the player
 	if entity.Variant == 1 and entity.PositionOffset.Y <= -44
 	and (target.Type == EntityType.ENTITY_PLAYER or target.Type == EntityType.ENTITY_FAMILIAR or target.Type == EntityType.ENTITY_BOMB) then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.scolexCollision, EntityType.ENTITY_PIN)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.ScolexCollision, EntityType.ENTITY_PIN)
 
 
 
--- Dirt helper
-function mod:dirtHelperInit(entity)
-	if entity.Variant == IRFentities.DirtHelper then
+--[[ Dirt helper ]]--
+function mod:DirtHelperInit(entity)
+	if entity.Variant == mod.Entities.DirtHelper then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
@@ -628,10 +616,10 @@ function mod:dirtHelperInit(entity)
 		entity:GetSprite():Play("Ground", true)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.dirtHelperInit, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.DirtHelperInit, mod.Entities.Type)
 
-function mod:dirtHelperUpdate(entity)
-	if entity.Variant == IRFentities.DirtHelper then
+function mod:DirtHelperUpdate(entity)
+	if entity.Variant == mod.Entities.DirtHelper then
 		local sprite = entity:GetSprite()
 
 		entity.Velocity = Vector.Zero
@@ -655,4 +643,4 @@ function mod:dirtHelperUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.dirtHelperUpdate, IRFentities.Type)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DirtHelperUpdate, mod.Entities.Type)

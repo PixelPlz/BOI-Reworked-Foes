@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	NewHP = 250,
@@ -15,7 +15,7 @@ local Settings = {
 
 
 
-function mod:blightedOvumInit(entity)
+function mod:BlightedOvumInit(entity)
 	if entity.Variant == 2 or entity.Variant == 12 then
 		entity.ProjectileCooldown = mod:Random(Settings.Cooldown / 2, Settings.Cooldown * 2)
 
@@ -29,9 +29,9 @@ function mod:blightedOvumInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.blightedOvumInit, EntityType.ENTITY_GEMINI)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.BlightedOvumInit, EntityType.ENTITY_GEMINI)
 
-function mod:blightedOvumUpdate(entity)
+function mod:BlightedOvumUpdate(entity)
 	if entity.Variant == 2 or entity.Variant == 12 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -57,7 +57,7 @@ function mod:blightedOvumUpdate(entity)
 							trail.SpriteScale = Vector(scaler, scaler)
 							trail.SpriteOffset = Vector(math.random(-8, 8), math.random(20, 26) * -1)
 							trail.DepthOffset = entity.DepthOffset - 50
-							trail:GetSprite().Color = IRFcolors.GhostTrail
+							trail:GetSprite().Color = mod.Colors.GhostTrail
 							trail:Update()
 						end
 					end
@@ -95,7 +95,7 @@ function mod:blightedOvumUpdate(entity)
 				elseif entity.State == NpcState.STATE_ATTACK then
 					anim = "RageBody"
 					speed = Settings.ChaseSpeed
-					
+
 					if entity:IsFrame(4, 0) then
 						mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 1, Settings.CreepTime)
 					end
@@ -130,7 +130,7 @@ function mod:blightedOvumUpdate(entity)
 							entity.ProjectileCooldown = Settings.ChaseTime
 							mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_YELL_B, 0.8)
 						end
-						
+
 					-- Chase
 					elseif entity.State == NpcState.STATE_ATTACK or (entity.State == NpcState.STATE_ATTACK3 and room:GetGridCollisionAtPos(entity.Position) == GridCollisionClass.COLLISION_NONE) then
 						if entity.State == NpcState.STATE_ATTACK3 then
@@ -168,7 +168,7 @@ function mod:blightedOvumUpdate(entity)
 			elseif entity.State == NpcState.STATE_SPECIAL then
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 				entity:AnimWalkFrame("WalkHori", "WalkVert", 0.1)
-				
+
 				if sprite:IsOverlayFinished("Transition1") then
 					entity.State = NpcState.STATE_IDLE
 				elseif sprite:IsOverlayFinished("Transition2") then
@@ -192,13 +192,13 @@ function mod:blightedOvumUpdate(entity)
 		elseif entity.Variant == 12 then
 			-- Transparency
 			if entity.I2 > 0 then
-				sprite.Color = IRFcolors.GhostTransparent
+				sprite.Color = mod.Colors.GhostTransparent
 				entity.I2 = entity.I2 - 1
 			else
 				sprite.Color = Color.Default
 			end
-			
-			
+
+
 			-- Die if it has no parent
 			if not entity.Parent then
 				entity.Visible = true
@@ -291,17 +291,17 @@ function mod:blightedOvumUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blightedOvumUpdate, EntityType.ENTITY_GEMINI)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.BlightedOvumUpdate, EntityType.ENTITY_GEMINI)
 
-function mod:blightedOvumDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Variant == 12 then
-		target:ToNPC().I2 = Settings.TransparencyTimer
+function mod:BlightedOvumDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == 12 then
+		entity:ToNPC().I2 = Settings.TransparencyTimer
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.blightedOvumDMG, EntityType.ENTITY_GEMINI)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.BlightedOvumDMG, EntityType.ENTITY_GEMINI)
 
-function mod:blightedOvumDeath(entity)
+function mod:BlightedOvumDeath(entity)
 	if entity.Variant == 12 then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ENEMY_GHOST, 2, entity.Position, Vector.Zero, entity)
 		mod:PlaySound(nil, SoundEffect.SOUND_DEMON_HIT)
@@ -311,4 +311,4 @@ function mod:blightedOvumDeath(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.blightedOvumDeath, EntityType.ENTITY_GEMINI)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.BlightedOvumDeath, EntityType.ENTITY_GEMINI)

@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	MoveSpeed = 15,
@@ -11,12 +11,13 @@ local Settings = {
 
 
 -- [[ Poky / Slide ]]--
-function mod:pokyInit(entity)
+function mod:PokyInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	entity.Mass = 50
 
+	-- Slide
 	if entity.Variant == 1 then
-		entity:SetSize(16, Vector(1, 1), 12)
+		entity:SetSize(16, Vector.One, 12)
 
 		local gridIndex = Game():GetRoom():GetGridIndex(entity.Position)
 		entity.TargetPosition = Game():GetRoom():GetGridPosition(gridIndex)
@@ -24,23 +25,26 @@ function mod:pokyInit(entity)
 		entity.ProjectileCooldown = 20
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.pokyInit, EntityType.ENTITY_POKY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PokyInit, EntityType.ENTITY_POKY)
 
-function mod:pokyUpdate(entity)
+function mod:PokyUpdate(entity)
+	-- Deactivated
 	if entity.State == NpcState.STATE_SPECIAL then
-		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-
 		if entity.StateFrame >= 30 then
 			entity:Kill()
+
 		else
 			entity.StateFrame = entity.StateFrame + 1
+			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.pokyUpdate, EntityType.ENTITY_POKY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.PokyUpdate, EntityType.ENTITY_POKY)
 
--- Slide
-function mod:slideUpdate(entity)
+
+
+--[[ Slide ]]--
+function mod:SlideUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -158,7 +162,7 @@ function mod:slideUpdate(entity)
 		end
 
 
-		if entity.FrameCount > 1 and entity.State ~= NpcState.STATE_SPECIAL then 
+		if entity.FrameCount > 1 and entity.State ~= NpcState.STATE_SPECIAL then
 			-- Disable if a player has Flat File or all pressure plates are pressed
 			local hasFlatFile = false
 			for i = 0, Game():GetNumPlayers() - 1 do
@@ -177,9 +181,9 @@ function mod:slideUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.slideUpdate, EntityType.ENTITY_POKY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.SlideUpdate, EntityType.ENTITY_POKY)
 
-function mod:slideCollision(entity, target, cock)
+function mod:SlideCollision(entity, target, bool)
 	if entity.Variant == 1 then
 		-- Going back
 		if entity:GetSprite():IsPlaying("No-Spikes") then
@@ -189,49 +193,49 @@ function mod:slideCollision(entity, target, cock)
 		elseif entity.State == NpcState.STATE_ATTACK and ((target.Type >= 10 and target.Type < 1000) or target.Type == EntityType.ENTITY_PLAYER or target.Type == EntityType.ENTITY_BOMB) then
 			entity.I1 = 1
 
-			-- Hurt enemies (Horseman Head takes damage by default)
+			-- Hurt enemies (except Horseman Heads since they take damage already)
 			if target.Type >= 10 and target.Type ~= EntityType.ENTITY_HORSEMAN_HEAD then
 				target:TakeDamage(Settings.CollisionDamage, 0, EntityRef(entity), 0)
 			end
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.slideCollision, EntityType.ENTITY_POKY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.SlideCollision, EntityType.ENTITY_POKY)
 
 
 
 -- [[ Wall huggers ]]--
-function mod:wallHuggerInit(entity)
+function mod:WallHuggerInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	entity.Mass = 50
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.wallHuggerInit, EntityType.ENTITY_WALL_HUGGER)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.WallHuggerInit, EntityType.ENTITY_WALL_HUGGER)
 
-function mod:wallHuggerUpdate(entity)
+function mod:WallHuggerUpdate(entity)
+	-- Deactivated
 	if entity:GetSprite():GetAnimation() == "No-Spikes" and entity.FrameCount > 30 then
-		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-
 		if entity.StateFrame >= 30 then
 			entity:Kill()
 		else
 			entity.StateFrame = entity.StateFrame + 1
+			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.wallHuggerUpdate, EntityType.ENTITY_WALL_HUGGER)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.WallHuggerUpdate, EntityType.ENTITY_WALL_HUGGER)
 
 
 
 -- [[ Grudge ]]--
-function mod:grudgeUpdate(entity)
-	if entity.State == NpcState.STATE_SPECIAL and entity.Variant == 0 then
-		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-
+function mod:GrudgeUpdate(entity)
+	-- Deactivated
+	if entity.Variant == 0 and entity.State == NpcState.STATE_SPECIAL then
 		if entity.StateFrame >= 30 then
 			entity:Kill()
 		else
 			entity.StateFrame = entity.StateFrame + 1
+			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.grudgeUpdate, EntityType.ENTITY_GRUDGE)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GrudgeUpdate, EntityType.ENTITY_GRUDGE)

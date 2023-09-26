@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	NewHealth = 220,
@@ -28,7 +28,7 @@ local Settings = {
 
 
 
-function mod:huskInit(entity)
+function mod:HuskInit(entity)
 	if entity.Variant == 1 then
 		local newHP = Settings.NewHealth
 		if entity.SubType == 1 then
@@ -43,9 +43,9 @@ function mod:huskInit(entity)
 		entity:GetData().orbitals = {{}, {}, {}}
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.huskInit, EntityType.ENTITY_DUKE)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.HuskInit, EntityType.ENTITY_DUKE)
 
-function mod:huskUpdate(entity)
+function mod:HuskUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -160,7 +160,7 @@ function mod:huskUpdate(entity)
 				-- Pink champion
 				elseif entity.SubType == 2 then
 					local params = ProjectileParams()
-					params.Variant = IRFentities.SuckerProjectile
+					params.Variant = mod.Entities.SuckerProjectile
 					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(12), 0, params)
 
 
@@ -198,7 +198,7 @@ function mod:huskUpdate(entity)
 				-- Effects
 				for i = -1, 1, 2 do
 					-- Yes haha it unlocked the Forgorten for Oily before, how smart of you
-					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, IRFentities.HuskEffect, 0, entity.Position, Vector.Zero, entity):ToEffect()
+					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, mod.Entities.HuskEffect, 0, entity.Position, Vector.Zero, entity):ToEffect()
 					effect:FollowParent(entity)
 					effect.DepthOffset = entity.DepthOffset + 10
 
@@ -423,77 +423,60 @@ function mod:huskUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.huskUpdate, EntityType.ENTITY_DUKE)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.HuskUpdate, EntityType.ENTITY_DUKE)
 
-function mod:huskCollision(entity, target, bool)
+function mod:HuskCollision(entity, target, bool)
 	if target.SpawnerType == EntityType.ENTITY_DUKE then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.huskCollision, EntityType.ENTITY_DUKE)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.HuskCollision, EntityType.ENTITY_DUKE)
 
-function mod:huskDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:HuskDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	-- Only take 10 damage from Boom Fly and Ticking Spider explosions
-	if target.Variant == 1 and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) and damageSource.SpawnerType == EntityType.ENTITY_DUKE and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
-		target:TakeDamage(math.min(damageAmount, 10), damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+	if entity.Variant == 1 and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) and damageSource.SpawnerType == EntityType.ENTITY_DUKE and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+		entity:TakeDamage(math.min(damageAmount, 10), damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.huskDMG, EntityType.ENTITY_DUKE)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.HuskDMG, EntityType.ENTITY_DUKE)
 
 
 
--- Orbiting flies
-local function huskFlyOrbital(entity)
+--[[ Spawn effect ]]--
+function mod:HuskEffectUpdate(effect)
+	if effect:GetSprite():IsFinished() then
+		effect:Remove()
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.HuskEffectUpdate, mod.Entities.HuskEffect)
+
+
+
+--[[ Orbiting flies ]]--
+function mod:HuskOrbitingFlyUpdate(entity)
 	if entity.Parent and entity:GetData().huskOrbitalGroup then
-		local group = entity:GetData().huskOrbitalGroup
-
-		if mod:OrbitParent(entity, entity.Parent, Settings.OrbitSpeed, Settings.OrbitDistances[group], group) == false then
+		if entity.Parent:IsDead() then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
+			entity:GetData().huskOrbitalGroup = nil
+
 		else
+			local group = entity:GetData().huskOrbitalGroup
+			mod:OrbitParent(entity, entity.Parent, Settings.OrbitSpeed, Settings.OrbitDistances[group], group)
+
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
 		end
 	end
 end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.HuskOrbitingFlyUpdate, EntityType.ENTITY_ATTACKFLY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.HuskOrbitingFlyUpdate, EntityType.ENTITY_POOTER)
 
-
-function mod:huskAttackFlyUpdate(entity)
-	if entity:GetData().huskOrbitalGroup then
-		huskFlyOrbital(entity)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.huskAttackFlyUpdate, EntityType.ENTITY_ATTACKFLY)
-
-function mod:huskAttackFlyCollision(entity, target, bool)
+function mod:HuskObitingFlyCollision(entity, target, bool)
 	if entity:GetData().huskSpawn == true and target.Type == EntityType.ENTITY_PLAYER then
 		entity:Kill()
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.huskAttackFlyCollision, EntityType.ENTITY_ATTACKFLY)
-
-
-function mod:huskPooterUpdate(entity)
-	if entity:GetData().huskOrbitalGroup then
-		huskFlyOrbital(entity)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.huskPooterUpdate, EntityType.ENTITY_POOTER)
-
-function mod:huskPooterCollision(entity, target, bool)
-	if entity:GetData().huskSpawn == true and target.Type == EntityType.ENTITY_PLAYER then
-		entity:Kill()
-	end
-end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.huskPooterCollision, EntityType.ENTITY_POOTER)
-
-
-
--- Spawn effect
-function mod:huskEffectUpdate(effect)
-	if effect:GetSprite():IsFinished() then
-		effect:Remove()
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.huskEffectUpdate, IRFentities.HuskEffect)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.HuskObitingFlyCollision, EntityType.ENTITY_ATTACKFLY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.HuskObitingFlyCollision, EntityType.ENTITY_POOTER)

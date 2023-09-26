@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	MoveSpeed = 8,
@@ -8,14 +8,14 @@ local Settings = {
 
 
 
-function mod:dartFlyInit(entity)
+function mod:DartFlyInit(entity)
 	entity.PositionOffset = Vector(0, -16)
 	entity.ProjectileCooldown = Settings.Cooldown
 	entity:GetSprite().Rotation = 0
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.dartFlyInit, EntityType.ENTITY_DART_FLY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.DartFlyInit, EntityType.ENTITY_DART_FLY)
 
-function mod:dartFlyUpdate(entity)
+function mod:DartFlyUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
 
@@ -69,4 +69,4 @@ function mod:dartFlyUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.dartFlyUpdate, EntityType.ENTITY_DART_FLY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.DartFlyUpdate, EntityType.ENTITY_DART_FLY)

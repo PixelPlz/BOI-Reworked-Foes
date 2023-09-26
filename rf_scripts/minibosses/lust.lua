@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	TouchHeal = 10,
@@ -51,7 +51,7 @@ local lustVoiceLines = {
 
 
 
-function mod:lustInit(entity)
+function mod:LustInit(entity)
 	if mod:CheckValidMiniboss(entity) == true then
 		local data = entity:GetData()
 
@@ -68,9 +68,9 @@ function mod:lustInit(entity)
 		data.attacks = {4,5,6,7,8}
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.lustInit, EntityType.ENTITY_LUST)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.LustInit, EntityType.ENTITY_LUST)
 
-function mod:lustUpdate(entity)
+function mod:LustUpdate(entity)
 	if mod:CheckValidMiniboss(entity) == true then
 		local sprite = entity:GetSprite()
 		local data = entity:GetData()
@@ -130,7 +130,7 @@ function mod:lustUpdate(entity)
 				-- Spawn delay
 				if entity.ProjectileCooldown <= 0 then
 					local vector = Game():GetRoom():FindFreePickupSpawnPosition(Isaac.GetRandomPosition(), 40, false, false)
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACK_THE_SKY, 2, vector, Vector.Zero, entity):GetSprite().Color = IRFcolors.SunBeam
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACK_THE_SKY, 2, vector, Vector.Zero, entity):GetSprite().Color = mod.Colors.SunBeam
 					entity.StateFrame = entity.StateFrame + 1
 					entity.ProjectileCooldown = Settings.SunBeamDelay
 
@@ -172,7 +172,7 @@ function mod:lustUpdate(entity)
 					if entity.SubType == 1 then
 						mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 						for i = 0, 3 do
-							Isaac.Spawn(IRFentities.Type, IRFentities.BoneOrbital, 0, entity.Position, Vector.Zero, entity).Parent = entity
+							Isaac.Spawn(mod.Entities.Type, mod.Entities.BoneOrbital, 0, entity.Position, Vector.Zero, entity).Parent = entity
 						end
 
 					else
@@ -260,7 +260,7 @@ function mod:lustUpdate(entity)
 					if entity.SubType == 1 then
 						mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 						Isaac.Spawn(EntityType.ENTITY_GREED_GAPER, 0, 0, entity.Position + Vector(0, 10), Vector.Zero, entity)
-					
+
 					else
 						local type = EntityType.ENTITY_ATTACKFLY
 						if entity.Variant == 1 then
@@ -280,7 +280,7 @@ function mod:lustUpdate(entity)
 						mod:PlaySound(nil, SoundEffect.SOUND_HOLY)
 						data.sunBeams = true
 						entity:AddHealth((entity.MaxHitPoints / 100) * Settings.ItemHeal)
-						entity:SetColor(IRFcolors.SunBeam, 15, 1, true, false)
+						entity:SetColor(mod.Colors.SunBeam, 15, 1, true, false)
 
 					else
 						Game():Fart(entity.Position, entity.Scale * 100, entity, entity.Scale, 0, Color.Default)
@@ -342,40 +342,42 @@ function mod:lustUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.lustUpdate, EntityType.ENTITY_LUST)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.LustUpdate, EntityType.ENTITY_LUST)
 
-function mod:lustDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+function mod:LustDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	-- Only take 10% damage from things spawned by Lust
-	if mod:CheckValidMiniboss(target) == true and damageSource.SpawnerType == EntityType.ENTITY_LUST and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
-		target:TakeDamage(damageAmount / 10, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+	if mod:CheckValidMiniboss(entity) == true and damageSource.SpawnerType == EntityType.ENTITY_LUST and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+		entity:TakeDamage(damageAmount / 10, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.lustDMG, EntityType.ENTITY_LUST)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.LustDMG, EntityType.ENTITY_LUST)
+
+
 
 -- Kiss the player to heal
-function mod:lustHit(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if target.Type == EntityType.ENTITY_PLAYER
+function mod:LustHit(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Type == EntityType.ENTITY_PLAYER
 	and ((damageSource.Type == EntityType.ENTITY_LUST and mod:CheckValidMiniboss(damageSource.Entity) == true)
-	or (FiendFolio and damageSource.Type == 160 and damageSource.Variant == 1343)) then -- Stinky FF compat to make Seducers heal too
+	or (FiendFolio and damageSource.Type == 160 and damageSource.Variant == 1343)) then -- Stinky FF compat for Seducers
 		local lust = damageSource.Entity
-
 		lust:AddHealth((lust.MaxHitPoints / 100) * Settings.TouchHeal)
+
+		-- Effects
 		mod:PlaySound(lust, SoundEffect.SOUND_KISS_LIPS1, 1.1)
 		lust:SetColor(Color(1,1,1, 1, 0.5,0,0), 12, 1, true, false)
 
-		-- Effect
 		local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HEART, 0, lust.Position, Vector.Zero, lust)
 		effect:ToEffect():FollowParent(lust)
 		effect:GetSprite().Offset = Vector(0, -40)
 		effect.DepthOffset = lust.DepthOffset + 1
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.lustHit)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.LustHit)
 
 
 
-function mod:championLustReward(entity)
+function mod:ChampionLustReward(entity)
 	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_LUST and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
 		-- Card Reading
 		if entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= CollectibleType.COLLECTIBLE_CARD_READING then
@@ -387,4 +389,4 @@ function mod:championLustReward(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championLustReward)
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.ChampionLustReward)

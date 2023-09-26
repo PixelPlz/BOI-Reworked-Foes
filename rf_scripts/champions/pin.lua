@@ -1,9 +1,9 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:bluePinInit(entity)
-	if entity.Variant == 0 and entity.SubType == IRFentities.PinChampion and not entity.Parent and not entity.SpawnerEntity then
+function mod:BluePinInit(entity)
+	if entity.Variant == 0 and entity.SubType == mod.Entities.PinChampion and not entity.Parent and not entity.SpawnerEntity then
 		local data = entity:GetData()
 		data.siblings = {}
 
@@ -47,10 +47,10 @@ function mod:bluePinInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.bluePinInit, EntityType.ENTITY_PIN)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.BluePinInit, EntityType.ENTITY_PIN)
 
-function mod:bluePinUpdate(entity)
-	if entity.Variant == 0 and entity.SubType == IRFentities.PinChampion then
+function mod:BluePinUpdate(entity)
+	if entity.Variant == 0 and entity.SubType == mod.Entities.PinChampion then
 		-- Check if it did the default attack and remove its projectiles
 		local function doNewAttackInstead()
 			local shot = false
@@ -126,8 +126,8 @@ function mod:bluePinUpdate(entity)
 
 					-- Do the roar
 					if sprite:WasEventTriggered("Scream") and not sprite:WasEventTriggered("Burrow")
-					and not SFXManager():IsPlaying(IRFsounds.LarryScream) then
-						mod:PlaySound(entity, IRFsounds.LarryScream, 1.1, 1.05, 0, true)
+					and not SFXManager():IsPlaying(mod.Sounds.LarryScream) then
+						mod:PlaySound(entity, mod.Sounds.LarryScream, 1.1, 1.05, 0, true)
 					end
 
 					-- STFU!!!
@@ -164,19 +164,19 @@ function mod:bluePinUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.bluePinUpdate, EntityType.ENTITY_PIN)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BluePinUpdate, EntityType.ENTITY_PIN)
 
 
 
 -- Always drop a soul heart
-function mod:bluePinReward(entity)
-	if entity.SpawnerType == EntityType.ENTITY_PIN and entity.SpawnerVariant == 0 and entity.SpawnerEntity and entity.SpawnerEntity.SubType == IRFentities.PinChampion
+function mod:BluePinReward(entity)
+	if entity.SpawnerType == EntityType.ENTITY_PIN and entity.SpawnerVariant == 0 and entity.SpawnerEntity and entity.SpawnerEntity.SubType == mod.Entities.PinChampion
 	and entity.Variant == PickupVariant.PICKUP_HEART and entity.SubType < HeartSubType.HEART_SOUL then
 		-- Check if it already dropped a soul heart
 		local droppedSoulHearts = false
 
 		for i, heart in pairs(Isaac.FindByType(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_HEART, HeartSubType.HEART_SOUL, false, false)) do
-			if heart.SpawnerType == EntityType.ENTITY_PIN and heart.SpawnerVariant == 0 and heart.SpawnerEntity and heart.SpawnerEntity.SubType == IRFentities.PinChampion then
+			if heart.SpawnerType == EntityType.ENTITY_PIN and heart.SpawnerVariant == 0 and heart.SpawnerEntity and heart.SpawnerEntity.SubType == mod.Entities.PinChampion then
 				droppedSoulHearts = true
 				break
 			end
@@ -188,4 +188,4 @@ function mod:bluePinReward(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.bluePinReward)
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.BluePinReward)

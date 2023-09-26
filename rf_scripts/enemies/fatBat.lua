@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	MaxPoops = 3,
@@ -9,7 +9,7 @@ local Settings = {
 
 
 
-function mod:fatBatUpdate(entity)
+function mod:FatBatUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
 
@@ -47,7 +47,7 @@ function mod:fatBatUpdate(entity)
 			-- Effects
 			if entity:IsFrame(3, 0) then
 				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.6)
-				mod:ShootEffect(entity, 1, Vector(0, 3), IRFcolors.PukeEffect)
+				mod:ShootEffect(entity, 1, Vector(0, 3), mod.Colors.PukeEffect)
 			end
 
 		else
@@ -79,4 +79,4 @@ function mod:fatBatUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.fatBatUpdate, EntityType.ENTITY_FAT_BAT)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.FatBatUpdate, EntityType.ENTITY_FAT_BAT)

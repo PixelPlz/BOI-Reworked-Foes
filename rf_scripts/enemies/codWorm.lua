@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	HideTime = 120,
@@ -8,15 +8,15 @@ local Settings = {
 
 
 
-function mod:codWormInit(entity)
+function mod:CodWormInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	entity.State = NpcState.STATE_IDLE
 	entity.TargetPosition = entity.Position
 	entity.ProjectileCooldown = Settings.HideTime
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.codWormInit, EntityType.ENTITY_COD_WORM)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.CodWormInit, EntityType.ENTITY_COD_WORM)
 
-function mod:codWormUpdate(entity)
+function mod:CodWormUpdate(entity)
 	local sprite = entity:GetSprite()
 	local target = entity:GetPlayerTarget()
 
@@ -96,10 +96,10 @@ function mod:codWormUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.codWormUpdate, EntityType.ENTITY_COD_WORM)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.CodWormUpdate, EntityType.ENTITY_COD_WORM)
 
-function mod:codWormDMG(target, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	local entity = target:ToNPC()
+function mod:CodWormDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	local entity = entity:ToNPC()
 
 	if entity.State == NpcState.STATE_IDLE and entity.FrameCount > 20 then
 		entity.State = NpcState.STATE_JUMP
@@ -110,4 +110,4 @@ function mod:codWormDMG(target, damageAmount, damageFlags, damageSource, damageC
 		return false
 	end
 end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.codWormDMG, EntityType.ENTITY_COD_WORM)
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.CodWormDMG, EntityType.ENTITY_COD_WORM)

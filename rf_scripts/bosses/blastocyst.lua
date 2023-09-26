@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	MaxEnemyScore = 3,
@@ -13,7 +13,7 @@ local Settings = {
 
 
 --[[ Big ]]--
-function mod:blastocystBigUpdate(entity)
+function mod:BlastocystBigUpdate(entity)
 	local sprite = entity:GetSprite()
 
 	-- Get the number of every Blastocyst entity and give the bigger ones more "value"
@@ -121,12 +121,12 @@ function mod:blastocystBigUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.blastocystBigUpdate, EntityType.ENTITY_BLASTOCYST_BIG)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BlastocystBigUpdate, EntityType.ENTITY_BLASTOCYST_BIG)
 
 
 
 --[[ Small ]]--
-function mod:blastocystSmallUpdate(entity)
+function mod:BlastocystSmallUpdate(entity)
 	if entity.State == NpcState.STATE_APPEAR_CUSTOM and not entity:HasMortalDamage() then
 		local sprite = entity:GetSprite()
 		mod:LoopingAnim(sprite, "Midair")
@@ -147,11 +147,11 @@ function mod:blastocystSmallUpdate(entity)
 		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.blastocystSmallUpdate, EntityType.ENTITY_BLASTOCYST_SMALL)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.BlastocystSmallUpdate, EntityType.ENTITY_BLASTOCYST_SMALL)
 
-function mod:blastocystSmallCollision(entity, target, cock)
+function mod:BlastocystSmallCollision(entity, target, bool)
 	if target.Type == EntityType.ENTITY_BLASTOCYST_BIG then
 		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.blastocystSmallCollision, EntityType.ENTITY_BLASTOCYST_SMALL)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.BlastocystSmallCollision, EntityType.ENTITY_BLASTOCYST_SMALL)

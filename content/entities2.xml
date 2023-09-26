@@ -79,7 +79,7 @@
 
 	<!-- Teratomar -->
 	<entity name="Teratomar"   id="200" variant="4071"   anm2path="teratomar.anm2" hasFloorAlts="true" shadowSize="26" portrait="21"
-	baseHP="100" boss="1" bossID="33"
+	baseHP="150" boss="1" bossID="33"
 	friction="1" collisionRadius="25" gridCollision="walls" collisionMass="30" collisionDamage="2" numGridCollisionPoints="12" >
 		<gibs amount="8"   large="1"   blood="1" bone="1" gut="1" worm="1" />
 		<bestiary anim="Idle" transform="0,8,1" />
@@ -186,6 +186,12 @@
 	friction="1" collisionRadius="13" collisionMass="20" collisionDamage="1" numGridCollisionPoints="12" />
 
 
+	<!-- Sister Vis Sky Laser -->
+	<entity name="Sister Vis Laser"   id="200" variant="4410"   anm2path="sister vis sky laser.anm2" portrait="27"
+	shutdoors="false" tags="noreroll"
+	friction="1" collisionRadius="50" collisionRadiusYMulti="0.8" gridCollision="none" collisionMass="0" collisionDamage="1" />
+
+
 	<!-- Flesh Floast -->
 	<entity name="Flesh Floast"   id="859" variant="1"   anm2path="859.001_flesh floating host.anm2" shadowSize="20" portrait="12"
 	baseHP="21" champion="1"
@@ -198,11 +204,11 @@
 
 
 	<!-- Effects -->
-	<entity name="Fire Jet (blue)"   		id="1000" variant="147" subtype="3"   anm2path="1000.147_fire jet blue.anm2"    friction="1" collisionRadius="14" collisionMass="8" collisionDamage="10" />
-	<entity name="Healing Aura"   			id="1000" variant="868"   			  anm2path="healing aura.anm2"   			friction="1" />
-	<entity name="Holy Tracer"   			id="1000" variant="869"   			  anm2path="holy tracer.anm2"   			friction="1" />
-	<entity name="Single Brimstone Swirl"   id="1000" variant="870"   			  anm2path="1000.071_brimstoneswirl.anm2"   friction="1" />
-	<entity name="Husk Effect"   			id="1000" variant="871"   			  anm2path="1000.001_bomb explosion.anm2"   friction="1" />
-	<entity name="Triachnid Leg Segment"   	id="1000" variant="872"   			  anm2path="101.001_triachnid.anm2"   		friction="1" />
-	<entity name="Sister Vis Sky Laser"   	id="1000" variant="873"   			  anm2path="sister vis sky laser.anm2"   	friction="1" collisionRadius="33" collisionMass="0" collisionDamage="10" />
+	<entity name="Fire Jet (blue)"   		 id="1000" variant="147" subtype="3"   anm2path="1000.147_fire jet blue.anm2"    friction="1" collisionRadius="14" collisionMass="8" collisionDamage="10" />
+	<entity name="Healing Aura"   			 id="1000" variant="868"   			   anm2path="healing aura.anm2"   			 friction="1" />
+	<entity name="Holy Tracer"   			 id="1000" variant="869"   			   anm2path="holy tracer.anm2"   			 friction="1" />
+	<entity name="Single Brimstone Swirl"    id="1000" variant="870"   			   anm2path="1000.071_brimstoneswirl.anm2"   friction="1" />
+	<entity name="Husk Effect"   			 id="1000" variant="871"   			   anm2path="1000.001_bomb explosion.anm2"   friction="1" />
+	<entity name="Triachnid Leg Segment"     id="1000" variant="872"   			   anm2path="101.001_triachnid.anm2"   		 friction="1" />
+	<entity name="Sister Vis Laser Effect"   id="1000" variant="872"   			   anm2path="sister vis sky laser.anm2"   	 friction="1" />
 </entities>

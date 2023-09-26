@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
@@ -31,8 +31,8 @@ function mod:ChangeProjectile(projectile, variant, color, anm2, newSheet)
 	variantToANM2[ProjectileVariant.PROJECTILE_LAVA]   = "009.014_lava projectile"
 	variantToANM2[ProjectileVariant.PROJECTILE_HEAD]   = "009.015_head projectile"
 	variantToANM2[ProjectileVariant.PROJECTILE_PEEP]   = "009.016_eyeball projectile"
-	variantToANM2[IRFentities.FeatherProjectile] 	   = "feather projectile"
-	variantToANM2[IRFentities.SuckerProjectile] 	   = "sucker projectile"
+	variantToANM2[mod.Entities.FeatherProjectile] 	   = "feather projectile"
+	variantToANM2[mod.Entities.SuckerProjectile] 	   = "sucker projectile"
 
 	local anim = anm2 or variantToANM2[variant]
 	sprite:Load("gfx/" .. anim .. ".anm2", true)
@@ -47,36 +47,36 @@ end
 
 
 
--- Get projectiles for BetterMonsters:FireProjectiles()
-function mod:projectileInit(projectile)
-	if IRF_RecordProjectiles then
-        table.insert(IRF_RecordedProjectiles, projectile)
+-- Get projectiles for the better shoot function
+function mod:ProjectileTracker(projectile)
+	if mod.RecordProjectiles then
+        table.insert(mod.RecordedProjectiles, projectile)
     end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_INIT, mod.projectileInit)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_INIT, mod.ProjectileTracker)
 
 
 
 -- Default projectile
-function mod:editNormalProjectiles(projectile)
+function mod:EditNormalProjectiles(projectile)
 	if projectile.FrameCount <= 1 then
 		local sprite = projectile:GetSprite()
 		local data = projectile:GetData()
 
 		-- Clotty variants
 		if projectile.SpawnerType == EntityType.ENTITY_CLOTTY then
-			-- I. Blob (+ Retardribution Curdle)
+			-- I. Blob (+ Retribution Curdle)
 			if projectile.SpawnerVariant == 2
 			or (Retribution and projectile.SpawnerEntity and projectile.SpawnerVariant == 1873 and projectile.SpawnerEntity.SubType == 0) then
 				mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
 
 			-- Grilled Clotty
 			elseif projectile.SpawnerVariant == 3 then
-				mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR, IRFcolors.CrispyMeat)
+				mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR, mod.Colors.CrispyMeat)
 			end
 
 
-		-- Retardribution Drowned Spitties
+		-- Retribution Drowned Spitties
 		elseif Retribution and (projectile.SpawnerType == EntityType.ENTITY_SPITTY or projectile.SpawnerType == EntityType.ENTITY_CONJOINED_SPITTY) and projectile.SpawnerVariant == 1873 then
 			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
 
@@ -91,8 +91,8 @@ function mod:editNormalProjectiles(projectile)
 
 		-- Dead Meat
 		elseif projectile.SpawnerType == EntityType.ENTITY_MEMBRAIN and projectile.SpawnerVariant == 2 then
-			sprite.Color = IRFcolors.CorpseGreen
-			mod:QuickTrail(projectile, 0.1, IRFcolors.CorpseGreenTrail, projectile.Scale * 1.6)
+			sprite.Color = mod.Colors.CorpseGreen
+			mod:QuickTrail(projectile, 0.1, mod.Colors.CorpseGreenTrail, projectile.Scale * 1.6)
 
 
 		-- The Frail
@@ -100,7 +100,7 @@ function mod:editNormalProjectiles(projectile)
 			-- 1st phase
 			if projectile.SpawnerEntity:ToNPC().I2 == 0 then
 				if not projectile.SpawnerEntity:GetData().wasDelirium then
-					sprite.Color = IRFcolors.CorpseGreen
+					sprite.Color = mod.Colors.CorpseGreen
 				end
 				if projectile:HasProjectileFlags(ProjectileFlags.EXPLODE) then
 					projectile:AddProjectileFlags(ProjectileFlags.ACID_GREEN)
@@ -118,7 +118,7 @@ function mod:editNormalProjectiles(projectile)
 						projectile.Velocity = Vector.Zero
 
 						projectile.Scale = 2
-						sprite.Color = IRFcolors.BlueFireShot
+						sprite.Color = mod.Colors.BlueFireShot
 
 						projectile:ClearProjectileFlags(ProjectileFlags.BURST)
 						projectile:AddProjectileFlags(ProjectileFlags.FIRE)
@@ -145,7 +145,7 @@ function mod:editNormalProjectiles(projectile)
 			sprite:LoadGraphics()
 
 
-		-- Retardribution Drowned Grub
+		-- Retribution Drowned Grub
 		elseif Retribution and projectile.SpawnerType == EntityType.ENTITY_GRUB and projectile.SpawnerVariant == 0 then
 			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
 
@@ -202,7 +202,7 @@ function mod:editNormalProjectiles(projectile)
 				local color = Color.Default
 				-- Blue fires for black champion
 				if projectile.SpawnerEntity.SubType == 2 then
-					color = IRFcolors.BlueFire
+					color = mod.Colors.BlueFire
 				end
 
 				mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_FIRE, color)
@@ -214,23 +214,23 @@ function mod:editNormalProjectiles(projectile)
 
 		-- Black champion Dark One
 		elseif projectile.SpawnerType == EntityType.ENTITY_DARK_ONE and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 then
-			sprite.Color = IRFcolors.ShadyRed
+			sprite.Color = mod.Colors.ShadyRed
 
 
 		-- Angels
 		elseif (projectile.SpawnerType == EntityType.ENTITY_URIEL or projectile.SpawnerType == EntityType.ENTITY_GABRIEL) and projectile.SpawnerEntity and not projectile.SpawnerEntity:GetData().wasDelirium then
-			mod:ChangeProjectile(projectile, IRFentities.FeatherProjectile)
+			mod:ChangeProjectile(projectile, mod.Entities.FeatherProjectile)
 			-- Black feather
 			if projectile.SpawnerVariant == 1 then
 				projectile.SubType = 1
 			end
 
 
-		-- Blue boil (+ Retardribution variants)
+		-- Blue boil (+ Retribution variants)
 		elseif projectile.SpawnerType == EntityType.ENTITY_HUSH_BOIL
 		or (Retribution and projectile.SpawnerType == EntityType.ENTITY_WALKINGBOIL and projectile.SpawnerVariant == 0 and projectile.SpawnerEntity
 		and (projectile.SpawnerEntity.SubType == 184 or projectile.SpawnerEntity.SubType == 185)) then
-			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_HUSH, IRFcolors.HushDarkBlue)
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_HUSH, mod.Colors.HushDarkBlue)
 
 
 		-- Mr. Mine
@@ -248,7 +248,7 @@ function mod:editNormalProjectiles(projectile)
 			local bg = Game():GetRoom():GetBackdropType()
 
 			if bg == BackdropType.CORPSE or bg == BackdropType.CORPSE2 then
-				sprite.Color = IRFcolors.CorpseGreen
+				sprite.Color = mod.Colors.CorpseGreen
 			elseif bg ~= BackdropType.WOMB and bg ~= BackdropType.UTERO and bg ~= BackdropType.SCARRED_WOMB and bg ~= BackdropType.CORPSE3 then
 				mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_ROCK)
 				projectile.Scale = 0.9
@@ -257,31 +257,31 @@ function mod:editNormalProjectiles(projectile)
 
 		-- Cyst
 		elseif projectile.SpawnerType == EntityType.ENTITY_CYST then
-			sprite.Color = IRFcolors.CorpseYellow
+			sprite.Color = mod.Colors.CorpseYellow
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.editNormalProjectiles, ProjectileVariant.PROJECTILE_NORMAL)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditNormalProjectiles, ProjectileVariant.PROJECTILE_NORMAL)
 
 
 
 -- Bone projectile
-function mod:editBoneProjectiles(projectile)
+function mod:EditBoneProjectiles(projectile)
 	if projectile.FrameCount <= 1 then
 		local sprite = projectile:GetSprite()
 
 		-- Black Bony
 		if projectile.SpawnerType == EntityType.ENTITY_BLACK_BONY then
-			sprite.Color = IRFcolors.BlackBony
+			sprite.Color = mod.Colors.BlackBony
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.editBoneProjectiles, ProjectileVariant.PROJECTILE_BONE)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditBoneProjectiles, ProjectileVariant.PROJECTILE_BONE)
 
 
 
 -- Fire projectile
-function mod:editFireProjectiles(projectile)
+function mod:EditFireProjectiles(projectile)
 	if projectile.FrameCount <= 1 then
 		local sprite = projectile:GetSprite()
 
@@ -292,18 +292,18 @@ function mod:editFireProjectiles(projectile)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.editFireProjectiles, ProjectileVariant.PROJECTILE_FIRE)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditFireProjectiles, ProjectileVariant.PROJECTILE_FIRE)
 
 
 
 -- Puke projectile
-function mod:editPukeProjectiles(projectile)
+function mod:EditPukeProjectiles(projectile)
 	if projectile.FrameCount <= 1 then
 		local sprite = projectile:GetSprite()
 
 		-- Black champion Dingle
 		if projectile.SpawnerType == EntityType.ENTITY_DINGLE and projectile.SpawnerVariant == 0 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 then
-			sprite.Color = IRFcolors.Tar
+			sprite.Color = mod.Colors.Tar
 
 
 		-- Red champion Mega Fatty poop attack
@@ -315,16 +315,16 @@ function mod:editPukeProjectiles(projectile)
 		elseif projectile.SpawnerType == EntityType.ENTITY_CAGE and projectile.SpawnerEntity then
 			-- Green champion
 			if projectile.SpawnerEntity.SubType == 1 then
-				sprite.Color = IRFcolors.CageGreenShot
+				sprite.Color = mod.Colors.CageGreenShot
 
 			-- Pink champion
 			elseif projectile.SpawnerEntity.SubType == 2 then
-				sprite.Color = IRFcolors.CagePinkShot
+				sprite.Color = mod.Colors.CagePinkShot
 			end
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.editPukeProjectiles, ProjectileVariant.PROJECTILE_PUKE)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditPukeProjectiles, ProjectileVariant.PROJECTILE_PUKE)
 
 
 
@@ -380,22 +380,22 @@ end
 
 
 -- Feather projectile
-local function featherProjectileInit(projectile)
+local function FeatherProjectileInit(projectile)
 	-- Black variant
 	if projectile.SubType == 1 then
 		local sprite = projectile:GetSprite()
 		sprite:ReplaceSpritesheet(0, "gfx/projectiles/feather_projectile_black.png")
 		sprite:LoadGraphics()
 
-		projectile.SplatColor = IRFcolors.Tar
+		projectile.SplatColor = mod.Colors.Tar
 
 	-- White variant
 	else
-		projectile.SplatColor = IRFcolors.WhiteShot
+		projectile.SplatColor = mod.Colors.WhiteShot
 	end
 end
 
-local function featherProjectileUpdate(projectile)
+local function FeatherProjectileUpdate(projectile)
 	local sprite = projectile:GetSprite()
 	mod:LoopingAnim(sprite, "Move")
 
@@ -405,24 +405,24 @@ local function featherProjectileUpdate(projectile)
 	sprite.Scale = Vector(projectile.Scale, projectile.Scale)
 end
 
-local function featherProjectilePop(projectile)
+local function FeatherProjectilePop(projectile)
 	local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BULLET_POOF, 0, projectile.Position, Vector.Zero, projectile):GetSprite()
 	effect.Offset = Vector(projectile.PositionOffset.X, projectile.PositionOffset.Y * 0.65)
 	effect.Scale = Vector(0.75, 0.75)
 	effect.Color = projectile.SplatColor
 end
 
-mod:AddCustomProjectile(IRFentities.FeatherProjectile, featherProjectileInit, featherProjectileUpdate, featherProjectilePop)
+mod:AddCustomProjectile(mod.Entities.FeatherProjectile, FeatherProjectileInit, FeatherProjectileUpdate, FeatherProjectilePop)
 
 
 
 -- Sucker projectile
-local function suckerProjectileInit(projectile)
+local function SuckerProjectileInit(projectile)
 	projectile:GetData().trailColor = Color.Default
 	projectile.Scale = 1.5
 end
 
-local function suckerProjectileUpdate(projectile)
+local function SuckerProjectileUpdate(projectile)
 	local sprite = projectile:GetSprite()
 	mod:LoopingAnim(sprite, "Fly")
 
@@ -430,7 +430,7 @@ local function suckerProjectileUpdate(projectile)
 	sprite.Rotation = (pos + projectile.Velocity + Vector(0, projectile.FallingSpeed) - pos):GetAngleDegrees() + 90
 end
 
-local function suckerProjectilePop(projectile)
+local function SuckerProjectilePop(projectile)
 	local sucker = Isaac.Spawn(EntityType.ENTITY_SUCKER, 0, 0, projectile.Position, Vector.Zero, projectile.SpawnerEntity):ToNPC()
 	sucker:FireProjectiles(projectile.Position, Vector(11, 4), 7, ProjectileParams())
 	mod:QuickCreep(EffectVariant.CREEP_RED, projectile.SpawnerEntity, projectile.Position, 1.5, 90)
@@ -441,16 +441,16 @@ local function suckerProjectilePop(projectile)
 	effect.Offset = Vector(projectile.PositionOffset.X, projectile.PositionOffset.Y * 0.65)
 end
 
-mod:AddCustomProjectile(IRFentities.SuckerProjectile, suckerProjectileInit, suckerProjectileUpdate, suckerProjectilePop)
+mod:AddCustomProjectile(mod.Entities.SuckerProjectile, SuckerProjectileInit, SuckerProjectileUpdate, SuckerProjectilePop)
 
 
 
 -- Egg sack projectile
-local function eggSackProjectileInit(projectile)
+local function EggSackProjectileInit(projectile)
 	projectile.Scale = 1.5
 end
 
-local function eggSackProjectileUpdate(projectile)
+local function EggSackProjectileUpdate(projectile)
 	local sprite = projectile:GetSprite()
 	mod:LoopingAnim(sprite, "Sack")
 	mod:FlipTowardsMovement(projectile, sprite)
@@ -471,7 +471,7 @@ local function eggSackProjectileUpdate(projectile)
 	end
 end
 
-local function eggSackProjectilePop(projectile)
+local function EggSackProjectilePop(projectile)
 	local blister = Isaac.Spawn(EntityType.ENTITY_BLISTER, 0, 0, projectile.Position, Vector.Zero, projectile.SpawnerEntity)
 	blister.MaxHitPoints = blister.MaxHitPoints / 2
 	blister.HitPoints = blister.MaxHitPoints
@@ -484,17 +484,17 @@ local function eggSackProjectilePop(projectile)
 	local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SPIDER_EXPLOSION, 0, projectile.Position, Vector.Zero, projectile):GetSprite()
 	effect.Offset = Vector(projectile.PositionOffset.X, projectile.PositionOffset.Y * 0.65)
 	effect.Scale = Vector(1.4, 1.4)
-	effect.Color = IRFcolors.WhiteShot
+	effect.Color = mod.Colors.WhiteShot
 end
 
-mod:AddCustomProjectile(IRFentities.EggSackProjectile, eggSackProjectileInit, eggSackProjectileUpdate, eggSackProjectilePop)
+mod:AddCustomProjectile(mod.Entities.EggSackProjectile, EggSackProjectileInit, EggSackProjectileUpdate, EggSackProjectilePop)
 
 
 
 
 
 --[[ Projectile trails ]]--
-function mod:projectileTrail(projectile)
+function mod:ProjectileTrail(projectile)
 	local data = projectile:GetData()
 
 	-- Haemo particle trail
@@ -523,14 +523,14 @@ function mod:projectileTrail(projectile)
 		data.spriteTrail.Velocity = projectile.Position + projectile.PositionOffset - data.spriteTrail.Position
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.projectileTrail)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.ProjectileTrail)
 
 
 
 
 
 --[[ Custom fire wave projectile ]]--
-local function fireWaveProjectilePop(projectile)
+local function FireWaveProjectilePop(projectile)
 	local data = projectile:GetData().customFireWave
 
 	for i = 0, 3 do
@@ -543,7 +543,7 @@ end
 -- Landed
 function mod:fireWaveProjectileUpdate(projectile)
 	if projectile:GetData().customFireWave and projectile:IsDead() then
-		fireWaveProjectilePop(projectile)
+		FireWaveProjectilePop(projectile)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.fireWaveProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)
@@ -551,7 +551,7 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.fireWaveProjectileUp
 -- Hit an entity
 function mod:fireWaveProjectileCollision(projectile, collider, bool)
 	if projectile:GetData().customFireWave and (collider.Type == EntityType.ENTITY_PLAYER or (collider:ToNPC() and collider.EntityCollisionClass == EntityCollisionClass.ENTCOLL_ALL)) then
-		fireWaveProjectilePop(projectile)
+		FireWaveProjectilePop(projectile)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_PROJECTILE_COLLISION, mod.fireWaveProjectileCollision, ProjectileVariant.PROJECTILE_NORMAL)

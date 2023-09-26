@@ -1,8 +1,8 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 
 
-function mod:prideUpdate(entity)
+function mod:PrideUpdate(entity)
 	if mod:CheckValidMiniboss(entity) == true then
 		local sprite = entity:GetSprite()
 
@@ -55,7 +55,7 @@ function mod:prideUpdate(entity)
 
 			if sprite:IsEventTriggered("Beam") then
 				local vector = Game():GetRoom():FindFreePickupSpawnPosition(Isaac.GetRandomPosition(), 40, false, false)
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACK_THE_SKY, 2, vector, Vector.Zero, entity):GetSprite().Color = IRFcolors.SunBeam
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACK_THE_SKY, 2, vector, Vector.Zero, entity):GetSprite().Color = mod.Colors.SunBeam
 
 			elseif sprite:IsEventTriggered("Shoot") then
 				mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_BEAM, 0.9)
@@ -72,27 +72,27 @@ function mod:prideUpdate(entity)
 			if entity.Variant == 0 then
 				-- Champion
 				if entity.SubType == 1 then
-					entity.SplatColor = IRFcolors.PrideHoly
+					entity.SplatColor = mod.Colors.PrideHoly
 				-- Regular
 				else
-					entity.SplatColor = IRFcolors.PrideGray
+					entity.SplatColor = mod.Colors.PrideGray
 				end
 
 			-- Super
 			elseif entity.Variant == 1 then
-				entity.SplatColor = IRFcolors.PridePink
+				entity.SplatColor = mod.Colors.PridePink
 			end
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.prideUpdate, EntityType.ENTITY_PRIDE)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.PrideUpdate, EntityType.ENTITY_PRIDE)
 
 
 
-function mod:championPrideReward(entity)
+function mod:ChampionPrideReward(entity)
 	-- Crack the Sky
 	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_PRIDE and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= CollectibleType.COLLECTIBLE_CRACK_THE_SKY then
 		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_CRACK_THE_SKY, false, true, false)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.championPrideReward, PickupVariant.PICKUP_COLLECTIBLE)
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.ChampionPrideReward, PickupVariant.PICKUP_COLLECTIBLE)

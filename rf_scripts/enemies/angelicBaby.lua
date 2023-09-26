@@ -1,4 +1,4 @@
-local mod = BetterMonsters
+local mod = ReworkedFoes
 
 local Settings = {
 	FeatherShotSpeed = 10,
@@ -8,7 +8,7 @@ local Settings = {
 
 
 
-function mod:angelicBabyInit(entity)
+function mod:AngelicBabyInit(entity)
 	if entity.Variant == 1 and entity.SubType == 0 and entity.SpawnerType == EntityType.ENTITY_GABRIEL then
 		if entity.SpawnerVariant == 1 then
 			entity:Morph(EntityType.ENTITY_IMP, 0, 0, entity:GetChampionColorIdx())
@@ -17,9 +17,9 @@ function mod:angelicBabyInit(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.angelicBabyInit, EntityType.ENTITY_BABY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.AngelicBabyInit, EntityType.ENTITY_BABY)
 
-function mod:angelicBabyUpdate(entity)
+function mod:AngelicBabyUpdate(entity)
 	if entity.Variant == 1 and entity.SubType == 0 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
@@ -32,7 +32,7 @@ function mod:angelicBabyUpdate(entity)
 
 			-- Helix feather shots
 			local params = ProjectileParams()
-			params.Variant = IRFentities.FeatherProjectile
+			params.Variant = mod.Entities.FeatherProjectile
 			params.FallingAccelModifier = -0.15
 			params.ChangeTimeout = 21
 			params.CurvingStrength = 0.0075
@@ -65,4 +65,4 @@ function mod:angelicBabyUpdate(entity)
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.angelicBabyUpdate, EntityType.ENTITY_BABY)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.AngelicBabyUpdate, EntityType.ENTITY_BABY)
