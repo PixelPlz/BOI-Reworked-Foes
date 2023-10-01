@@ -223,6 +223,7 @@ function mod:KeeperUpdate(entity)
 				and pickup:ToPickup():CanReroll() == true -- Don't try to pick up coins that haven't finished spawning
 				and not pickup:GetData().greedRobber then
 					entity.Target = pickup
+					break
 				end
 			end
 		end

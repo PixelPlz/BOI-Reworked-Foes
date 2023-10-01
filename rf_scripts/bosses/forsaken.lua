@@ -20,6 +20,7 @@ local Settings = {
 function mod:ForsakenInit(entity)
 	entity.MaxHitPoints = Settings.NewHealth
 	entity.HitPoints = entity.MaxHitPoints
+
 	entity.ProjectileCooldown = Settings.Cooldown / 2
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	entity.CollisionDamage = 0

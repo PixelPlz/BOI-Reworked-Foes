@@ -62,6 +62,7 @@ function mod:GishUpdate(entity)
 		data.effectColor = mod.Colors.Tar
 		data.creepType   = EffectVariant.CREEP_BLACK
 
+		-- Champion / Delirium
 		if entity.SubType == 1 or data.wasDelirium then
 			data.effectColor  = mod.Colors.WhiteShot
 			data.creepType    = EffectVariant.CREEP_WHITE

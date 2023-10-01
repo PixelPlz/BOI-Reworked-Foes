@@ -579,8 +579,11 @@ function mod:ScolexDMG(entity, damageAmount, damageFlags, damageSource, damageCo
 					end
 
 					damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
+
+					data.head:GetData().redamaging = true -- Retribution bullshit fix (I FUCKING HATE THIS MOD WHY CAN'T YOU BE FUCKING NORMAL)
 					data.head:TakeDamage(damageAmount, damageFlags, damageSource, 1)
 					data.head:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
+					data.head:GetData().redamaging = false
 
 				-- Damage the shell
 				else

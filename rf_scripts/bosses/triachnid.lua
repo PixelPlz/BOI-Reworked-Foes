@@ -207,7 +207,6 @@ function mod:TriachnidUpdate(entity)
 							local attack = mod:Random(1, attackCount)
 							if attack == 3 then attack = 2 end
 
-							--attack = 4
 
 							-- Vomit attack
 							if attack == 1 then

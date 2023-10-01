@@ -18,6 +18,8 @@ DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.0", [[
 - New Pin champion based off
 Larries Lament from Super Meat Boy
 
+- Bumbino got a bit smarter
+
 - Added a config option to toggle
 Greed-themed enemies stealing coin pickups
 
@@ -30,14 +32,17 @@ picked up coins and shoot
 the other half as projectiles,
 instead of shooting all of them
 
-- Increased Teratomar's health
-from 100 to 150
+- Reverted the Forsaken's health
+nerf so it's 400 again
 
 - Increased Rag Mega's health
 from 300 to 350
 
-- Increased the Forsaken's health
-from 350 to 400
+- Increased Loki and each Lokii pair's
+health from 350 to 420
+
+- Increased Teratomar's health
+from 100 to 150
 
 - The Stain now only takes 20%
 reduced damage through his tentacles
@@ -68,13 +73,16 @@ to his target position
 - Fixed friendly Black Bonies
 not working properly
 
-- Fixed the Fiend Folio Krampus
-champion's Enhanced Boss Bars icon being
-overwritten by this mod
+- Fixed Scolex sometimes not taking
+damage if Retribution is enabled
 
 - Fixed Clotty and Clot
 Curdle variants from Retribution
 using the wrong projectile types
+
+- Fixed the Fiend Folio Krampus
+champion's Enhanced Boss Bars icon being
+overwritten by this mod
 
 
 ]])

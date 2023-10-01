@@ -1,9 +1,6 @@
 local mod = ReworkedFoes
 
 local Settings = {
-	NewHealth = 150,
-	LilStevenMaxDistance = 20,
-
 	MoveSpeed = 5,
 	ChaseSpeed = 12,
 
@@ -11,6 +8,8 @@ local Settings = {
 	ChaseTime = 180,
 	TeleportCooldown = 120,
 	TeleportTime = 15,
+
+	LilStevenMaxDistance = 20,
 
 	-- 2nd phase
 	SecondPhaseHP = 100,
@@ -26,8 +25,6 @@ function mod:StevenInit(entity)
 
 		-- Big Steven
 		if entity.Variant == 1 then
-			entity.MaxHitPoints = Settings.NewHealth
-			entity.HitPoints = entity.MaxHitPoints
 			entity.I2 = Settings.TeleportCooldown
 
 

@@ -1,7 +1,7 @@
 local mod = ReworkedFoes
 
 local Settings = {
-	NewHP = 250,
+	NewHP = 240,
 	Cooldown = 90,
 	TransparencyTimer = 10,
 

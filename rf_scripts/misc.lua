@@ -148,7 +148,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.Monstro2Init, EntityType.ENTI
 function mod:ScytheInit(entity)
 	if entity.Variant == 10 then
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-		entity.Mass = 0.1
+		entity.Mass = 1
 		mod:PlaySound(nil, SoundEffect.SOUND_TOOTH_AND_NAIL, 0.9)
 
 		-- Get the parent's subtype
@@ -175,12 +175,21 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DeathUpdate, EntityType.ENTITY_D
 
 
 --[[ Make Peep and the Bloat's eyes bounce off of them and each other ]]--
-function mod:PeepEyeCollision(entity, target, cock)
+function mod:PeepEyeCollision(entity, target, bool)
 	if (entity.Variant == 10 or entity.Variant == 11) and target.Type == entity.Type then
 		entity.Velocity = (entity.Position - target.Position):Normalized()
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.PeepEyeCollision, EntityType.ENTITY_PEEP)
+
+
+
+--[[ Increase Loki and Lokii's HP ]]--
+function mod:LokiInit(entity)
+	entity.MaxHitPoints = 420
+	entity.HitPoints = entity.MaxHitPoints
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.LokiInit, EntityType.ENTITY_LOKI)
 
 
 
@@ -789,3 +798,33 @@ function mod:SirenHelperDeath(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.SirenHelperDeath, EntityType.ENTITY_SIREN_HELPER)
+
+
+
+--[[ Bumbino make sticky nickel go boom!! ]]--
+function mod:BumbinoUpdate(entity)
+	local sprite = entity:GetSprite()
+
+	if entity.State == NpcState.STATE_MOVE then
+		-- Find any sticky nickels nearby
+		for _, pickup in pairs(Isaac.FindInRadius(entity.Position, 180, EntityPartition.PICKUP)) do
+			if pickup.Variant == PickupVariant.PICKUP_COIN and pickup.SubType == CoinSubType.COIN_STICKYNICKEL and pickup:ToPickup():CanReroll() == true then
+				entity.State = NpcState.STATE_ATTACK4
+				sprite:Play("ButtBomb", true)
+				entity.Target = pickup
+				sprite.FlipX = entity.Position.X > pickup.Position.X
+				break
+			end
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BumbinoUpdate, EntityType.ENTITY_BUMBINO)
+
+-- Change his Butt Bomb's velocity to target the sticky nickel
+function mod:BumbinoBombInit(bomb)
+	if bomb.SpawnerType == EntityType.ENTITY_BUMBINO and bomb.SpawnerEntity and bomb.SpawnerEntity.Target and bomb.SpawnerEntity.Target.Type == EntityType.ENTITY_PICKUP then
+		local speed = bomb.Position:Distance(bomb.SpawnerEntity.Target.Position) / 11
+		bomb.Velocity = (bomb.SpawnerEntity.Target.Position - bomb.Position):Resized(speed)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_BOMB_INIT, mod.BumbinoBombInit, BombVariant.BOMB_BUTT)
