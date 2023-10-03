@@ -3,8 +3,6 @@ local mod = ReworkedFoes
 local Settings = {
 	Cooldown = 30,
 	DamageReduction = 20,
-	HeadSmashScreenShake = 14,
-
 	HopperHealth = 25
 }
 
@@ -82,7 +80,7 @@ function mod:GateUpdate(entity)
 			if entity.SubType == 1 then
 				mod:PlaySound(nil, SoundEffect.SOUND_PLOP, 0.9) -- Fuck you Amy I'll include it if I want!
 				mod:PlaySound(nil, SoundEffect.SOUND_HEARTIN)
-				mod:ShootEffect(entity, 3, Vector(0, -56))
+				mod:ShootEffect(entity, 4, Vector(0, -56))
 
 
 			else
@@ -337,10 +335,14 @@ function mod:GateUpdate(entity)
 			end
 
 			-- Effects
+			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite()
+			effect.Color = mod.Colors.DustPoof
+			effect.Scale = Vector(1.25, 1.25)
+
 			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity).SpriteScale = Vector(1.2, 1.2)
 			mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
 			mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.1)
-			Game():ShakeScreen(Settings.HeadSmashScreenShake)
+			Game():ShakeScreen(12)
 			Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
 		end
 

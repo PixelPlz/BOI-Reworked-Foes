@@ -2,7 +2,6 @@ local mod = ReworkedFoes
 
 local Settings = {
 	NewHealth = 700,
-	LegDamageReduction = 20,
 	Cooldown = 30,
 	MaxSpawns = 3,
 
@@ -14,10 +13,14 @@ local Settings = {
 	-- Feet
 	FootOffset = Vector(0, -16),
 	LegPointyness = 110,
+	FootDamageReduction = 20,
 
 	WalkJumpStrength = 11,
 	Gravity = 1.2,
 	LandHeight = 0,
+
+	StompStartStrength = -20,
+	StompGravity = 2,
 	StompDamage = 40, -- Just enough to kill a half health Blister in the Void (why do they have so much stage HP...)
 }
 
@@ -121,11 +124,12 @@ function mod:TriachnidUpdate(entity)
 		end
 
 
+
 		--[[ Head ]]--
 		if entity.Variant == 1 then
 			entity.Velocity = Vector.Zero
 
-			-- Uncurl
+			--[[ Uncurl ]]--
 			if entity.State == NpcState.STATE_APPEAR_CUSTOM then
 				-- Start
 				if entity.StateFrame == 0 then
@@ -154,7 +158,6 @@ function mod:TriachnidUpdate(entity)
 							entity.State = NpcState.STATE_IDLE
 							entity.PositionOffset = Vector(0, Settings.HeadHeight)
 
-							entity.StateFrame = 0
 							entity.ProjectileCooldown = Settings.Cooldown / 2
 							data.init = true
 
@@ -168,13 +171,13 @@ function mod:TriachnidUpdate(entity)
 				end
 
 
-			-- Idle
+
+			--[[ Idle ]]--
 			elseif entity.State == NpcState.STATE_IDLE then
 				-- Do the appear animation first
 				if not data.init then
 					entity.State = NpcState.STATE_APPEAR_CUSTOM
 					sprite:Play("HeadLiftStart", true)
-					entity.StateFrame = 0
 					entity.I2 = 3
 					mod:PlaySound(entity, mod.Sounds.TriachnidHappy, 1.2)
 
@@ -205,7 +208,6 @@ function mod:TriachnidUpdate(entity)
 								attackCount = 3
 							end
 							local attack = mod:Random(1, attackCount)
-							if attack == 3 then attack = 2 end
 
 
 							-- Vomit attack
@@ -256,7 +258,8 @@ function mod:TriachnidUpdate(entity)
 				end
 
 
-			-- Moving
+
+			--[[ Moving ]]--
 			elseif entity.State == NpcState.STATE_MOVE then
 				-- Stay at the centroid of the feet
 				local centroidX = 0
@@ -297,14 +300,19 @@ function mod:TriachnidUpdate(entity)
 				end
 
 
-			-- Vomit attack
+
+			--[[ Vomit attack ]]--
 			elseif entity.State == NpcState.STATE_ATTACK then
 				-- Start
 				if entity.StateFrame == 0 then
 					if sprite:IsFinished() then
 						entity.StateFrame = 1
+
+						-- Effects
 						if not data.wasDelirium then -- I hate this game
 							mod:PlaySound(nil, SoundEffect.SOUND_PESTILENCE_NECK_PUKE, 1.1)
+							Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.WhiteShot
+							Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.WhiteShot
 						end
 					end
 
@@ -353,29 +361,32 @@ function mod:TriachnidUpdate(entity)
 				end
 
 
-			-- Stomp attack
+
+			--[[ Stomp attack ]]--
 			elseif entity.State == NpcState.STATE_ATTACK2 then
 				-- Set the foot's state
 				if entity.StateFrame < 2 and data.sortedLegs[1].State ~= NpcState.STATE_ATTACK then
-					data.sortedLegs[1].State = NpcState.STATE_ATTACK
-					data.sortedLegs[1]:GetSprite():Play("FootStepStart", true)
-					data.sortedLegs[1].I1 = 30
+					local foot = data.sortedLegs[1]
 
-					data.sortedLegs[1].EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-					data.sortedLegs[1].GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
+					foot.State = NpcState.STATE_ATTACK
+					foot:GetSprite():Play("FootStepStart", true)
+					foot.I1 = 30
+
+					foot.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+					foot.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 				end
 
-				-- Start
+				-- Start stomp
 				if entity.StateFrame == 0 then
 					if sprite:IsFinished() then
 						entity.StateFrame = 1
 					end
 
-				-- Loop
+				-- Waiting for the foot to stomp
 				elseif entity.StateFrame == 1 then
 					mod:LoopingAnim(sprite, "HeadLiftLoop")
 
-				-- Stop
+				-- Stomped
 				elseif entity.StateFrame == 2 then
 					if sprite:IsFinished() then
 						entity.State = NpcState.STATE_IDLE
@@ -383,61 +394,31 @@ function mod:TriachnidUpdate(entity)
 				end
 
 
-			-- Head slam attack
+
+			--[[ Head slam attack ]]--
 			elseif entity.State == NpcState.STATE_ATTACK3 then
-				-- Stay at the centroid of the feet
-				local centroidX = 0
-				local centroidY = 0
-				local combinedHeight = 0
-
-				for i, leg in pairs(data.legs) do
-					centroidX = centroidX + leg.foot.Position.X
-					centroidY = centroidY + leg.foot.Position.Y
-					combinedHeight = combinedHeight + leg.foot.PositionOffset.Y
-				end
-
-				entity.Position = Vector(centroidX, centroidY) / 3
-
-
-				-- >:(
-				if entity.StateFrame == 1 then
-					if sprite:IsFinished() then
-						entity.StateFrame = 1
-						
-					end
-
 				-- Lift head
-				elseif entity.StateFrame == 0 then
+				if entity.StateFrame == 0 then
 					if not sprite:IsPlaying("HeadLiftStart") then
 						mod:LoopingAnim(sprite, "HeadLiftLoop")
 					end
 
 					if entity.PositionOffset.Y <= Settings.RaisedHeadHeight then
-						entity.StateFrame = 2
+						entity.StateFrame = 1
 						entity.PositionOffset = Vector(0, Settings.RaisedHeadHeight)
 						sprite.Offset = Vector(0, -15)
 
 						entity.TargetPosition = entity.Position + (target.Position - entity.Position):Resized(200)
 						entity.TargetPosition = room:GetClampedPosition(entity.TargetPosition, 40)
 
-
-						-- Sort the legs by distance from the parent
-						--[[
-						data.sortedLegs = {
-							data.legs[1].foot,
-							data.legs[2].foot,
-							data.legs[3].foot,
-						}
-						table.sort(data.sortedLegs, function (k1, k2) return k1.Position:Distance(entity.Position) > k2.Position:Distance(entity.Position) end )
-						]]--
-
 					else
 						entity.PositionOffset = mod:Lerp(entity.PositionOffset, Vector(entity.PositionOffset.X, Settings.RaisedHeadHeight - 10), 0.1)
 						sprite.Offset = mod:Lerp(sprite.Offset, Vector(0, -15), 0.1)
 					end
 
+
 				-- Move to position
-				elseif entity.StateFrame == 2 then
+				elseif entity.StateFrame == 1 then
 					mod:LoopingAnim(sprite, "HeadLiftLoop")
 
 					-- Stay at the centroid of the feet
@@ -455,25 +436,16 @@ function mod:TriachnidUpdate(entity)
 					entity.PositionOffset = Vector(0, Settings.RaisedHeadHeight + combinedHeight * 0.18)
 
 
-					if entity.Position:Distance(target.Position) < entity.Size * entity.Scale + 30 then
-						entity.StateFrame = 3
-						sprite:Play("HeadFallStart", true)
-						entity.I2 = 0
-					end
-					
 					if data.stompDelay <= 0 then
-						
-	
-						local neew = entity.Position + (target.Position - entity.Position):Resized(120)
-						entity.TargetPosition = mod:Lerp(entity.TargetPosition, neew, 0.5)
+						-- Update target movement vector to allow slow steering
+						local newVector = entity.Position + (target.Position - entity.Position):Resized(120)
+						entity.TargetPosition = mod:Lerp(entity.TargetPosition, newVector, 0.5)
+
 
 						-- Move the first leg on the list
 						if data.sortedLegs[1] then
 							local pos = entity.TargetPosition + Vector.FromAngle(-90 + data.sortedLegs[1]:GetData().index * 120):Resized(80)
-							--local pos = entity.Position + (target.Position - entity.Position):Resized(200) + Vector.FromAngle(-90 + data.sortedLegs[1]:GetData().index * 120):Resized(80)
-
 							startLegMove(data.sortedLegs[1], pos)
-							data.lastLeg = data.sortedLegs[1]:GetData().index
 							table.remove(data.sortedLegs, 1)
 
 							-- Stomp faster the lower his health is
@@ -481,52 +453,33 @@ function mod:TriachnidUpdate(entity)
 							local currentPercent = entity.HitPoints / onePercent
 							local difference = 100 - currentPercent
 
-							data.stompDelay = 25 - math.ceil(difference / 10)
+							data.stompDelay = 26 - math.ceil(difference / 10)
 
 						-- All legs have moved
 						else
-							if entity.I2 >= 2 or entity.Position:Distance(target.Position) < entity.Size * entity.Scale + 30 then
-								entity.StateFrame = 3
-								sprite:Play("HeadFallStart", true)
-								entity.I2 = 0
-
-							else
-								entity.I2 = entity.I2 + 1
-								entity.TargetPosition = entity.Position + (target.Position - entity.Position):Resized(120)
-								entity.TargetPosition = room:GetClampedPosition(entity.TargetPosition, 40)
-
-								-- Sort the legs by distance from the target
-								data.sortedLegs = {
-									data.legs[1].foot,
-									data.legs[2].foot,
-									data.legs[3].foot,
-								}
-								table.sort(data.sortedLegs, function (k1, k2) return k1.Position:Distance(target.Position) < k2.Position:Distance(target.Position) end )
-
-								-- Start with the furthest
-								if data.sortedLegs[1]:GetData().index == data.lastLeg then
-									table.sort(data.sortedLegs, function (k1, k2) return k1.Position:Distance(target.Position) > k2.Position:Distance(target.Position) end )
-								end
-							end
+							entity.StateFrame = 2
+							sprite:Play("HeadFallStart", true)
 						end
 
 					else
 						data.stompDelay = data.stompDelay - 1
 					end
 
+
 				-- Start going down
-				elseif entity.StateFrame == 3 then
+				elseif entity.StateFrame == 2 then
 					if sprite:IsFinished() then
-						entity.StateFrame = 4
+						entity.StateFrame = 3
+						entity.V2 = Vector(0, Settings.StompStartStrength)
 					end
 
 				-- Falling
-				elseif entity.StateFrame == 4 then
+				elseif entity.StateFrame == 3 then
 					mod:LoopingAnim(sprite, "HeadFallLoop")
 
 					-- Land
 					if entity.PositionOffset.Y >= Settings.LandHeight - 10 then
-						entity.StateFrame = 5
+						entity.StateFrame = 4
 						sprite:Play("HeadSlam")
 						entity.PositionOffset = Vector.Zero
 						entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
@@ -534,8 +487,11 @@ function mod:TriachnidUpdate(entity)
 						-- Projectiles + creep
 						local params = ProjectileParams()
 						params.Color = mod.Colors.WhiteShot
-						params.CircleAngle = 0
-						entity:FireProjectiles(entity.Position, Vector(10, 16), 9, params)
+						params.CircleAngle = 0.41
+						params.Scale = 1.35
+						entity:FireProjectiles(entity.Position, Vector(8, 8), 9, params)
+						params.Scale = 1.5
+						entity:FireProjectiles(entity.Position, Vector(12, 4), 6, params)
 
 						-- Creep
 						local offset = mod:Random(359)
@@ -546,11 +502,11 @@ function mod:TriachnidUpdate(entity)
 						-- Effects
 						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity)
 						effect.DepthOffset = entity.DepthOffset + 10
-						effect:GetSprite().Color = mod.Colors.WhiteShot
+						effect:GetSprite().Color = Color(0,0,0, 0.5, 1,1,1)
 
 						mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.2)
 						mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.2)
-						Game():ShakeScreen(10)
+						Game():ShakeScreen(12)
 
 						-- Destroy rocks he slams
 						for i = -1, 1 do
@@ -567,29 +523,32 @@ function mod:TriachnidUpdate(entity)
 							end
 						end
 
-					-- Going down
+					-- Update height
 					else
-						entity.I2 = entity.I2 + 2 -- Increase the speed
-						entity.PositionOffset = Vector(entity.PositionOffset.X, entity.PositionOffset.Y + (20 + entity.I2))
+						entity.V2 = Vector(0, entity.V2.Y - Settings.StompGravity)
+						entity.PositionOffset = Vector(0, math.min(Settings.LandHeight, entity.PositionOffset.Y - entity.V2.Y))
 					end
 
 				-- Landed
-				elseif entity.StateFrame == 5 then
+				elseif entity.StateFrame == 4 then
 					if sprite:IsEventTriggered("Vomit") then
-						entity.StateFrame = 6
+						entity.StateFrame = 5
 					end
 
+
 				-- Lift head back to the default position
-				elseif entity.StateFrame == 6 then
+				elseif entity.StateFrame == 5 then
 					if not sprite:IsPlaying("HeadSlam") then
 						mod:LoopingAnim(sprite, "HeadIdle")
 					end
 
+					-- Back in default position
 					if entity.PositionOffset.Y <= Settings.HeadHeight then
 						entity.State = NpcState.STATE_IDLE
 						entity.PositionOffset = Vector(0, Settings.HeadHeight)
 						sprite.Offset = Vector.Zero
 
+					-- Going up
 					else
 						entity.PositionOffset = mod:Lerp(entity.PositionOffset, Vector(0, Settings.HeadHeight - 10), 0.1)
 						sprite.Offset = mod:Lerp(sprite.Offset, Vector.Zero, 0.15)
@@ -597,7 +556,8 @@ function mod:TriachnidUpdate(entity)
 				end
 
 
-			-- Spit out an egg sack
+
+			--[[ Spit out an egg sack ]]--
 			elseif entity.State == NpcState.STATE_SUMMON then
 				if sprite:IsEventTriggered("Vomit") then
 					local params = ProjectileParams()
@@ -616,7 +576,7 @@ function mod:TriachnidUpdate(entity)
 
 					local effectSprite = effect:GetSprite()
 					effectSprite.Offset = Vector(0, 10)
-					effectSprite.Color = Color(0,0,0, 0.4, 1,1,1)
+					effectSprite.Color = Color(0,0,0, 0.5, 1,1,1)
 					effectSprite.Scale = Vector(0.5, 0.5)
 
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8)
@@ -625,6 +585,7 @@ function mod:TriachnidUpdate(entity)
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
 				end
+
 
 
 			-- Force Delirium out of this form because for some reason he just deletes the data that holds the references to the legs
@@ -639,6 +600,8 @@ function mod:TriachnidUpdate(entity)
 			if entity:HasMortalDamage() then
 				mod:PlaySound(entity, mod.Sounds.TriachnidHurt, 1.2)
 			end
+
+
 
 
 
@@ -682,7 +645,7 @@ function mod:TriachnidUpdate(entity)
 				end
 
 
-				-- Idle
+				--[[ Idle ]]--
 				if entity.State == NpcState.STATE_IDLE then
 					entity.Velocity = Vector.Zero
 					if not sprite:IsPlaying("FootStomp") then
@@ -690,7 +653,8 @@ function mod:TriachnidUpdate(entity)
 					end
 
 
-				-- Moving
+
+				--[[ Moving ]]--
 				elseif entity.State == NpcState.STATE_MOVE then
 					if not sprite:IsPlaying("FootStepStart") then
 						mod:LoopingAnim(sprite, "FootAir")
@@ -713,6 +677,7 @@ function mod:TriachnidUpdate(entity)
 							entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 							mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.4)
 
+							-- For the appear animation
 							if not entity.Parent:GetData().init and entity.Parent:ToNPC().StateFrame ~= 2 then
 								entity.Parent:ToNPC().StateFrame = 2
 							end
@@ -724,7 +689,8 @@ function mod:TriachnidUpdate(entity)
 					end
 
 
-				-- Stomp
+
+				--[[ Stomp ]]--
 				elseif entity.State == NpcState.STATE_ATTACK then
 					-- Go above the target
 					if entity.StateFrame == 0 then
@@ -751,6 +717,7 @@ function mod:TriachnidUpdate(entity)
 
 							if entity.I1 <= 0 then
 								entity.StateFrame = 1
+								entity.V2 = Vector(0, Settings.StompStartStrength)
 								mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
 							end
 
@@ -784,11 +751,11 @@ function mod:TriachnidUpdate(entity)
 							-- Effects
 							local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity)
 							effect.DepthOffset = entity.DepthOffset + 10
-							effect:GetSprite().Color = mod.Colors.WhiteShot
+							effect:GetSprite().Color = Color(0,0,0, 0.5, 1,1,1)
 
 							mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS)
 							mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND)
-							Game():ShakeScreen(6)
+							Game():ShakeScreen(7)
 
 							-- Destroy rocks he slams
 							room:DestroyGrid(room:GetGridIndex(entity.Position), true)
@@ -800,10 +767,10 @@ function mod:TriachnidUpdate(entity)
 								end
 							end
 
-						-- Going down
+						-- Update height
 						else
-							entity.I1 = entity.I1 + 2 -- Increase the speed
-							entity.PositionOffset = Vector(entity.PositionOffset.X, entity.PositionOffset.Y + (20 + entity.I1))
+							entity.V2 = Vector(0, entity.V2.Y - Settings.StompGravity)
+							entity.PositionOffset = Vector(0, math.min(Settings.LandHeight, entity.PositionOffset.Y - entity.V2.Y))
 						end
 
 
@@ -843,7 +810,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.TriachnidUpdate, EntityType.
 function mod:TriachnidDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if entity.Variant == 10 and entity.Parent then
 		local onePercent = damageAmount / 100
-		local reduction = onePercent * Settings.LegDamageReduction
+		local reduction = onePercent * Settings.FootDamageReduction
 
 		entity.Parent:TakeDamage(damageAmount - reduction, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
 		entity:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
@@ -918,10 +885,13 @@ function mod:TriachnidRender(entity, offset)
 					sprite.Offset = Vector(0, -15)
 
 					-- Effects
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity).DepthOffset = entity.DepthOffset + 10
+					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity)
+					effect.DepthOffset = entity.DepthOffset + 10
+					effect:GetSprite().Color = mod.Colors.DustPoof
+
 					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS)
 					mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND)
-					Game():ShakeScreen(7)
+					Game():ShakeScreen(8)
 				end
 			end
 

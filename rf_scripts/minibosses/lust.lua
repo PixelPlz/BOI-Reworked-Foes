@@ -77,6 +77,16 @@ function mod:LustUpdate(entity)
 		local room = Game():GetRoom()
 
 
+		-- Enemy spawn dust cloud
+		local function spawnCloud()
+			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 5, entity.Position, Vector.Zero, entity):GetSprite()
+			effect.Color = Color(0,0,0, 0.5, 0.25,0.25,0.25)
+			effect.Scale = Vector(0.5, 0.5)
+			effect.Offset = Vector(0, entity.Scale * -20)
+			return effect
+		end
+
+
 		-- Persistent effects --
 		-- Nerf her speed if she doesn't have a speed up
 		if data.speedUp ~= true then
@@ -159,7 +169,7 @@ function mod:LustUpdate(entity)
 				local playSFX = false
 
 				-- One time use effects --
-				-- Grow and get the ability to crush rocks
+				--[[ Grow and get the ability to crush rocks ]]--
 				if entity.I2 == 1 then
 					playSFX = true
 					entity.Scale = entity.Scale * Settings.GrowAmount
@@ -167,27 +177,47 @@ function mod:LustUpdate(entity)
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
 
-				-- Pretty flies / Bone orbitals
+
+				--[[ Pretty flies / Bone orbitals ]]--
 				elseif entity.I2 == 2 then
+					-- Bone orbitals
 					if entity.SubType == 1 then
-						mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 						for i = 0, 3 do
 							Isaac.Spawn(mod.Entities.Type, mod.Entities.BoneOrbital, 0, entity.Position, Vector.Zero, entity).Parent = entity
 						end
 
+						-- Effects
+						mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
+						mod:PlaySound(nil, SoundEffect.SOUND_DEVILROOM_DEAL)
+
+						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 1, entity.Position, Vector.Zero, entity):GetSprite()
+						effect.Color = Color(0,0,0, 0.4)
+						effect.Scale = Vector(0.75, 0.75)
+
+
+					-- Pretty flies
 					else
 						playSFX = true
+
 						for i = 1, 1 + entity.Variant do
 							Isaac.Spawn(EntityType.ENTITY_ETERNALFLY, 0, 0, entity.Position, Vector.Zero, entity).Parent = entity
 						end
 					end
 
 
-				-- Speed up / Temparance blood trail
+
+				--[[ Speed up / Temparance blood trail ]]--
 				elseif entity.I2 == 3 then
+					-- Temparance blood trail
 					if entity.SubType == 1 then
-						mod:PlaySound(nil, SoundEffect.SOUND_BLOODBANK_SPAWN)
 						data.hasCreep = true
+
+						-- Effects
+						mod:PlaySound(nil, SoundEffect.SOUND_BLOODBANK_SPAWN)
+						mod:ShootEffect(entity, 3, Vector.Zero, Color.Default, 1, true)
+
+
+					-- Speed up
 					else
 						playSFX = true
 						data.speedUp = true
@@ -197,70 +227,100 @@ function mod:LustUpdate(entity)
 
 
 				-- Attack effects --
-				-- Lemon party creep / High Priestess stomp
+				--[[ Lemon party creep / High Priestess stomp ]]--
 				elseif entity.I2 == 4 then
+					-- High Priestess stomp
 					if entity.SubType == 1 then
-						mod:PlaySound(nil, SoundEffect.SOUND_MOM_VOX_EVILLAUGH, 0.8)
-
 						local foot = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.MOM_FOOT_STOMP, 0, entity.Position, Vector.Zero, entity)
 						foot.Target = entity:GetPlayerTarget()
 						foot:GetSprite().PlaybackSpeed = 0.95
 
+						-- Effects
+						mod:PlaySound(nil, SoundEffect.SOUND_MOM_VOX_EVILLAUGH, 0.8)
+						Game():ShakeScreen(8)
+
+
+					-- Lemon party creep
 					else
+						local effectScale = entity.Scale * 0.65
+
+						-- Super Lust
 						if entity.Variant == 1 then
+							effectScale = entity.Scale * 0.75
+
 							for i = 0, 2 do
 								local offset = mod:Random(359)
 								mod:QuickCreep(EffectVariant.CREEP_YELLOW, entity, entity.Position + Vector.FromAngle(offset + i * 120):Resized(mod:Random(30, 40)), 2.5, 240)
 							end
+
 						else
 							mod:QuickCreep(EffectVariant.CREEP_YELLOW, entity, entity.Position, 2.5, 240)
 						end
 
-						mod:ShootEffect(entity, 3, Vector.Zero, Color(0,0,0, 1, 1,1,0), 1, true)
+						-- Effects
 						mod:PlaySound(nil, SoundEffect.SOUND_GASCAN_POUR)
+
+						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity):GetSprite()
+						effect.Color = Color(0,0,0, 1, 1,1,0)
+						effect.Scale = Vector(effectScale, effectScale)
+						effect.Offset = Vector(0, entity.Scale * -16)
 					end
 
 
-				-- Heal
+
+				--[[ Heal ]]--
 				elseif entity.I2 == 5 then
 					playSFX = true
 					local amount = Settings.ItemHeal
 					local sound = SoundEffect.SOUND_VAMP_GULP
 
+					-- Get the amount to heal
 					if entity.Variant == 1 or entity.SubType == 1 then
 						amount = Settings.ItemHeal * 2
 						sound = SoundEffect.SOUND_VAMP_DOUBLE
 					end
 
-					mod:PlaySound(entity, sound)
 					entity:AddHealth((entity.MaxHitPoints / 100) * amount)
-					entity:SetColor(Color(1,1,1, 1, 0.65,0,0), 15, 1, true, false)
+
+					-- Effects
+					mod:PlaySound(entity, sound)
+					entity:SetColor(mod.Colors.Heal, 15, 1, true, false)
 
 					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HEART, 0, entity.Position, Vector.Zero, entity)
 					effect:ToEffect():FollowParent(entity)
-					effect:GetSprite().Offset = Vector(0, -40)
+					effect:GetSprite().Offset = Vector(0, entity.Scale * -40)
 					effect.DepthOffset = entity.DepthOffset + 1
 
 
-				-- Infested spiders / Tower bombs
+
+				--[[ Infested spiders / Tower bombs ]]--
 				elseif entity.I2 == 6 then
+					-- Tower bombs
 					if entity.SubType == 1 then
 						data.towerBombs = true
 
+
+					-- Infested spiders
 					else
 						for i = 0, 1 do
 							EntityNPC.ThrowSpider(entity.Position, entity, entity.Position + mod:RandomVector(mod:Random(80, 120)), entity.Variant == 1, -10)
 						end
+
+						spawnCloud()
 						mod:PlaySound(nil, SoundEffect.SOUND_BOIL_HATCH, 0.8)
 					end
 
 
-				-- Friends till the end flies / Hermit Greed Gaper
-				elseif entity.I2 == 7 then
-					if entity.SubType == 1 then
-						mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
-						Isaac.Spawn(EntityType.ENTITY_GREED_GAPER, 0, 0, entity.Position + Vector(0, 10), Vector.Zero, entity)
 
+				--[[ Friends till the end flies / Hermit Greed Gaper ]]--
+				elseif entity.I2 == 7 then
+					-- Hermit Greed Gaper
+					if entity.SubType == 1 then
+						local pos = room:GetClampedPosition(entity.Position + Vector(0, 10), 10)
+						Isaac.Spawn(EntityType.ENTITY_GREED_GAPER, 0, 0, pos, Vector.Zero, entity)
+
+
+					-- Friends till the end flies
 					else
 						local type = EntityType.ENTITY_ATTACKFLY
 						if entity.Variant == 1 then
@@ -269,32 +329,64 @@ function mod:LustUpdate(entity)
 
 						local offset = mod:Random(359)
 						for i = 0, 2 - entity.Variant do
-							Isaac.Spawn(type, 0, 0, entity.Position + Vector.FromAngle(offset + (i * 120)):Resized(10), Vector.Zero, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+							local vector = Vector.FromAngle(offset + (i * 120))
+							Isaac.Spawn(type, 0, 0, entity.Position + vector:Resized(10), vector:Resized(2), entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 						end
 					end
 
+					spawnCloud()
+					mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 
-				-- Bad gas fart cloud / Sun light beams + heal
+
+
+				--[[ Bad gas fart cloud / Sun light beams + heal ]]--
 				elseif entity.I2 == 8 then
+					-- Sun light beams + heal
 					if entity.SubType == 1 then
-						mod:PlaySound(nil, SoundEffect.SOUND_HOLY)
 						data.sunBeams = true
 						entity:AddHealth((entity.MaxHitPoints / 100) * Settings.ItemHeal)
+
+						-- Effects
+						mod:PlaySound(nil, SoundEffect.SOUND_HOLY)
 						entity:SetColor(mod.Colors.SunBeam, 15, 1, true, false)
 
+
+					-- Bad gas fart (+ cloud)
 					else
-						Game():Fart(entity.Position, entity.Scale * 100, entity, entity.Scale, 0, Color.Default)
+						local fartScale = entity.Scale
 
 						-- Super Lust poison cloud
 						if entity.Variant == 1 then
+							fartScale = entity.Scale * 1.25
 							Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SMOKE_CLOUD, 0, entity.Position, Vector.Zero, entity):ToEffect().Scale = 2
 						end
+
+						-- Get fart radius
+						local fartRadius = fartScale * 75
+
+						-- Damage players and poison enemies
+						for i, enemy in pairs(Isaac.FindInRadius(entity.Position, fartRadius, 40)) do
+							if enemy.Index ~= entity.Index and enemy.EntityCollisionClass >= 3 and (enemy.Type == EntityType.ENTITY_PLAYER or enemy:IsActiveEnemy() == true) then
+								-- Deal damage to players
+								if enemy.Type == EntityType.ENTITY_PLAYER then
+									enemy:TakeDamage(1, DamageFlag.DAMAGE_POISON_BURN, EntityRef(entity), 0)
+
+								-- Poison enemies
+								else
+									enemy:AddPoison(EntityRef(entity), 60, 2)
+								end
+							end
+						end
+
+						-- Farts
+						Game():Fart(entity.Position, fartRadius, entity, fartScale, 0, Color.Default)
+						Game():ButterBeanFart(entity.Position, fartRadius, entity, false, false)
 					end
 				end
 
 
 
-				-- Play announcer and pill / card sounds --
+				--[[ Play announcer and pill / card sounds ]]--
 				-- Champion Lust
 				if entity.SubType == 1 then
 					mod:PlaySound(nil, lustVoiceLines.cards[entity.I2], 1.1)
@@ -365,11 +457,11 @@ function mod:LustHit(entity, damageAmount, damageFlags, damageSource, damageCoun
 
 		-- Effects
 		mod:PlaySound(lust, SoundEffect.SOUND_KISS_LIPS1, 1.1)
-		lust:SetColor(Color(1,1,1, 1, 0.5,0,0), 12, 1, true, false)
+		lust:SetColor(mod.Colors.Heal, 12, 1, true, false)
 
 		local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HEART, 0, lust.Position, Vector.Zero, lust)
 		effect:ToEffect():FollowParent(lust)
-		effect:GetSprite().Offset = Vector(0, -40)
+		effect:GetSprite().Offset = Vector(0, lust:ToNPC().Scale * -40)
 		effect.DepthOffset = lust.DepthOffset + 1
 	end
 end

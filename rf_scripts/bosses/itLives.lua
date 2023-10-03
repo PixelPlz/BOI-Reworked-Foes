@@ -156,7 +156,7 @@ function mod:ItLivesUpdate(entity)
 					if attack == 1 then
 						sprite:Play(animPrefix .. "CryStart", true)
 
-					-- Pulsating ring + stream of shots
+					-- Rotating ring + stream of shots
 					elseif attack == 2 then
 						sprite:Play(animPrefix .. "SqueezeStart", true)
 						entity.I2 = mod:Random(1)
@@ -264,6 +264,7 @@ function mod:ItLivesUpdate(entity)
 
 			-- Slam effects
 			if sprite:IsEventTriggered("Slam") then
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite().Color = Color(0.7,0.1,0.1, 0.75)
 				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity)
 				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
 				mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.1)
@@ -556,7 +557,7 @@ function mod:ItLivesUpdate(entity)
 
 
 
-			--[[ Pulsating ring + stream of shots / Slam / Slam ]]--
+			--[[ Rotating ring + stream of shots / Slam / Slam ]]--
 			elseif entity.State == NpcState.STATE_ATTACK2 then
 				-- Slam
 				if data.phase == 4 then
@@ -586,7 +587,7 @@ function mod:ItLivesUpdate(entity)
 					end
 
 
-				-- Pulsating ring + stream of shots
+				-- Rotating ring + stream of shots
 				elseif data.attackCounter == 2 then
 					-- Start
 					if entity.StateFrame == 0 then
@@ -603,7 +604,7 @@ function mod:ItLivesUpdate(entity)
 							mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT, 0.9)
 							mod:ShootEffect(entity, 3, Vector(0, -30), Color.Default, 1, true)
 
-							-- Pulsating shots
+							-- Rotating shots
 							if entity.I1 % 6 == 0 then
 								local params = baseProjectileParams
 								params.Scale = 1.75
@@ -613,9 +614,9 @@ function mod:ItLivesUpdate(entity)
 								if entity.I2 % 2 == 1 then
 									curveDir = ProjectileFlags.CURVE_RIGHT
 								end
-								params.BulletFlags = params.BulletFlags + (ProjectileFlags.SINE_VELOCITY | curveDir)
+								params.BulletFlags = params.BulletFlags + curveDir
 
-								entity:FireProjectiles(entity.Position, Vector(4, 13), 9, params)
+								entity:FireProjectiles(entity.Position, Vector(6, 16), 9, params)
 								mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.9)
 								entity.I2 = entity.I2 + 1
 							end

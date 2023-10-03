@@ -161,5 +161,6 @@ local flavorText = {
 	"It will even fix your marriage!",
 	"The Husk was hiding the Forgotten this entire time",
 	"We will rework your wife. We will rework your son. We will rework your infant daughter.",
+	"Goonin' with the boys",
 }
 print(startupText .. " - " .. mod:RandomIndex(flavorText))

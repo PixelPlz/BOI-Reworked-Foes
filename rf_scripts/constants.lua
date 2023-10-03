@@ -62,28 +62,29 @@ mod.Colors = {}
 
 mod.Colors.BrimShot   = Color(1,0.25,0.25, 1, 0.25,0,0)
 mod.Colors.ShadyRed   = Color(-1,-1,-1, 1, 1,0,0)
-mod.Colors.Tar 		  = Color(1,1,1, 1);   						 mod.Colors.Tar:SetColorize(1,1,1, 1);   mod.Colors.Tar:SetTint(0.5,0.5,0.5, 1)
-mod.Colors.WhiteShot  = Color(1,1,1, 1, 0.5,0.5,0.5);   		 mod.Colors.WhiteShot:SetColorize(1,1,1, 1)
+mod.Colors.Tar 		  = Color(1,1,1, 1)   						mod.Colors.Tar:SetColorize(1,1,1, 1)   mod.Colors.Tar:SetTint(0.5,0.5,0.5, 1)
+mod.Colors.WhiteShot  = Color(1,1,1, 1, 0.5,0.5,0.5)   		 	mod.Colors.WhiteShot:SetColorize(1,1,1, 1)
 mod.Colors.SunBeam 	  = Color(1,1,1, 1, 0.3,0.3,0)
-mod.Colors.DustTrail  = Color(0.8,0.8,0.8, 0.8, 0.05,0.025,0);   mod.Colors.DustTrail:SetColorize(1,1,1, 1)
+mod.Colors.DustPoof   = Color(0.7,0.7,0.7, 0.75)
+mod.Colors.DustTrail  = Color(0.8,0.8,0.8, 0.8, 0.05,0.025,0)   mod.Colors.DustTrail:SetColorize(1,1,1, 1)
 mod.Colors.BlackBony  = Color(0.18,0.18,0.18, 1)
 mod.Colors.PukeEffect = Color(0,0,0, 1, 0.48,0.36,0.3)
 mod.Colors.PukeOrange = Color(0.5,0.5,0.5, 1, 0.64,0.4,0.16)
 mod.Colors.Sketch 	  = Color(0,0,0, 1, 0.48,0.4,0.36)
 mod.Colors.Heal 	  = Color(1,1,1, 1, 0.64,0,0)
 
-mod.Colors.CrispyMeat   = Color(1,1,1, 1);   				  mod.Colors.CrispyMeat:SetColorize(0.32,0.25,0.2, 1)
-mod.Colors.EmberFade    = Color(0,0,0, 1.1, 1,0.514,0.004);   mod.Colors.EmberFade:SetColorize(0,0,0, 0);    mod.Colors.EmberFade:SetTint(0,0,0, 1.1)
-mod.Colors.PurpleFade   = Color(0,0,0, 1.1, 0.65,0.125,1);    mod.Colors.PurpleFade:SetColorize(0,0,0, 0);   mod.Colors.PurpleFade:SetTint(0,0,0, 1.1)
-mod.Colors.BlueFire 	= Color(0,1,1, 1, -0.5,0.35,0.9);     mod.Colors.BlueFire:SetColorize(1,1,1, 1)
-mod.Colors.BlueFireShot = Color(1,1,1, 1, 0,0.6,1.2);   	  mod.Colors.BlueFireShot:SetColorize(1,1,1, 1)
+mod.Colors.CrispyMeat   = Color(1,1,1, 1);   				 mod.Colors.CrispyMeat:SetColorize(0.32,0.25,0.2, 1)
+mod.Colors.EmberFade    = Color(0,0,0, 1.1, 1,0.514,0.004)   mod.Colors.EmberFade:SetColorize(0,0,0, 0)    mod.Colors.EmberFade:SetTint(0,0,0, 1.1)
+mod.Colors.PurpleFade   = Color(0,0,0, 1.1, 0.65,0.125,1)    mod.Colors.PurpleFade:SetColorize(0,0,0, 0)   mod.Colors.PurpleFade:SetTint(0,0,0, 1.1)
+mod.Colors.BlueFire 	= Color(0,1,1, 1, -0.5,0.35,0.9)     mod.Colors.BlueFire:SetColorize(1,1,1, 1)
+mod.Colors.BlueFireShot = Color(1,1,1, 1, 0,0.6,1.2)   	     mod.Colors.BlueFireShot:SetColorize(1,1,1, 1)
 
-mod.Colors.Ipecac 			= Color(1,1,1, 1, 0,0,0);   mod.Colors.Ipecac:SetColorize(0.4,2,0.5, 1)
+mod.Colors.Ipecac 			= Color(1,1,1, 1, 0,0,0)   mod.Colors.Ipecac:SetColorize(0.4,2,0.5, 1)
 mod.Colors.GreenCreep 		= Color(0,0,0, 1, 0,0.5,0)
 mod.Colors.GreenBlood 		= Color(0.4,0.8,0.4, 1, 0,0.4,0)
-mod.Colors.CorpseGreen 		= Color(1,1,1, 1);   		mod.Colors.CorpseGreen:SetColorize(1.5,2,1, 1)
+mod.Colors.CorpseGreen 		= Color(1,1,1, 1)   	   mod.Colors.CorpseGreen:SetColorize(1.5,2,1, 1)
 mod.Colors.CorpseGreenTrail = Color(0,0,0, 1, 0.15,0.25,0.07)
-mod.Colors.CorpseYellow 	= Color(1,1,1, 1);   		mod.Colors.CorpseYellow:SetColorize(3.5,2.5,1, 1) -- Yellowish green
+mod.Colors.CorpseYellow 	= Color(1,1,1, 1)   	   mod.Colors.CorpseYellow:SetColorize(3.5,2.5,1, 1) -- Yellowish green
 
 mod.Colors.PortalShot 	   = Color(0.6,0.5,0.8, 1, 0.1,0,0.2)
 mod.Colors.PortalShotTrail = Color(0,0,0, 1, 0.45,0.3,0.6)
@@ -100,10 +101,10 @@ mod.Colors.HushDarkBlue = Color(0.6,0.6,0.6, 1, 0,0,0.1) -- For Blue Boils
 mod.Colors.HushOrange   = Color(1,1,1, 1, 0.4,0.2,0)
 mod.Colors.HushPink 	= Color(1,1,1, 1, 0.2,0,0.2)
 
-mod.Colors.CageCreep 	  = Color(1,1,1, 1);   mod.Colors.CageCreep:SetColorize(3.25,3.25,2.25, 1) -- Not 100% accurate but it's close enough
-mod.Colors.CageGreenShot  = Color(1,1,1, 1);   mod.Colors.CageGreenShot:SetColorize(0.75,1,0.5, 1)
-mod.Colors.CageGreenCreep = Color(1,1,1, 1);   mod.Colors.CageGreenCreep:SetColorize(2.25,3.25,1.25, 1)
-mod.Colors.CagePinkShot   = Color(1,1,1, 1);   mod.Colors.CagePinkShot:SetColorize(1,0.9,0.7, 1)
+mod.Colors.CageCreep 	  = Color(1,1,1, 1)   mod.Colors.CageCreep:SetColorize(3.25,3.25,2.25, 1) -- Not 100% accurate but it's close enough
+mod.Colors.CageGreenShot  = Color(1,1,1, 1)   mod.Colors.CageGreenShot:SetColorize(0.75,1,0.5, 1)
+mod.Colors.CageGreenCreep = Color(1,1,1, 1)   mod.Colors.CageGreenCreep:SetColorize(2.25,3.25,1.25, 1)
+mod.Colors.CagePinkShot   = Color(1,1,1, 1)   mod.Colors.CagePinkShot:SetColorize(1,0.9,0.7, 1)
 
 mod.Colors.PrideGray = Color(0,0,0, 1, 0.31,0.31,0.31)
 mod.Colors.PridePink = Color(0,0,0, 1, 0.75,0.31,0.46)
@@ -148,6 +149,6 @@ mod.Sounds = {
 	TriachnidHappy = Isaac.GetSoundIdByName("Triachnid Happy"),
 	TriachnidHurt  = Isaac.GetSoundIdByName("Triachnid Hurt"),
 
-	-- Sister Vis
-	GiantLaserLoop = Isaac.GetSoundIdByName("Giant Laser Loop Fixed"), -- The fact that I even have to do this is pretty insulting
+	-- Fixed giant laser loop for Sister Vis (the fact that I even have to do this is pretty insulting)
+	GiantLaserLoop = Isaac.GetSoundIdByName("Giant Laser Loop Fixed"),
 }

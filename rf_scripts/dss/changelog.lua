@@ -11,7 +11,7 @@ DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.0", [[
 
 - Gish has been re-reworked!
 
-- (TODO) Sister Vis has been reworked!
+- Sister Vis has been reworked!
 
 - Triachnid has been re-reworked!
 
@@ -48,30 +48,53 @@ from 100 to 150
 reduced damage through his tentacles
 instead of 50%
 
-- Gapers, Fatties and Skinnies can
-no longer turn into their burnt versions
-in rooms with water
-
 - Charmed Mama Gurdy's spikes will
 no longer target enemies
 and instantly kill them
+
+- Hush's Blue Baby phase now has a
+different orbiting projectile attack
+for its second phase
+
+- Reduced the max number of Blue Gapers
+during Hush's Blue Baby phase
+
+
+
+{FSIZE2}Other changes
+
+- New sprites and animations for
+Hush's Blue Baby phase
+
+- C.H.A.D. is now forced to surface if he
+is submerged for too long or if he doesn't
+have a path to his target position
+
+- Gapers, Fatties and Skinnies can
+no longer turn into their burnt versions
+in rooms with water
 
 - It Lives now only does the blood cell
 attack in regular-sized rooms
 (mainly applies to the one
 Greed Mode wave he can spawn in)
 
+- Improved effects for several
+bosses and enemies
+
+- Lots of code improvements
+(note for compatibility:
+make sure enums are properly updated)
+
 
 
 {FSIZE2}Fixes
 
-- C.H.A.D. is now forced to surface
-if he is submerged for too long
-or if he doesn't have a path
-to his target position
-
 - Fixed friendly Black Bonies
 not working properly
+
+- Fixed Lust's fart attack
+not doing damage
 
 - Fixed Scolex sometimes not taking
 damage if Retribution is enabled
@@ -83,6 +106,10 @@ using the wrong projectile types
 - Fixed the Fiend Folio Krampus
 champion's Enhanced Boss Bars icon being
 overwritten by this mod
+
+- Fixed red Mom's eye going invisible
+during its attack if there is a mod
+enabled that changes her door sprites
 
 
 ]])

@@ -128,10 +128,16 @@ function mod:GishUpdate(entity)
 				else
 					local attackCount = 3
 					-- Only have up to 3 Clots
-					if Isaac.CountEntities(nil, EntityType.ENTITY_CLOTTY, 1, -1) >= Settings.MaxClots then
+					if entity.SubType == 1 or Isaac.CountEntities(nil, EntityType.ENTITY_CLOTTY, 1, -1) >= Settings.MaxClots then
 						attackCount = 2
 					end
 					local attack = mod:Random(1, attackCount)
+
+					-- Do the spit attack instead of the jump one for Hera
+					if entity.SubType == 1 and attack == 2 then
+						attack = 3
+					end
+
 
 					-- Hardened charge
 					if attack == 1 then
@@ -239,6 +245,11 @@ function mod:GishUpdate(entity)
 					entity:FireProjectiles(entity.Position, Vector(9, 10), 9, params)
 
 					-- Effects
+					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity):GetSprite()
+					effect.Color = data.effectColor
+					effect.Offset = Vector(0, -10)
+					effect.Scale = Vector(entity.Scale, entity.Scale)
+
 					mod:QuickCreep(data.creepType, entity, entity.Position, 5)
 					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.75)
 					Game():ShakeScreen(7)
@@ -433,24 +444,21 @@ function mod:GishUpdate(entity)
 						params.FallingSpeedModifier = -26
 						mod:FireProjectiles(entity, bubbly.Position, Vector.Zero, 0, params, Color(0,0,0, 1, 0.15,0.15,0.15)):GetData().kickedUp = true
 
-						for i = 0, 3 do
-							params.Scale = 1.65 - (i * 0.15)
+						for j = 0, 3 do
+							params.Scale = 1.65 - (j * 0.15)
 							params.FallingAccelModifier = 1.25
-							params.FallingSpeedModifier = -8 + (i * -6)
+							params.FallingSpeedModifier = -8 + (j * -6)
 							entity:FireProjectiles(bubbly.Position, mod:RandomVector(2), 0, params)
 						end
 					end
 					data.bubblies = nil
 
 					-- Effects
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity):GetSprite().Color = data.effectColor
 					mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 1.2)
 					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS)
 					Game():ShakeScreen(8)
 					Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
-
-					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):ToEffect()
-					effect:GetSprite().Color = data.effectColor
-					effect.DepthOffset = entity.DepthOffset + 10
 				end
 
 				if sprite:IsFinished() then
@@ -460,7 +468,7 @@ function mod:GishUpdate(entity)
 
 
 			-- Droplets
-			if entity.StateFrame ~= 0 and entity.StateFrame ~= 4 and entity:IsFrame(45, 0) then
+			if entity.StateFrame ~= 0 and entity.StateFrame ~= 4 and entity:IsFrame(40, 0) then
 				local drop = Vector(entity.Position.X + math.random(-20, 20), entity.Position.Y)
 				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_DROP, 0, drop, Vector.Zero, entity):ToEffect()
 				effect.PositionOffset = Vector(0, -200 * entity.Scale)
@@ -487,21 +495,27 @@ function mod:GishUpdate(entity)
 			end
 
 			if sprite:IsEventTriggered("Shoot") then
-				-- Lobbed Clot
-				local vector = (target.Position - entity.Position):Normalized()
-				local clot = Isaac.Spawn(EntityType.ENTITY_CLOTTY, 1, 0, entity.Position + vector * 20, vector * 5, entity):ToNPC()
-				clot.SplatColor = Color(0,0,0, 1) -- Color fix
+				-- Hera
+				if entity.SubType == 1 then
+					--
 
-				clot.State = NpcState.STATE_APPEAR_CUSTOM
-				clot.PositionOffset = Vector(0, Settings.LandHeight - 10)
-				clot.V2 = Vector(0, Settings.ClotSpeed)
-				clot:GetSprite():Play("Midair", true)
+				-- Lobbed Clot for Gish
+				else
+					local vector = (target.Position - entity.Position):Normalized()
+					local clot = Isaac.Spawn(EntityType.ENTITY_CLOTTY, 1, 0, entity.Position + vector * 20, vector * 5, entity):ToNPC()
+					clot.SplatColor = Color(0,0,0, 1) -- Color fix
 
-				-- Projectiles
-				local params = ProjectileParams()
-				params.Color = data.effectColor
-				params.Scale = 1.25
-				entity:FireBossProjectiles(12, target.Position, 2, params)
+					clot.State = NpcState.STATE_APPEAR_CUSTOM
+					clot.PositionOffset = Vector(0, Settings.LandHeight - 10)
+					clot.V2 = Vector(0, Settings.ClotSpeed)
+					clot:GetSprite():Play("Midair", true)
+
+					-- Projectiles
+					local params = ProjectileParams()
+					params.Color = data.effectColor
+					params.Scale = 1.25
+					entity:FireBossProjectiles(12, target.Position, 2, params)
+				end
 
 				-- Effects
 				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 5, entity.Position, Vector.Zero, entity):ToEffect()
@@ -737,7 +751,26 @@ function mod:GishUpdate(entity)
 				entity.Velocity = mod:Lerp(entity.Velocity, entity.TargetPosition:Resized(Settings.LaunchSpeed), 0.25)
 				mod:LoopingAnim(sprite, "JumpAcrossLoop")
 
-				mod:QuickCreep(data.creepType, entity, entity.Position, 1.5, Settings.CreepTime)
+				-- Projectiles for Hera
+				if entity.SubType == 1 then
+					if entity:IsFrame(2, 0) then
+						local params = ProjectileParams()
+						params.Color = data.effectColor
+						params.Scale = 1.5
+						params.FallingSpeedModifier = 1
+						params.FallingAccelModifier = -0.2
+
+						params.BulletFlags = ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT
+						params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
+						params.ChangeTimeout = 180
+
+						entity:FireProjectiles(entity.Position, Vector.Zero, 0, params)
+					end
+
+				-- Creep for Gish
+				else
+					mod:QuickCreep(data.creepType, entity, entity.Position, 1.5, Settings.CreepTime)
+				end
 
 				-- Land
 				if entity:CollidesWithGrid() then
@@ -752,11 +785,13 @@ function mod:GishUpdate(entity)
 					sprite.FlipY = not sprite.FlipY
 
 					-- Projectiles
-					local params = ProjectileParams()
-					params.Color = data.effectColor
-					params.Scale = 1.25
-					params.CircleAngle = 0
-					entity:FireProjectiles(entity.V1, Vector(10, 12), 9, params)
+					if entity.SubType ~= 1 then
+						local params = ProjectileParams()
+						params.Color = data.effectColor
+						params.Scale = 1.25
+						params.CircleAngle = 0
+						entity:FireProjectiles(entity.V1, Vector(10, 12), 9, params)
+					end
 
 					-- Effects
 					mod:QuickCreep(data.creepType, entity, entity.V1, 5)
@@ -793,10 +828,19 @@ function mod:GishUpdate(entity)
 				local params = ProjectileParams()
 				params.Color = data.effectColor
 
-				params.Scale = 1.25
-				entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(9), 4, params)
-				params.Scale = 1.5
-				entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(6), 2, params)
+				-- Hera
+				if entity.SubType == 1 then
+					params.Spread = 1.2
+					params.Scale = 1.5
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(7.5), 5, params)
+
+				-- Gish
+				else
+					params.Scale = 1.25
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(9), 4, params)
+					params.Scale = 1.5
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(6), 2, params)
+				end
 
 				mod:ShootEffect(entity, 5, Vector(0, mod:GetSign(sprite.FlipY) * 20), data.effectColor, 1.5)
 				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8)

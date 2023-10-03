@@ -47,6 +47,12 @@ mod.MomSpawns = {
 
 function mod:MomInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+
+	-- Red champion eye fix for door sprite mods
+	if entity.Variant == 0 and entity.SubType == 2 then
+		entity:GetSprite():ReplaceSpritesheet(0, "gfx/bosses/classic/boss_054_mom_red_eye.png")
+		entity:GetSprite():LoadGraphics()
+	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.MomInit, EntityType.ENTITY_MOM)
 
@@ -66,7 +72,7 @@ function mod:MomUpdate(entity)
 				local params = ProjectileParams()
 				params.Scale = 1.4 - (entity.I2 * 0.1)
 				entity:FireProjectiles(entity.Position + Vector(0, 20), (entity:GetPlayerTarget().Position - (entity.Position + Vector(0, 20))):Resized(10), 0 + entity.I2, params)
-				mod:ShootEffect(entity, 2, Vector.Zero, Color.Default, 1, true)
+				mod:ShootEffect(entity, 2)
 
 				entity.I2 = entity.I2 + 1
 				mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT, 1.4)

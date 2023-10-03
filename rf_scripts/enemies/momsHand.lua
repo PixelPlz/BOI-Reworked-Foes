@@ -40,7 +40,6 @@ function mod:MomsDeadHandUpdate(entity)
 
 		-- New rock waves
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SHOCKWAVE, 0, entity.Position, Vector.Zero, entity):ToEffect().Timeout = 10
-		Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
 
 
 		-- Projectiles
@@ -57,6 +56,13 @@ function mod:MomsDeadHandUpdate(entity)
 		end
 
 		entity:FireProjectiles(entity.Position, Vector(11, 8), 8, params)
+
+
+		-- Effects
+		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
+		mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND)
+		Game():ShakeScreen(6)
+		Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MomsDeadHandUpdate, EntityType.ENTITY_MOMS_DEAD_HAND)

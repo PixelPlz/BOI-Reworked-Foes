@@ -156,7 +156,7 @@ function mod:ForsakenUpdate(entity)
 			end
 
 
-			-- Fade in if the bonies are dead
+			-- Fade in if the Bonies are dead
 			local checkType = EntityType.ENTITY_BONY
 			if entity.SubType == 1 then
 				checkType = EntityType.ENTITY_BLACK_BONY

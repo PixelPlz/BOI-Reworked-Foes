@@ -90,7 +90,7 @@ function mod:SisterVisUpdate(entity)
 					attackCount = 2
 				end
 				local attack = mod:Random(1, attackCount)
-				attack = 2
+
 
 				-- Roll
 				if attack == 1 then
@@ -116,6 +116,7 @@ function mod:SisterVisUpdate(entity)
 					sprite:Play("Jumping", true)
 					entity.I1 = mod:GetSign(isSiblingDead)
 				end
+
 
 				-- Do the attack with the sibling
 				if sibling and isSiblingDead == false then
@@ -278,14 +279,6 @@ function mod:SisterVisUpdate(entity)
 						entity.StateFrame = 20
 						sprite:Play("Land", true)
 						entity.PositionOffset = Vector.Zero
-
-						-- Destroy rocks they land on
-						for i = -1, 1 do
-							for j = -1, 1 do
-								local gridPos = entity.Position + Vector(i * 30, j * 30)
-								room:DestroyGrid(room:GetGridIndex(gridPos), true)
-							end
-						end
 					end
 
 				-- Move to position
@@ -333,8 +326,16 @@ function mod:SisterVisUpdate(entity)
 					entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 					entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 
+					-- Destroy rocks they land on
+					for i = -1, 1 do
+						for j = -1, 1 do
+							local gridPos = entity.Position + Vector(i * 30, j * 30)
+							room:DestroyGrid(room:GetGridIndex(gridPos), true)
+						end
+					end
+
 					-- Effects
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity)
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
 
 					if sprite:IsPlaying("Landing") then
 						mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
@@ -555,7 +556,7 @@ function mod:SisterVisUpdate(entity)
 
 					else
 						siblingSprite:Play("Bottom", true)
-						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity)
+						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
 					end
 				end
 
@@ -566,7 +567,7 @@ function mod:SisterVisUpdate(entity)
 					entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 
 					-- Effects
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity)
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
 					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
 					Game():ShakeScreen(6)
 					Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
@@ -581,12 +582,12 @@ function mod:SisterVisUpdate(entity)
 			elseif entity.StateFrame == 3 then
 				-- Jumped
 				if sprite:WasEventTriggered("Jump") then
-					entity.Position = sibling.Position
-					entity.Velocity = sibling.Velocity
+					entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				-- Still on
 				else
-					entity.Velocity = mod:StopLerp(entity.Velocity)
+					entity.Position = sibling.Position
+					entity.Velocity = sibling.Velocity
 
 					-- Fall off if the sibling dies under her
 					if entity.I1 ~= mod:GetSign(isSiblingDead) then
@@ -623,7 +624,6 @@ function mod:SisterVisUpdate(entity)
 
 				-- Cancel the launch if the sibling dies
 				if isSiblingDead == true and not sprite:WasEventTriggered("Jump") then
-					entity.StateFrame = 21
 					sprite:Play("Land", true)
 					sprite:SetFrame(5)
 				end
@@ -698,22 +698,18 @@ function mod:SisterVisUpdate(entity)
 
 					-- Projectiles
 					local params = ProjectileParams()
-					params.BulletFlags = ProjectileFlags.NO_WALL_COLLIDE
-
-					params.BulletFlags = params.BulletFlags + entity.GroupIdx == 1 and ProjectileFlags.CURVE_RIGHT or ProjectileFlags.CURVE_LEFT
 					params.CircleAngle = mod:Random(10, 100) * 0.01
 					entity:FireProjectiles(entity.Position, Vector(11, 6), 9, params)
 
 					params.Scale = 1.35
-					params.CircleAngle = params.CircleAngle + 0.25
-					params.BulletFlags = params.BulletFlags + entity.GroupIdx == 1 and ProjectileFlags.CURVE_LEFT or ProjectileFlags.CURVE_RIGHT
-					entity:FireProjectiles(entity.Position, Vector(7, 6), 9, params)
+					params.BulletFlags = ProjectileFlags.NO_WALL_COLLIDE + (entity.GroupIdx == 1 and ProjectileFlags.CURVE_LEFT or ProjectileFlags.CURVE_RIGHT)
+					entity:FireProjectiles(entity.Position, Vector(7.5, 6), 9, params)
 
 					-- Shockwave
 					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SHOCKWAVE, 0, entity.Position, Vector.Zero, entity)
 
 					-- Effects
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity)
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
 					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
 					mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.1)
 					Game():ShakeScreen(12)
@@ -803,7 +799,7 @@ function mod:SisterVisUpdate(entity)
 						entity:FireBossProjectiles(12, Vector.Zero, 2, params)
 
 						-- Effects
-						mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0)
+						mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0, 1.1, 0.95)
 
 						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity):GetSprite()
 						effect.Offset = Vector(0, -15)
@@ -839,6 +835,7 @@ function mod:SisterVisUpdate(entity)
 						local params = ProjectileParams()
 						params.Scale = 1.25
 						entity:FireBossProjectiles(3, Vector.Zero, 2, params)
+						mod:PlaySound(entity, SoundEffect.SOUND_BLOODSHOOT)
 
 						entity.I2 = entity.I2 + 1
 						entity.I1 = 2
@@ -937,8 +934,9 @@ function mod:SisterVisUpdate(entity)
 			data.brim:SetTimeout(1)
 			data.brim = nil
 		end
+	end
 
-	elseif entity.FrameCount > 1 then
+	if entity.FrameCount > 1 then
 		return true
 	end
 end

@@ -6,9 +6,9 @@ mod.Config = {}
 
 
 
---Default DSS Data
+-- Default DSS Data
 local defaultConfig = {
-	--General
+	-- General
 	BreakableHosts  = true,
 	CoinStealing    = true,
 	NoChapter1Nests = true,
@@ -16,12 +16,12 @@ local defaultConfig = {
 	BlackBonyBombs  = true,
 	BurningGushers  = true,
 
-	--Hidden enemy visuals
+	-- Hidden enemy visuals
 	NoHiddenPins = true,
 	NoHiddenPoly = true,
 	NoHiddenDust = true,
 
-	--Extra appear animations
+	-- Extra appear animations
 	AppearPins 		= true,
 	AppearMomsHands = true,
 	AppearNeedles 	= true,
@@ -29,7 +29,7 @@ local defaultConfig = {
 
 
 
---Load settings
+-- Load settings
 function DSSMenu:LoadSaveData()
 	if mod:HasData() then
 		mod.Config = json.decode(mod:LoadData())
@@ -43,7 +43,7 @@ function DSSMenu:LoadSaveData()
 end
 mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, DSSMenu.LoadSaveData)
 
---Save settings
+-- Save settings
 function DSSMenu:SaveData()
 	mod:SaveData(json.encode(mod.Config))
 end
@@ -52,7 +52,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_GAME_EXIT, DSSMenu.SaveData)
 
 
 -- Initialize Dead Sea Scrolls
---boring variables
+-- Boring variables
 local DSSModName = "Dead Sea Scrolls (Reworked Foes)"
 local DSSCoreVersion = 7
 local MenuProvider = {}
@@ -118,15 +118,7 @@ end
 local DSSInitializerFunction = require("rf_scripts.dss.dssmenucore")
 local dssmod = DSSInitializerFunction(DSSModName, DSSCoreVersion, MenuProvider)
 
-
-
--- Changelog
 include("rf_scripts.dss.changelog")
-
-local changeLogButton = dssmod.changelogsButton
-if changeLogButton == true then
-	changeLogButton = { str = 'changelogs',  action = "openmenu", menu = 'Menu', dest = 'changelogs', }
-end
 
 
 
@@ -175,7 +167,6 @@ local directory = {
 			{ str = 'resume game', action = 'resume' },
 			{ str = 'settings',    dest   = 'settings' },
 			{ str = 'credits',     dest   = 'credits' },
-			changeLogButton,
 		},
 		tooltip = dssmod.menuOpenToolTip
 	},

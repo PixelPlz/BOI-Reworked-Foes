@@ -50,6 +50,16 @@ function mod:HushBabyUpdate(entity)
 					sprite:Play("2Evolve", true)
 				end
 			end
+
+			-- Crying sounds in 1st phase
+			if entity.I1 <= 1 then
+				if data.soundTimer <= 0 then
+					mod:PlaySound(entity, SoundEffect.SOUND_SCARED_WHIMPER)
+					data.soundTimer = mod:Random(Settings.SoundTimer[1], Settings.SoundTimer[2])
+				else
+					data.soundTimer = data.soundTimer - 1
+				end
+			end
 		end
 
 
@@ -86,16 +96,6 @@ function mod:HushBabyUpdate(entity)
 			-- Stationary
 			else
 				entity.Velocity = mod:StopLerp(entity.Velocity)
-			end
-
-
-			if entity.I1 <= 1 then
-				if data.soundTimer <= 0 then
-					mod:PlaySound(entity, SoundEffect.SOUND_SCARED_WHIMPER)
-					data.soundTimer = mod:Random(Settings.SoundTimer[1], Settings.SoundTimer[2])
-				else
-					data.soundTimer = data.soundTimer - 1
-				end
 			end
 
 
@@ -156,12 +156,13 @@ function mod:HushBabyUpdate(entity)
 					data.tearCooldown = Settings.TearCooldown
 
 					local attackCount = 2
-					if entity.I1 == 3 and Isaac.CountEntities(entity, EntityType.ENTITY_HUSH_GAPER, -1, -1) <= 4 then
+					if entity.I1 == 3 and Isaac.CountEntities(entity, EntityType.ENTITY_HUSH_GAPER, -1, -1) <= 2 then
 						attackCount = 3
 					end
 					local attack = mod:Random(1, attackCount)
 
 
+					-- Summon Blue Gapers
 					if attack == 3 then
 						entity.State = NpcState.STATE_SUMMON
 						sprite:Play("3Summon", true)
@@ -201,12 +202,15 @@ function mod:HushBabyUpdate(entity)
 				-- 1st to 2nd phase
 				if entity.I1 == 1 then
 					mod:PlaySound(nil, SoundEffect.SOUND_HOLY)
-
 				-- 2nd to 3rd phase
 				elseif entity.I1 == 2 then
 					mod:PlaySound(nil, SoundEffect.SOUND_SUPERHOLY)
-					entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 				end
+			end
+
+			-- Skin pull sound
+			if sprite:IsEventTriggered("TeleportUp") or sprite:IsEventTriggered("Flap") then
+				mod:PlaySound(nil, SoundEffect.SOUND_SKIN_PULL)
 			end
 
 			if sprite:IsFinished() then
@@ -223,7 +227,7 @@ function mod:HushBabyUpdate(entity)
 		elseif entity.State == NpcState.STATE_JUMP then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
-			-- Get position
+			-- Change position
 			if sprite:IsEventTriggered("Shoot") or sprite:IsFinished("3FBAttack3") then
 				local position = target.Position + target.Velocity:Resized(240)
 				if room:IsPositionInRoom(position, 0) == false or target.Velocity:Length() <= 0.1 then
@@ -231,15 +235,14 @@ function mod:HushBabyUpdate(entity)
 				end
 				entity.Position = room:FindFreePickupSpawnPosition(position, 40, true, false)
 
+				mod:PlaySound(nil, SoundEffect.SOUND_DEATH_REVERSE, 1.1, 0.95)
+
 			-- Teleport away
 			elseif sprite:IsEventTriggered("TeleportUp") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-				mod:PlaySound(nil, SoundEffect.SOUND_HELL_PORTAL2, 1.2)
-
 			-- Teleported
 			elseif sprite:IsEventTriggered("TeleportDown") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
-				mod:PlaySound(nil, SoundEffect.SOUND_HELL_PORTAL1, 1.2)
 			end
 
 			if sprite:IsFinished("3FBAttack3") then
@@ -284,15 +287,33 @@ function mod:HushBabyUpdate(entity)
 						local params = ProjectileParams()
 						params.Variant = ProjectileVariant.PROJECTILE_HUSH
 						params.FallingSpeedModifier = 1
-						params.FallingAccelModifier = -0.09
-						params.CircleAngle = entity.V1.X
+						params.FallingAccelModifier = -0.18
 						params.Color = mod.Colors.HushOrange
 						params.TargetPosition = entity.Position
 
-						params.BulletFlags = ProjectileFlags.ORBIT_CCW
-						entity:FireProjectiles(entity.Position, Vector(12, 12), 9, params)
-						params.BulletFlags = ProjectileFlags.ORBIT_CW
-						entity:FireProjectiles(entity.Position, Vector(7, 12), 9, params)
+						local shotCount = 48
+						local counter = 0
+						local counterClockwise = true
+						local offset = mod:Random(359)
+
+						for j = 0, shotCount - 1 do
+							-- Switch rotation direction
+							counter = counter + 1
+							if counter >= shotCount / 8 then
+								counter = 0
+								counterClockwise = not counterClockwise
+							end
+
+							-- Get rotation direction
+							if counterClockwise == true then
+								params.BulletFlags = ProjectileFlags.ORBIT_CCW
+							else
+								params.BulletFlags = ProjectileFlags.ORBIT_CW
+							end
+
+							local angle = (360 / shotCount) * j
+							entity:FireProjectiles(entity.Position, Vector.FromAngle(offset + angle):Resized(9), 0, params)
+						end
 					end
 
 					mod:PlaySound(nil, SoundEffect.SOUND_THUMBSUP, 0.6)
@@ -396,7 +417,8 @@ function mod:HushBabyUpdate(entity)
 
 			if sprite:IsEventTriggered("Shoot") then
 				for i = 0, 3 do
-					local gaper = Isaac.Spawn(EntityType.ENTITY_HUSH_GAPER, 0, 0, entity.Position + Vector.FromAngle(i * 90):Resized(50), Vector.Zero, entity):ToNPC()
+					local pos = entity.Position + Vector.FromAngle(i * 90):Resized(50)
+					local gaper = Isaac.Spawn(EntityType.ENTITY_HUSH_GAPER, 0, 0, room:GetClampedPosition(pos, 10), Vector.Zero, entity):ToNPC()
 					gaper:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 					gaper.State = NpcState.STATE_SPECIAL
 					gaper:GetSprite():Play("JumpOut", true)

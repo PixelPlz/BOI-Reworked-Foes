@@ -204,11 +204,14 @@
 
 
 	<!-- Effects -->
-	<entity name="Fire Jet (blue)"   		 id="1000" variant="147" subtype="3"   anm2path="1000.147_fire jet blue.anm2"    friction="1" collisionRadius="14" collisionMass="8" collisionDamage="10" />
-	<entity name="Healing Aura"   			 id="1000" variant="868"   			   anm2path="healing aura.anm2"   			 friction="1" />
-	<entity name="Holy Tracer"   			 id="1000" variant="869"   			   anm2path="holy tracer.anm2"   			 friction="1" />
-	<entity name="Single Brimstone Swirl"    id="1000" variant="870"   			   anm2path="1000.071_brimstoneswirl.anm2"   friction="1" />
-	<entity name="Husk Effect"   			 id="1000" variant="871"   			   anm2path="1000.001_bomb explosion.anm2"   friction="1" />
-	<entity name="Triachnid Leg Segment"     id="1000" variant="872"   			   anm2path="101.001_triachnid.anm2"   		 friction="1" />
-	<entity name="Sister Vis Laser Effect"   id="1000" variant="872"   			   anm2path="sister vis sky laser.anm2"   	 friction="1" />
+	<entity name="Fire Jet (red)"     id="1000" variant="147" subtype="2"   anm2path="1000.147_fire jet red.anm2"     friction="1" collisionRadius="14" collisionMass="8" collisionDamage="10" />
+	<entity name="Fire Jet (blue)"    id="1000" variant="147" subtype="3"   anm2path="1000.147_fire jet blue.anm2"    friction="1" collisionRadius="14" collisionMass="8" collisionDamage="10" />
+	<entity name="Fire Jet (white)"   id="1000" variant="147" subtype="4"   anm2path="1000.147_fire jet white.anm2"   friction="1" collisionRadius="14" collisionMass="8" collisionDamage="10" />
+
+	<entity name="Healing Aura"   			 id="1000" variant="868"   anm2path="healing aura.anm2"   			 friction="1" />
+	<entity name="Holy Tracer"   			 id="1000" variant="869"   anm2path="holy tracer.anm2"   			 friction="1" />
+	<entity name="Single Brimstone Swirl"    id="1000" variant="870"   anm2path="1000.071_brimstoneswirl.anm2"   friction="1" />
+	<entity name="Husk Effect"   			 id="1000" variant="871"   anm2path="1000.001_bomb explosion.anm2"   friction="1" />
+	<entity name="Triachnid Leg Segment"     id="1000" variant="872"   anm2path="101.001_triachnid.anm2"   		 friction="1" />
+	<entity name="Sister Vis Laser Effect"   id="1000" variant="873"   anm2path="sister vis sky laser.anm2"   	 friction="1" />
 </entities>

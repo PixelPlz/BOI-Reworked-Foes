@@ -269,12 +269,12 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GurdyJrUpdate, EntityType.ENTITY
 
 
 --[[ Isaac / ??? / Hush baby wing flap sounds ]]--
-function mod:IsaacUpdate(entity)
+function mod:IsaacWingFlap(entity)
 	if entity:GetSprite():IsEventTriggered("Flap") then
 		mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_WING, 0.75)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.IsaacUpdate, EntityType.ENTITY_ISAAC)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.IsaacWingFlap, EntityType.ENTITY_ISAAC)
 
 
 

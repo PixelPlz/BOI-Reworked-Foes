@@ -72,7 +72,7 @@ function mod:MamaGurdyUpdate(entity)
 						-- Effects
 						local handPos = entity.Position + Vector(i * 140, 40)
 						Game():MakeShockwave(handPos, 0.035, 0.025, 10)
-						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, handPos, Vector.Zero, entity).DepthOffset = entity.DepthOffset + 10
+						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, handPos, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
 
 						-- Spike walls
 						local basePos = Vector(target.Position.X + i * 120, room:GetTopLeftPos().Y + 20)

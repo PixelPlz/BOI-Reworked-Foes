@@ -3,7 +3,6 @@ local mod = ReworkedFoes
 local Settings = {
 	HeadSmashSpeed = 16,
 	HeadSmashTimer = 30,
-	HeadSmashScreenShake = 14,
 	HeadSmashShotSpeed = 12
 }
 
@@ -64,10 +63,12 @@ function mod:DaddyLongLegsUpdate(entity)
 				entity:FireProjectiles(entity.Position, Vector(Settings.HeadSmashShotSpeed, 0), 8, params)
 
 				-- Effects
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity).DepthOffset = entity.DepthOffset + 10
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 1, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
+
 				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
 				mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.1)
-				Game():ShakeScreen(Settings.HeadSmashScreenShake)
+				Game():ShakeScreen(12)
 				Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
 			end
 		end
