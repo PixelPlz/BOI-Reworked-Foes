@@ -65,6 +65,13 @@ function mod:LaunchedBoomFlyUpdate(entity)
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
 
+		-- Sprite trail
+		local data = entity:GetData()
+		if data.spriteTrail then
+			data.spriteTrail.Velocity = entity.Position + Vector(0, -28) - data.spriteTrail.Position
+		end
+
+
 		-- Die / Return to regular state when hitting a wall
 		if entity:CollidesWithGrid() then
 			if entity.StateFrame > 0 and Isaac.CountEntities(nil, EntityType.ENTITY_BOOMFLY, entity.Variant, -1) <= entity.StateFrame then
@@ -265,16 +272,6 @@ function mod:GurdyJrUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GurdyJrUpdate, EntityType.ENTITY_GURDY_JR)
-
-
-
---[[ Isaac / ??? / Hush baby wing flap sounds ]]--
-function mod:IsaacWingFlap(entity)
-	if entity:GetSprite():IsEventTriggered("Flap") then
-		mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_WING, 0.75)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.IsaacWingFlap, EntityType.ENTITY_ISAAC)
 
 
 
@@ -504,6 +501,18 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MegaFattyUpdate, EntityType.ENTI
 
 
 --[[ The Cage ]]--
+-- Reduce his ridiculous health
+function mod:CageInit(entity)
+	local newHealth = 720
+	if entity.SubType == 2 then
+		newHealth = 360
+	end
+
+	entity.MaxHitPoints = newHealth
+	entity.HitPoints = entity.MaxHitPoints
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.CageInit, EntityType.ENTITY_CAGE)
+
 function mod:CageUpdate(entity)
 	-- Fix him having a hitbox before he lands
 	if entity.State == NpcState.STATE_STOMP then
@@ -666,6 +675,15 @@ function mod:EvisCordUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.EvisCordUpdate, EntityType.ENTITY_EVIS)
+
+
+
+--[[ Decrease Reap Creep's HP ]]--
+function mod:ReapCreepInit(entity)
+	entity.MaxHitPoints = 600
+	entity.HitPoints = entity.MaxHitPoints
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ReapCreepInit, EntityType.ENTITY_REAP_CREEP)
 
 
 

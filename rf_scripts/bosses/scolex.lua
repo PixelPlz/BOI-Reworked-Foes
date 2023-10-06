@@ -239,7 +239,8 @@ function mod:ScolexUpdate(entity)
 				end
 
 				-- Jump out
-				if entity.I1 <= 0 and (entity.StateFrame ~= 2 or (entity.Position:Distance(entity.TargetPosition) < 40 or entity.GroupIdx > 0)) then
+				if entity.I1 <= 0 and (entity.StateFrame ~= 2 or (entity.Position:Distance(entity.TargetPosition) < 40 or entity.GroupIdx > 0)
+				or not entity.Pathfinder:HasPathToPos(entity.TargetPosition)) then
 					entity.State = NpcState.STATE_JUMP
 					entity.V2 = entity.Position
 					entity.Velocity = Vector.Zero

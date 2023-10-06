@@ -170,7 +170,26 @@ function mod:GishUpdate(entity)
 
 				-- Creep
 				if entity:IsFrame(3, 0) then
-					mod:QuickCreep(data.creepType, entity, entity.Position, 1.5, Settings.CreepTime)
+					-- For Hera
+					if entity.SubType == 1 then
+						local creep = mod:QuickCreep(data.creepType, entity, entity.Position, 1.5, -1)
+						table.insert(data.bubblies, creep)
+
+					-- For Gish
+					else
+						mod:QuickCreep(data.creepType, entity, entity.Position, 1.5, Settings.CreepTime)
+					end
+				end
+
+				-- Bubbling effect for Hera's creep puddles
+				if data.bubblies and entity:IsFrame(5, 0) then
+					for i, bubbly in pairs(data.bubblies) do
+						local offset = mod:RandomVector(math.random(25))
+						local bubble = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TAR_BUBBLE, 0, bubbly.Position + offset, Vector.Zero, entity)
+						bubble.DepthOffset = entity.DepthOffset + 10
+						bubble:GetSprite():ReplaceSpritesheet(0, "gfx/effects/hera_bubble.png")
+						bubble:GetSprite():LoadGraphics()
+					end
 				end
 			end
 
@@ -190,6 +209,12 @@ function mod:GishUpdate(entity)
 				if entity.I2 <= 0 then
 					entity.StateFrame = 1
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.75)
+
+					-- For Hera
+					if entity.SubType == 1 then
+						data.bubblies = {}
+					end
+
 				else
 					entity.I2 = entity.I2 - 1
 				end
@@ -239,10 +264,29 @@ function mod:GishUpdate(entity)
 
 					-- Projectiles
 					local params = ProjectileParams()
-					params.Scale = 1.25
 					params.Color = data.effectColor
-					entity:FireBossProjectiles(8, Vector.Zero, 2, params)
-					entity:FireProjectiles(entity.Position, Vector(9, 10), 9, params)
+
+					-- Hera bubbly spots
+					if entity.SubType == 1 then
+						for i, bubbly in pairs(data.bubblies) do
+							bubbly:SetTimeout(1)
+
+							-- Projectiles
+							for j = 1, 2 do
+								params.Scale = 1.65 - (j * 0.15)
+								params.FallingAccelModifier = 1.25
+								params.FallingSpeedModifier = -8 + (j * -6)
+								entity:FireProjectiles(bubbly.Position, mod:RandomVector(2), 0, params)
+							end
+						end
+						data.bubblies = nil
+
+					-- Gish scattered projectiles
+					else
+						params.Scale = 1.25
+						entity:FireBossProjectiles(8, Vector.Zero, 2, params)
+						entity:FireProjectiles(entity.Position, Vector(9, 10), 9, params)
+					end
 
 					-- Effects
 					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity):GetSprite()
@@ -478,7 +522,7 @@ function mod:GishUpdate(entity)
 			-- Bubbling effect for creep puddles
 			if data.bubblies and entity:IsFrame(3, 0) then
 				for i, bubbly in pairs(data.bubblies) do
-					local offset = Vector(math.random(-30, 30), math.random(-30, 30))
+					local offset = mod:RandomVector(math.random(30))
 					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TAR_BUBBLE, 0, bubbly.Position + offset, Vector.Zero, entity).DepthOffset = entity.DepthOffset + 10
 				end
 			end
@@ -497,7 +541,16 @@ function mod:GishUpdate(entity)
 			if sprite:IsEventTriggered("Shoot") then
 				-- Hera
 				if entity.SubType == 1 then
-					--
+					for i = -1, 1, 2 do
+						local params = ProjectileParams()
+						params.Color = data.effectColor
+						params.Scale = 2.5
+						params.FallingAccelModifier = 1.25
+						params.FallingSpeedModifier = -20 + mod:Random(-5, 5)
+
+						local vector = (target.Position - entity.Position):Rotated(i * mod:Random(10, 30))
+						mod:FireProjectiles(entity, entity.Position, vector:Resized(mod:Random(6, 8)), 0, params, Color(0,0,0, 1, 0.6,0.6,0.6)):GetData().kickedUp = true
+					end
 
 				-- Lobbed Clot for Gish
 				else
@@ -970,7 +1023,7 @@ function mod:GishFallingShots(projectile)
 
 		-- From the ceiling
 		if projectile:GetData().fallingShot then
-			local creep = mod:QuickCreep(spawnerData.creepType, projectile.SpawnerEntity, projectile.Position, 2.5, -1)
+			local creep = mod:QuickCreep(spawnerData.creepType, spawner, projectile.Position, 2.5, -1)
 			table.insert(spawnerData.bubblies, creep)
 
 			-- Projectiles
@@ -990,6 +1043,11 @@ function mod:GishFallingShots(projectile)
 		elseif projectile:GetData().kickedUp then
 			spawner:FireProjectiles(projectile.Position, Vector(8, 4), 7, params)
 			mod:PlaySound(nil, SoundEffect.SOUND_PLOP, 0.9, 1, 1)
+
+			-- For Hera
+			if spawner.SubType == 1 then
+				mod:QuickCreep(spawnerData.creepType, spawner, projectile.Position, 2, Settings.CreepTime)
+			end
 		end
 	end
 end

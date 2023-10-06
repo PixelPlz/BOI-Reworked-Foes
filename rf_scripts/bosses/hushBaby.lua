@@ -312,7 +312,7 @@ function mod:HushBabyUpdate(entity)
 							end
 
 							local angle = (360 / shotCount) * j
-							entity:FireProjectiles(entity.Position, Vector.FromAngle(offset + angle):Resized(9), 0, params)
+							entity:FireProjectiles(entity.Position, Vector.FromAngle(offset + angle):Resized(8), 0, params)
 						end
 					end
 

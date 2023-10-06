@@ -1,6 +1,8 @@
 local mod = ReworkedFoes
 
 local Settings = {
+	NewHealth = 650,
+
 	HeadSmashSpeed = 16,
 	HeadSmashTimer = 30,
 	HeadSmashShotSpeed = 12
@@ -10,6 +12,11 @@ local Settings = {
 
 function mod:DaddyLongLegsInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+
+	if entity.Variant == 0 then
+		entity.MaxHitPoints = Settings.NewHealth
+		entity.HitPoints = entity.MaxHitPoints
+	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.DaddyLongLegsInit, EntityType.ENTITY_DADDYLONGLEGS)
 

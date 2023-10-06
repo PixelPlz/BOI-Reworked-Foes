@@ -431,8 +431,8 @@ function mod:ChadUpdate(entity)
 				end
 
 				-- Surface
-				if (entity.ProjectileCooldown <= 0 and (entity.Position:Distance(entity.TargetPosition) < 20 or entity.I1 > 0))
-				or entity.ProjectileCooldown < -120 or not entity.Pathfinder:HasPathToPos(entity.TargetPosition) then
+				if entity.ProjectileCooldown <= 0 and ((entity.Position:Distance(entity.TargetPosition) < 20 or entity.I1 > 0)
+				or not entity.Pathfinder:HasPathToPos(entity.TargetPosition)) then
 					if entity.I2 ~= 3 or entity.I1 == 0 then
 						entity.Visible = true
 						entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL

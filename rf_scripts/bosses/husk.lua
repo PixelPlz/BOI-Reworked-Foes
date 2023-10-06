@@ -23,7 +23,7 @@ local Settings = {
 	-- Orbitals
 	OrbitDistances = {25, 65, 105},
 	OrbitSpeed = 2.25,
-	PushSpeed = 16,
+	PushSpeed = 15,
 }
 
 
@@ -120,6 +120,12 @@ function mod:HuskUpdate(entity)
 					end
 
 					attack = mod:Random(lowest, 3)
+
+					-- Black champion doesn't do volley attack if there are too many Ticking Spiders
+					if entity.SubType == 1 and attack == 2
+					and not (Isaac.CountEntities(entity, EntityType.ENTITY_TICKING_SPIDER, -1, -1) < Settings.MaxSpiders and enemyScore < Settings.MaxSpawns[entity.SubType + 1]) then
+						attack = 3
+					end
 
 					-- Pink champion doesn't do volley attack
 					if entity.SubType == 2 and (attack == 2 or enemyScore >= maxFlies) then
@@ -248,17 +254,19 @@ function mod:HuskUpdate(entity)
 
 				-- Regular
 				else
-					entity:FireBossProjectiles(12, target.Position, 1, ProjectileParams())
-
 					-- Get the entity to check for
 					local typeToCheck = EntityType.ENTITY_SPIDER
 					if entity.SubType == 1 then
 						typeToCheck = EntityType.ENTITY_TICKING_SPIDER
+
+					-- Projectiles
+					else
+						entity:FireBossProjectiles(12, target.Position, 1, ProjectileParams())
 					end
 
 					-- Only spawn spiders if there are less than 2
 					if Isaac.CountEntities(entity, typeToCheck, -1, -1) < Settings.MaxSpiders and enemyScore < Settings.MaxSpawns[entity.SubType + 1] then
-						local distance = mod:Random(100, 160)
+						local distance = mod:Random(120, 160)
 
 						-- Ticking Spider
 						if entity.SubType == 1 then
@@ -289,19 +297,15 @@ function mod:HuskUpdate(entity)
 
 				-- Black champion
 				if entity.SubType == 1 then
+					entity:FireProjectiles(entity.Position, Vector(11, 8), 8, ProjectileParams())
+
 					-- Push away Boom Flies
-					local pushed = false
 					for i, fly in pairs(Isaac.FindInRadius(entity.Position, 130, EntityPartition.ENEMY)) do
 						if fly.Type == EntityType.ENTITY_BOOMFLY then
 							fly:ToNPC().State = NpcState.STATE_SPECIAL
 							fly:ToNPC().V2 = (fly.Position - entity.Position):Resized(Settings.PushSpeed)
-							pushed = true
+							mod:QuickTrail(fly, 0.1, Color(0,0,0, 1, 0.25,0.25,0.25), 3)
 						end
-					end
-
-					-- Shoot if it didn't push away any
-					if pushed == false then
-						entity:FireProjectiles(entity.Position, Vector(11, 8), 8, ProjectileParams())
 					end
 
 

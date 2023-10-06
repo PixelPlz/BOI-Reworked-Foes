@@ -75,6 +75,17 @@ function mod:SisterVisUpdate(entity)
 
 	--[[ Alive and well ]]--
 	if not data.corpse then
+		-- Target any Gish first
+		if not entity.Target and not data.wasDelirium then
+			for i, gish in pairs(Isaac.FindByType(EntityType.ENTITY_MONSTRO2, 1, 0, false, false)) do
+				if gish:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) ~= entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) and not gish:GetData().wasDelirium then
+					entity.Target = gish
+					break
+				end
+			end
+		end
+
+
 		-- Idle
 		if entity.State == NpcState.STATE_IDLE then
 			entity.Velocity = mod:StopLerp(entity.Velocity)

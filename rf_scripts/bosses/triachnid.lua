@@ -1,7 +1,7 @@
 local mod = ReworkedFoes
 
 local Settings = {
-	NewHealth = 700,
+	NewHealth = 720,
 	Cooldown = 30,
 	MaxSpawns = 3,
 
@@ -191,8 +191,8 @@ function mod:TriachnidUpdate(entity)
 					if entity.ProjectileCooldown <= 0 then
 						data.moveCounter = data.moveCounter + 1
 
-						-- Attack after every 2 moves
-						if data.moveCounter >= 3 then
+						-- Attack after every completed move
+						if data.moveCounter >= 2 then
 							-- Reset variables
 							entity.ProjectileCooldown = Settings.Cooldown
 							--entity.I1 = 0
@@ -277,6 +277,10 @@ function mod:TriachnidUpdate(entity)
 
 
 				if data.stompDelay <= 0 then
+					-- Update target movement vector to allow slow steering
+					local newVector = entity.Position + (target.Position - entity.Position):Resized(120)
+					entity.TargetPosition = mod:Lerp(entity.TargetPosition, newVector, 0.25)
+
 					-- Move the first leg on the list
 					if data.sortedLegs[1] then
 						local pos = entity.TargetPosition + Vector.FromAngle(-90 + data.sortedLegs[1]:GetData().index * 120):Resized(80)

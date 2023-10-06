@@ -10,6 +10,7 @@
 - Triachnid has been re-reworked!
 - New Pin champion based off of the Larries from Super Meat Boy
 - Bumbino got a bit smarter
+- Isaac now was 2 additional variants for his 3rd phase light beam attack
 - Added a config option to toggle Greed-themed enemies stealing coin pickups
 
 
@@ -17,19 +18,23 @@
 - Coffers now drop half of their picked up coins and shoot the other half as projectiles, instead of shooting all of them
 - Reverted the Forsaken's health nerf so it's 400 again
 - Increased Rag Mega's health from 300 to 350
+- Decreased Reap Creep's health from 690 to 600
+- Decreased the Cage's health from 800 to 720
 - Increased Loki and each Lokii pair's health from 350 to 420
 - Increased Teratomar's health from 100 to 150
+- Increased Daddy Long Leg's health from 500 to 650
+- Black Husk no longer shoots when spawning Ticking Spiders
 - The Stain now only takes 20% reduced damage through his tentacles instead of 50%
 - Charmed Mama Gurdy's spikes will no longer target enemies and instantly kill them
 - Hush's Blue Baby phase now has a different orbiting projectile attack for its second phase
-- Reduced the max number of Blue Gapers during Hush's Blue Baby phase
+- Reduced the max number of Blue Gapers for Hush's Blue Baby phase
 
 
 -- Other changes --
 - New sprites and animations for Hush's Blue Baby phase
-- C.H.A.D. is now forced to surface if he is submerged for too long or if he doesn't have a path to his target position
+- C.H.A.D. and Scolex are now forced to surface if they don't have a path to their target positions
+- Boom Flies now gain a trail to better show that they were launched by black Husk
 - Gapers, Fatties and Skinnies can no longer turn into their burnt versions in rooms with water
-- It Lives now only does the blood cell attack in regular-sized rooms (mainly applies to the one Greed Mode wave he can spawn in)
 - Improved effects for several bosses and enemies
 - Lots of code improvements (note for compatibility: make sure enums are properly updated)
 
@@ -40,7 +45,7 @@
 - Fixed Scolex sometimes not taking damage if Retribution is enabled
 - Fixed Clotty and Clot Curdle variants from Retribution using the wrong projectile types
 - Fixed Fiend Folio Krampus champion's Enhanced Boss Bars icon being overwritten by this mod
-- Fixed red Mom's eye going invisible during its attack if there is a mod enabled that changes her door sprites
+- Fixed red Mom's eye going invisible during its attack with mods that change her door sprites
 
 
 

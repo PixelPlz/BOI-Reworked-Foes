@@ -166,6 +166,7 @@ local directory = {
 		buttons = {
 			{ str = 'resume game', action = 'resume' },
 			{ str = 'settings',    dest   = 'settings' },
+			dssmod.changelogsButton,
 			{ str = 'credits',     dest   = 'credits' },
 		},
 		tooltip = dssmod.menuOpenToolTip

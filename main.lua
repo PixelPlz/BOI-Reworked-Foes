@@ -102,6 +102,7 @@ local bossScripts = {
 	"maskInfamy",
 	"daddyLongLegs",
 	"triachnid",
+	"isaac",
 	"blueBaby",
 	"hushBaby",
 	"gate",
