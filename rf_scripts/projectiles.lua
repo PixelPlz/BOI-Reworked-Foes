@@ -289,6 +289,11 @@ function mod:EditFireProjectiles(projectile)
 		if projectile.SpawnerType == EntityType.ENTITY_MEGA_MAW then
 			projectile:AddProjectileFlags(ProjectileFlags.FIRE)
 			sprite.Offset = Vector(0, 15)
+
+
+		-- Forsaken
+		elseif projectile.SpawnerType == EntityType.ENTITY_FORSAKEN then
+			sprite.Offset = Vector(0, 15)
 		end
 	end
 end

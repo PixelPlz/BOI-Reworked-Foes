@@ -230,8 +230,9 @@ local directory = {
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- kittenchilly -', fsize = 3 },
+			{ str = 'beast tweaks', fsize = 2, nosel = true },
 			{ str = 'classic eternal flies', fsize = 2, nosel = true },
-			{ str = 'additional coding', fsize = 2, nosel = true },
+			{ str = 'code janitor', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- ratratrat -', fsize = 3 },
@@ -245,6 +246,10 @@ local directory = {
 
 			{ str = '- nevernamed -', fsize = 3 },
 			{ str = 'thumbnail artist', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
+
+			{ str = '- deadinfinity -', fsize = 3 },
+			{ str = 'beast tweaks', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- hgrfff -', fsize = 3 },

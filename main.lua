@@ -112,6 +112,7 @@ local bossScripts = {
 	"forsaken",
 	"ragMega",
 	"sisterVis",
+	"beast",
 }
 mod:LoadScripts(bossScripts, "bosses")
 

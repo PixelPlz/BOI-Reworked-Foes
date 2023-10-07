@@ -15,16 +15,44 @@ DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.0", [[
 
 - Triachnid has been re-reworked!
 
+
 - New Pin champion based off
 Larries Lament from Super Meat Boy
-
-- Bumbino got a bit smarter
 
 - Isaac now was 2 additional variants
 for his 3rd phase light beam attack
 
+- Bumbino got a bit smarter
+
 - Added a config option to toggle
 Greed-themed enemies stealing coin pickups
+
+
+- The mod now includes elements
+from "Beast Tweaks"
+by DeadInfinity and kittenchilly:
+
+- Fixed hitboxes for falling stalactites
+
+- Falling stalactites can now
+spawn after the first charge,
+and become more common as
+the Beast's health drops
+
+- The Beast can now do any of her
+attacks in both the first
+and second phase, with a set order
+(suck > double shot >
+suck > souls > repeat)
+
+- The Beast now spends less time
+being idle between attacks
+
+- The lava ball attack now starts
+faster after the first time
+
+- The Beast will now laugh
+at your untimely demise
 
 
 
