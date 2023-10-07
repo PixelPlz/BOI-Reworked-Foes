@@ -2,9 +2,10 @@ IRFcompatFF = RegisterMod("Reworked Foes + Fiend Folio Champions Compatibility",
 local mod = IRFcompatFF
 
 
-function mod:updateKrampusChampionId(isContinue)
-    if BetterMonsters then
-		IRFentities.KrampusChampion = 2
+function mod:UpdateKrampusChampionId(isContinue)
+    if ReworkedFoes then
+		ReworkedFoes.Entities.PinChampion = 2
+		ReworkedFoes.Entities.KrampusChampion = 2
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.updateKrampusChampionId)
+mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.UpdateKrampusChampionId)
