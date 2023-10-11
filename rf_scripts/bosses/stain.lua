@@ -39,10 +39,12 @@ function mod:StainUpdate(entity)
 
 
 		-- Tentacle attack
+		-- Replace default one
 		if entity.State == NpcState.STATE_ATTACK and entity.I1 == 1 then
 			entity.State = NpcState.STATE_ATTACK4
 			sprite:Play("Attack1Begin", true)
 			mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_ROAR_0)
+
 
 		elseif entity.State == NpcState.STATE_ATTACK4 then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -51,22 +53,25 @@ function mod:StainUpdate(entity)
 				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_ENTER_GROUND)
 			end
 
+			-- Start
 			if sprite:IsFinished("Attack1Begin") then
 				entity.State = NpcState.STATE_ATTACK5
 				entity.ProjectileCooldown = 10
 				entity.StateFrame = 0
 
+			-- Stop
 			elseif sprite:IsFinished("Attack1End") then
-				entity.State = 3
+				entity.State = NpcState.STATE_IDLE
 			end
 
 
+		-- Loop
 		elseif entity.State == NpcState.STATE_ATTACK5 then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 			mod:LoopingAnim(sprite, "Attack1Loop")
 
 			-- Spawn tentacles
-			if entity.StateFrame < 3 then
+			if entity.StateFrame < 2 + entity.SubType then
 				if entity.ProjectileCooldown <= 0 then
 					local directions = {0, 90, 180, 270}
 
@@ -99,6 +104,7 @@ function mod:StainUpdate(entity)
 				entity.State = NpcState.STATE_ATTACK4
 				sprite:Play("Attack1End", true)
 			end
+
 
 
 		-- Extra sounds
@@ -142,9 +148,9 @@ function mod:StainTentacleUpdate(entity)
 
 			-- Get whip direction
 			if sprite:IsFinished("Appear") then
-				local angleDegrees = (target.Position - entity.Position):GetAngleDegrees()
-				local facing = mod:GetDirectionString(angleDegrees)
-				sprite:Play("Swing" .. facing, true)
+				local angle = mod:ClampVector((target.Position - entity.Position), 90):GetAngleDegrees()
+				entity.V1 = Vector(angle, 0)
+				sprite:Play("Swing" .. mod:GetDirectionString(angle), true)
 
 			-- Remove self after burrowing
 			elseif sprite:IsFinished("Burrow") then
@@ -156,6 +162,7 @@ function mod:StainTentacleUpdate(entity)
 			end
 
 
+			-- Toggle collision
 			if sprite:IsEventTriggered("Start") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 				mod:PlaySound(nil, SoundEffect.SOUND_SKIN_PULL)
@@ -163,39 +170,23 @@ function mod:StainTentacleUpdate(entity)
 			elseif sprite:IsEventTriggered("Stop") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 
+			-- Sound
 			elseif sprite:IsEventTriggered("Sound") then
 				mod:PlaySound(nil, SoundEffect.SOUND_WHIP)
 
+
+			-- Check if it hit the target
 			elseif sprite:IsEventTriggered("Hit") then
-				local hurt = false
-
-				-- Check if it hit the target
-				if Game():GetRoom():CheckLine(entity.Position, target.Position, 3, 0, false, false) then
-					if sprite:IsPlaying("SwingLeft") or sprite:IsPlaying("SwingRight") then
-						if entity.Position.Y <= target.Position.Y + Settings.SideRange and entity.Position.Y >= target.Position.Y - Settings.SideRange then
-							if sprite:IsPlaying("SwingLeft") and target.Position.X > (entity.Position.X - Settings.FrontRange) and target.Position.X < entity.Position.X
-							or sprite:IsPlaying("SwingRight") and target.Position.X < (entity.Position.X + Settings.FrontRange) and target.Position.X > entity.Position.X then
-								hurt = true
-							end
-						end
-
-					elseif sprite:IsPlaying("SwingUp") or sprite:IsPlaying("SwingDown") then
-						if entity.Position.X <= target.Position.X + Settings.SideRange and entity.Position.X >= target.Position.X - Settings.SideRange then
-							if sprite:IsPlaying("SwingUp") and target.Position.Y > (entity.Position.Y - Settings.FrontRange) and target.Position.Y < entity.Position.Y
-							or sprite:IsPlaying("SwingDown") and target.Position.Y < (entity.Position.Y + Settings.FrontRange) and target.Position.Y > entity.Position.Y then
-								hurt = true
-							end
-						end
-					end
-				end
+				local hurtCheck = mod:CheckCardinalAlignment(entity, Settings.SideRange, Settings.FrontRange, 3, 1, entity.V1.X)
 
 				-- On succesful hit
-				if hurt == true then
-					target:TakeDamage(2, 0, EntityRef(entity.Parent), 0)
-					target.Velocity = target.Velocity + (target.Position - entity.Position):Resized(Settings.WhipStrength)
-					mod:PlaySound(nil, SoundEffect.SOUND_WHIP_HIT)
+				if hurtCheck ~= false then
+					target:TakeDamage(2, 0, EntityRef(entity), 0)
+					target.Velocity = target.Velocity + Vector.FromAngle(hurtCheck):Resized(Settings.WhipStrength)
+					mod:PlaySound(nil, SoundEffect.SOUND_WHIP_HIT, 1, 1, 5)
 				end
 			end
+
 
 		else
 			entity:Kill()

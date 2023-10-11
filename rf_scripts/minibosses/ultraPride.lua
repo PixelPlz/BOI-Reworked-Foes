@@ -1,14 +1,14 @@
 local mod = ReworkedFoes
 
 local Settings = {
-	Cooldown = 90,
+	Cooldown = {60, 90},
 
 	-- Edmund
 	EdmundSpeed = 3.75,
 	MaxSpawns = 2, -- +1 without Florian
 
 	-- Florian
-	FlorianHealthMulti = 1.5,
+	FlorianHealthMulti = 2,
 	FlorianMaxDistance = 80,
 	FlorianSpeed = 4, -- x0.5 while following Ed
 	MinSketchLifeTime = 120,
@@ -27,7 +27,7 @@ local ultraPrideSketches = {
 --[[ Edmund ]]--
 function mod:EdmundInit(entity)
 	if entity.Variant == 2 then
-		entity.ProjectileCooldown = mod:Random(Settings.Cooldown / 2, Settings.Cooldown)
+		entity.ProjectileCooldown = mod:Random(Settings.Cooldown[1], Settings.Cooldown[2])
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.EdmundInit, EntityType.ENTITY_SLOTH)
@@ -134,7 +134,7 @@ function mod:EdmundUpdate(entity)
 
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
-				entity.ProjectileCooldown = Settings.Cooldown
+				entity.ProjectileCooldown = mod:Random(Settings.Cooldown[1], Settings.Cooldown[2])
 			end
 
 
@@ -163,7 +163,7 @@ function mod:EdmundUpdate(entity)
 
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
-				entity.ProjectileCooldown = Settings.Cooldown
+				entity.ProjectileCooldown = mod:Random(Settings.Cooldown[1], Settings.Cooldown[2])
 			end
 		end
 
@@ -191,7 +191,7 @@ function mod:FlorianInit(entity)
 	if entity.Variant == 2 then
 		entity.MaxHitPoints = entity.MaxHitPoints * Settings.FlorianHealthMulti
 		entity.HitPoints = entity.MaxHitPoints
-		entity.ProjectileCooldown = mod:Random(Settings.Cooldown, Settings.Cooldown * 2)
+		entity.ProjectileCooldown = mod:Random(Settings.Cooldown[1], Settings.Cooldown[2])
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.FlorianInit, EntityType.ENTITY_BABY)
@@ -302,11 +302,11 @@ function mod:FlorianUpdate(entity)
 
 				-- Attack faster if Ed is dead
 				if not entity.Parent then
-					entity.ProjectileCooldown = Settings.Cooldown / 4
+					entity.ProjectileCooldown = Settings.Cooldown[1] / 2
 					entity.StateFrame = entity.StateFrame - 30
 
 				else
-					entity.ProjectileCooldown = Settings.Cooldown
+					entity.ProjectileCooldown = mod:Random(Settings.Cooldown[1], Settings.Cooldown[2])
 				end
 			end
 
@@ -348,7 +348,7 @@ function mod:FlorianUpdate(entity)
 					local laser_ent_pair = {laser = EntityLaser.ShootAngle(2, entity.Position, (pos - entity.Position):GetAngleDegrees(), 3, Vector(0, entity.SpriteScale.Y * -30), entity), entity}
 					local laser = laser_ent_pair.laser
 
-					-- Set up parameters
+					-- Set up the parameters
 					laser:SetMaxDistance(entity.Position:Distance(pos))
 					laser.Mass = 0
 					laser.DepthOffset = entity.DepthOffset - 10
@@ -362,7 +362,7 @@ function mod:FlorianUpdate(entity)
 
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
-				entity.ProjectileCooldown = Settings.Cooldown
+				entity.ProjectileCooldown = mod:Random(Settings.Cooldown[1], Settings.Cooldown[2])
 			end
 
 

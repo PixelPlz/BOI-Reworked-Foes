@@ -12,7 +12,7 @@ local Settings = {
 	Gravity = 1,
 	JumpStrength = 10,
 	LandHeight = 8,
-	JumpSpeed = 14, -- For big jump
+	JumpSpeed = 15, -- For big jump
 
 	-- Sky laser
 	SkyLaserDuration = 140,
@@ -62,7 +62,6 @@ function mod:SisterVisUpdate(entity)
 		end
 	end
 
-
 	-- Reset variables
 	local function resetVariables(sis)
 		sis.ProjectileCooldown = Settings.Cooldown
@@ -85,64 +84,79 @@ function mod:SisterVisUpdate(entity)
 			end
 		end
 
+		-- Get animation prefix
+		local prefix = ""
+		if data.enraged and data.enraged == true then
+			prefix = "Angry"
+		end
+
 
 		-- Idle
 		if entity.State == NpcState.STATE_IDLE then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
-			mod:LoopingAnim(sprite, "Idle")
+			mod:LoopingAnim(sprite, prefix .. "Idle")
 
-			if entity.ProjectileCooldown <= 0 and (not sibling or sibling.State == NpcState.STATE_IDLE) then
-				-- Reset variables
-				resetVariables(entity)
-
-				local attackCount = 3
-				-- Don't do the jump attack if the sibling doesn't exist
-				if not sibling or not sibling:Exists() then
-					attackCount = 2
-				end
-				local attack = mod:Random(1, attackCount)
+			-- Get pissed if the sibling dies
+			if sibling and isSiblingDead and not data.enraged then
+				entity.State = NpcState.STATE_SPECIAL
+				sprite:Play("AngryStart", true)
 
 
-				-- Roll
-				if attack == 1 then
-					entity.State = NpcState.STATE_ATTACK
-					sprite:Play("RollStart", true)
-					mod:PlaySound(entity, SoundEffect.SOUND_FAT_WIGGLE)
-
-				-- Laser
-				elseif attack == 2 then
-					-- Sky laser
-					if isSiblingDead then
-						entity.State = NpcState.STATE_ATTACK3
-						sprite:Play("LaserStartDown", true)
-
-					-- Move to position for double laser
-					else
-						entity.State = NpcState.STATE_MOVE
-					end
-
-				-- Jump
-				elseif attack == 3 then
-					entity.State = NpcState.STATE_JUMP
-					sprite:Play("Jumping", true)
-					entity.I1 = mod:GetSign(isSiblingDead)
-				end
-
-
-				-- Do the attack with the sibling
-				if sibling and isSiblingDead == false then
-					resetVariables(sibling)
-					sibling.State = entity.State
-					siblingSprite:Play(sprite:GetAnimation(), true)
-
-					-- For the jump attack
-					if attack == 3 then
-						sibling.StateFrame = 10
-					end
-				end
-
+			-- Attack
 			else
-				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+				if entity.ProjectileCooldown <= 0 and (not sibling or sibling.State == NpcState.STATE_IDLE) then
+					-- Reset variables
+					resetVariables(entity)
+
+					local attackCount = 3
+					-- Don't do the jump attack if the sibling doesn't exist
+					if not sibling or not sibling:Exists() then
+						attackCount = 2
+					end
+					local attack = mod:Random(1, attackCount)
+
+
+					-- Roll
+					if attack == 1 then
+						entity.State = NpcState.STATE_ATTACK
+						sprite:Play(prefix .. "RollStart", true)
+						mod:PlaySound(entity, SoundEffect.SOUND_FAT_WIGGLE)
+
+					-- Laser
+					elseif attack == 2 then
+						-- Sky laser
+						if data.enraged then
+							entity.State = NpcState.STATE_ATTACK3
+							sprite:Play("AngryLaserStart", true)
+
+						-- Move to position for double laser
+						else
+							entity.State = NpcState.STATE_MOVE
+						end
+
+					-- Jump
+					elseif attack == 3 then
+						entity.State = NpcState.STATE_JUMP
+						sprite:Play(prefix .. "Jump", true)
+						entity.I1 = mod:GetSign(isSiblingDead)
+					end
+
+
+					-- Do the attack with the sibling
+					if sibling and isSiblingDead == false then
+						resetVariables(sibling)
+						sibling.State = entity.State
+						siblingSprite:Play(sprite:GetAnimation(), true)
+
+						-- For the jump attack
+						if attack == 3 then
+							sibling.StateFrame = 10
+						end
+					end
+
+				else
+					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+				end
 			end
 
 
@@ -166,22 +180,28 @@ function mod:SisterVisUpdate(entity)
 						vector = mod:RandomVector()
 
 					-- Away from target if feared or is the second sibling
-					elseif (entity.GroupIdx >= 1 and isSiblingDead == false) or entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+					elseif (entity.GroupIdx >= 1 and not data.enraged) or entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
 						vector = -vector
 
 					-- At the sibling's corpse if it exists
-					elseif isSiblingDead == true then
+					elseif sibling and isSiblingDead == true then
 						vector = (entity.Child.Position - entity.Position):Normalized()
 					end
 
 					entity.Velocity = vector
+
+					-- Animation
+					local suffix = entity.Velocity.Y < 0 and "Up" or ""
+					sprite:Play(prefix .. "RollLoop" .. suffix, true)
+					sprite:SetFrame(entity.Velocity.Y < 0 and 2 or 3)
 				end
 
 			-- Rollin' around
 			elseif entity.StateFrame == 1 then
 				entity.Velocity = mod:Lerp(entity.Velocity, entity.Velocity:Resized(Settings.RollSpeed), 0.3)
 
-				mod:LoopingAnim(sprite, "RollLoop")
+				local suffix = entity.Velocity.Y < 0 and "Up" or ""
+				mod:LoopingAnim(sprite, prefix .. "RollLoop" .. suffix)
 				sprite.PlaybackSpeed = entity.Velocity:Length() * 0.11
 				mod:FlipTowardsMovement(entity, sprite)
 
@@ -194,7 +214,7 @@ function mod:SisterVisUpdate(entity)
 				-- Stop
 				if entity.I1 <= 0 then
 					entity.StateFrame = 2
-					sprite:Play("Taunt", true)
+					sprite:Play(prefix .. "RollStop", true)
 					sprite.PlaybackSpeed = 1
 					entity:ClearEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 					mod:PlaySound(entity, SoundEffect.SOUND_FAT_WIGGLE)
@@ -220,8 +240,6 @@ function mod:SisterVisUpdate(entity)
 			-- Get position
 			if entity.StateFrame == 0 then
 				entity.Velocity = mod:StopLerp(entity.Velocity)
-				mod:LoopingAnim(sprite, "Idle")
-
 
 				-- Get left and right positions
 				local _, posLeft =  room:CheckLine(target.Position, target.Position - Vector(1000, 0), 2, 500, false, false)
@@ -245,12 +263,12 @@ function mod:SisterVisUpdate(entity)
 				-- Big jump
 				if distance > 200 then
 					entity.StateFrame = 10
-					sprite:Play("Jumping", true)
+					sprite:Play("Jump", true)
 
 				-- Small jump
 				elseif distance > 30 then
 					entity.StateFrame = 1
-					sprite:Play("JumpSmall", true)
+					sprite:Play("SmallJump", true)
 
 				-- Already near the position
 				else
@@ -280,7 +298,7 @@ function mod:SisterVisUpdate(entity)
 				entity.V2 = Vector(0, entity.V2.Y - Settings.Gravity)
 				entity.PositionOffset = Vector(0, math.min(Settings.LandHeight, entity.PositionOffset.Y - entity.V2.Y))
 
-				mod:LoopingAnim(sprite, "Midair")
+				mod:LoopingAnim(sprite, "JumpSmallLoop")
 
 				-- Land
 				if entity.Position:Distance(entity.TargetPosition) < 20 then
@@ -288,7 +306,7 @@ function mod:SisterVisUpdate(entity)
 
 					if entity.PositionOffset.Y >= Settings.LandHeight then
 						entity.StateFrame = 20
-						sprite:Play("Land", true)
+						sprite:Play("SmallLand", true)
 						entity.PositionOffset = Vector.Zero
 					end
 
@@ -319,7 +337,7 @@ function mod:SisterVisUpdate(entity)
 				-- Land
 				if entity.Position:Distance(entity.TargetPosition) < 20 then
 					entity.StateFrame = 20
-					sprite:Play("Landing", true)
+					sprite:Play("Land", true)
 					sprite.FlipX = entity.I1 == 1
 
 				-- Move to position
@@ -348,11 +366,13 @@ function mod:SisterVisUpdate(entity)
 					-- Effects
 					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
 
-					if sprite:IsPlaying("Landing") then
+					-- For big jump
+					if sprite:IsPlaying("Land") then
 						mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
 						Game():ShakeScreen(6)
 						Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
 
+					-- For small jump
 					else
 						mod:PlaySound(nil, SoundEffect.SOUND_MEAT_IMPACTS)
 					end
@@ -375,7 +395,7 @@ function mod:SisterVisUpdate(entity)
 
 				if not sibling or isSiblingDead == true or (sibling.State == entity.State and sibling.StateFrame >= entity.StateFrame) then
 					entity.StateFrame = 1
-					sprite:Play("LaserStartSide", true)
+					sprite:Play("LaserStart", true)
 					sprite.FlipX = entity.I1 == 1
 				end
 
@@ -389,7 +409,7 @@ function mod:SisterVisUpdate(entity)
 					entity.StateFrame = 2
 
 					local angle = 90 + entity.I1 * 90
-					local offset = Vector.FromAngle(angle):Resized(20) + Vector(0, -30)
+					local offset = Vector.FromAngle(angle):Resized(10) + Vector(0, -30)
 
 					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.GIANT_RED, entity.Position, angle, 30, offset, entity), entity}
 					data.brim = laser_ent_pair.laser
@@ -401,7 +421,7 @@ function mod:SisterVisUpdate(entity)
 					effect.DepthOffset = entity.DepthOffset - 90
 
 					local effectSprite = effect:GetSprite()
-					effectSprite.Offset = Vector.FromAngle(angle):Resized(20) + Vector(0, -25)
+					effectSprite.Offset = Vector.FromAngle(angle):Resized(18) + Vector(0, -30)
 					effectSprite.Scale = Vector(0.7, 0.7)
 
 					local c = mod.Colors.BrimShot
@@ -410,19 +430,19 @@ function mod:SisterVisUpdate(entity)
 
 			-- Loop
 			elseif entity.StateFrame == 2 then
-				mod:LoopingAnim(sprite, "LaserLoopSide")
+				mod:LoopingAnim(sprite, "LaserLoop")
 
 				-- Stop
 				if not data.brim:Exists() then
 					entity.StateFrame = 3
-					sprite:Play("LaserEndSide", true)
+					sprite:Play("LaserStop", true)
 
 				else
 					-- If they collide
 					if sibling and sibling:GetData().brim -- Sibling's laser exists
 					and entity.Position.Y <= sibling.Position.Y + 100 and entity.Position.Y >= sibling.Position.Y - 100 then -- They're close enough vertically
-						local pos = entity.Position + data.brim.PositionOffset * 4 -- No clue why multiplying it by 4 makes it work
-						local siblingPos = sibling.Position + sibling:GetData().brim.PositionOffset * 4
+						local pos = entity.Position + data.brim.PositionOffset * 6 -- No clue why multiplying it makes it work
+						local siblingPos = sibling.Position + sibling:GetData().brim.PositionOffset * 6
 						data.brim:SetMaxDistance(pos:Distance(siblingPos) / 2)
 
 					else
@@ -482,12 +502,12 @@ function mod:SisterVisUpdate(entity)
 
 			-- Loop
 			elseif entity.StateFrame == 1 then
-				mod:LoopingAnim(sprite, "LaserLoopDown")
+				mod:LoopingAnim(sprite, "AngryLaserLoop")
 
 				-- Stop
 				if entity.I1 <= 0 then
 					entity.StateFrame = 2
-					sprite:Play("LaserEndDown", true)
+					sprite:Play("AngryLaserStop", true)
 					mod:FlipTowardsTarget(entity, sprite)
 					data.laser.Parent = nil
 
@@ -532,7 +552,7 @@ function mod:SisterVisUpdate(entity)
 				-- Land
 				if entity.Position:Distance(sibling.Position) < 10 then
 					entity.StateFrame = 2
-					sprite:Play("Landing", true)
+					sprite:Play(prefix .. "Land", true)
 					entity.Velocity = Vector.Zero
 
 				-- Move to position
@@ -546,9 +566,9 @@ function mod:SisterVisUpdate(entity)
 
 				-- Only land on the sibling if it's not transitioning and on the ground
 				if sibling.State ~= NpcState.STATE_SPECIAL and sibling.PositionOffset.Y >= 0
-				and sprite:GetFrame() == 3 then
+				and sprite:IsEventTriggered("Jump") then
 					entity.StateFrame = 3
-					sprite:Play("Top", true)
+					sprite:Play(prefix .. "ComboTop", true)
 					entity.Position = sibling.Position
 					entity.Velocity = Vector.Zero
 
@@ -556,20 +576,28 @@ function mod:SisterVisUpdate(entity)
 					sibling.State = entity.State
 					sibling.StateFrame = 11
 
-					-- Effects
-					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_IMPACTS)
 
+					-- Dead sibling
 					if isSiblingDead == true then
-						siblingSprite:Play("6feetUnder", true)
+						siblingSprite:Play("CorpseBottom" .. sibling:GetData().corpseAnim, true)
+
+						-- Effects
 						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, sibling.Position, Vector.Zero, sibling)
 						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, sibling.Position, Vector.Zero, sibling)
 						mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0)
 
+					-- Alive sibling
 					else
-						siblingSprite:Play("Bottom", true)
-						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
+						siblingSprite:Play("ComboBottom", true)
+
+						-- Effects
+						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite()
+						effect.Color = mod.Colors.DustPoof
+						effect.Offset = Vector(0, -10)
+						mod:PlaySound(nil, SoundEffect.SOUND_MEAT_IMPACTS)
 					end
 				end
+
 
 				-- If the sibling died before she could land on her
 				if sprite:IsEventTriggered("Land") then
@@ -603,7 +631,8 @@ function mod:SisterVisUpdate(entity)
 					-- Fall off if the sibling dies under her
 					if entity.I1 ~= mod:GetSign(isSiblingDead) then
 						entity.StateFrame = 20
-						entity.PositionOffset = Vector(0, -20)
+						entity.PositionOffset = Vector(0, -30)
+						entity.V2 = Vector(0, -1)
 					end
 				end
 
@@ -635,8 +664,9 @@ function mod:SisterVisUpdate(entity)
 
 				-- Cancel the launch if the sibling dies
 				if isSiblingDead == true and not sprite:WasEventTriggered("Jump") then
+					entity.StateFrame = 21
 					sprite:Play("Land", true)
-					sprite:SetFrame(5)
+					sprite:SetFrame(10)
 				end
 
 				if sprite:IsFinished() then
@@ -652,12 +682,12 @@ function mod:SisterVisUpdate(entity)
 				entity.V2 = Vector(0, entity.V2.Y - Settings.Gravity)
 				entity.PositionOffset = Vector(0, math.min(Settings.LandHeight, entity.PositionOffset.Y - entity.V2.Y))
 
-				mod:LoopingAnim(sprite, "Midair")
+				mod:LoopingAnim(sprite, "SmallJumpLoop")
 
 				-- Land
 				if entity.PositionOffset.Y >= Settings.LandHeight then
 					entity.StateFrame = 21
-					sprite:Play("Land", true)
+					sprite:Play("SmallLand", true)
 					entity.PositionOffset = Vector.Zero
 				end
 
@@ -687,7 +717,7 @@ function mod:SisterVisUpdate(entity)
 				-- Land
 				if entity.Position:Distance(entity.TargetPosition) < 20 then
 					entity.StateFrame = 1
-					sprite:Play("Landing", true)
+					sprite:Play(prefix .. "Land", true)
 					mod:FlipTowardsMovement(entity, sprite)
 
 				-- Move to position
@@ -740,8 +770,7 @@ function mod:SisterVisUpdate(entity)
 								sister.V2 = Vector(0, Settings.CorpseJumpStrength)
 
 								-- Get velocity
-								local strength = math.max(1, 15 - sister.Position:Distance(entity.Position) / 20)
-								sister.Velocity = mod:RandomVector(strength)
+								sister.Velocity = mod:RandomVector(mod:Random(20, 40) / 10)
 
 								mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 1.1)
 							end
@@ -758,6 +787,19 @@ function mod:SisterVisUpdate(entity)
 					end
 				end
 			end
+
+
+
+		--[[ Transition ]]--
+		elseif entity.State == NpcState.STATE_SPECIAL then
+			if sprite:IsEventTriggered("Jump") then
+				data.enraged = true
+				mod:PlaySound(entity, SoundEffect.SOUND_GHOST_ROAR, 1, 1.02)
+			end
+
+			if sprite:IsFinished() then
+				entity.State = NpcState.STATE_IDLE
+			end
 		end
 
 
@@ -766,21 +808,50 @@ function mod:SisterVisUpdate(entity)
 
 	--[[ Corpse moding ]]--
 	else
-		-- Fake death
+		--[[ Fake death ]]--
 		if entity.State == NpcState.STATE_SPECIAL then
-			entity.Velocity = Vector.Zero
+			entity.Velocity = mod:StopLerp(entity.Velocity)
 
-			if sprite:IsEventTriggered("BloodStop") then
-				entity.State = NpcState.STATE_IDLE
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity)
-				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0)
+			-- Recreate blood death animation
+			if sprite:IsEventTriggered("BloodStart") then
+				entity.I2 = 1
+			elseif sprite:IsEventTriggered("BloodStop") then
+				entity.I2 = 0
+			end
+
+			if entity.I2 == 1 and entity:IsFrame(math.random(3, 4), 0) then
+				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.9)
+
+				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 0, entity.Position, Vector.Zero, entity)
+				effect.DepthOffset = entity.DepthOffset + 10
+				effect:GetSprite().Offset = Vector(math.random(-40, 40), -20 + math.random(-40, 40))
+
+				local effectScale = 1 + (math.random(0, 20) * -0.01)
+				effect:GetSprite().Scale = Vector(effectScale, effectScale)
 			end
 
 
-		-- Chillin'
+			-- Switch animations
+			if sprite:IsEventTriggered("Jump") then
+				data.corpseAnim = mod:Random(1, 3)
+				sprite:Play("CorpseRollStop" .. data.corpseAnim, true)
+
+				-- Effects
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity)
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity)
+				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0)
+			end
+
+			if sprite:IsFinished() then
+				entity.State = NpcState.STATE_IDLE
+			end
+
+
+
+		--[[ Chillin' ]]--
 		elseif entity.State == NpcState.STATE_IDLE then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
-			mod:LoopingAnim(sprite, "IdleCorpse")
+			mod:LoopingAnim(sprite, "CorpseIdle" .. data.corpseAnim)
 
 
 
@@ -788,8 +859,11 @@ function mod:SisterVisUpdate(entity)
 		elseif entity.State == NpcState.STATE_ATTACK then
 			if entity.StateFrame <= 1 then
 				entity.Velocity = mod:Lerp(entity.Velocity, entity.Velocity:Resized(Settings.RollSpeed), 0.3)
-				mod:LoopingAnim(sprite, "RollLoop")
+
+				local suffix = entity.Velocity.Y < 0 and "Up" or ""
+				mod:LoopingAnim(sprite, "CorpseRollLoop" .. suffix)
 				sprite.PlaybackSpeed = entity.Velocity:Length() * 0.11
+				mod:FlipTowardsMovement(entity, sprite)
 
 				-- Bounce off of obstacles
 				if entity:CollidesWithGrid() then
@@ -799,8 +873,8 @@ function mod:SisterVisUpdate(entity)
 					-- Stop
 					if entity.I1 >= Settings.CorpseBounces - 1 then
 						entity.StateFrame = 2
-						sprite:Play("Landing", true)
-						sprite:SetFrame(4)
+						data.corpseAnim = mod:Random(1, 3)
+						sprite:Play("CorpseRollStop" .. data.corpseAnim, true)
 						sprite.PlaybackSpeed = 1
 						entity:ClearEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
@@ -811,6 +885,7 @@ function mod:SisterVisUpdate(entity)
 
 						-- Effects
 						mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0, 1.1, 0.95)
+						mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 0.8)
 
 						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity):GetSprite()
 						effect.Offset = Vector(0, -15)
@@ -823,7 +898,9 @@ function mod:SisterVisUpdate(entity)
 
 			-- Splattered on the wall
 			elseif entity.StateFrame == 2 then
-				if sprite:GetFrame() == 9 or sprite:IsFinished() then
+				entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.15)
+
+				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
 				end
 			end
@@ -836,7 +913,7 @@ function mod:SisterVisUpdate(entity)
 
 			-- Waiting for sibling
 			if entity.StateFrame == 10 then
-				mod:LoopingAnim(sprite, "IdleCorpse")
+				mod:LoopingAnim(sprite, "CorpseIdle" .. data.corpseAnim)
 
 			-- Launch the sibling
 			elseif entity.StateFrame == 11 then
@@ -847,8 +924,6 @@ function mod:SisterVisUpdate(entity)
 						params.Scale = 1.25
 						entity:FireBossProjectiles(3, Vector.Zero, 2, params)
 						mod:PlaySound(entity, SoundEffect.SOUND_BLOODSHOOT)
-
-						entity.I2 = entity.I2 + 1
 						entity.I1 = 2
 
 					else
@@ -870,21 +945,16 @@ function mod:SisterVisUpdate(entity)
 				entity.V2 = Vector(0, entity.V2.Y - Settings.Gravity)
 				entity.PositionOffset = Vector(0, math.min(Settings.LandHeight, entity.PositionOffset.Y - entity.V2.Y))
 
-				mod:LoopingAnim(sprite, "MidairCorpse")
+				mod:LoopingAnim(sprite, "CorpseLaunched")
 				mod:FlipTowardsMovement(entity, sprite)
 
 				-- Land
 				if entity.PositionOffset.Y >= Settings.LandHeight - 20 then
 					entity.StateFrame = 1
-					sprite:Play("LandCorpse", true)
+					data.corpseAnim = mod:Random(1, 3)
+					sprite:Play("CorpseLand" .. data.corpseAnim, true)
+
 					entity.PositionOffset = Vector.Zero
-				end
-
-			-- Landed
-			elseif entity.StateFrame == 1 then
-				entity.Velocity = mod:StopLerp(entity.Velocity)
-
-				if sprite:IsEventTriggered("Land") then
 					entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 					entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 
@@ -900,6 +970,10 @@ function mod:SisterVisUpdate(entity)
 					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 1.1)
 					Game():ShakeScreen(6)
 				end
+
+			-- Landed
+			elseif entity.StateFrame == 1 then
+				entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
@@ -923,27 +997,32 @@ function mod:SisterVisUpdate(entity)
 
 
 
-	-- Cancel death for the first sister and turn into a corpse
-	if entity:HasMortalDamage() and not data.corpse and sibling and isSiblingDead == false then
-		entity.State = NpcState.STATE_SPECIAL
-		sprite:Play("Death", true)
-		sprite.PlaybackSpeed = 1
+	if entity:HasMortalDamage() then
+		-- Replace blood color with default red blood
+		entity.SplatColor = Color.Default
 
-		entity.HitPoints = 1000
-		entity.MaxHitPoints = 0
-		data.corpse = true
-		resetVariables(entity)
+		-- Cancel death for the first sister and turn into a corpse
+		if not data.corpse and sibling and isSiblingDead == false then
+			entity.State = NpcState.STATE_SPECIAL
+			sprite:Play("Death", true)
+			sprite.PlaybackSpeed = 1
 
-		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
-		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
+			entity.HitPoints = 1000
+			entity.MaxHitPoints = 0
+			data.corpse = true
+			resetVariables(entity)
 
-		entity:AddEntityFlags(EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_BOSSDEATH_TRIGGERED | EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
-		entity:ClearEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
+			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 
-		-- Get rid of the laser
-		if data.brim then
-			data.brim:SetTimeout(1)
-			data.brim = nil
+			entity:AddEntityFlags(EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_BOSSDEATH_TRIGGERED | EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
+			entity:ClearEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+
+			-- Get rid of the laser
+			if data.brim then
+				data.brim:SetTimeout(1)
+				data.brim = nil
+			end
 		end
 	end
 
@@ -1085,7 +1164,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.SisterVisSkyLaserUpdate, mod.Ent
 -- Going up visual
 function mod:SisterVisSkyLaserEffectInit(effect)
 	effect:GetSprite():Play("StartUp")
-	effect.SpriteOffset = Vector(0, -25)
+	effect.SpriteOffset = Vector(0, -22)
 end
 mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.SisterVisSkyLaserEffectInit, mod.Entities.SkyLaserEffect)
 

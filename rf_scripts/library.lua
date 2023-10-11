@@ -581,6 +581,40 @@ function mod:OrbitParent(entity, parent, speed, distance, group)
 end
 
 
+-- Check if target is aligned cardinally
+-- 0 - Allow all directions
+-- 1 - Only allow the direction I'm facing
+-- 2 - Allow the direction I'm facing + the directions to my side
+function mod:CheckCardinalAlignment(entity, sideRange, forwardRange, lineCheckMode, directionCheckMode, facingAngle)
+	local target = entity:GetPlayerTarget()
+
+	-- Don't check if there are obstacles in the way
+	if Game():GetRoom():CheckLine(entity.Position, target.Position, lineCheckMode, 0, false, false) then
+		for i = 0, 1 do
+			-- Get the position to check
+			local lineEnd = Vector(target.Position.X, entity.Position.Y)
+			if i == 1 then
+				lineEnd = Vector(entity.Position.X, target.Position.Y)
+			end
+
+			-- Check if the distances are within range
+			if (target.Position - lineEnd):Length() <= sideRange and (entity.Position - lineEnd):Length() <= forwardRange then
+				local targetAngle = (lineEnd - entity.Position):GetAngleDegrees()
+				local facingAngle = facingAngle or entity.Velocity:GetAngleDegrees()
+
+				if not directionCheckMode or directionCheckMode == 0 -- Allow all directions
+				or (directionCheckMode == 1 and targetAngle == facingAngle) -- Only allow the direction I'm facing
+				or (directionCheckMode == 2 and math.abs(targetAngle - facingAngle) <= 90) then -- Allow the direction I'm facing + the directions to my side
+					return targetAngle
+				end
+			end
+		end
+	end
+
+	return false
+end
+
+
 
 --[[ Spawning helper functions ]]--
 -- Creep

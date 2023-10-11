@@ -204,7 +204,7 @@ function mod:HuskUpdate(entity)
 				-- Effects
 				for i = -1, 1, 2 do
 					-- Yes haha it unlocked the Forgorten for Oily before, how smart of you
-					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, mod.Entities.HuskEffect, 0, entity.Position, Vector.Zero, entity):ToEffect()
+					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, mod.Entities.OneTimeEffect, 0, entity.Position, Vector.Zero, entity):ToEffect()
 					effect:FollowParent(entity)
 					effect.DepthOffset = entity.DepthOffset + 10
 
@@ -444,16 +444,6 @@ function mod:HuskDMG(entity, damageAmount, damageFlags, damageSource, damageCoun
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.HuskDMG, EntityType.ENTITY_DUKE)
-
-
-
---[[ Spawn effect ]]--
-function mod:HuskEffectUpdate(effect)
-	if effect:GetSprite():IsFinished() then
-		effect:Remove()
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.HuskEffectUpdate, mod.Entities.HuskEffect)
 
 
 

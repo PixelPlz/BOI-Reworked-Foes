@@ -333,6 +333,21 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditPukeProjectiles,
 
 
 
+-- Tear projectile
+function mod:EditTearProjectiles(projectile)
+	if projectile.FrameCount <= 1 then
+		local data = projectile:GetData()
+
+		-- Isaac burst shots
+		if projectile.SpawnerType == EntityType.ENTITY_ISAAC and projectile.SpawnerVariant == 0 and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
+			data.trailColor = mod.Colors.TearEffect
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditTearProjectiles, ProjectileVariant.PROJECTILE_TEAR)
+
+
+
 
 
 --[[ Custom projectiles ]]--
@@ -340,12 +355,16 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditPukeProjectiles,
 function mod:AddCustomProjectile(variant, initScript, updateScript, popScript)
 	local function init(projectile)
 		projectile:GetData().spawnerSubType = projectile.SpawnerEntity and projectile.SpawnerEntity.SubType or -1
-		initScript(projectile)
+		if initScript then
+			initScript(projectile)
+		end
 		projectile:GetData().customProjectileInitialized = true
 	end
 
 	local function pop(projectile)
-		popScript(projectile)
+		if popScript then
+			popScript(projectile)
+		end
 		projectile:Remove()
 	end
 
@@ -367,7 +386,7 @@ function mod:AddCustomProjectile(variant, initScript, updateScript, popScript)
 			pop(projectile)
 
 		-- Midair
-		else
+		elseif updateScript then
 			updateScript(projectile)
 		end
 	end
@@ -424,7 +443,6 @@ mod:AddCustomProjectile(mod.Entities.FeatherProjectile, FeatherProjectileInit, F
 -- Sucker projectile
 local function SuckerProjectileInit(projectile)
 	projectile:GetData().trailColor = Color.Default
-	projectile.Scale = 1.5
 end
 
 local function SuckerProjectileUpdate(projectile)
@@ -451,10 +469,6 @@ mod:AddCustomProjectile(mod.Entities.SuckerProjectile, SuckerProjectileInit, Suc
 
 
 -- Egg sack projectile
-local function EggSackProjectileInit(projectile)
-	projectile.Scale = 1.5
-end
-
 local function EggSackProjectileUpdate(projectile)
 	local sprite = projectile:GetSprite()
 	mod:LoopingAnim(sprite, "Sack")
@@ -492,7 +506,7 @@ local function EggSackProjectilePop(projectile)
 	effect.Color = mod.Colors.WhiteShot
 end
 
-mod:AddCustomProjectile(mod.Entities.EggSackProjectile, EggSackProjectileInit, EggSackProjectileUpdate, EggSackProjectilePop)
+mod:AddCustomProjectile(mod.Entities.EggSackProjectile, nil, EggSackProjectileUpdate, EggSackProjectilePop)
 
 
 

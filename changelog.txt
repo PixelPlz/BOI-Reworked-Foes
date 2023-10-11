@@ -8,6 +8,7 @@
 - Gish has been re-reworked!
 - Sister Vis has been reworked!
 - Triachnid has been re-reworked!
+- Mask of Infamy has been re-reworked!
 
 - New Pin champion based off of the Larries from Super Meat Boy
 - Isaac now was 2 additional variants for his 3rd phase light beam attack

@@ -3,7 +3,7 @@ local mod = ReworkedFoes
 local Settings = {
 	SideRange = 25,
 	FrontRange = 100,
-	Cooldown = 5,
+	Cooldown = 10,
 	WhipStrength = 5
 }
 
@@ -12,17 +12,18 @@ local Settings = {
 function mod:NerveEnding2Init(entity)
 	if entity.Variant == 1 then
 		entity.ProjectileCooldown = 20
+		entity.TargetPosition = entity.Position
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.NerveEnding2Init, EntityType.ENTITY_NERVE_ENDING)
 
 function mod:NerveEnding2Update(entity)
 	if entity.Variant == 1 then
-		local data = entity:GetData()
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
-		local room = Game():GetRoom()
 
+		-- Stay in the same position
+		entity.Position = mod:Lerp(entity.Position, entity.TargetPosition, 0.5)
 		entity.Velocity = Vector.Zero
 
 
@@ -32,33 +33,12 @@ function mod:NerveEnding2Update(entity)
 
 			if entity.ProjectileCooldown <= 0 then
 				-- Attack if in range
-				if room:CheckLine(entity.Position, target.Position, 3, 0, false, false) then
-					-- Horizontal
-					if entity.Position.Y <= target.Position.Y + Settings.SideRange and entity.Position.Y >= target.Position.Y - Settings.SideRange then
-						if target.Position.X > (entity.Position.X - Settings.FrontRange) and target.Position.X < entity.Position.X then
-							data.swingDir = "Left"
-							entity.State = NpcState.STATE_ATTACK
-							sprite:Play("Swing" .. data.swingDir, true)
+				local swingCheck = mod:CheckCardinalAlignment(entity, Settings.SideRange, Settings.FrontRange, 3)
 
-						elseif target.Position.X < (entity.Position.X + Settings.FrontRange) and target.Position.X > entity.Position.X then
-							data.swingDir = "Right"
-							entity.State = NpcState.STATE_ATTACK
-							sprite:Play("Swing" .. data.swingDir, true)
-						end
-
-					-- Vertical
-					elseif entity.Position.X <= target.Position.X + Settings.SideRange and entity.Position.X >= target.Position.X - Settings.SideRange then
-						if target.Position.Y > (entity.Position.Y - Settings.FrontRange) and target.Position.Y < entity.Position.Y then
-							data.swingDir = "Up"
-							entity.State = NpcState.STATE_ATTACK
-							sprite:Play("Swing" .. data.swingDir, true)
-
-						elseif target.Position.Y < (entity.Position.Y + Settings.FrontRange) and target.Position.Y > entity.Position.Y then
-							data.swingDir = "Down"
-							entity.State = NpcState.STATE_ATTACK
-							sprite:Play("Swing" .. data.swingDir, true)
-						end
-					end
+				if swingCheck ~= false then
+					entity.State = NpcState.STATE_ATTACK
+					sprite:Play("Swing" .. mod:GetDirectionString(swingCheck), true)
+					entity.V1 = Vector(swingCheck, 0)
 				end
 
 			else
@@ -68,37 +48,19 @@ function mod:NerveEnding2Update(entity)
 
 		-- Attack
 		elseif entity.State == NpcState.STATE_ATTACK then
+			-- Sound
 			if sprite:IsEventTriggered("Sound") then
 				mod:PlaySound(nil, SoundEffect.SOUND_WHIP)
 
+			-- Check if it hit the target
 			elseif sprite:IsEventTriggered("Hit") then
-				local hurt = false
-
-				-- Check if it hit the target
-				if room:CheckLine(entity.Position, target.Position, 3 - entity.Variant, 0, false, false) then
-					if data.swingDir == "Left" or data.swingDir == "Right" then
-						if entity.Position.Y <= target.Position.Y + Settings.SideRange and entity.Position.Y >= target.Position.Y - Settings.SideRange then
-							if data.swingDir == "Left" and target.Position.X > (entity.Position.X - Settings.FrontRange) and target.Position.X < entity.Position.X
-							or data.swingDir == "Right" and target.Position.X < (entity.Position.X + Settings.FrontRange) and target.Position.X > entity.Position.X then
-								hurt = true
-							end
-						end
-
-					elseif data.swingDir == "Up" or data.swingDir == "Down" then
-						if entity.Position.X <= target.Position.X + Settings.SideRange and entity.Position.X >= target.Position.X - Settings.SideRange then
-							if data.swingDir == "Up" and target.Position.Y > (entity.Position.Y - Settings.FrontRange) and target.Position.Y < entity.Position.Y
-							or data.swingDir == "Down" and target.Position.Y < (entity.Position.Y + Settings.FrontRange) and target.Position.Y > entity.Position.Y then
-								hurt = true
-							end
-						end
-					end
-				end
+				local hurtCheck = mod:CheckCardinalAlignment(entity, Settings.SideRange, Settings.FrontRange, 3, 1, entity.V1.X)
 
 				-- On succesful hit
-				if hurt == true then
+				if hurtCheck ~= false then
 					target:TakeDamage(2, 0, EntityRef(entity), 0)
-					target.Velocity = target.Velocity + (target.Position - entity.Position):Resized(Settings.WhipStrength)
-					mod:PlaySound(nil, SoundEffect.SOUND_WHIP_HIT)
+					target.Velocity = target.Velocity + Vector.FromAngle(hurtCheck):Resized(Settings.WhipStrength)
+					mod:PlaySound(nil, SoundEffect.SOUND_WHIP_HIT, 1, 1, 5)
 				end
 			end
 

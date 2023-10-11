@@ -27,7 +27,9 @@ function mod:AddBreakableHost(Type, Variant, SubType, BrokenType, BrokenVariant,
 		BrokenType    = BrokenType,
 		BrokenVariant = BrokenVariant,
 		BrokenSubType = BrokenSubType,
-		BrokenScript  = BrokenScript
+
+		BreakCheckScript = BreakCheckScript,
+		BrokenScript 	 = BrokenScript,
 	}
 	table.insert(mod.BreakableHosts, brokenData)
 end

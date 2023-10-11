@@ -1,54 +1,41 @@
 local mod = ReworkedFoes
 
 local Settings = {
+	NewHealth = 520,
+	BlackLaserOffset = -35,
+
 	-- Mask
 	MoveSpeed = 4,
-	ChargeSpeed = 54,
-	AngrySpeed = 64,
+	DamageIncrease = 20, -- When hit in the back
+	ChargeCooldown = 20,
 
 	SideRange = 40,
-	FrontRange = 320,
+	FrontRange = 400,
+	ChargeSpeed = 10,
+	AngrySpeed = 54,
 
-	ChargeCooldown = 30,
-	StunTime = 20,
-	CrashScreenShake = 12,
-	MinChargeTime = 15,
+	MinChargeTime = 18,
+	StunTime = 25,
 
 	-- Heart
 	WanderSpeed = 2,
 	RunSpeed = 5,
-	NewHealth = 450,
-	Cooldown = 90,
-
-	ShotSpeed = 12,
-	Phase2Shots = 2,
-
-	BlackLaserOffset = -35,
-	BlackShotSpeed = 10
-}
-
-local States = {
-	Appear = 0,
-	Idle = 1,
-	Attack1 = 2,
-	Attack2 = 3,
-	Transition = 4,
+	Cooldown = 60,
 }
 
 
 
 --[[ Mask ]]--
 function mod:MaskInfamyInit(entity)
-	local data = entity:GetData()
-
-	data.state = States.Appear
-	entity.ProjectileCooldown = Settings.ChargeCooldown / 2
-	data.place = Isaac:GetRandomPosition()
+	entity.ProjectileCooldown = Settings.ChargeCooldown
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_NO_STATUS_EFFECTS)
 
+	-- Black champion
 	if entity.SubType == 1 then
 		entity.SplatColor = mod.Colors.RagManBlood
-	elseif entity.SubType == 2 and FiendFolio then
+
+	-- Yellow champion
+	elseif entity.SubType == 2 then
 		entity.SplatColor = FiendFolio.ColorLemonYellow
 	end
 end
@@ -56,127 +43,150 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.MaskInfamyInit, EntityType.EN
 
 function mod:MaskInfamyUpdate(entity)
 	local sprite = entity:GetSprite()
-	local data = entity:GetData()
-	local target = entity:GetPlayerTarget()
+	local facingAngle = entity.Velocity:GetAngleDegrees()
 
 
-	if not data.state or data.state == States.Appear then
-		data.state = States.Idle
+	-- Play the correct animation when moving
+	local function playDirectionalAnimation()
+		local prefix = entity.I1 == 1 and "Angry" or "Sad"
+		mod:LoopingAnim(sprite, prefix .. "Mask" .. mod:GetDirectionString(facingAngle))
+	end
 
-	elseif data.state == States.Idle or data.state == States.Attack1 or data.state == States.Attack2 then
-		local prefix = "Sad"
-		local speed = Settings.ChargeSpeed
-		if entity.I1 == 1 then
-			prefix = "Angry"
-			speed = Settings.AngrySpeed
+
+	-- Schmovin'
+	if entity.State == NpcState.STATE_MOVE then
+		-- Movement
+		-- Stay near the heart (for non-champion 2nd phase and black champion)
+		if entity.SubType ~= 2 and (entity.SubType == 1 or entity.I1 == 1) then
+			if entity.Position:Distance(entity.TargetPosition) <= 40 or not entity.Pathfinder:HasPathToPos(entity.TargetPosition) -- At position or there is no path to it
+			or entity.TargetPosition:Distance(entity.Parent.Position) > 280 then -- Position is too far from parent
+				entity.TargetPosition = entity.Parent.Position + mod:RandomVector(mod:Random(60, 160))
+				entity.TargetPosition = Game():GetRoom():FindFreePickupSpawnPosition(entity.TargetPosition, 0, false, false)
+			end
+
+			entity.Pathfinder:FindGridPath(entity.TargetPosition, Settings.MoveSpeed / 6, 500, false)
+
+		-- Roam around randomly
+		else
+			mod:MoveRandomGridAligned(entity, Settings.MoveSpeed, false, true)
+		end
+
+		playDirectionalAnimation()
+
+		if entity.ProjectileCooldown <= 0 then
+			local chargeCheck = mod:CheckCardinalAlignment(entity, Settings.SideRange, Settings.FrontRange, 3, 2, facingAngle)
+
+			-- Charge if in range
+			if chargeCheck ~= false then
+				entity.State = NpcState.STATE_ATTACK
+				entity.V1 = Vector.FromAngle(chargeCheck)
+				entity.Velocity = entity.V1
+				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8 + entity.I1 * 0.2, 1.02)
+			end
+
+		else
+			entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 		end
 
 
-		if data.state == States.Idle then
-			-- Movement
-			mod:MoveRandomGridAligned(entity, Settings.MoveSpeed, false, true)
-			-- Get animation direction
-			data.facing = mod:GetDirectionString(entity.Velocity:GetAngleDegrees())
-
-			-- Charge (this is horrible)
-			if entity.ProjectileCooldown <= 0
-			and Game():GetRoom():CheckLine(entity.Position, target.Position, 0, 0, false, false)
-			and entity.Position:Distance(target.Position) <= Settings.FrontRange then
-				if (entity.Position.X <= target.Position.X + Settings.SideRange and entity.Position.X >= target.Position.X - Settings.SideRange)
-				or (entity.Position.Y <= target.Position.Y + Settings.SideRange and entity.Position.Y >= target.Position.Y - Settings.SideRange) then
-					if not ((data.facing == "Left" and target.Position.X > entity.Position.X + Settings.SideRange)
-					or (data.facing == "Right" and target.Position.X < entity.Position.X + Settings.SideRange)
-					or (data.facing == "Up" and target.Position.Y > entity.Position.Y + Settings.SideRange)
-					or (data.facing == "Down" and target.Position.Y < entity.Position.Y + Settings.SideRange)) then
-						data.state = States.Attack1
-						entity.Velocity = Vector.Zero
-						mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR)
-
-						local angle = (target.Position - entity.Position):GetAngleDegrees()
-						data.facing = mod:GetDirectionString(angle)
-					end
-				end
-
-			else
-				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
-			end
-
-
-		-- Charging
-		elseif data.state == States.Attack1 then
-			-- Get direction
-			local angle = 0
-			if data.facing == "Left" then
-				angle = 180
-			elseif data.facing == "Down" then
-				angle = 90
-			elseif data.facing == "Up" then
-				angle = -90
-			end
-			entity.Velocity = mod:Lerp(entity.Velocity, Vector.FromAngle(angle):Resized(speed), 0.015)
+	-- Charging
+	elseif entity.State == NpcState.STATE_ATTACK then
+		-- Movement
+		-- 2nd phase
+		if entity.I1 == 1 then
+			entity.Velocity = mod:Lerp(entity.Velocity, entity.V1:Resized(Settings.AngrySpeed), 0.015)
 			entity.I2 = entity.I2 + 1 -- Only crash if it charged for long enough
 
-			-- Crash into wall
-			if entity:CollidesWithGrid() then
-				if entity.I2 >= Settings.MinChargeTime then
-					data.state = States.Attack2
-					entity.ProjectileCooldown = Settings.StunTime + (entity.I1 * (Settings.StunTime / 2))
-					mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND)
-					Game():ShakeScreen(Settings.CrashScreenShake)
-
-					-- Rock shots
-					if entity.SubType == 0 or entity.I1 == 1 then
-						local params = ProjectileParams()
-						params.Variant = ProjectileVariant.PROJECTILE_ROCK
-						entity:FireBossProjectiles(10 - (entity.I1 * 2), entity.Position + -Vector.FromAngle(angle):Resized(20), 1.5, params)
-
-						if entity.SubType == 0 and entity.I1 == 1 then
-							entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed - 1, 0), 8, params)
-						end
-					end
-
-				else
-					data.state = States.Idle
-					entity.ProjectileCooldown = Settings.ChargeCooldown / 2
-				end
-				entity.I2 = 0
-			end
-
-			-- Yellow champion creep
-			if FiendFolio and entity.SubType == 2 and entity:IsFrame(2, 0) and entity.I2 >= 7 then
-				mod:QuickCreep(EffectVariant.CREEP_YELLOW, entity, entity.Position, 1.15)
-			end
-
-
-		-- Stunned
-		elseif data.state == States.Attack2 then
-			entity.Velocity = mod:StopLerp(entity.Velocity)
-
-			if entity.ProjectileCooldown <= 0 then
-				data.state = States.Idle
-				entity.ProjectileCooldown = Settings.ChargeCooldown
-			else
-				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
-			end
+		-- 1st phase
+		else
+			entity.Velocity = mod:Lerp(entity.Velocity, entity.V1:Resized(Settings.ChargeSpeed), 0.25)
 		end
 
-		-- Animation
-		mod:LoopingAnim(sprite, prefix .. "Mask" .. data.facing)
+		-- Yellow champion creep
+		if entity.SubType == 2 and entity:IsFrame(2, 0) then
+			mod:QuickCreep(EffectVariant.CREEP_YELLOW, entity, entity.Position, 1.25)
+		end
 
 
-	-- Transition to 2nd phase
-	elseif data.state == States.Transition then
-		entity.Velocity = Vector.Zero
+		if entity:CollidesWithGrid() then
+			-- 2nd phase, charged for long enough
+			if entity.I1 == 1 and entity.I2 >= Settings.MinChargeTime then
+				entity.State = NpcState.STATE_IDLE
+				entity.I2 = Settings.StunTime
 
-		if not sprite:IsPlaying("AngryMaskAppear") then
-			sprite:Play("AngryMaskAppear", true)
-			sprite:SetFrame(6)
+				-- Projectiles
+				if entity.SubType == 0 and entity.I1 == 1 then
+					local params = ProjectileParams()
+					params.Variant = ProjectileVariant.PROJECTILE_ROCK
+					entity:FireBossProjectiles(12, entity.Position + -entity.V1:Resized(10), 2, params)
+				end
+
+				-- Effects
+				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, mod.Entities.OneTimeEffect, 0, entity.Position, Vector.Zero, entity):GetSprite()
+				effect:Load("gfx/1000.016_poof02_c.anm2", true)
+				effect:Play("Poof", true)
+
+				effect.Color = mod.Colors.DustPoof
+				effect.Scale = Vector(1.2, 1.2)
+
+				effect.Rotation = entity.V1:GetAngleDegrees() - 90
+				effect.Offset = -entity.V1:Resized(8) + Vector(0, -28)
+
+				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS)
+				mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND)
+				Game():ShakeScreen(12)
+
+
+			-- 1st phase / 2nd phase didn't charge for long enough
+			else
+				entity.State = NpcState.STATE_MOVE
+				entity.Velocity = -entity.V1
+				entity.I2 = 0
+				entity.ProjectileCooldown = Settings.ChargeCooldown
+			end
+
+		-- Update animation
+		else
+			playDirectionalAnimation()
+		end
+
+	-- Stunned
+	elseif entity.State == NpcState.STATE_IDLE then
+		entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.15)
+
+		if entity.I2 <= 0 then
+			entity.State = NpcState.STATE_MOVE
+			entity.ProjectileCooldown = Settings.ChargeCooldown
+
+		else
+			-- Dumb bullshit to fix his back hitbox not being in the sprite's back
+			if entity.I2 == Settings.StunTime - 5 then
+				entity.Velocity = entity.V1:Resized(0.01)
+			end
+			entity.I2 = entity.I2 - 1
+		end
+
+
+	-- Transition
+	elseif entity.State == NpcState.STATE_SPECIAL then
+		entity.Velocity = mod:StopLerp(entity.Velocity)
+
+		if sprite:IsEventTriggered("Sound") then
+			entity.I1 = 1
+
+			-- Effects
+			for i = 0, 5 do
+				local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, entity.Position, mod:RandomVector(3), entity):ToEffect()
+				rocks:GetSprite():Play("rubble", true)
+				rocks.State = 2
+			end
+
+			mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.9, 1.02)
 			mod:PlaySound(entity, SoundEffect.SOUND_MOUTH_FULL)
 		end
 
-		if sprite:GetFrame() == 15 then
-			data.state = States.Idle
-			entity.I1 = 1
+		if sprite:IsFinished() then
+			entity.State = NpcState.STATE_MOVE
 		end
 	end
 
@@ -193,7 +203,14 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.MaskInfamyUpdate, EntityType.ENTITY_MASK_OF_INFAMY)
 
 function mod:MaskInfamyDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	return false
+	if entity:ToNPC().I1 == 1 and entity.Parent and damageSource.Type ~= EntityType.ENTITY_HEART_OF_INFAMY then
+		local onePercent = damageAmount / 100
+		local increase = onePercent * Settings.DamageIncrease
+
+		entity.Parent:TakeDamage(damageAmount + increase, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
+		entity:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
+		return false
+	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.MaskInfamyDMG, EntityType.ENTITY_MASK_OF_INFAMY)
 
@@ -208,15 +225,16 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.MaskInfamyCollision, Enti
 
 --[[ Heart ]]--
 function mod:HeartInfamyInit(entity)
-	local data = entity:GetData()
-
-	data.state = States.Appear
-	entity.ProjectileCooldown = Settings.Cooldown / 2
 	entity.MaxHitPoints = Settings.NewHealth
 	entity.HitPoints = entity.MaxHitPoints
 
+	entity.ProjectileCooldown = Settings.Cooldown / 2
+
+	-- Black champion
 	if entity.SubType == 1 then
 		entity.SplatColor = mod.Colors.RagManBlood
+
+	-- Yellow champion
 	elseif entity.SubType == 2 then
 		entity.SplatColor = FiendFolio.ColorLemonYellow
 	end
@@ -225,40 +243,60 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.HeartInfamyInit, EntityType.E
 
 function mod:HeartInfamyUpdate(entity)
 	local sprite = entity:GetSprite()
-	local data = entity:GetData()
 	local target = entity:GetPlayerTarget()
 
 
-	if not data.state or data.state == States.Appear then
-		data.state = States.Idle
-		if entity.Child then
-			entity.Child.Parent = entity
-		end
+	--[[ Chillin' ]]
+	if entity.State == NpcState.STATE_MOVE then
+		mod:AvoidPlayer(entity, 180, Settings.WanderSpeed, Settings.RunSpeed)
 
-	elseif data.state == States.Idle then
-		mod:AvoidPlayer(entity, 160, Settings.WanderSpeed, Settings.RunSpeed)
-
-		local suffix = ""
-		if entity.I1 == 1 then
-			suffix = "Alt"
-		end
+		local suffix = entity.I1 == 1 and "Faster" or ""
 		mod:LoopingAnim(sprite, "HeartBeat" .. suffix)
 
 
-		-- Decide attack
+		-- Attack
 		if entity.ProjectileCooldown <= 0 then
-			local whichAttack = mod:Random(1, 2)
-			if entity.SubType == 1 then
-				whichAttack = 2
-			end
+			if entity.Position:Distance(target.Position) <= 280 then
+				-- Reset variables
+				entity.ProjectileCooldown = Settings.Cooldown
+				entity.I2 = 0
+				entity.StateFrame = 0
 
-			if whichAttack == 1 then
-				data.state = States.Attack1
-				sprite:Play("HeartAttack" .. suffix, true)
+				-- Decide attack
+				local attackCount = 2
 
-			elseif whichAttack == 2 then
-				data.state = States.Attack2
-				sprite:Play("BurstAttack", true)
+				if entity.SubType == 1 then
+					attackCount = 1
+				end
+				if entity.I1 == 1 then
+					attackCount = attackCount + 1
+				end
+				local attack = mod:Random(1, attackCount)
+
+				-- Black champion doesn't do the push attack
+				if entity.SubType == 1 and attack == 2 then
+					attack = 3
+				end
+
+
+				-- Slam attack
+				if attack == 1 then
+					entity.State = NpcState.STATE_ATTACK
+					local attackSuffix = entity.I1 == 1 and "Double" or ""
+					sprite:Play("HeartAttack" .. attackSuffix, true)
+
+				-- Push attack
+				elseif attack == 2 then
+					entity.State = NpcState.STATE_ATTACK2
+					sprite:Play("HeartPush", true)
+					mod:PlaySound(nil, SoundEffect.SOUND_HEARTIN)
+
+				-- Squeeze attack
+				elseif attack == 3 then
+					entity.State = NpcState.STATE_ATTACK3
+					sprite:Play("HeartSqueeze", true)
+					entity.TargetPosition = mod:RandomVector()
+				end
 			end
 
 		else
@@ -266,154 +304,284 @@ function mod:HeartInfamyUpdate(entity)
 		end
 
 
-	-- Ground slam
-	elseif data.state == States.Attack1 then
+
+	--[[ Slam attack ]]--
+	elseif entity.State == NpcState.STATE_ATTACK then
 		entity.Velocity = mod:StopLerp(entity.Velocity)
 
-		if sprite:IsEventTriggered("Jump") then
-			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-			mod:PlaySound(nil, SoundEffect.SOUND_HEARTOUT)
-
-		elseif sprite:IsEventTriggered("GetPos") then
-			entity.Position = target.Position
-
-
-		elseif sprite:IsEventTriggered("Shoot") then
-			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
-			mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1 + (entity.I1 * 0.25))
-
-			if sprite:IsPlaying("HeartAttackAlt") then
-				Game():MakeShockwave(entity.Position, 0.035, 0.025, 10)
-			end
-
+		if sprite:IsEventTriggered("Shoot") or sprite:IsEventTriggered("Shoot2") then
+			-- Projectiles
 			local params = ProjectileParams()
-			-- FF kidney champion
-			if FiendFolio and entity.SubType == 2 then
-				mod:QuickCreep(EffectVariant.CREEP_YELLOW, entity, entity.Position, 3)
-				params.Color = FiendFolio.ColorLemonYellow
-				params.FallingAccelModifier = 0.075
-
-				for i = 0, 2 do
-					params.Scale = 2
-					if i > 0 then
-						params.Scale = 1.25
-					end
-					entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed - (i * 2), 4), 6, params)
-				end
-
-				for i = 0, 2 do
-					params.Scale = 1.75
-					if i > 0 then
-						params.Scale = 1
-					end
-					entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed - 3 - (i * 2), 4), 7, params)
-				end
-
-			else
-				params.CircleAngle = 0.4
-				params.Scale = 1.5
-				entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed - 5, 8), 9, params)
-
-				params.Scale = 1.25
-				entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 0), 8, params)
-
-				-- Creep for jump attack
-				if sprite:IsPlaying("HeartAttackAlt") then
-					mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 5)
-				-- Slam effect
-				else
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity).SpriteScale = Vector(0.8, 0.8)
-				end
-			end
-		end
-
-		if sprite:IsFinished() then
-			data.state = States.Idle
-			entity.ProjectileCooldown = Settings.Cooldown
-		end
-
-
-	-- Burst / Homing shots
-	elseif data.state == States.Attack2 then
-		entity.Velocity = mod:StopLerp(entity.Velocity)
-
-		if sprite:IsEventTriggered("Shoot") then
-			mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT, 1.25)
-			entity.I2 = entity.I2 + 1
-
-			-- Effect
-			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity):ToEffect()
-			effect:FollowParent(entity)
-			effect.ParentOffset = Vector(12, entity.Scale * -32)
-
-			local effectSprite = effect:GetSprite()
-			effectSprite.Scale = Vector(0.8, 0.8)
-			effectSprite.Color = entity.SplatColor
-
-
-			local params = ProjectileParams()
-			if entity.SubType == 0 then
-				params.BulletFlags = (ProjectileFlags.DECELERATE | ProjectileFlags.BURST8)
-				params.Scale = 2
-				params.Acceleration = 1.06
-				params.FallingAccelModifier = -0.175
-				entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(Settings.ShotSpeed + entity.I1), 0, params)
 
 			-- Black champion
-			elseif entity.SubType == 1 then
+			if entity.SubType == 1 then
 				params.BulletFlags = ProjectileFlags.SMART
-				params.Scale = 1.5
-				entity:FireProjectiles(entity.Position, Vector(Settings.BlackShotSpeed, 0), 5 + entity.I2, params)
+				params.Scale = 1.25
 
-			-- FF kidney champion
-			elseif FiendFolio and entity.SubType == 2 then
+				entity.I2 = entity.I2 + 1
+				entity:FireProjectiles(entity.Position, Vector(10, 0), 5 + entity.I2, params)
+
+
+			-- Yellow champion
+			elseif entity.SubType == 2 then
 				params.Color = FiendFolio.ColorLemonYellow
-				params.FallingAccelModifier = 0.075
-				params.Scale = 1.5
-				entity:FireBossProjectiles(12, target.Position, 8, params)
+
+				-- 1st
+				if sprite:IsEventTriggered("Shoot") then
+					for i = 0, 2 do
+						-- Cardinal lines
+						params.Scale = 2 - (i * 0.5)
+						entity:FireProjectiles(entity.Position, Vector(11 - i * 2.5, 4), 6, params)
+
+						-- Diagonal lines
+						if i >= 1 then
+							entity:FireProjectiles(entity.Position, Vector(11 - i * 2.5, 4), 7, params)
+						end
+					end
+
+				-- 2nd
+				elseif sprite:IsEventTriggered("Shoot2") then
+					params.Scale = 1.25
+					entity:FireBossProjectiles(12, Vector.Zero, 2, params)
+				end
+
+
+			-- Regular
+			else
+				-- 1st
+				if sprite:IsEventTriggered("Shoot") then
+					params.Scale = 1.5
+					entity:FireProjectiles(entity.Position, Vector(11, 0), 8, params)
+
+				-- 2nd
+				elseif sprite:IsEventTriggered("Shoot2") then
+					params.Scale = 1.25
+					params.CircleAngle = 0
+					entity:FireProjectiles(entity.Position, Vector(10, 12), 9, params)
+				end
+			end
+
+
+			-- Effects
+			mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS)
+
+			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity):GetSprite()
+			effect.Scale = Vector(0.8, 0.8)
+			effect.Color = entity.SubType == 1 and mod.Colors.RagManPurple or entity.SplatColor
+
+			-- 2nd stomp effects
+			if entity.SubType ~= 1 and sprite:IsEventTriggered("Shoot2") then
+				mod:QuickCreep(entity.SubType == 2 and EffectVariant.CREEP_YELLOW or EffectVariant.CREEP_RED, entity, entity.Position, 2.5)
+
+				local extraEffect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity):GetSprite()
+				extraEffect.Offset = Vector(6, entity.Scale * -18)
+				extraEffect.Scale = Vector(0.8, 0.8)
+				extraEffect.Color = entity.SplatColor
 			end
 		end
 
 		if sprite:IsFinished() then
-			-- Attack 2 times in second phase
-			if entity.I1 == 1 and entity.I2 < Settings.Phase2Shots then
-				sprite:Play("BurstAttack", true)
-			else
-				data.state = States.Idle
-				entity.ProjectileCooldown = Settings.Cooldown
-				entity.I2 = 0
+			entity.State = NpcState.STATE_MOVE
+		end
+
+
+	-- Push attack
+	elseif entity.State == NpcState.STATE_ATTACK2 then
+		if sprite:IsEventTriggered("Shoot") then
+			entity.Velocity = (entity.Position - target.Position):Resized(16)
+
+			-- Shoot direction for yellow champion
+			if entity.SubType == 2 then
+				entity.TargetPosition = (target.Position - entity.Position):Normalized()
+
+			-- Burst projectile for non-champion
+			elseif entity.SubType == 0 then
+				local params = ProjectileParams()
+				params.BulletFlags = (ProjectileFlags.DECELERATE | ProjectileFlags.BURST8)
+				params.Scale = 2
+				params.Acceleration = 1.08
+				params.FallingAccelModifier = -0.175
+				mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(12), 0, params, Color.Default)
 			end
+
+
+			-- Effects
+			mod:PlaySound(nil, SoundEffect.SOUND_HEARTOUT)
+			mod:ShootEffect(entity, 4, Vector(0, entity.Scale * -24), entity.SplatColor)
+
+			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity):GetSprite()
+			effect.Offset = Vector(10, entity.Scale * -34)
+			effect.Scale = Vector(0.8, 0.8)
+			effect.Color = entity.SplatColor
+		end
+
+		if sprite:IsFinished() then
+			entity.State = NpcState.STATE_MOVE
+		end
+
+
+		-- Pushed back
+		if sprite:WasEventTriggered("Shoot") and not sprite:WasEventTriggered("Shoot2") then
+			entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.1)
+
+			-- Yellow champion piss stream
+			if entity.SubType == 2 and entity:IsFrame(entity.I2 % 2 + 1, 0) then
+				local params = ProjectileParams()
+				params.Color = FiendFolio.ColorLemonYellow
+				params.Scale = 1 + (entity.I2 / 20) + (mod:Random(50) / 100)
+
+				params.FallingAccelModifier = mod:Random(100, 125) / 100
+				params.FallingSpeedModifier = mod:Random(-16, -10) + entity.I2 / 2
+
+				local vector = entity.TargetPosition:Rotated(mod:Random(-12, 12))
+				entity:FireProjectiles(entity.Position, vector:Resized(11 - entity.I2 * 0.5), 0, params)
+
+				entity.I2 = entity.I2 + 1
+			end
+
+		else
+			entity.Velocity = mod:StopLerp(entity.Velocity)
+		end
+
+
+
+	--[[ Squeeze attack ]]--
+	elseif entity.State == NpcState.STATE_ATTACK3 then
+		entity.Velocity = mod:StopLerp(entity.Velocity)
+
+		-- Black champion
+		if entity.SubType == 1 then
+			local color = {R = 0.4, G = 0.2, B = 0.8}
+
+			-- Charge up
+			if sprite:IsEventTriggered("Shoot") then
+				entity:SetColor(Color(1,1,1, 1, color.R,color.G,color.B), 10, 1, true, false)
+				mod:PlaySound(nil, SoundEffect.SOUND_LASERRING_WEAK)
+				entity.TargetPosition = target.Position
+
+			-- Shoot
+			elseif sprite:IsEventTriggered("Shoot2") then
+				-- Homing shots from the mask
+				if entity.Child then
+					-- Projectiles
+					local params = ProjectileParams()
+					params.Variant = ProjectileVariant.PROJECTILE_HUSH
+					params.BulletFlags = ProjectileFlags.SMART
+					params.Scale = 1.25
+					params.CircleAngle = mod:Random(1) * 0.5
+					entity:FireProjectiles(entity.Child.Position, Vector(10, 6), 9, params)
+
+					-- Effects
+					entity.Child:SetColor(Color(1,1,1, 1, color.R,color.G,color.B), 10, 1, true, false) -- Mask
+					entity:GetData().laser:SetColor(Color(1,1,1, 1, color.R * 2,color.G * 2,color.B * 2), 10, 1, true, false) -- Laser
+					mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP, 1, 0.95)
+
+
+				-- Laser at the player if there is no mask
+				else
+					-- Create laser
+					local pos = mod:Lerp(entity.TargetPosition, target.Position, 0.4)
+					local angle = (pos - entity.Position):GetAngleDegrees()
+					local laser_ent_pair = {laser = EntityLaser.ShootAngle(2, entity.Position, angle, 3, Vector(0, Settings.BlackLaserOffset), entity), entity}
+					local laser = laser_ent_pair.laser
+
+					-- Set up the parameters
+					laser.Mass = 0
+					laser.DepthOffset = entity.DepthOffset - 10
+					laser.OneHit = true
+					laser:SetColor(Color(0.6,0.6,0.6, 1, 0.2,0.1,0.4), 0, 1, false, false)
+
+					-- Effects
+					entity:SetColor(Color(1,1,1, 1, color.R,color.G,color.B), 10, 1, true, false)
+				end
+			end
+
+
+		else
+			if sprite:WasEventTriggered("Shoot") and not sprite:WasEventTriggered("Shoot2") then
+				if entity.StateFrame <= 0 then
+					local params = ProjectileParams()
+
+					-- Yellow champion
+					if entity.SubType == 2 then
+						-- Projectiles
+						params.Scale = 1 + mod:Random(10, 80) / 100
+						params.Color = FiendFolio.ColorLemonYellow
+
+						local vector = entity.TargetPosition:Rotated(entity.I2 * 666)
+						entity:FireProjectiles(entity.Position, vector:Resized(mod:Random(6, 11)), 0, params)
+						entity:FireProjectiles(entity.Position, vector:Rotated(69):Resized(mod:Random(5, 9)), 0, params)
+
+						-- Creep
+						local creepVector = mod:RandomVector(mod:Random(60))
+						mod:QuickCreep(EffectVariant.CREEP_YELLOW, entity, entity.Position + creepVector, 2 + mod:Random(1) * 0.5)
+						mod:ShootEffect(entity, 3, Vector(0, entity.Scale * -20) + creepVector:Resized(18), FiendFolio.ColorLemonYellow, 1, true)
+						mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.8, 1, 4)
+
+
+					-- Regular
+					else
+						params.Scale = 1 + entity.I2 * 0.25
+
+						for i = 0, 2 do
+							-- Projectiles
+							local vector = entity.TargetPosition:Rotated(i * 120 + entity.I2 * 15)
+							entity:FireProjectiles(entity.Position, vector:Resized(10), 0, params)
+
+							-- Effects
+							if entity.I2 % 2 == 0 then
+								mod:ShootEffect(entity, 3, Vector(0, entity.Scale * -20) + vector:Resized(18), Color.Default, 1, true)
+							end
+						end
+					end
+
+					mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
+					entity.I2 = entity.I2 + 1
+					entity.StateFrame = 2 + (entity.SubType == 0 and entity.I2 % 2 or 0)
+
+				else
+					entity.StateFrame = entity.StateFrame - 1
+				end
+			end
+		end
+
+		if sprite:IsFinished() then
+			entity.State = NpcState.STATE_MOVE
 		end
 	end
 
 
+
 	-- Transition to 2nd phase
-	if entity.HitPoints <= entity.MaxHitPoints / 2 and entity.I1 ~= 1 then
+	if entity.I1 ~= 1 and entity.HitPoints <= entity.MaxHitPoints / 2 then
 		entity.I1 = 1
 
 		if entity.Child then
-			entity.Child:ToNPC().I1 = 1
-			entity.Child:GetData().state = States.Transition
+			entity.Child:ToNPC().State = NpcState.STATE_SPECIAL
+			entity.Child:GetSprite():Play("AngryMaskAppear", true)
 		end
 	end
 
 
 	-- Black champion laser
 	if entity.SubType == 1 and entity.FrameCount > 20 and entity.Child then
+		local data = entity:GetData()
 		local startPos = entity.Position + Vector(0, Settings.BlackLaserOffset)
 		local endPos = entity.Child.Position + Vector(0, Settings.BlackLaserOffset)
 
+		-- Create the laser
 		if not data.laser then
 			local angle = (entity.Child.Position - entity.Position):GetAngleDegrees()
-			local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THIN_RED, entity.Position, angle, 0, Vector(0, Settings.BlackLaserOffset), entity), entity.Child}
+			local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THIN_RED, entity.Position, angle, -1, Vector(0, Settings.BlackLaserOffset), entity), entity}
 			data.laser = laser_ent_pair.laser
 
 			data.laser:SetMaxDistance(startPos:Distance(endPos))
-			data.laser.CollisionDamage = 0
+			data.laser.CollisionDamage = 0 -- This still deals damage to the player (and enemies but it's only 0.1)
 			data.laser.Mass = 0
-			data.laser:SetColor(Color(0.5,0.5,0.7, 1, 0.1,0.1,0.25), 0, 1, false, false)
+			data.laser:SetColor(Color(0.6,0.6,0.6, 1, 0.2,0.1,0.4), 0, 1, false, false)
 			data.laser.DepthOffset = -200
 
+		-- Update the laser
 		else
 			data.laser.Angle = (endPos - startPos):GetAngleDegrees()
 			data.laser:SetMaxDistance(startPos:Distance(endPos))

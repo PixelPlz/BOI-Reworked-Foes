@@ -153,21 +153,32 @@ function mod:LoadCompatibility()
 	--[[ Off-screen Indicator blacklists ]]--
 	if OffscreenIndicators then
 		-- Gish
-		OffscreenIndicators:addOIblacklist(EntityType.ENTITY_MONSTRO2, 1, -1, "state", NpcState.STATE_ATTACK2) -- On the ceiling
+		OffscreenIndicators:AddBlacklist(EntityType.ENTITY_MONSTRO2, 1, nil, {NpcState.STATE_ATTACK2}) -- On the ceiling
 
 		-- Steven
-		OffscreenIndicators:addOIblacklist(EntityType.ENTITY_GEMINI, 1, -1, "state", NpcState.STATE_SPECIAL) -- 2nd phase
-		OffscreenIndicators:addOIblacklist(EntityType.ENTITY_GEMINI, 11, -1, "segmented") -- Little Steven
-		OffscreenIndicators:addOIblacklist(mod.Entities.Type, mod.Entities.Wallace, -1) -- Wallace
+		OffscreenIndicators:AddBlacklist(EntityType.ENTITY_GEMINI, 1, nil, {NpcState.STATE_SPECIAL}) -- 2nd phase
+		OffscreenIndicators:AddBlacklist(EntityType.ENTITY_GEMINI, 11, nil, "segmented") -- Little Steven
+		OffscreenIndicators:AddBlacklist(mod.Entities.Type, mod.Entities.Wallace) -- Wallace
 
 		-- Forgotten body
-		OffscreenIndicators:addOIblacklist(mod.Entities.Type, mod.Entities.BlueBabyExtras, mod.Entities.ForgottenBody)
+		OffscreenIndicators:AddBlacklist(mod.Entities.Type, mod.Entities.BlueBabyExtras, mod.Entities.ForgottenBody)
+
+		-- Sister Vis corpse
+		local corpseCheck = function(entity)
+			return entity:GetData().corpse == true
+		end
+		OffscreenIndicators:AddBlacklist(EntityType.ENTITY_SISTERS_VIS, nil, nil, corpseCheck)
 	end
 
 
 
 	--[[ Fiend Folio ]]--
 	if FiendFolio then
+		-- Update champion IDs
+		mod.Entities.PinChampion = 2
+		mod.Entities.KrampusChampion = 2
+
+
 		-- Non-males
 		local nonMale = {
 			{ID = {EntityType.ENTITY_HOST, 3, 40},    Affliction = "Woman"}, -- Soft Host

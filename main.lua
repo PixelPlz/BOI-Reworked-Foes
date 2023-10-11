@@ -110,8 +110,10 @@ local bossScripts = {
 	"mrFred",
 	"stain",
 	"forsaken",
+	"hushFixes",
 	"ragMega",
 	"sisterVis",
+	"siren",
 	"beast",
 }
 mod:LoadScripts(bossScripts, "bosses")

@@ -1,8 +1,8 @@
 <entities anm2root="gfx/" version="5" deathanm2="gfx/death_enemies.anm2">
 	<!-- Projectiles -->
 	<entity name="Angelic Feather Projectile"   id="9" variant="400"   anm2path="feather projectile.anm2"  shadowSize="12"   friction="1" collisionRadius="5"  collisionMass="8" numGridCollisionPoints="8" />
-	<entity name="Sucker Projectile"   			id="9" variant="401"   anm2path="sucker projectile.anm2"   shadowSize="12"   friction="1" collisionRadius="10" collisionMass="8" numGridCollisionPoints="8" />
-	<entity name="Egg Sack Projectile"   		id="9" variant="402"   anm2path="egg sack projectile.anm2" shadowSize="12"   friction="1" collisionRadius="10" collisionMass="8" numGridCollisionPoints="8" />
+	<entity name="Sucker Projectile"   			id="9" variant="401"   anm2path="sucker projectile.anm2"   shadowSize="12"   friction="1" collisionRadius="17" collisionMass="8" numGridCollisionPoints="8" />
+	<entity name="Egg Sack Projectile"   		id="9" variant="402"   anm2path="egg sack projectile.anm2" shadowSize="12"   friction="1" collisionRadius="20" collisionMass="8" numGridCollisionPoints="8" />
 
 
 
@@ -211,7 +211,7 @@
 	<entity name="Healing Aura"   			 id="1000" variant="868"   anm2path="healing aura.anm2"   			 friction="1" />
 	<entity name="Holy Tracer"   			 id="1000" variant="869"   anm2path="holy tracer.anm2"   			 friction="1" />
 	<entity name="Single Brimstone Swirl"    id="1000" variant="870"   anm2path="1000.071_brimstoneswirl.anm2"   friction="1" />
-	<entity name="Husk Effect"   			 id="1000" variant="871"   anm2path="1000.001_bomb explosion.anm2"   friction="1" />
+	<entity name="One Time Effect"   		 id="1000" variant="871"   anm2path="1000.001_bomb explosion.anm2"   friction="1" />
 	<entity name="Triachnid Leg Segment"     id="1000" variant="872"   anm2path="101.001_triachnid.anm2"   		 friction="1" />
 	<entity name="Sister Vis Laser Effect"   id="1000" variant="873"   anm2path="sister vis sky laser.anm2"   	 friction="1" />
 </entities>

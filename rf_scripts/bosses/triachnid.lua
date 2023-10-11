@@ -2,7 +2,7 @@ local mod = ReworkedFoes
 
 local Settings = {
 	NewHealth = 720,
-	Cooldown = 30,
+	Cooldown = 20,
 	MaxSpawns = 3,
 
 	-- Head
@@ -195,7 +195,6 @@ function mod:TriachnidUpdate(entity)
 						if data.moveCounter >= 2 then
 							-- Reset variables
 							entity.ProjectileCooldown = Settings.Cooldown
-							--entity.I1 = 0
 							entity.I2 = 0
 							entity.StateFrame = 0
 							entity.ProjectileDelay = 0

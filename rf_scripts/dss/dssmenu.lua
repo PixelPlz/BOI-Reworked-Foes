@@ -7,7 +7,7 @@ mod.Config = {}
 
 
 -- Default DSS Data
-local defaultConfig = {
+mod.DefaultConfig = {
 	-- General
 	BreakableHosts  = true,
 	CoinStealing    = true,
@@ -35,9 +35,21 @@ function DSSMenu:LoadSaveData()
 		mod.Config = json.decode(mod:LoadData())
 	end
 
-	for k, v in pairs(defaultConfig) do
+	for k, v in pairs(mod.DefaultConfig) do
 		if mod.Config[k] == nil then
-			mod.Config[k] = v
+			local keyString = tostring(k)
+			local keyFirst = string.sub(keyString, 1, 1)
+			local keyLast = string.sub(keyString, 2)
+			local key = string.lower(keyFirst) .. keyLast
+
+			-- Convert old variable
+			if mod.Config[key] ~= nil then
+				mod.Config[k] = mod.Config[key]
+
+			-- No matching old variable found
+			else
+				mod.Config[k] = v
+			end
 		end
 	end
 end

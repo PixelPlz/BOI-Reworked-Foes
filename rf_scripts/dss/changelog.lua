@@ -15,6 +15,8 @@ DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.0", [[
 
 - Triachnid has been re-reworked!
 
+- Mask of Infamy has been re-reworked!
+
 
 - New Pin champion based off
 Larries Lament from Super Meat Boy

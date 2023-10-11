@@ -83,14 +83,6 @@ function mod:BeastUpdate(entity)
 					end
 
 
-				-- Moving
-				elseif entity.State == NpcState.STATE_MOVE then
-					data.Moving = true
-					if entity.StateFrame < 300 then
-						entity.StateFrame = 300
-					end
-
-
 				-- Lava ball attack
 				elseif entity.State == NpcState.STATE_STOMP then
 					-- Check if this is the first one or not

@@ -3,14 +3,21 @@ local mod = ReworkedFoes
 
 
 function mod:IsaacUpdate(entity)
-	-- Wing flaps
+	-- Wing flaps for all variants
 	if entity:GetSprite():IsEventTriggered("Flap") then
-		mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_WING, 0.75)
+		mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_WING, 0.7)
 	end
 
 
-	-- Light beam attack variations
+	-- Isaac specific
 	if entity.Variant == 0 then
+		-- Make him actually fly in his 3rd phase
+		if entity:GetSprite():IsFinished("2Evolve") then
+			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
+		end
+
+
+		-- Light beam attack variations
 		-- Replace default version
 		if entity.State == NpcState.STATE_ATTACK2 and (entity.I1 == 1000 or entity.I1 == 2000) then
 			local chosen = mod:Random(1, 3)
@@ -75,7 +82,7 @@ function mod:IsaacUpdate(entity)
 				-- Continue beamin'
 				else
 					entity.V1 = Vector(entity.V1.X, entity.V1.Y + 1)
-					entity.ProjectileDelay = 7 - (entity.V1.X - 2)
+					entity.ProjectileDelay = entity.V1.X == 3 and 6 or 8
 				end
 
 			else

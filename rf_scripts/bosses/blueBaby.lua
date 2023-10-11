@@ -290,7 +290,8 @@ function mod:BlueBabyUpdate(entity)
 						params.Scale = 1.9
 						params.Color = mod.Colors.SoulShot
 						for i = 0, 2 do
-							entity:FireProjectiles(entity.Position, Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees() + (i * 120)):Resized(8), 0, params)
+							local angle = (target.Position - entity.Position):GetAngleDegrees() + (i * 120)
+							mod:FireProjectiles(entity, entity.Position, Vector.FromAngle(angle):Resized(8), 0, params, mod.Colors.TearEffect)
 						end
 					else
 						for i = -1, 1, 2 do
@@ -378,17 +379,15 @@ function mod:BlueBabyUpdate(entity)
 				end
 
 				-- Recreate blood death animation
-				if entity.I2 == 1 then
-					if entity:IsFrame(4, 0) then
-						mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS)
+				if entity.I2 == 1 and entity:IsFrame(math.random(3, 4), 0) then
+					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.9)
 
-						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 0, entity.Position, Vector.Zero, entity):ToEffect()
-						effect:GetSprite().Offset = Vector(math.random(-20, 20), -20 + math.random(-20, 20))
-						effect.DepthOffset = entity.DepthOffset + 10
+					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 0, entity.Position, Vector.Zero, entity):ToEffect()
+					effect.DepthOffset = entity.DepthOffset + 10
+					effect:GetSprite().Offset = Vector(math.random(-20, 20), -20 + math.random(-20, 20))
 
-						local effectScale = 1 + (math.random(-20, 20) * 0.01)
-						effect:GetSprite().Scale = Vector(effectScale, effectScale)
-					end
+					local effectScale = 1 + (math.random(0, 20) * -0.01)
+					effect:GetSprite().Scale = Vector(effectScale, effectScale)
 				end
 
 

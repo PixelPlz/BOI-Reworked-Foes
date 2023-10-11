@@ -46,7 +46,7 @@ mod.Entities = {
 	HealingAura    = Isaac.GetEntityVariantByName("Healing Aura"),
 	HolyTracer 	   = Isaac.GetEntityVariantByName("Holy Tracer"),
 	BrimstoneSwirl = Isaac.GetEntityVariantByName("Single Brimstone Swirl"),
-	HuskEffect 	   = Isaac.GetEntityVariantByName("Husk Effect"),
+	OneTimeEffect  = Isaac.GetEntityVariantByName("One Time Effect"),
 	SkyLaserEffect = Isaac.GetEntityVariantByName("Sister Vis Laser Effect"),
 
 	TriachnidLeg = Isaac.GetEntityVariantByName("Triachnid Leg Segment"),
@@ -149,6 +149,6 @@ mod.Sounds = {
 	TriachnidHappy = Isaac.GetSoundIdByName("Triachnid Happy"),
 	TriachnidHurt  = Isaac.GetSoundIdByName("Triachnid Hurt"),
 
-	-- Fixed giant laser loop for Sister Vis (the fact that I even have to do this is pretty insulting)
+	-- Sister Vis
 	GiantLaserLoop = Isaac.GetSoundIdByName("Giant Laser Loop Fixed"),
 }
