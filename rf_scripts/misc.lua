@@ -261,7 +261,19 @@ function mod:EternalFlyConvert(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.EternalFlyConvert, EntityType.ENTITY_ATTACKFLY)
 
-
+---RAT TIME!!!
+function mod:EternalFlyBloodExplosion(entity)
+    if entity.SubType == 96 then
+		for _, effect in ipairs(Isaac.GetRoomEntities(EntityType.ENTITY_EFFECT, EffectVariant.FLY_EXPLOSION)) do
+			if effect.Position:Distance(entity.Position) == 16 and effect.FrameCount == 0 then
+				local sprite = effect:GetSprite()
+				sprite:ReplaceSpritesheet(0, "gfx/monsters/classic/monster_010_eternalfly.png")
+				sprite:LoadGraphics()
+			end
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.EternalFlyBloodExplosion, EntityType.ENTITY_ATTACKFLY)
 
 --[[ Gurdy Jr. ]]--
 function mod:GurdyJrUpdate(entity)
