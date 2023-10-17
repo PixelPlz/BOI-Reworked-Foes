@@ -11,7 +11,7 @@ local Settings = {
 	FlorianHealthMulti = 2,
 	FlorianMaxDistance = 80,
 	FlorianSpeed = 4, -- x0.5 while following Ed
-	MinSketchLifeTime = 120,
+	MinSketchLifeTime = 90,
 	TeleportCooldown = {60, 240},
 }
 
@@ -60,10 +60,12 @@ function mod:EdmundUpdate(entity)
 
 				-- Summon a sketch monster
 				if count < maxSpawns -- Don't have more than 2 / 3 spawns active
-				and ((entity.Child and count <= 0 and mod:Random(2) ~= 0) -- More likely to choose this if there are none spawned and Florian is alive
+				and (entity.StateFrame ~= 1 -- First attack is always a spawn
+				or (entity.Child and count <= 0 and mod:Random(2) ~= 0) -- More likely to choose this if there are none spawned and Florian is alive
 				or mod:Random(1) == 1) then
 					entity.State = NpcState.STATE_SUMMON
 					sprite:Play("Summon", true)
+					entity.StateFrame = 1
 
 				-- Shoot
 				elseif entity.Position:Distance(target.Position) <= 320 then
@@ -251,7 +253,7 @@ function mod:FlorianUpdate(entity)
 				end
 
 				-- Transform a sketch
-				if #sketches > 0 and mod:Random(1) == 1 then
+				if #sketches > 0 and mod:Random(2) ~= 0 then
 					entity.State = NpcState.STATE_SUMMON
 					sprite:Play("Transform", true)
 					data.chosenSketch = mod:RandomIndex(sketches)

@@ -244,12 +244,12 @@ local directory = {
 			{ str = '- kittenchilly -', fsize = 3 },
 			{ str = 'beast tweaks', fsize = 2, nosel = true },
 			{ str = 'classic eternal flies', fsize = 2, nosel = true },
-			{ str = 'code janitor', fsize = 2, nosel = true },
+			{ str = 'additional coding', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- ratratrat -', fsize = 3 },
 			{ str = 'dss menu implementation', fsize = 2, nosel = true },
-			{ str = 'save system coder', fsize = 2, nosel = true },
+			{ str = 'save system', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- sinbiscuit -', fsize = 3 },

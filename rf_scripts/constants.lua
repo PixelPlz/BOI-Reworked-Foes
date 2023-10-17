@@ -4,7 +4,7 @@ mod.RNG = RNG()
 
 
 
---[[ New entity enums ]]--
+--[[ Entity enums ]]--
 mod.Entities = {
 	-- Projectiles
 	FeatherProjectile = Isaac.GetEntityVariantByName("Angelic Feather Projectile"),
@@ -12,7 +12,7 @@ mod.Entities = {
 	EggSackProjectile = Isaac.GetEntityVariantByName("Egg Sack Projectile"),
 
 
-	-- Enemies
+	-- Enemies / Bosses
 	Type = 200,
 
 	Brazier 	= Isaac.GetEntityVariantByName("Brazier"),
@@ -36,17 +36,17 @@ mod.Entities = {
 		LostHolyOrb	   = 2,
 
 
-	-- Champion subtypes (They're defined here so they can be changed by the compatibility mods)
+	-- Champion subtypes
 	PinChampion 	= 2,
 	KrampusChampion = 1,
 
 
 	-- Effects
+	OneTimeEffect  = Isaac.GetEntityVariantByName("One Time Effect"),
 	DirtHelper 	   = Isaac.GetEntityVariantByName("Scolex Dirt Helper"),
 	HealingAura    = Isaac.GetEntityVariantByName("Healing Aura"),
 	HolyTracer 	   = Isaac.GetEntityVariantByName("Holy Tracer"),
 	BrimstoneSwirl = Isaac.GetEntityVariantByName("Single Brimstone Swirl"),
-	OneTimeEffect  = Isaac.GetEntityVariantByName("One Time Effect"),
 	SkyLaserEffect = Isaac.GetEntityVariantByName("Sister Vis Laser Effect"),
 
 	TriachnidLeg = Isaac.GetEntityVariantByName("Triachnid Leg Segment"),
@@ -122,11 +122,11 @@ mod.Colors.TearEffect = Color(0,0,0, 0.65, 0.54,0.64,0.78)
 mod.Colors.TearTrail  = Color(0,0,0, 1, 0.54,0.64,0.78)
 
 mod.Colors.DamageFlash = Color(0.5,0.5,0.5, 1, 0.8,0,0)
-mod.Colors.ArmorFlash  = Color(1,1,1, 1, 0.2,0.2,0.2)
+mod.Colors.ArmorFlash  = Color(1,1,1, 1, 0.25,0.25,0.25)
 
 
 
---[[ New sound enums ]]--
+--[[ Sound enums ]]--
 mod.Sounds = {
 	-- C.H.A.D.
 	ChadAttackSwim = Isaac.GetSoundIdByName("C.H.A.D. Attack Swim"),

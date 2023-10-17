@@ -330,7 +330,7 @@ function mod:TriachnidUpdate(entity)
 						params.Color = mod.Colors.WhiteShot
 
 						local angle = entity.V1.X + entity.I2 * 666
-						entity:FireProjectiles(entity.Position, Vector.FromAngle(angle):Resized(mod:Random(6, 12)), 0, params)
+						entity:FireProjectiles(entity.Position, Vector.FromAngle(angle):Resized(mod:Random(6, 11)), 0, params)
 						entity:FireProjectiles(entity.Position, Vector.FromAngle(angle + 69):Resized(mod:Random(5, 10)), 0, params)
 
 						-- Creep
@@ -816,7 +816,8 @@ function mod:TriachnidDMG(entity, damageAmount, damageFlags, damageSource, damag
 		local reduction = onePercent * Settings.FootDamageReduction
 
 		entity.Parent:TakeDamage(damageAmount - reduction, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
-		entity:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
+		entity.Parent:SetColor(mod.Colors.ArmorFlash, 2, 0, false, false)
+		entity:SetColor(mod.Colors.ArmorFlash, 2, 0, false, true)
 		return false
 	end
 end

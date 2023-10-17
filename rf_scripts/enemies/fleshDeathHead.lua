@@ -23,11 +23,11 @@ function mod:FleshDeathHeadHeal(entity, big)
 
 	-- Heal effects
 	local function healEffect(owner)
-		mod:PlaySound(nil, sound)
+		mod:PlaySound(nil, sound, 0.8)
 
 		local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HEART, 0, owner.Position, Vector.Zero, entity)
 		effect:ToEffect():FollowParent(owner)
-		effect:GetSprite().Offset = Vector(0, owner.SpriteScale * -40)
+		effect:GetSprite().Offset = Vector(0, owner.SpriteScale.Y * -40)
 		effect.DepthOffset = owner.DepthOffset + 1
 	end
 

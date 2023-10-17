@@ -7,15 +7,15 @@ DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.0", [[
 
 - Ultra Pride has been reworked!
 
-- Steven has been re-reworked!
+- Steven has been reworked!
 
-- Gish has been re-reworked!
+- Gish has been reworked!
 
 - Sister Vis has been reworked!
 
-- Triachnid has been re-reworked!
+- Triachnid has been reworked!
 
-- Mask of Infamy has been re-reworked!
+- Mask of Infamy has been reworked!
 
 
 - New Pin champion based off
@@ -64,6 +64,9 @@ at your untimely demise
 picked up coins and shoot
 the other half as projectiles,
 instead of shooting all of them
+
+- Membrains now have a less
+intense homing effect on their shots
 
 - Reverted the Forsaken's health
 nerf so it's 400 again
@@ -114,6 +117,10 @@ for Hush's Blue Baby phase
 
 - New sprites and animations for
 Hush's Blue Baby phase
+
+- Gazing Globins now have new sprites
+that make them distinguishable from
+regular Globins while in their goo form
 
 - C.H.A.D. and Scolex are now forced
 to surface if they don't have a path

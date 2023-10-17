@@ -69,7 +69,8 @@ function mod:LoadCompatibility()
 		}
 
 		-- Teratomar
-		HPBars.BossDefinitions["200.4071"] = {
+		local teratomarTypeVar = tostring(mod.Entities.Type) .. "." .. tostring(mod.Entities.Teratomar)
+		HPBars.BossDefinitions[teratomarTypeVar] = {
 			sprite = path .. "chapter4/teratomar.png",
 			offset = Vector(-4, 0),
 			bossColors = {"_fuzzy"} -- For Fiend Folio
@@ -111,6 +112,11 @@ function mod:LoadCompatibility()
 			bossColors = {"_black"}
 		}
 
+		-- Sister Vis
+		HPBars.BossDefinitions["410.0"].conditionalSprites = {
+			{function(entity) return entity:GetData().enraged == true end, path .. "chapter3/sisters_vis_nuts.png"}
+		}
+
 
 		-- Blacklists
 		-- Steven
@@ -120,7 +126,8 @@ function mod:LoadCompatibility()
 		HPBars.BossIgnoreList["79.1"] = function(entity) -- 2nd phase delay
 			return entity:ToNPC().State == NpcState.STATE_SPECIAL and entity:ToNPC().StateFrame == 0
 		end
-		HPBars.BossIgnoreList["200.4079"] = true -- Wallace
+		local wallaceTypeVar = tostring(mod.Entities.Type) .. "." .. tostring(mod.Entities.Wallace)
+		HPBars.BossIgnoreList[wallaceTypeVar] = true -- Wallace
 
 		-- Mask of Infamy
 		HPBars.BossIgnoreList["97.0"] = true
@@ -129,7 +136,8 @@ function mod:LoadCompatibility()
 		HPBars.BossIgnoreList["101.10"] = true
 
 		-- Forgotten body
-		HPBars.BossIgnoreList["200.4102"] = true
+		local forgottenBodyTypeVar = tostring(mod.Entities.Type) .. "." .. tostring(mod.Entities.BlueBabyExtras)
+		HPBars.BossIgnoreList[forgottenBodyTypeVar] = true
 
 		-- Stain tentacles
 		HPBars.BossIgnoreList["401.10"] = true
@@ -175,7 +183,7 @@ function mod:LoadCompatibility()
 	--[[ Fiend Folio ]]--
 	if FiendFolio then
 		-- Update champion IDs
-		mod.Entities.PinChampion = 2
+		mod.Entities.PinChampion = 3
 		mod.Entities.KrampusChampion = 2
 
 
@@ -221,7 +229,8 @@ function mod:LoadCompatibility()
 
 	--[[ Enemy Bullet Trails ]]--
 	if BulletTrails then
-		local sketch = Color(0.48,0.4,0.36, 1)
+		local c = mod.Colors.Sketch
+		local sketch = Color(c.RO,c.GO,c.BO, 1)
 
 		-- Trail colors from the mod
 		local red = Color(0.9,0.05,0.05, 1)

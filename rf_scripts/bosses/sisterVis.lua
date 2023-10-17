@@ -3,6 +3,7 @@ local mod = ReworkedFoes
 local Settings = {
 	NewHealth = 400,
 	Cooldown = 60,
+	DamageReduction = 20, -- If the sibling is dead and it didn't enrage yet
 
 	-- Roll
 	RollTime = 210,
@@ -100,6 +101,7 @@ function mod:SisterVisUpdate(entity)
 			if sibling and isSiblingDead and not data.enraged then
 				entity.State = NpcState.STATE_SPECIAL
 				sprite:Play("AngryStart", true)
+				mod:PlaySound(entity, SoundEffect.SOUND_GHOST_ROAR, 1, 1.02)
 
 
 			-- Attack
@@ -794,7 +796,6 @@ function mod:SisterVisUpdate(entity)
 		elseif entity.State == NpcState.STATE_SPECIAL then
 			if sprite:IsEventTriggered("Jump") then
 				data.enraged = true
-				mod:PlaySound(entity, SoundEffect.SOUND_GHOST_ROAR, 1, 1.02)
 			end
 
 			if sprite:IsFinished() then
@@ -839,7 +840,8 @@ function mod:SisterVisUpdate(entity)
 				-- Effects
 				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity)
 				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity)
-				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0)
+				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.9)
+				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0, 1.1)
 			end
 
 			if sprite:IsFinished() then
@@ -1064,6 +1066,15 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.SisterVisCollision, Entit
 
 function mod:SisterVisDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if (damageFlags & DamageFlag.DAMAGE_CRUSH > 0) then
+		return false
+
+	-- Reduce damage taken if the sibling is dead and it didn't enrage yet
+	elseif entity.Child and entity.Child:GetData().corpse and not entity:GetData().enraged and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+		local onePercent = damageAmount / 100
+		local reduction = onePercent * Settings.DamageReduction
+
+		entity:TakeDamage(damageAmount - reduction, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, 1)
+		entity:SetColor(mod.Colors.ArmorFlash, 2, 0, false, true)
 		return false
 	end
 end

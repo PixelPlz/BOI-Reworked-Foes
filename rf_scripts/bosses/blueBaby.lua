@@ -8,7 +8,7 @@ local Settings = {
 	MoveSpeed = 4.75,
 	SoulSpeed = 3.75,
 
-	Cooldown = 60,
+	Cooldown = 50,
 	TearCooldown = 22,
 	FlyDelay = 60,
 
@@ -883,6 +883,7 @@ function mod:BlueBabyDMG(entity, damageAmount, damageFlags, damageSource, damage
 		elseif entity:GetData().damageReduction > 0 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
 			local onePercent = damageAmount / 100
 			entity:TakeDamage(damageAmount - entity:GetData().damageReduction * onePercent, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+			entity:SetColor(mod.Colors.ArmorFlash, 2, 0, false, false)
 			return false
 		end
 	end

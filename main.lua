@@ -15,8 +15,8 @@ end
 
 -- General
 local generalScripts = {
-	"constants",
 	"library",
+	"constants",
 	"dss.dssmenu",
 	"projectiles",
 	"misc",
@@ -43,6 +43,7 @@ local enemyScripts = {
 	"membrain",
 	"scarredParaBite",
 	"eye",
+	"eternalFly",
 	"giantSpike",
 	"nest",
 	"babyLongLegs",
@@ -148,9 +149,8 @@ Isaac.DebugString(startupText)
 
 local flavorText = {
 	"The reworkening",
-	"Look Teratomar, it's you!",
+	"Look Teratomar, it's you!", "Look Terrytomar, it's you!",
 	"Thank you for playing :)",
-	"Delirium rework coming out in 202X",
 	"All oiled up",
 	"Monstro rework when?",
 	"Now 11% funnier!",
@@ -163,8 +163,11 @@ local flavorText = {
 	"ratratrat was here!",
 	"WARNING: Some reworks might require you to pay attention!",
 	"It will even fix your marriage!",
-	"The Husk was hiding the Forgotten this entire time",
+	"The Husk was hiding the Forgotten!",
 	"We will rework your wife. We will rework your son. We will rework your infant daughter.",
-	"Goonin' with the boys",
+	"They see me rollin', they Stevin'",
+	"Over 2 reworks! DO THE MATH",
+	"PUSH THE BUTTONS",
+	"Across the Edmund-verse",
 }
 print(startupText .. " - " .. mod:RandomIndex(flavorText))

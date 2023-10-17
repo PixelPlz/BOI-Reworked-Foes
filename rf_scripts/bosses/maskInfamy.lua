@@ -388,14 +388,11 @@ function mod:HeartInfamyUpdate(entity)
 	-- Push attack
 	elseif entity.State == NpcState.STATE_ATTACK2 then
 		if sprite:IsEventTriggered("Shoot") then
-			entity.Velocity = (entity.Position - target.Position):Resized(16)
-
-			-- Shoot direction for yellow champion
-			if entity.SubType == 2 then
-				entity.TargetPosition = (target.Position - entity.Position):Normalized()
+			entity.TargetPosition = (target.Position - entity.Position):Normalized()
+			entity.Velocity = -entity.TargetPosition:Resized(16)
 
 			-- Burst projectile for non-champion
-			elseif entity.SubType == 0 then
+			if entity.SubType == 0 then
 				local params = ProjectileParams()
 				params.BulletFlags = (ProjectileFlags.DECELERATE | ProjectileFlags.BURST8)
 				params.Scale = 2
@@ -526,7 +523,7 @@ function mod:HeartInfamyUpdate(entity)
 						for i = 0, 2 do
 							-- Projectiles
 							local vector = entity.TargetPosition:Rotated(i * 120 + entity.I2 * 15)
-							entity:FireProjectiles(entity.Position, vector:Resized(10), 0, params)
+							entity:FireProjectiles(entity.Position, vector:Resized(9.5), 0, params)
 
 							-- Effects
 							if entity.I2 % 2 == 0 then

@@ -1,13 +1,19 @@
 local mod = ReworkedFoes
 
+local Settings = {
+	NewHP = 650,
+	Cooldown = 60,
+	MaxHomonculi = 3,
+}
+
 
 
 function mod:MrFredInit(entity)
 	if entity.Variant == 0 and entity.SubType == 0 then
-		entity.MaxHitPoints = 650
+		entity.MaxHitPoints = Settings.NewHP
 		entity.HitPoints = entity.MaxHitPoints
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-		entity.ProjectileCooldown = 30
+		entity.ProjectileCooldown = Settings.Cooldown / 2
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.MrFredInit, EntityType.ENTITY_MR_FRED)
@@ -38,7 +44,7 @@ function mod:MrFredUpdate(entity)
 			mod:LoopingAnim(sprite, "Idle")
 
 			if entity.ProjectileCooldown <= 0 then
-				entity.ProjectileCooldown = 60
+				entity.ProjectileCooldown = Settings.Cooldown
 
 				-- Decide attack
 				local attack = mod:Random(1, 5)
@@ -68,7 +74,7 @@ function mod:MrFredUpdate(entity)
 				-- Summon / release Homunculus
 				elseif attack == 5 then
 					local homoCount = Isaac.CountEntities(nil, EntityType.ENTITY_HOMUNCULUS, 0, 0)
-					if (homoCount > 0 and mod:Random(1) == 1) or homoCount > 2 then
+					if (homoCount > 0 and mod:Random(1) == 1) or homoCount >= Settings.MaxHomonculi then
 						entity.State = NpcState.STATE_ATTACK4
 						sprite:Play("Cord", true)
 					else
@@ -106,6 +112,7 @@ function mod:MrFredUpdate(entity)
 				end
 			end
 
+			-- Projectiles
 			if sprite:IsEventTriggered("Shoot") then
 				local params = ProjectileParams()
 				params.Scale = 1.5
@@ -114,6 +121,8 @@ function mod:MrFredUpdate(entity)
 				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
 				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_BURST_OUT, 0.75)
 
+
+			-- Start moving
 			elseif sprite:IsEventTriggered("Jump") then
 				entity.StateFrame = 1
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
@@ -124,6 +133,8 @@ function mod:MrFredUpdate(entity)
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 
+
+			-- Burrow
 			elseif sprite:IsEventTriggered("Burrow") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
@@ -143,6 +154,7 @@ function mod:MrFredUpdate(entity)
 				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 				mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_BURST_OUT, 0.75)
 
+			-- Projectiles
 			elseif sprite:IsEventTriggered("Shoot") then
 				local params = ProjectileParams()
 				params.Scale = 1.5
@@ -160,21 +172,22 @@ function mod:MrFredUpdate(entity)
 		-- Harlequin baby attack
 		elseif entity.State == NpcState.STATE_ATTACK then
 			if sprite:IsEventTriggered("Shoot") then
-				mod:PlaySound(entity, SoundEffect.SOUND_LITTLE_SPIT, 1, 0.9)
-				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_SLOPPY_ROAR, 1.1)
-				mod:ShootEffect(entity, 5, Vector(4, -20))
-
 				local params = ProjectileParams()
 				params.Scale = 2.5
 				params.FallingAccelModifier = -0.175
 				for i = -1, 1, 2 do
-					mod:FireProjectiles(entity, entity.Position, Vector.FromAngle((target.Position - entity.Position):GetAngleDegrees() + i * 20):Resized(13), 0, params):GetData().mrFredTrail = true
+					local angle = (target.Position - entity.Position):GetAngleDegrees() + i * 30
+					mod:FireProjectiles(entity, entity.Position, Vector.FromAngle(angle):Resized(13), 0, params):GetData().mrFredTrail = true
 				end
+
+				-- Effects
+				mod:ShootEffect(entity, 5, Vector(4, -20))
+				mod:PlaySound(entity, SoundEffect.SOUND_LITTLE_SPIT, 1, 0.9)
+				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_SLOPPY_ROAR, 1.1)
 			end
 
 			if sprite:IsFinished("Shoot") then
 				entity.State = NpcState.STATE_IDLE
-				entity.ProjectileCooldown = 90
 			end
 
 
@@ -183,6 +196,7 @@ function mod:MrFredUpdate(entity)
 			if sprite:IsEventTriggered("Sound") then
 				mod:PlaySound(entity, SoundEffect.SOUND_ANGRY_GURGLE, 1.25, 0.95)
 
+			-- Projectiles
 			elseif sprite:IsEventTriggered("Shoot") then
 				entity.TargetPosition = room:GetClampedPosition(target.Position + mod:RandomVector(mod:Random(10, 100)), 0)
 				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TARGET, 0, entity.TargetPosition, Vector.Zero, entity):ToEffect().Timeout = 30
@@ -213,6 +227,7 @@ function mod:MrFredUpdate(entity)
 
 		-- Squirt attack
 		elseif entity.State == NpcState.STATE_ATTACK3 then
+			-- Effects
 			if sprite:IsEventTriggered("Sound") then
 				mod:PlaySound(entity, SoundEffect.SOUND_FAT_WIGGLE, 1.25, 0.95)
 
@@ -220,6 +235,8 @@ function mod:MrFredUpdate(entity)
 				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity)
 				mod:PlaySound(nil, SoundEffect.SOUND_HEARTOUT, 0.8)
 
+
+			-- Projectiles
 			elseif sprite:IsEventTriggered("Shoot") then
 				mod:PlaySound(nil, SoundEffect.SOUND_BOSS2_BUBBLES, 0.9)
 				entity.I2 = entity.I2 + 1
@@ -295,6 +312,7 @@ function mod:MrFredUpdate(entity)
 
 		if entity.FrameCount > 1 then
 			return true
+
 		else
 			-- Remove Freds from the arena
 			for i, stuff in pairs(Isaac.FindByType(EntityType.ENTITY_FRED, -1, -1, false, false)) do

@@ -879,15 +879,3 @@ function mod:CheckValidMiniboss(entity)
 	end
 	return false
 end
-
-
--- Print the color of an entity for debugging
-function mod:GetColorString(c)
-	return c.R .. "," .. c.G .. "," .. c.B .. " - " .. c.A .. " - " .. c.RO .. "," .. c.GO .. "," .. c.BO
-end
-
-function mod:PrintEntityColors(entity)
-	print()
-	print("entity color:  " .. mod:GetColorString(entity.Color))
-	print("sprite color:  " .. mod:GetColorString(entity:GetSprite().Color))
-end

@@ -12,7 +12,7 @@ local Settings = {
 
 -- [[ Poky / Slide ]]--
 function mod:PokyInit(entity)
-	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
 	entity.Mass = 50
 
 	-- Slide
@@ -206,7 +206,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.SlideCollision, EntityTyp
 
 -- [[ Wall huggers ]]--
 function mod:WallHuggerInit(entity)
-	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
 	entity.Mass = 50
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.WallHuggerInit, EntityType.ENTITY_WALL_HUGGER)
@@ -227,6 +227,13 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.WallHuggerUpdate, EntityType.ENT
 
 
 -- [[ Grudge ]]--
+function mod:GrudgeInit(entity)
+	if entity.Variant == 0 and entity.State == NpcState.STATE_SPECIAL then
+		entity:AddEntityFlags(EntityFlag.FLAG_NO_REWARD)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GrudgeInit, EntityType.ENTITY_GRUDGE)
+
 function mod:GrudgeUpdate(entity)
 	-- Deactivated
 	if entity.Variant == 0 and entity.State == NpcState.STATE_SPECIAL then
