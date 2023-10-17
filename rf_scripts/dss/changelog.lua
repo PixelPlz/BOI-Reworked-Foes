@@ -116,7 +116,7 @@ for Hush's Blue Baby phase
 {FSIZE2}Other changes
 
 - New sprites and animations for
-Hush's Blue Baby phase
+Hush's Blue Baby phase and Blue Gapers
 
 - Gazing Globins now have new sprites
 that make them distinguishable from

@@ -2,7 +2,7 @@ local mod = ReworkedFoes
 
 local Settings = {
 	NewHP = 650,
-	Cooldown = 60,
+	Cooldown = 50,
 	MaxHomonculi = 3,
 }
 

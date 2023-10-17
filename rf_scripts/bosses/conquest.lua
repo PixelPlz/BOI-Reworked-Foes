@@ -2,7 +2,7 @@ local mod = ReworkedFoes
 
 local Settings = {
 	MoveSpeed = 6,
-	Cooldown = 90,
+	Cooldown = 60,
 
 	DashSpeed = 26,
 	DashCooldown = 30,

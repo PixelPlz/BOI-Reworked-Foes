@@ -2,8 +2,8 @@ local mod = ReworkedFoes
 
 local Settings = {
 	NewHealth = 1000, -- Crazy 50 hp buff
-	FetusCooldown = {60, 90},
-	GutsCooldown = 45 -- Initial delay before starting
+	FetusCooldown = {50, 80},
+	GutsCooldown = 40 -- Initial delay before starting
 }
 
 -- Example on how to add custom spawns: (variant and subtype can be left out to default it to 0)
@@ -605,7 +605,7 @@ function mod:ItLivesUpdate(entity)
 							mod:ShootEffect(entity, 3, Vector(0, -30), Color.Default, 1, true)
 
 							-- Rotating shots
-							if entity.I1 % 6 == 0 then
+							if entity.I1 % 5 == 0 then
 								local params = baseProjectileParams
 								params.Scale = 1.75
 
@@ -622,7 +622,7 @@ function mod:ItLivesUpdate(entity)
 							end
 
 							entity.I1 = entity.I1 + 1
-							entity.ProjectileDelay = 8 - data.phase
+							entity.ProjectileDelay = 7 - data.phase
 
 						else
 							entity.ProjectileDelay = entity.ProjectileDelay - 1

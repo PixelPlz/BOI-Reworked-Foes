@@ -42,7 +42,7 @@
 
 
 -- Other changes --
-- New sprites and animations for Hush's Blue Baby phase
+- New sprites and animations for Hush's Blue Baby phase and Blue Gapers
 - Gazing Globins now have new sprites that make them distinguishable from regular Globins while in their goo form
 - C.H.A.D. and Scolex are now forced to surface if they don't have a path to their target positions
 - Boom Flies now gain a trail to better show that they were launched by black Husk

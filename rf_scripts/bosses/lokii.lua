@@ -1,7 +1,7 @@
 local mod = ReworkedFoes
 
 local Settings = {
-	Cooldown = 60,
+	Cooldown = 50,
 	PlayerDistance = 120,
 	MoveSpeed = 4,
 	HopSpeed = 12,
