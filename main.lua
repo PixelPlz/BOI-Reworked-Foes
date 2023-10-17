@@ -1,39 +1,6 @@
-BetterMonsters = RegisterMod("Improved & Reworked Foes", 1)
-local mod = BetterMonsters
-
-
-
-local startupText = mod.Name .. " v3.0.7 Initialized"
-Isaac.DebugString(startupText)
-
-IRFflavorText = {
-	"The reworkening",
-	"Look Teratomar, it's you!",
-	"Thank you for playing :)",
-	"Delirium rework coming out in 202X",
-	"All oiled up",
-	"Monstro rework when?",
-	"Follow the turning coin",
-	"Today's lucky numbers:\n"
-	.. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)) .. " " .. tostring(math.random(99)),
-	"Now 10% funnier!",
-	"Not for baby gamers",
-	"01101000 01101001 00100000 00111010 00101001",
-	"Reworked Foes? More like STINKY Foes",
-	"Hi YouTube / Twitch!",
-	"Also check out Improved Backdrops and Visuals!",
-	"Ruining Tainted Lost runs since 2022!",
-	"ratratrat was here!",
-	"WARNING: Some reworks might require you to pay attention!",
-	"It will even fix your marriage!",
-	"The bosses finally got some training",
-	"The Husk was hiding the Forgotten this entire time",
-}
-
-local flavorText = IRFflavorText[math.random(#IRFflavorText)]
-print(startupText .. " - " .. flavorText)
-
-
+ReworkedFoes = RegisterMod("Improved & Reworked Foes", 1)
+local mod = ReworkedFoes
+mod.Version = "3.1.0"
 
 
 
@@ -41,15 +8,15 @@ print(startupText .. " - " .. flavorText)
 function mod:LoadScripts(scripts, subfolder)
 	subfolder = subfolder or ""
 	for i, script in pairs(scripts) do
-		include("scripts." .. subfolder .. "." .. script)
+		include("rf_scripts." .. subfolder .. "." .. script)
 	end
 end
 
 
 -- General
 local generalScripts = {
+	"library",
 	"constants",
-	"utilities",
 	"dss.dssmenu",
 	"projectiles",
 	"misc",
@@ -70,11 +37,13 @@ local enemyScripts = {
 	"angelicBaby",
 	"selflessKnight",
 	"pokies",
+	"sketches",
 	"holyLeech",
 	"lump",
 	"membrain",
 	"scarredParaBite",
 	"eye",
+	"eternalFly",
 	"giantSpike",
 	"nest",
 	"babyLongLegs",
@@ -103,6 +72,7 @@ mod:LoadScripts(enemyScripts, "enemies")
 -- Minibosses
 local minibossScripts = {
 	"sloth",
+	"ultraPride",
 	"lust",
 	"wrath",
 	"gluttony",
@@ -116,8 +86,8 @@ mod:LoadScripts(minibossScripts, "minibosses")
 
 -- Bosses
 local bossScripts = {
-	"carrionQueen",
 	"chad",
+	"carrionQueen",
 	"gish",
 	"mom",
 	"scolex",
@@ -132,6 +102,8 @@ local bossScripts = {
 	"satan",
 	"maskInfamy",
 	"daddyLongLegs",
+	"triachnid",
+	"isaac",
 	"blueBaby",
 	"hushBaby",
 	"gate",
@@ -139,7 +111,11 @@ local bossScripts = {
 	"mrFred",
 	"stain",
 	"forsaken",
+	"hushFixes",
 	"ragMega",
+	"sisterVis",
+	"siren",
+	"beast",
 }
 mod:LoadScripts(bossScripts, "bosses")
 
@@ -147,6 +123,7 @@ mod:LoadScripts(bossScripts, "bosses")
 -- Champions
 local championScripts = {
 	"vanillaChanges",
+	"pin",
 	"fallen",
 	"headlessHorseman",
 	"darkOne",
@@ -156,8 +133,41 @@ mod:LoadScripts(championScripts, "champions")
 
 -- Compatibility
 local compatibilityScripts = {
-	"baptismal_preloader", -- This is retarded
+	"baptismal_preloader",
 	"compatibility",
 	"retribution",
 }
 mod:LoadScripts(compatibilityScripts, "compatibility")
+
+
+
+
+
+--[[ Startup text ]]--
+local startupText = mod.Name .. " " .. mod.Version .. " Initialized"
+Isaac.DebugString(startupText)
+
+local flavorText = {
+	"The reworkening",
+	"Look Teratomar, it's you!", "Look Terrytomar, it's you!",
+	"Thank you for playing :)",
+	"All oiled up",
+	"Monstro rework when?",
+	"Now 11% funnier!",
+	"Not for baby gamers",
+	"01101000 01101001 00100000 00111010 00101001",
+	"Reworked Foes? More like STINKY Foes",
+	"Hi YouTube / Twitch!",
+	"Also check out Improved Backdrops and Visuals!",
+	"Ruining Tainted Lost runs since 2022!",
+	"ratratrat was here!",
+	"WARNING: Some reworks might require you to pay attention!",
+	"It will even fix your marriage!",
+	"The Husk was hiding the Forgotten!",
+	"We will rework your wife. We will rework your son. We will rework your infant daughter.",
+	"They see me rollin', they Stevin'",
+	"Over 2 reworks! DO THE MATH",
+	"PUSH THE BUTTONS",
+	"Across the Edmund-verse",
+}
+print(startupText .. " - " .. mod:RandomIndex(flavorText))

@@ -1,12 +1,12 @@
 <sounds root="sfx/">
 	<!-- C.H.A.D. -->
-	<sound name="C.H.A.D. Attack 1">
+	<sound name="C.H.A.D. Attack Swim">
         <sample weight="1" path="chad_attack1.wav" />
     </sound>
-	<sound name="C.H.A.D. Attack 2">
+	<sound name="C.H.A.D. Attack Jump">
         <sample weight="1" path="chad_attack2.wav" />
     </sound>
-	<sound name="C.H.A.D. Attack 3">
+	<sound name="C.H.A.D. Attack Spit">
         <sample weight="1" path="chad_attack3.wav" />
     </sound>
 
@@ -17,6 +17,60 @@
     </sound>
 
 	<sound name="C.H.A.D. Die">
-        <sample weight="1" path="chad_die.wav" />
+        <sample weight="1" path="chad_death.wav" />
+    </sound>
+
+
+    <!-- Blue Pin -->
+    <sound name="Larry Scream">
+        <sample weight="1" path="larry_scream.wav" />
+    </sound>
+
+
+	<!-- Steven -->
+	<sound name="Steven Voice">
+        <sample weight="1" path="steven_voice.wav" />
+    </sound>
+
+	<sound name="Steven Teleport Loop">
+        <sample weight="1" path="steven_teleport.wav" />
+    </sound>
+
+	<sound name="Steven Layer Change">
+        <sample weight="1" path="steven_change1.wav" />
+		<sample weight="1" path="steven_change2.wav" />
+		<sample weight="1" path="steven_change3.wav" />
+    </sound>
+
+	<sound name="Steven Land">
+        <sample weight="1" path="steven_land1.wav" />
+		<sample weight="1" path="steven_land2.wav" />
+		<sample weight="1" path="steven_land3.wav" />
+    </sound>
+
+	<sound name="Steven Death">
+        <sample weight="1" path="steven_death.wav" />
+    </sound>
+
+	<sound name="Steven Flip">
+        <sample weight="1" path="steven_flip.wav" />
+    </sound>
+
+
+    <!-- Triachnid -->
+	<sound name="Triachnid Happy">
+        <sample weight="1" path="triachnid_happy.wav" />
+    </sound>
+
+	<sound name="Triachnid Hurt">
+        <sample weight="1" path="triachnid_hurt1.wav" />
+		<sample weight="1" path="triachnid_hurt2.wav" />
+		<sample weight="1" path="triachnid_hurt3.wav" />
+    </sound>
+
+
+    <!-- Sister Vis -->
+	<sound name="Giant Laser Loop Fixed">
+        <sample weight="1" path="giant_laser_loop.wav" />
     </sound>
 </sounds>

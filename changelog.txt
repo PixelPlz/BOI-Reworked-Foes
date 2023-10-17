@@ -1,4 +1,68 @@
 ================================================
+    Version 3.1.0 - Across the Edmund-verse!
+================================================
+
+-- Reworks / Additions --
+- Ultra Pride has been reworked!
+- Steven has been reworked!
+- Gish has been reworked!
+- Sister Vis has been reworked!
+- Triachnid has been reworked!
+- Mask of Infamy has been reworked!
+
+- New Pin champion based off of the Larries from Super Meat Boy
+- Isaac now was 2 additional variants for his 3rd phase light beam attack
+- Bumbino got a bit smarter
+- Added a config option to toggle Greed-themed enemies stealing coin pickups
+
+- The mod now includes elements from "Beast Tweaks" by DeadInfinity and kittenchilly:
+    - Fixed hitboxes for falling stalactites
+    - Falling stalactites can now spawn after the first charge, and become more common as the Beast's health drops
+    - The Beast can now do any of her attacks in both the first and second phase, with a set order (suck > double shot > suck > souls > repeat)
+    - The Beast now spends less time being idle between attacks
+    - The lava ball attack now starts faster after the first time
+    - The Beast will now laugh at your untimely demise
+
+
+-- Balance changes --
+- Coffers now drop half of their picked up coins and shoot the other half as projectiles, instead of shooting all of them
+- Membrains now have a less intense homing effect on their shots
+- Reverted the Forsaken's health nerf so it's 400 again
+- Increased Rag Mega's health from 300 to 350
+- Decreased Reap Creep's health from 690 to 600
+- Decreased the Cage's health from 800 to 720
+- Increased Loki and each Lokii pair's health from 350 to 420
+- Increased Teratomar's health from 100 to 150
+- Increased Daddy Long Leg's health from 500 to 650
+- Black Husk no longer shoots when spawning Ticking Spiders
+- The Stain now only takes 20% reduced damage through his tentacles instead of 50%
+- Charmed Mama Gurdy's spikes will no longer target enemies and instantly kill them
+- Hush's Blue Baby phase now has a different orbiting projectile attack for its second phase
+- Reduced the max number of Blue Gapers for Hush's Blue Baby phase
+
+
+-- Other changes --
+- New sprites and animations for Hush's Blue Baby phase and Blue Gapers
+- Gazing Globins now have new sprites that make them distinguishable from regular Globins while in their goo form
+- C.H.A.D. and Scolex are now forced to surface if they don't have a path to their target positions
+- Boom Flies now gain a trail to better show that they were launched by black Husk
+- Gapers, Fatties and Skinnies can no longer turn into their burnt versions in rooms with water
+- Improved effects for several bosses and enemies
+- Lots of code improvements (note for compatibility: make sure enums are properly updated)
+
+
+-- Fixes --
+- Fixed friendly Black Bonies not working properly
+- Fixed Lust's fart attack not doing damage
+- Fixed Scolex sometimes not taking damage if Retribution is enabled
+- Fixed Clotty and Clot Curdle variants from Retribution using the wrong projectile types
+- Fixed Fiend Folio Krampus champion's Enhanced Boss Bars icon being overwritten by this mod
+- Fixed red Mom's eye going invisible during its attack with mods that change her door sprites
+
+
+
+
+================================================
     Version 3.0.7
 ================================================
 
