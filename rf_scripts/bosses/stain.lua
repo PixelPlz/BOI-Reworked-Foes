@@ -200,9 +200,10 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.StainTentacleUpdate, EntityT
 function mod:StainTentacleDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if entity.Variant == 10 and entity.Parent then
 		local onePercent = damageAmount / 100
-		local reduction = onePercent * Settings.LegDamageReduction
+		local reduction = onePercent * Settings.TentacleDamageReduction
 
 		entity.Parent:TakeDamage(damageAmount - reduction, damageFlags + DamageFlag.DAMAGE_COUNTDOWN, damageSource, 1)
+		entity.Parent:SetColor(mod.Colors.ArmorFlash, 2, 0, false, false)
 		entity:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
 		return false
 	end

@@ -71,25 +71,26 @@ function mod:FallenUpdate(entity)
 	elseif entity.Variant == 1 and entity.SubType == mod.Entities.KrampusChampion then
 		-- Replace brimstone attack
 		if sprite:IsEventTriggered("StartShoot") then
-			entity.I2 = 1
+			entity.I1 = 1
+			entity.I2 = 0
+			entity.V1 = Vector(mod:Random(10, 100) * 0.01, mod:RandomSign())
 			entity.ProjectileCooldown = 0
-			entity.StateFrame = 0
 			mod:PlaySound(nil, SoundEffect.SOUND_BLOOD_LASER, 1.1)
 
 		elseif sprite:IsEventTriggered("StopShoot") then
-			entity.I2 = 0
+			entity.I1 = 0
 		end
 
 		-- Shooting
-		if entity.I2 == 1 then
+		if entity.I1 == 1 then
 			if entity.ProjectileCooldown <= 0 then
 				entity.ProjectileCooldown = 3
-				entity.StateFrame = entity.StateFrame + 1
+				entity.I2 = entity.I2 + 1
 
 				local params = ProjectileParams()
-				params.CircleAngle = entity.StateFrame * 135
+				params.CircleAngle = entity.V1.X + (entity.I2 * 0.3 * entity.V1.Y)
 				params.FallingSpeedModifier = -1
-				entity:FireProjectiles(entity.Position, Vector(10, 8), 9, params)
+				entity:FireProjectiles(entity.Position, Vector(9.5, 6), 9, params)
 
 			else
 				entity.ProjectileCooldown = entity.ProjectileCooldown - 1

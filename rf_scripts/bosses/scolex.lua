@@ -239,8 +239,10 @@ function mod:ScolexUpdate(entity)
 				end
 
 				-- Jump out
-				if entity.I1 <= 0 and (entity.StateFrame ~= 2 or (entity.Position:Distance(entity.TargetPosition) < 40 or entity.GroupIdx > 0)
-				or not entity.Pathfinder:HasPathToPos(entity.TargetPosition)) then
+				if entity.I1 <= -60 -- If underground for too long
+				or (entity.I1 <= 0 and (entity.StateFrame ~= 2 -- Regular jump
+				or (entity.Position:Distance(entity.TargetPosition) < 40 or entity.GroupIdx > 0) -- At target position for long jump
+				or not entity.Pathfinder:HasPathToPos(entity.TargetPosition))) then -- If it doesn't have a path to the target position
 					entity.State = NpcState.STATE_JUMP
 					entity.V2 = entity.Position
 					entity.Velocity = Vector.Zero

@@ -981,6 +981,7 @@ function mod:GishUpdate(entity)
 		end
 
 
+
 		if entity.FrameCount > 1 then
 			return true
 

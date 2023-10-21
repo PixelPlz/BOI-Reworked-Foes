@@ -21,7 +21,7 @@ function mod:HushBabyInit(entity)
 		data.tearCooldown = Settings.TearCooldown
 		data.shotCount = 1
 		data.teleportTimer = Settings.TeleportCooldown[2]
-		data.soundTimer = 0
+		data.soundTimer = mod:Random(Settings.SoundTimer[1] / 2, Settings.SoundTimer[2] / 2)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.HushBabyInit, EntityType.ENTITY_ISAAC)

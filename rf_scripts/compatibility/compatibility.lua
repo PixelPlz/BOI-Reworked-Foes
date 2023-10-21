@@ -6,6 +6,75 @@ BetterMonsters = mod
 
 
 function mod:LoadCompatibility()
+	--[[ Off-screen Indicator blacklists ]]--
+	if OffscreenIndicators then
+		-- Gish
+		OffscreenIndicators:AddBlacklist(EntityType.ENTITY_MONSTRO2, 1, nil, {NpcState.STATE_ATTACK2}) -- On the ceiling
+
+		-- Steven
+		OffscreenIndicators:AddBlacklist(EntityType.ENTITY_GEMINI, 1, nil, {NpcState.STATE_SPECIAL}) -- 2nd phase
+		OffscreenIndicators:AddBlacklist(EntityType.ENTITY_GEMINI, 11, nil, "segmented") -- Little Steven
+		OffscreenIndicators:AddBlacklist(mod.Entities.Type, mod.Entities.Wallace) -- Wallace
+
+		-- Forgotten body
+		OffscreenIndicators:AddBlacklist(mod.Entities.Type, mod.Entities.BlueBabyExtras, mod.Entities.ForgottenBody)
+
+		-- Sister Vis corpse
+		local corpseCheck = function(entity)
+			return entity:GetData().corpse == true
+		end
+		OffscreenIndicators:AddBlacklist(EntityType.ENTITY_SISTERS_VIS, nil, nil, corpseCheck)
+	end
+
+
+
+	--[[ Fiend Folio ]]--
+	if FiendFolio then
+		-- Update champion IDs
+		mod.Entities.PinChampion = 3
+		mod.Entities.KrampusChampion = 2
+
+
+		-- Non-males
+		local nonMale = {
+			{ID = {EntityType.ENTITY_HOST, 3, 40},    Affliction = "Woman"}, -- Soft Host
+			{ID = {EntityType.ENTITY_MONSTRO2, 1, 1}, Affliction = "Woman"}, -- Hera (Gish champion)
+			{ID = {EntityType.ENTITY_MULLIGAN, 40},   Affliction = "Woman"}, -- Mullicocoon
+		}
+		for i, entry in pairs(nonMale) do
+			table.insert(FiendFolio.Nonmale, entry)
+		end
+
+
+		-- LGBTQIA
+		local based = {
+			{ID = {EntityType.ENTITY_PRIDE, 0, 1}, 			 Affliction = "Closeted gay"}, -- Champion Pride
+			{ID = {mod.Entities.Type, mod.Entities.Wallace}, Affliction = "Pan"}, -- Wallace
+			{ID = {EntityType.ENTITY_HIVE, 40}, 			 Affliction = "Trans"}, -- Nest (new)
+		}
+		for i, entry in pairs(based) do
+			table.insert(FiendFolio.LGBTQIA, entry)
+		end
+
+
+		-- Outliers
+		local outliers = {
+			{ID = {EntityType.ENTITY_CLOTTY, mod.Entities.ClottySketch},   Affliction = "Drawing"}, -- Clotty Sketch
+			{ID = {EntityType.ENTITY_CHARGER, mod.Entities.ChargerSketch}, Affliction = "Drawing"}, -- Charger Sketch
+			{ID = {EntityType.ENTITY_GLOBIN, mod.Entities.GlobinSketch},   Affliction = "Drawing"}, -- Globin Sketch
+			{ID = {EntityType.ENTITY_MAW, mod.Entities.MawSketch}, 		   Affliction = "Drawing"}, -- Maw Sketch
+
+			{ID = {EntityType.ENTITY_WAR, 20}, 					   Affliction = "Horse"}, -- Conquest Horse
+			{ID = {mod.Entities.Type, mod.Entities.Teratomar}, 	   Affliction = "War criminal"}, -- Teratomar
+			{ID = {EntityType.ENTITY_KEEPER, mod.Entities.Coffer}, Affliction = "Inflation fetishist"}, -- Coffer
+		}
+		for i, entry in pairs(outliers) do
+			table.insert(FiendFolio.Outlier, entry)
+		end
+	end
+
+
+
 	--[[ Enhanced Boss Bars ]]--
 	if HPBars then
 		local path = "gfx/ui/bosshp_icons/"
@@ -153,75 +222,6 @@ function mod:LoadCompatibility()
 		-- Siren revive
 		HPBars.BossIgnoreList["904.0"] = function(entity)
 			return entity:ToNPC().I2 == 100
-		end
-	end
-
-
-
-	--[[ Off-screen Indicator blacklists ]]--
-	if OffscreenIndicators then
-		-- Gish
-		OffscreenIndicators:AddBlacklist(EntityType.ENTITY_MONSTRO2, 1, nil, {NpcState.STATE_ATTACK2}) -- On the ceiling
-
-		-- Steven
-		OffscreenIndicators:AddBlacklist(EntityType.ENTITY_GEMINI, 1, nil, {NpcState.STATE_SPECIAL}) -- 2nd phase
-		OffscreenIndicators:AddBlacklist(EntityType.ENTITY_GEMINI, 11, nil, "segmented") -- Little Steven
-		OffscreenIndicators:AddBlacklist(mod.Entities.Type, mod.Entities.Wallace) -- Wallace
-
-		-- Forgotten body
-		OffscreenIndicators:AddBlacklist(mod.Entities.Type, mod.Entities.BlueBabyExtras, mod.Entities.ForgottenBody)
-
-		-- Sister Vis corpse
-		local corpseCheck = function(entity)
-			return entity:GetData().corpse == true
-		end
-		OffscreenIndicators:AddBlacklist(EntityType.ENTITY_SISTERS_VIS, nil, nil, corpseCheck)
-	end
-
-
-
-	--[[ Fiend Folio ]]--
-	if FiendFolio then
-		-- Update champion IDs
-		mod.Entities.PinChampion = 3
-		mod.Entities.KrampusChampion = 2
-
-
-		-- Non-males
-		local nonMale = {
-			{ID = {EntityType.ENTITY_HOST, 3, 40},    Affliction = "Woman"}, -- Soft Host
-			{ID = {EntityType.ENTITY_MONSTRO2, 1, 1}, Affliction = "Woman"}, -- Hera (Gish champion)
-			{ID = {EntityType.ENTITY_MULLIGAN, 40},   Affliction = "Woman"}, -- Mullicocoon
-		}
-		for i, entry in pairs(nonMale) do
-			table.insert(FiendFolio.Nonmale, entry)
-		end
-
-
-		-- LGBTQIA
-		local based = {
-			{ID = {EntityType.ENTITY_PRIDE, 0, 1}, 			 Affliction = "Closeted gay"}, -- Champion Pride
-			{ID = {mod.Entities.Type, mod.Entities.Wallace}, Affliction = "Pan"}, -- Wallace
-			{ID = {EntityType.ENTITY_HIVE, 40}, 			 Affliction = "Trans"}, -- Nest (new)
-		}
-		for i, entry in pairs(based) do
-			table.insert(FiendFolio.LGBTQIA, entry)
-		end
-
-
-		-- Outliers
-		local outliers = {
-			{ID = {EntityType.ENTITY_CLOTTY, mod.Entities.ClottySketch},   Affliction = "Drawing"}, -- Clotty Sketch
-			{ID = {EntityType.ENTITY_CHARGER, mod.Entities.ChargerSketch}, Affliction = "Drawing"}, -- Charger Sketch
-			{ID = {EntityType.ENTITY_GLOBIN, mod.Entities.GlobinSketch},   Affliction = "Drawing"}, -- Globin Sketch
-			{ID = {EntityType.ENTITY_MAW, mod.Entities.MawSketch}, 		   Affliction = "Drawing"}, -- Maw Sketch
-
-			{ID = {EntityType.ENTITY_WAR, 20}, 					   Affliction = "Horse"}, -- Conquest Horse
-			{ID = {mod.Entities.Type, mod.Entities.Teratomar}, 	   Affliction = "War criminal"}, -- Teratomar
-			{ID = {EntityType.ENTITY_KEEPER, mod.Entities.Coffer}, Affliction = "Inflation fetishist"}, -- Coffer
-		}
-		for i, entry in pairs(outliers) do
-			table.insert(FiendFolio.Outlier, entry)
 		end
 	end
 

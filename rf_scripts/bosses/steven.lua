@@ -660,8 +660,11 @@ function mod:WallaceDMG(entity, damageAmount, damageFlags, damageSource, damageC
 	if entity.Variant == mod.Entities.Wallace then
 		if entity.Parent then
 			damageFlags = damageFlags + DamageFlag.DAMAGE_COUNTDOWN + DamageFlag.DAMAGE_CLONES
+
+			entity.Parent:GetData().redamaging = true -- Retribution bullshit fix again...
 			entity.Parent:TakeDamage(damageAmount, damageFlags, damageSource, 1)
 			entity:SetColor(mod.Colors.DamageFlash, 2, 0, false, true)
+			entity.Parent:GetData().redamaging = false
 		end
 
 		return false

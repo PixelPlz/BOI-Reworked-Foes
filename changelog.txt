@@ -1,4 +1,26 @@
 ================================================
+    Version 3.1.1
+================================================
+
+-- Balance changes --
+- Red Krampus' projectile barrage is now easier but it can rotate both ways
+
+
+-- Other changes --
+- Added the boss portrait for Hush that was meant to be included in the last update
+- C.H.A.D. is now forced to surface if he is submerged for too long to avoid softlocks
+- Scolex is now forced to jump out if he is underground for too long to avoid softlocks
+
+
+-- Fixes --
+- Fixed the Stain's tentacles checking for the wrong damage reduction value when taking damage
+- Fixed Red Krampus and Blue Pin having the wrong Enhanced Boss Bars icons when Fiend Folio is enabled
+- Fixed Steven's 2nd phase also not taking damage sometimes when Retribution is enabled
+
+
+
+
+================================================
     Version 3.1.0 - Across the Edmund-verse!
 ================================================
 
