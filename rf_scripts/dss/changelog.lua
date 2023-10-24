@@ -1,3 +1,31 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.2", [[
+
+{FSIZE2}Balance changes
+
+- Isaac's spiral light beam pattern
+now has more safe spots around
+the room and is slightly slower
+
+
+
+{FSIZE2}Fixes
+
+- Fixed Sister Vis and Mom's Dead Hands
+not taking damage from Terra tears
+
+- Fixed Wrath and Super Wrath being
+unkillable on the Hot Potato challenge
+
+- Fixed Blue Peep's eyes not using
+the correct animations in some cases
+
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.1", [[
 
 {FSIZE2}Balance changes

@@ -122,7 +122,9 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.WrathUpdate, EntityType.ENTITY_W
 
 -- Don't take damage from non-player explosions
 function mod:WrathDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if mod:CheckForRev() == false and damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
+	if Isaac.GetChallenge() ~= Challenge.CHALLENGE_HOT_POTATO -- HOT POTATO EXPLOSIONS DOESN'T COUNT AS PLAYER EXPLOSIONS FUCK THIS GAME
+	and mod:CheckForRev() == false
+	and damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
 		return false
 	end
 end

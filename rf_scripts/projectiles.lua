@@ -255,6 +255,11 @@ function mod:EditNormalProjectiles(projectile)
 			end
 
 
+		-- Cohort burst shots
+		elseif projectile.SpawnerType == EntityType.ENTITY_COHORT and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
+			data.trailColor = Color.Default
+
+
 		-- Cyst
 		elseif projectile.SpawnerType == EntityType.ENTITY_CYST then
 			sprite.Color = mod.Colors.CorpseYellow

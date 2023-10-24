@@ -1065,7 +1065,7 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.SisterVisCollision, EntityType.ENTITY_SISTERS_VIS)
 
 function mod:SisterVisDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if (damageFlags & DamageFlag.DAMAGE_CRUSH > 0) then
+	if damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_CRUSH > 0) then
 		return false
 
 	-- Reduce damage taken if the sibling is dead and it didn't enrage yet

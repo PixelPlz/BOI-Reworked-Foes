@@ -36,7 +36,7 @@ function mod:MembrainUpdate(entity)
 
 
 			-- Send the bullets at the player
-			elseif sprite:IsEventTriggered("Activate") then
+			elseif sprite:IsEventTriggered("Activate") and data.stoppedProjectiles then
 				for i, projectile in pairs(data.stoppedProjectiles) do
 					projectile.ChangeTimeout = 0
 					projectile.Acceleration = 1.025
@@ -53,6 +53,15 @@ function mod:MembrainUpdate(entity)
 				end
 
 				mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP, 0.8)
+			end
+
+
+			-- Destroy the projectiles if it dies
+			if entity:HasMortalDamage() and data.stoppedProjectiles then
+				for i, projectile in pairs(data.stoppedProjectiles) do
+					projectile:Kill()
+				end
+				data.stoppedProjectiles = nil
 			end
 
 

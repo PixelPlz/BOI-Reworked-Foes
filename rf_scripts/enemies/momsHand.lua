@@ -68,7 +68,7 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MomsDeadHandUpdate, EntityType.ENTITY_MOMS_DEAD_HAND)
 
 function mod:MomsDeadHandDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if (damageFlags & DamageFlag.DAMAGE_CRUSH > 0) then
+	if damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_CRUSH > 0) then
 		return false
 	end
 end

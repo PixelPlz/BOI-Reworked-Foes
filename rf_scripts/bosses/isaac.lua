@@ -42,7 +42,7 @@ function mod:IsaacUpdate(entity)
 					for i = 0, beamCount - 1 do
 						-- Get position
 						local angle = 360 / beamCount * i
-						local pos = room:GetCenterPos() + Vector.FromAngle(45 + angle):Resized(entity.V1.Y * 55)
+						local pos = room:GetCenterPos() + Vector.FromAngle(45 + angle):Resized(entity.V1.Y * 60)
 
 						if room:IsPositionInRoom(pos, 0) then
 							Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACK_THE_SKY, 2, pos, Vector.Zero, entity)
@@ -82,7 +82,7 @@ function mod:IsaacUpdate(entity)
 				-- Continue beamin'
 				else
 					entity.V1 = Vector(entity.V1.X, entity.V1.Y + 1)
-					entity.ProjectileDelay = entity.V1.X == 3 and 6 or 8
+					entity.ProjectileDelay = entity.V1.X == 3 and 6 or 9
 				end
 
 			else

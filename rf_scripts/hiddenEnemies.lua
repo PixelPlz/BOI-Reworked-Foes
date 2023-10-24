@@ -89,8 +89,9 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.MomsHandAppearUpdate, Entity
 -- [[ Polycephalus / The Stain ]]--
 function mod:PolycephalusDirt(entity)
 	if mod.Config.NoHiddenPoly == true
-	and entity.State == NpcState.STATE_MOVE and entity.I1 == 2 -- Only when fully underground
-	and entity:IsFrame(6, 0) then
+	and ((entity.Variant == 0 and entity.State == NpcState.STATE_MOVE and entity.I1 == 2) -- Polycephalus
+	or (entity.Variant == 1 and entity.State == NpcState.STATE_JUMP and entity.I1 ~= 0)) -- The Pile
+	and entity:IsFrame(entity.Variant == 1 and 4 or 6, 0) then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DIRT_PILE, 0, entity.Position, Vector.Zero, entity).SpriteScale = Vector(1.2, 1.2)
 	end
 end

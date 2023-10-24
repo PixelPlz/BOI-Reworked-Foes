@@ -362,6 +362,7 @@ function mod:PeepUpdate(entity)
 		-- Set the subtype to 2 and load the new animations
 		elseif entity.SpawnerEntity and entity.SpawnerEntity.SubType == 2 then
 			entity.SubType = 2
+			sprite:Load("gfx/068.010_peep eye_cyan.anm2", true)
 			entity.ProjectileCooldown = 45
 		end
 	end
