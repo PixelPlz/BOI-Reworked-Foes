@@ -217,13 +217,15 @@ function mod:ItLivesUpdate(entity)
 
 
 			-- Should this enemy keep him retracted and get killed by his spikes
-			local function isValidEnemy(entity)
-				if  entity:ToNPC() and entity:ToNPC():IsActiveEnemy(false)
-				and entity.Type ~= EntityType.ENTITY_MOMS_HEART
-				and not (entity.Type == EntityType.ENTITY_HOMUNCULUS and entity.Variant == 10)
-				and not entity:IsDead()
-				and entity:IsInvincible() == false
-				and entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) == false then
+			local function isValidEnemy(fucker)
+				if  fucker:ToNPC() and fucker:ToNPC():IsActiveEnemy(false)
+				and fucker.Type ~= EntityType.ENTITY_MOMS_HEART
+				and not (fucker.Type == EntityType.ENTITY_HOMUNCULUS and fucker.Variant == 10)
+				and not (Isaac.GetEntityTypeByName("Salem") ~= 0 -- Dumb Salem fix (Hey fuckface, add proper globals for your mod so other mods can check for them too.)
+				and fucker.Type == Isaac.GetEntityTypeByName("Salem") and fucker.Variant == Isaac.GetEntityVariantByName("Salem"))
+				and not fucker:IsDead()
+				and fucker:IsInvincible() == false and fucker.MaxHitPoints > 0
+				and fucker:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) == false then
 					return true
 				end
 				return false

@@ -19,7 +19,7 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.EternalFlyUpdate, EntityType.ENTITY_ETERNALFLY)
 
 function mod:EternalFlyConvert(entity)
-	if entity:GetData().isEternalFly then
+	if entity:GetData().isEternalFly and mod.Config.ClassicEternalFlies == true then
 		local sprite = entity:GetSprite()
 		sprite:Load("gfx/096.000_eternal fly.anm2", true)
 		sprite:Play("Fly", true)

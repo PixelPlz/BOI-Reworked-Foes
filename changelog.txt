@@ -1,4 +1,18 @@
 ================================================
+    Version 3.1.3
+================================================
+
+-- Additions --
+- Added a config option to toggle Eternal Flies keeping their appearance when chasing the player
+
+
+-- Fixes --
+- Fixed Salem softlocking in the It Lives fight
+
+
+
+
+================================================
     Version 3.1.2
 ================================================
 

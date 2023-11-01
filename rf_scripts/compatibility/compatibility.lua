@@ -115,26 +115,26 @@ function mod:LoadCompatibility()
 			sprite = path .. "horsemen/conquest.png",
 			offset = Vector(-7, 0),
 			conditionalSprites = { -- I don't remember why I did it like this
-				{function(entity) return entity.SubType == 1 end, path .. "horsemen/conquest_red.png"}
+				{ function(entity) return entity.SubType == 1 end, path .. "horsemen/conquest_red.png" }
 			},
 		}
 		HPBars.BossDefinitions["65.20"] = { -- Horse
 			sprite = path .. "horsemen/conquest_horse.png",
 			offset = Vector(-4, 0),
 			conditionalSprites = {
-				{function(entity) return entity.SubType == 1 end, path .. "horsemen/conquest_horse_red.png"}
+				{ function(entity) return entity.SubType == 1 end, path .. "horsemen/conquest_horse_red.png" }
 			},
 		}
 
 		-- Matriarch Fistula
 		HPBars.BossDefinitions["71.0"].conditionalSprites = { -- Large
-			{function(entity) return entity.SubType == 1000 end, path .. "chapter2/fistula_large_scarred.png"}
+			{ function(entity) return entity.SubType == 1000 end, path .. "chapter2/fistula_large_scarred.png" }
 		}
 		HPBars.BossDefinitions["72.0"].conditionalSprites = { -- Medium
-			{function(entity) return entity.SubType == 1000 end, path .. "chapter2/fistula_medium_scarred.png"}
+			{ function(entity) return entity.SubType == 1000 end, path .. "chapter2/fistula_medium_scarred.png" }
 		}
 		HPBars.BossDefinitions["73.0"].conditionalSprites = { -- Small
-			{function(entity) return entity.SubType == 1000 end, path .. "chapter2/fistula_small_scarred.png"}
+			{ function(entity) return entity.SubType == 1000 end, path .. "chapter2/fistula_small_scarred.png" }
 		}
 
 		-- Teratomar
@@ -147,17 +147,17 @@ function mod:LoadCompatibility()
 
 		-- It Lives
 		HPBars.BossDefinitions["78.1"].conditionalSprites = {
-			{function(entity) return entity:GetData().enraged == true end, path .. "final/it_lives_angy.png"}
+			{ function(entity) return entity:GetData().enraged == true end, path .. "final/it_lives_angy.png" }
 		}
 
 		-- Steven
 		HPBars.BossDefinitions["79.1"].conditionalSprites = {
-			{function(entity) return entity:ToNPC().State == NpcState.STATE_SPECIAL end, path .. "chapter1/steven_wallace.png"}
+			{ function(entity) return entity:ToNPC().State == NpcState.STATE_SPECIAL end, path .. "chapter1/steven_wallace.png" }
 		}
 
 		-- Blighted Ovum
 		HPBars.BossDefinitions["79.2"].conditionalSprites = {
-			{"isI1Equal", path .. "chapter1/blighted_ovum_phase2.png", {1}}
+			{ "isI1Equal", path .. "chapter1/blighted_ovum_phase2.png", {1} }
 		}
 
 		-- Fallen
@@ -183,7 +183,7 @@ function mod:LoadCompatibility()
 
 		-- Sister Vis
 		HPBars.BossDefinitions["410.0"].conditionalSprites = {
-			{function(entity) return entity:GetData().enraged == true end, path .. "chapter3/sisters_vis_nuts.png"}
+			{ function(entity) return entity:GetData().enraged == true end, path .. "chapter3/sisters_vis_nuts.png" }
 		}
 
 

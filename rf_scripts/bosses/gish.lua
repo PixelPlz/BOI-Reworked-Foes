@@ -523,7 +523,7 @@ function mod:GishUpdate(entity)
 			if data.bubblies and entity:IsFrame(3, 0) then
 				for i, bubbly in pairs(data.bubblies) do
 					local offset = mod:RandomVector(math.random(30))
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TAR_BUBBLE, 0, bubbly.Position + offset, Vector.Zero, entity).DepthOffset = entity.DepthOffset + 10
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TAR_BUBBLE, 0, bubbly.Position + offset, Vector.Zero, entity)
 				end
 			end
 

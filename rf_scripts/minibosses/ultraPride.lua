@@ -347,7 +347,7 @@ function mod:FlorianUpdate(entity)
 					local pos = data.chosenSketch.Position
 
 					-- Create laser
-					local laser_ent_pair = {laser = EntityLaser.ShootAngle(2, entity.Position, (pos - entity.Position):GetAngleDegrees(), 3, Vector(0, entity.SpriteScale.Y * -30), entity), entity}
+					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THIN_RED, entity.Position, (pos - entity.Position):GetAngleDegrees(), 3, Vector(0, entity.SpriteScale.Y * -30), entity), entity}
 					local laser = laser_ent_pair.laser
 
 					-- Set up the parameters

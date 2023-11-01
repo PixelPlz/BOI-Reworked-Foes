@@ -35,33 +35,35 @@ function mod:MembrainUpdate(entity)
 				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.8)
 
 
-			-- Send the bullets at the player
-			elseif sprite:IsEventTriggered("Activate") and data.stoppedProjectiles then
-				for i, projectile in pairs(data.stoppedProjectiles) do
-					projectile.ChangeTimeout = 0
-					projectile.Acceleration = 1.025
-					projectile.FallingAccel = -0.075
-					projectile.Velocity = (entity:GetPlayerTarget().Position - projectile.Position):Resized(8)
+			elseif data.stoppedProjectiles then
+				-- Send the bullets at the player
+				if sprite:IsEventTriggered("Activate") then
+					for i, projectile in pairs(data.stoppedProjectiles) do
+						projectile.ChangeTimeout = 0
+						projectile.Acceleration = 1.025
+						projectile.FallingAccel = -0.075
+						projectile.Velocity = (entity:GetPlayerTarget().Position - projectile.Position):Resized(8)
 
-					-- Effect
-					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 5, projectile.Position, Vector.Zero, entity):GetSprite()
-					effect.Offset = Vector(projectile.PositionOffset.X, projectile.Height * 0.65)
-					effect.Scale = Vector(0.75, 0.75)
+						-- Effect
+						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 5, projectile.Position, Vector.Zero, entity):GetSprite()
+						effect.Offset = Vector(projectile.PositionOffset.X, projectile.Height * 0.65)
+						effect.Scale = Vector(0.75, 0.75)
 
-					local c = mod.Colors.RagManPurple
-					effect.Color = Color(c.R,c.G,c.B, 0.75, c.RO,c.GO,c.BO)
+						local c = mod.Colors.RagManPurple
+						effect.Color = Color(c.R,c.G,c.B, 0.75, c.RO,c.GO,c.BO)
+					end
+
+					mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP, 0.8)
 				end
 
-				mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP, 0.8)
-			end
 
-
-			-- Destroy the projectiles if it dies
-			if entity:HasMortalDamage() and data.stoppedProjectiles then
-				for i, projectile in pairs(data.stoppedProjectiles) do
-					projectile:Kill()
+				-- Destroy the projectiles if it dies
+				if entity:HasMortalDamage() then
+					for i, projectile in pairs(data.stoppedProjectiles) do
+						projectile:Kill()
+					end
+					data.stoppedProjectiles = nil
 				end
-				data.stoppedProjectiles = nil
 			end
 
 

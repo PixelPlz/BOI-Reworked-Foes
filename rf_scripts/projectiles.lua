@@ -256,7 +256,7 @@ function mod:EditNormalProjectiles(projectile)
 
 
 		-- Cohort burst shots
-		elseif projectile.SpawnerType == EntityType.ENTITY_COHORT and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
+		elseif projectile.SpawnerType == EntityType.ENTITY_COHORT and projectile:HasProjectileFlags(ProjectileFlags.BURST8) then
 			data.trailColor = Color.Default
 
 

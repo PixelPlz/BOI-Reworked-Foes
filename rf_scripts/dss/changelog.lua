@@ -1,3 +1,25 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.3", [[
+
+{FSIZE2}Additions
+
+- Added a config option to toggle
+Eternal Flies keeping their appearance
+when chasing the player
+
+
+
+{FSIZE2}Fixes
+
+- Fixed Salem softlocking
+in the It Lives fight
+
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.2", [[
 
 {FSIZE2}Balance changes

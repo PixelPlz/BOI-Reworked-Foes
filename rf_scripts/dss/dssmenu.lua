@@ -9,12 +9,13 @@ mod.Config = {}
 -- Default DSS Data
 mod.DefaultConfig = {
 	-- General
-	BreakableHosts  = true,
-	CoinStealing    = true,
-	NoChapter1Nests = true,
-	EnvyRework 		= true,
-	BlackBonyBombs  = true,
-	BurningGushers  = true,
+	BreakableHosts 		= true,
+	CoinStealing 		= true,
+	ClassicEternalFlies = true,
+	NoChapter1Nests 	= true,
+	EnvyRework 			= true,
+	BlackBonyBombs 		= true,
+	BurningGushers 		= true,
 
 	-- Hidden enemy visuals
 	NoHiddenPins = true,
@@ -190,12 +191,13 @@ local directory = {
 			{ str = 'general', fsize = 3, nosel = true },
 			{ str = '', fsize = 1, nosel = true },
 
-			mod:CreateDSSToggle("BreakableHosts",  "breakable hosts",         { 'host armor', 'can be broken', 'by a bomb', 'or high damage' }),
-			mod:CreateDSSToggle("CoinStealing",    "coin stealing enemies",   { 'greed themed', 'enemies', 'will steal', 'nearby coins' }),
-			mod:CreateDSSToggle("NoChapter1Nests", "no chapter 1 nests",      { 'replace nests', 'in chapter 1', 'with easier', 'mullicocoons' }),
-			mod:CreateDSSToggle("EnvyRework",      "envy rework",             { 'envy heads', 'will bounce', 'off of each', 'other' }),
-			mod:CreateDSSToggle("BlackBonyBombs",  "black bony bomb effects", { 'black bonies', 'will spawn', 'with random', 'bomb effects' }),
-			mod:CreateDSSToggle("BurningGushers",  "burning gushers",         { 'gushers', 'spawned by', 'flaming gapers', 'will have', 'new behaviour' }),
+			mod:CreateDSSToggle("BreakableHosts",      "breakable hosts",         { 'host armor', 'can be broken', 'by a bomb', 'or high damage' }),
+			mod:CreateDSSToggle("CoinStealing",        "coin stealing enemies",   { 'greed themed', 'enemies', 'will steal', 'nearby coins' }),
+			mod:CreateDSSToggle("ClassicEternalFlies", "classic eternal flies",   { 'eternal flies', 'will keep', 'their', 'appearance', 'when chasing', 'the player' }),
+			mod:CreateDSSToggle("NoChapter1Nests",     "no chapter 1 nests",      { 'replace nests', 'in chapter 1', 'with easier', 'mullicocoons' }),
+			mod:CreateDSSToggle("EnvyRework",          "envy rework",             { 'envy heads', 'will bounce', 'off of each', 'other' }),
+			mod:CreateDSSToggle("BlackBonyBombs",      "black bony bomb effects", { 'black bonies', 'will spawn', 'with random', 'bomb effects' }),
+			mod:CreateDSSToggle("BurningGushers",      "burning gushers",         { 'gushers', 'spawned by', 'flaming gapers', 'will have', 'new behaviour' }),
 
 			{ str = '', fsize = 3, nosel = true },
 			{ str = 'enemy indicators', fsize = 3, nosel = true },
@@ -244,7 +246,6 @@ local directory = {
 			{ str = '- kittenchilly -', fsize = 3 },
 			{ str = 'beast tweaks', fsize = 2, nosel = true },
 			{ str = 'classic eternal flies', fsize = 2, nosel = true },
-			{ str = 'additional coding', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- ratratrat -', fsize = 3 },
