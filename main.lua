@@ -38,6 +38,7 @@ local enemyScripts = {
 	"selflessKnight",
 	"pokies",
 	"sketches",
+	"greedyEnemies",
 	"holyLeech",
 	"lump",
 	"membrain",
@@ -136,6 +137,7 @@ local compatibilityScripts = {
 	"baptismal_preloader",
 	"compatibility",
 	"retribution",
+	"warning",
 }
 mod:LoadScripts(compatibilityScripts, "compatibility")
 

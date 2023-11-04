@@ -1,4 +1,20 @@
 ================================================
+    Version 3.1.4
+================================================
+
+-- Additions --
+- Added a warning for when there are incompatible mods enabled, such as Hardmode Major Boss Patterns
+- Added the Visage heart resprite from Ferpe's Mask of Infamy resprite mod
+- Enemy Crack the Sky beams no longer have an unnecessarily large hitbox
+
+
+-- Fixes --
+- Fixed Hera's (White Gish) Altar Scamps spawning as champions
+
+
+
+
+================================================
     Version 3.1.3
 ================================================
 

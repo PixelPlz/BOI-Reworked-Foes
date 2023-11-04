@@ -619,6 +619,16 @@ mod:AddCallback(ModCallbacks.MC_POST_BOMB_INIT, mod.BumbinoBombInit, BombVariant
 
 
 
+--[[ Sky Beam size fix ]]--
+function mod:SkyBeamInit(effect)
+	if effect.SpawnerEntity and effect.SpawnerEntity:ToNPC() then
+		effect.Size = 18
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.SkyBeamInit, EffectVariant.CRACK_THE_SKY)
+
+
+
 --[[ One time effect ]]--
 function mod:OneTimeEffectUpdate(effect)
 	if effect:GetSprite():IsFinished() then

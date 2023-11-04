@@ -263,6 +263,11 @@ function mod:EditNormalProjectiles(projectile)
 		-- Cyst
 		elseif projectile.SpawnerType == EntityType.ENTITY_CYST then
 			sprite.Color = mod.Colors.CorpseYellow
+
+
+		-- Visage
+		elseif projectile.SpawnerType == EntityType.ENTITY_VISAGE then
+			sprite.Color = mod.Colors.RedFireShot
 		end
 	end
 end

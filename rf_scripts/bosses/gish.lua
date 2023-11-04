@@ -38,13 +38,9 @@ function mod:GishInit(entity)
 				local pos = entity.Position + Vector(i * 70, 0)
 				pos = Game():GetRoom():FindFreePickupSpawnPosition(pos, 0, true, true)
 
-				local scamp = Isaac.Spawn(EntityType.ENTITY_WHIPPER, 0, 0, pos, Vector.Zero, entity):ToNPC()
+				local scamp = Isaac.Spawn(EntityType.ENTITY_WHIPPER, 0, 0, pos, Vector.Zero, entity)
+				scamp:GetData().altarScamp = true
 				scamp:GetSprite():Load("gfx/834.000_altar scamp.anm2", true)
-
-				-- Don't spawn them as champions
-				if scamp:IsChampion() then
-					scamp:Morph(scamp.Type, scamp.Variant, scamp.SubType, -1)
-				end
 			end
 		end
 	end
@@ -1078,3 +1074,16 @@ function mod:ClotUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ClotUpdate, EntityType.ENTITY_CLOTTY)
+
+
+
+--[[ Hera's Altar Scamps champion fix (fuck this game :DDDD) ]]--
+function mod:WhipperInit(entity)
+	if entity:GetData().altarScamp and entity:IsChampion() then
+		entity:Remove()
+		local scamp = Isaac.Spawn(EntityType.ENTITY_WHIPPER, 0, 0, entity.Position, Vector.Zero, entity)
+		scamp:GetData().altarScamp = true
+		scamp:GetSprite():Load("gfx/834.000_altar scamp.anm2", true)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.WhipperInit, EntityType.ENTITY_WHIPPER)

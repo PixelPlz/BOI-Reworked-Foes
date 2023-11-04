@@ -1,3 +1,32 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.4", [[
+
+{FSIZE2}Additions
+
+- Added a warning for when there are
+incompatible mods enabled,
+such as Hardmode Major Boss Patterns
+
+- Added the Visage heart resprite
+from Ferpe's Mask of Infamy
+resprite mod
+
+- Enemy Crack the Sky beams no longer
+have an unnecessarily large hitbox
+
+
+
+{FSIZE2}Fixes
+
+- Fixed Hera's (White Gish)
+Altar Scamps spawning as champions
+
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.3", [[
 
 {FSIZE2}Additions

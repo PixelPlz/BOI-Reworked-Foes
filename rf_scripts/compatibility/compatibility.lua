@@ -186,6 +186,13 @@ function mod:LoadCompatibility()
 			{ function(entity) return entity:GetData().enraged == true end, path .. "chapter3/sisters_vis_nuts.png" }
 		}
 
+		-- Visage heart unique phase 3 icon
+		HPBars.BossDefinitions["903.0"].conditionalSprites = {
+			{"animationNameContains", path .. "altpath/the_visage_heart_phase2.png", {"2"}},
+			{"animationNameContains", path .. "altpath/the_visage_heart_phase3.png", {"3"}},
+			{"animationNameContains", path .. "altpath/the_visage_heart_phase3.png", {"Attack"}},
+		}
+
 
 		-- Blacklists
 		-- Steven

@@ -75,9 +75,10 @@ mod.Colors.Heal 	  = Color(1,1,1, 1, 0.64,0,0)
 
 mod.Colors.CrispyMeat   = Color(1,1,1, 1);   				 mod.Colors.CrispyMeat:SetColorize(0.32,0.25,0.2, 1)
 mod.Colors.EmberFade    = Color(0,0,0, 1.1, 1,0.514,0.004)   mod.Colors.EmberFade:SetColorize(0,0,0, 0)    mod.Colors.EmberFade:SetTint(0,0,0, 1.1)
-mod.Colors.PurpleFade   = Color(0,0,0, 1.1, 0.65,0.125,1)    mod.Colors.PurpleFade:SetColorize(0,0,0, 0)   mod.Colors.PurpleFade:SetTint(0,0,0, 1.1)
+mod.Colors.RedFireShot  = Color(1,1,1, 1, 0.6,0.1,0)
 mod.Colors.BlueFire 	= Color(0,1,1, 1, -0.5,0.35,0.9)     mod.Colors.BlueFire:SetColorize(1,1,1, 1)
 mod.Colors.BlueFireShot = Color(1,1,1, 1, 0,0.6,1.2)   	     mod.Colors.BlueFireShot:SetColorize(1,1,1, 1)
+mod.Colors.PurpleFade   = Color(0,0,0, 1.1, 0.65,0.125,1)    mod.Colors.PurpleFade:SetColorize(0,0,0, 0)   mod.Colors.PurpleFade:SetTint(0,0,0, 1.1)
 
 mod.Colors.Ipecac 			= Color(1,1,1, 1, 0,0,0)   mod.Colors.Ipecac:SetColorize(0.4,2,0.5, 1)
 mod.Colors.GreenCreep 		= Color(0,0,0, 1, 0,0.5,0)
