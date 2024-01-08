@@ -575,7 +575,7 @@ function mod:ItLivesUpdate(entity)
 						entity:FireProjectiles(entity.Position, Vector(9, 8), 9, params)
 
 						-- Bouncing shots
-						params.CircleAngle = offset + 0.4
+						params.CircleAngle = offset + mod:DegreesToRadians(22.5)
 						params.FallingAccelModifier = -0.088
 						params.BulletFlags = params.BulletFlags + ProjectileFlags.BOUNCE
 

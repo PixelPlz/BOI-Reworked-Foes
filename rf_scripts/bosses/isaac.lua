@@ -18,14 +18,19 @@ function mod:IsaacUpdate(entity)
 
 
 		-- Light beam attack variations
-		-- Replace default version
 		if entity.State == NpcState.STATE_ATTACK2 and (entity.I1 == 1000 or entity.I1 == 2000) then
-			local chosen = mod:Random(1, 3)
+			-- Replace default version after the first time
+			if not entity:GetData().DidFirstLightBeam then
+				entity:GetData().DidFirstLightBeam = true
 
-			if chosen >= 2 then
-				entity.State = NpcState.STATE_ATTACK3
-				entity.V1 = Vector(chosen, 0)
-				entity.ProjectileDelay = 0
+			else
+				local chosen = mod:Random(1, 3)
+
+				if chosen >= 2 then
+					entity.State = NpcState.STATE_ATTACK3
+					entity.V1 = Vector(chosen, 0)
+					entity.ProjectileDelay = 0
+				end
 			end
 
 
@@ -82,7 +87,7 @@ function mod:IsaacUpdate(entity)
 				-- Continue beamin'
 				else
 					entity.V1 = Vector(entity.V1.X, entity.V1.Y + 1)
-					entity.ProjectileDelay = entity.V1.X == 3 and 6 or 9
+					entity.ProjectileDelay = entity.V1.X == 3 and 7 or 10
 				end
 
 			else

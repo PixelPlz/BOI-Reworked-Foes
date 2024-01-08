@@ -458,7 +458,7 @@ function mod:BlueBabyUpdate(entity)
 
 						params.Scale = 1.65
 						params.WiggleFrameOffset = 10
-						params.CircleAngle = 0.4
+						params.CircleAngle = mod:DegreesToRadians(22.5)
 						entity:FireProjectiles(entity.Position, Vector(6, 8), 9, params)
 						mod:PlaySound(nil, SoundEffect.SOUND_THUMBS_DOWN, 0.6)
 
@@ -650,7 +650,7 @@ function mod:BlueBabyUpdate(entity)
 
 							if entity.StateFrame < 3 then
 								params.Color = mod.Colors.SoulShot
-								params.CircleAngle = 0.8 + entity.StateFrame * 0.3
+								params.CircleAngle = mod:DegreesToRadians(45) + entity.StateFrame * 0.3
 								entity:FireProjectiles(entity.Position, Vector(11, 4), 9, params)
 
 							else

@@ -2,6 +2,11 @@ local mod = ReworkedFoes
 
 mod.RNG = RNG()
 
+-- Randomize the seed, since RNG is always initialized at 2853650767
+mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function ()
+	mod.RNG:SetSeed(Game():GetSeeds():GetStartSeed())
+end)
+
 
 
 --[[ Entity enums ]]--
@@ -48,6 +53,7 @@ mod.Entities = {
 	HolyTracer 	   = Isaac.GetEntityVariantByName("Holy Tracer"),
 	BrimstoneSwirl = Isaac.GetEntityVariantByName("Single Brimstone Swirl"),
 	SkyLaserEffect = Isaac.GetEntityVariantByName("Sister Vis Laser Effect"),
+	FireRingHelper = Isaac.GetEntityVariantByName("Fire Ring Helper"),
 
 	TriachnidLeg = Isaac.GetEntityVariantByName("Triachnid Leg Segment"),
 		TriachnidJoint    = 0,
@@ -58,72 +64,71 @@ mod.Entities = {
 
 
 --[[ Colors ]]--
-mod.Colors = {}
+mod.Colors = {
+	BrimShot   = Color(1,0.25,0.25, 1, 0.25,0,0),
+	ShadyRed   = Color(-1,-1,-1, 1, 1,0,0),
+	Tar 	   = mod:ColorEx({1,1,1, 1, 0,0,0},   {1,1,1, 1},   {0.5,0.5,0.5, 1}),
+	WhiteShot  = mod:ColorEx({1,1,1, 1, 0.5,0.5,0.5},   {1,1,1, 1}),
+	SunBeam    = Color(1,1,1, 1, 0.3,0.3,0),
+	DustPoof   = Color(0.7,0.7,0.7, 0.75),
+	DustTrail  = mod:ColorEx({0.8,0.8,0.8, 0.8, 0.05,0.025,0},   {1,1,1, 1}),
+	BlackBony  = Color(0.18,0.18,0.18, 1),
+	PukeEffect = Color(0,0,0, 1, 0.48,0.36,0.3),
+	PukeOrange = Color(0.5,0.5,0.5, 1, 0.64,0.4,0.16),
+	Sketch 	   = Color(0,0,0, 1, 0.48,0.4,0.36),
+	CrispyMeat = mod:ColorEx({1,1,1, 1},   {0.32,0.25,0.2, 1}),
 
-mod.Colors.BrimShot   = Color(1,0.25,0.25, 1, 0.25,0,0)
-mod.Colors.ShadyRed   = Color(-1,-1,-1, 1, 1,0,0)
-mod.Colors.Tar 		  = Color(1,1,1, 1)   						mod.Colors.Tar:SetColorize(1,1,1, 1)   mod.Colors.Tar:SetTint(0.5,0.5,0.5, 1)
-mod.Colors.WhiteShot  = Color(1,1,1, 1, 0.5,0.5,0.5)   		 	mod.Colors.WhiteShot:SetColorize(1,1,1, 1)
-mod.Colors.SunBeam 	  = Color(1,1,1, 1, 0.3,0.3,0)
-mod.Colors.DustPoof   = Color(0.7,0.7,0.7, 0.75)
-mod.Colors.DustTrail  = Color(0.8,0.8,0.8, 0.8, 0.05,0.025,0)   mod.Colors.DustTrail:SetColorize(1,1,1, 1)
-mod.Colors.BlackBony  = Color(0.18,0.18,0.18, 1)
-mod.Colors.PukeEffect = Color(0,0,0, 1, 0.48,0.36,0.3)
-mod.Colors.PukeOrange = Color(0.5,0.5,0.5, 1, 0.64,0.4,0.16)
-mod.Colors.Sketch 	  = Color(0,0,0, 1, 0.48,0.4,0.36)
-mod.Colors.Heal 	  = Color(1,1,1, 1, 0.64,0,0)
+	EmberFade    = mod:ColorEx({0,0,0, 1.1, 1,0.514,0.004},   {0,0,0, 0},   {0,0,0, 1.1}),
+	RedFireShot  = Color(1,1,1, 1, 0.6,0.1,0),
+	BlueFire 	 = mod:ColorEx({0,1,1, 1, -0.5,0.35,0.9},   {1,1,1, 1}),
+	BlueFireShot = mod:ColorEx({1,1,1, 1, 0,0.6,1.2},   {1,1,1, 1}),
+	PurpleFade   = mod:ColorEx({0,0,0, 1.1, 0.5,0,0.5},   {0,0,0, 0},   {0,0,0, 1.1}),
 
-mod.Colors.CrispyMeat   = Color(1,1,1, 1);   				 mod.Colors.CrispyMeat:SetColorize(0.32,0.25,0.2, 1)
-mod.Colors.EmberFade    = Color(0,0,0, 1.1, 1,0.514,0.004)   mod.Colors.EmberFade:SetColorize(0,0,0, 0)    mod.Colors.EmberFade:SetTint(0,0,0, 1.1)
-mod.Colors.RedFireShot  = Color(1,1,1, 1, 0.6,0.1,0)
-mod.Colors.BlueFire 	= Color(0,1,1, 1, -0.5,0.35,0.9)     mod.Colors.BlueFire:SetColorize(1,1,1, 1)
-mod.Colors.BlueFireShot = Color(1,1,1, 1, 0,0.6,1.2)   	     mod.Colors.BlueFireShot:SetColorize(1,1,1, 1)
-mod.Colors.PurpleFade   = Color(0,0,0, 1.1, 0.65,0.125,1)    mod.Colors.PurpleFade:SetColorize(0,0,0, 0)   mod.Colors.PurpleFade:SetTint(0,0,0, 1.1)
+	Ipecac 			 = mod:ColorEx({1,1,1, 1},   {0.4,2,0.5, 1}),
+	GreenCreep 		 = Color(0,0,0, 1, 0,0.5,0),
+	GreenBlood 		 = Color(0.4,0.8,0.4, 1, 0,0.4,0),
+	CorpseGreen 	 = mod:ColorEx({1,1,1, 1},   {1.5,2,1, 1}),
+	CorpseGreenTrail = Color(0,0,0, 1, 0.15,0.25,0.07),
+	CorpseYellow 	 = mod:ColorEx({1,1,1, 1},   {3.5,2.5,1, 1}),
 
-mod.Colors.Ipecac 			= Color(1,1,1, 1, 0,0,0)   mod.Colors.Ipecac:SetColorize(0.4,2,0.5, 1)
-mod.Colors.GreenCreep 		= Color(0,0,0, 1, 0,0.5,0)
-mod.Colors.GreenBlood 		= Color(0.4,0.8,0.4, 1, 0,0.4,0)
-mod.Colors.CorpseGreen 		= Color(1,1,1, 1)   	   mod.Colors.CorpseGreen:SetColorize(1.5,2,1, 1)
-mod.Colors.CorpseGreenTrail = Color(0,0,0, 1, 0.15,0.25,0.07)
-mod.Colors.CorpseYellow 	= Color(1,1,1, 1)   	   mod.Colors.CorpseYellow:SetColorize(3.5,2.5,1, 1) -- Yellowish green
+	PortalShot 		= Color(0.6,0.5,0.8, 1, 0.1,0,0.2),
+	PortalShotTrail = Color(0,0,0, 1, 0.45,0.3,0.6),
+	PortalSpawn 	= Color(0.2,0.2,0.3, 0, 1.5,0.75,3),
 
-mod.Colors.PortalShot 	   = Color(0.6,0.5,0.8, 1, 0.1,0,0.2)
-mod.Colors.PortalShotTrail = Color(0,0,0, 1, 0.45,0.3,0.6)
-mod.Colors.PortalSpawn 	   = Color(0.2,0.2,0.3, 0, 1.5,0.75,3)
+	ForgottenBone = Color(0.34,0.34,0.34, 1),
+	SoulShot 	  = Color(0.8,0.8,0.8, 0.7, 0.1,0.2,0.4),
+	LostShot 	  = Color(1,1,1, 0.75, 0.25,0.25,0.25),
+	HolyOrbShot   = Color(1,1,1, 0.7, 0.4,0.4,0),
 
-mod.Colors.ForgottenBone = Color(0.34,0.34,0.34, 1)
-mod.Colors.SoulShot 	 = Color(0.8,0.8,0.8, 0.7, 0.1,0.2,0.4)
-mod.Colors.LostShot 	 = Color(1,1,1, 0.75, 0.25,0.25,0.25)
-mod.Colors.HolyOrbShot   = Color(1,1,1, 0.7, 0.4,0.4,0)
+	HushGreen 	 = Color(1,1,1, 1, 0.2,0.2,0),
+	HushBlue 	 = Color(1,1,1, 1, 0,0.2,0.4),
+	HushDarkBlue = Color(0.6,0.6,0.6, 1, 0,0,0.1),
+	HushOrange   = Color(1,1,1, 1, 0.4,0.2,0),
+	HushPink 	 = Color(1,1,1, 1, 0.2,0,0.2),
 
-mod.Colors.HushGreen    = Color(1,1,1, 1, 0.2,0.2,0)
-mod.Colors.HushBlue 	= Color(1,1,1, 1, 0,0.2,0.4)
-mod.Colors.HushDarkBlue = Color(0.6,0.6,0.6, 1, 0,0,0.1) -- For Blue Boils
-mod.Colors.HushOrange   = Color(1,1,1, 1, 0.4,0.2,0)
-mod.Colors.HushPink 	= Color(1,1,1, 1, 0.2,0,0.2)
+	CageGreenShot  = mod:ColorEx({1,1,1, 1},   {0.75,1,0.5, 1}),
+	CageGreenCreep = mod:ColorEx({1,1,1, 1},   {2.25,3.25,1.25, 1}),
+	CagePinkShot   = mod:ColorEx({1,1,1, 1},   {1,0.9,0.7, 1}),
 
-mod.Colors.CageCreep 	  = Color(1,1,1, 1)   mod.Colors.CageCreep:SetColorize(3.25,3.25,2.25, 1) -- Not 100% accurate but it's close enough
-mod.Colors.CageGreenShot  = Color(1,1,1, 1)   mod.Colors.CageGreenShot:SetColorize(0.75,1,0.5, 1)
-mod.Colors.CageGreenCreep = Color(1,1,1, 1)   mod.Colors.CageGreenCreep:SetColorize(2.25,3.25,1.25, 1)
-mod.Colors.CagePinkShot   = Color(1,1,1, 1)   mod.Colors.CagePinkShot:SetColorize(1,0.9,0.7, 1)
+	PrideGray = Color(0,0,0, 1, 0.31,0.31,0.31),
+	PridePink = Color(0,0,0, 1, 0.75,0.31,0.46),
+	PrideHoly = Color(0,0,0, 1, 0.75,0.66,0.31),
 
-mod.Colors.PrideGray = Color(0,0,0, 1, 0.31,0.31,0.31)
-mod.Colors.PridePink = Color(0,0,0, 1, 0.75,0.31,0.46)
-mod.Colors.PrideHoly = Color(0,0,0, 1, 0.75,0.66,0.31)
+	RagManPurple = Color(0,0,0, 1, 0.6,0.1,0.6),
+	RagManBlood  = mod:ColorEx({1,1,1, 1},   {0.84,0.4,0.68, 1}),
+	RagManPink   = Color(1,1,1, 1, 0.4,0.1,0.2),
 
-mod.Colors.RagManPurple = Color(0,0,0, 1, 0.6,0.1,0.6)
-mod.Colors.RagManBlood  = Color(0,0,0, 1, 0.35,0.1,0.35)
-mod.Colors.RagManPink   = Color(1,1,1, 1, 0.4,0.1,0.2)
+	GhostTrail 		 = Color(0,0,0, 0.35, 0.6,0.6,0.6),
+	GhostTransparent = Color(1,1,1, 0.5),
+	GhostGibs 		 = Color(1,1,1, 0.25, 1,1,1),
 
-mod.Colors.GhostTrail 		= Color(0,0,0, 0.35, 0.6,0.6,0.6)
-mod.Colors.GhostTransparent = Color(1,1,1, 0.5)
-mod.Colors.GhostGibs 		= Color(1,1,1, 0.25, 1,1,1)
+	TearEffect = Color(0,0,0, 0.65, 0.54,0.64,0.78),
+	TearTrail  = Color(0,0,0, 1, 0.54,0.64,0.78),
 
-mod.Colors.TearEffect = Color(0,0,0, 0.65, 0.54,0.64,0.78)
-mod.Colors.TearTrail  = Color(0,0,0, 1, 0.54,0.64,0.78)
-
-mod.Colors.DamageFlash = Color(0.5,0.5,0.5, 1, 0.8,0,0)
-mod.Colors.ArmorFlash  = Color(1,1,1, 1, 0.25,0.25,0.25)
+	Heal 		= Color(1,1,1, 1, 0.64,0,0),
+	DamageFlash = Color(0.5,0.5,0.5, 1, 0.8,0,0),
+	ArmorFlash  = Color(1,1,1, 1, 0.25,0.25,0.25),
+}
 
 
 

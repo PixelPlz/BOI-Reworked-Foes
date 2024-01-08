@@ -545,7 +545,7 @@ function mod:TaintedFacelessUpdate(entity)
 
 		if sprite:IsOverlayPlaying("Attack") and sprite:GetOverlayFrame() == 14 then
 			local params = ProjectileParams()
-			params.CircleAngle = 0.5
+			params.CircleAngle = mod:DegreesToRadians(30)
 			params.Scale = 1.5
 			entity:FireProjectiles(entity.Position, Vector(5, 6), 9, params)
 		end

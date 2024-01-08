@@ -137,9 +137,7 @@ function mod:FallenGabrielUpdate(entity)
 		-- Spread attack
 		if entity.State == NpcState.STATE_ATTACK then
 			if sprite:IsPlaying("SpreadShot") and sprite:GetFrame() == 10 then
-				local params = ProjectileParams()
-				params.CircleAngle = 0.2
-				entity:FireProjectiles(entity.Position, Vector(8, 12), 9, params)
+				entity:FireProjectiles(entity.Position, Vector(8, 12), 9, ProjectileParams())
 				mod:PlaySound(nil, SoundEffect.SOUND_THUMBS_DOWN, 0.6)
 			end
 

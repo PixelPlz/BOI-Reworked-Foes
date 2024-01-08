@@ -25,19 +25,40 @@ function mod:GetSign(value)
 end
 
 
+-- Round a number up or down based on its decimals
+function mod:RoundNumber(number)
+	if number % 1 >= 0.5 then
+		return math.ceil(number)
+	else
+		return math.floor(number)
+	end
+end
+
+
+-- Clamp a number
+function mod:ClampNumber(number, min, max)
+	return math.min( math.max(number, min), max)
+end
+
 -- Clamp a vector
 function mod:ClampVector(vector, clampDegrees)
 	local length = vector:Length()
-
 	local timesClampDegree = vector:GetAngleDegrees() / clampDegrees
-	-- Round the amount
-	if timesClampDegree % 1 >= 0.5 then
-		timesClampDegree = math.ceil(timesClampDegree)
-	else
-		timesClampDegree = math.floor(timesClampDegree)
-	end
-
+	timesClampDegree = mod:RoundNumber(timesClampDegree)
 	return Vector.FromAngle(clampDegrees * timesClampDegree):Resized(length)
+end
+
+
+-- Convert degrees to radians
+function mod:DegreesToRadians(degrees)
+	return degrees * math.pi / 180
+end
+
+
+-- Align a position to the grid
+function mod:GridAlignedPosition(position)
+	local room = Game():GetRoom()
+	return room:GetGridPosition(room:GetGridIndex(position))
 end
 
 
@@ -84,6 +105,19 @@ function mod:PlaySound(entity, id, volume, pitch, cooldown, loop, pan)
 	else
 		SFXManager():Play(id, volume, cooldown, loop, pitch, pan)
 	end
+end
+
+
+-- Extended color constructor
+function mod:ColorEx(rgb, colorize, tint)
+	local color = Color(rgb.R or rgb[1], rgb.G or rgb[2], rgb.B or rgb[3],   rgb.A or rgb[4],   rgb.RO or rgb[5], rgb.GO or rgb[6], rgb.BO or rgb[7])
+	if colorize then
+		color:SetColorize(colorize.RC or colorize[1], colorize.GC or colorize[2], colorize.BC or colorize[3],   colorize.AC or colorize[4])
+	end
+	if tint then
+		color:SetTint(tint.RT or tint[1], tint.GT or tint[2], tint.BT or tint[3],   tint.AT or tint[4])
+	end
+	return color
 end
 
 
@@ -146,9 +180,13 @@ end
 
 --[[ Sprite functions ]]--
 -- Looping animation
-function mod:LoopingAnim(sprite, anim)
+function mod:LoopingAnim(sprite, anim, dontReset)
 	if not sprite:IsPlaying(anim) then
-		sprite:Play(anim, true)
+		if dontReset == true then
+			sprite:SetAnimation(anim, false)
+		else
+			sprite:Play(anim, true)
+		end
 	end
 end
 
@@ -187,22 +225,25 @@ end
 
 
 -- Get direction string from angle degrees
-function mod:GetDirectionString(angleDegrees, noSeparateHorizontal, useSide)
-	-- Up / Down
-	if angleDegrees >= 45 and angleDegrees <= 135 then
-		return "Down"
-	elseif angleDegrees < -45 and angleDegrees > -135 then
-		return "Up"
+function mod:GetDirectionString(angleDegrees, noSeparateHorizontal, useSide, noSeparateVertical)
+	-- Vertical
+	if (angleDegrees >= 45 and angleDegrees <= 135) or (angleDegrees < -45 and angleDegrees > -135) then
+		-- Combined
+		if noSeparateVertical == true then
+			return "Vert"
+
+		-- Up / Down
+		elseif angleDegrees >= 45 and angleDegrees <= 135 then
+			return "Down"
+		else
+			return "Up"
+		end
 
 	-- Horizontal
 	else
 		-- Combined
 		if noSeparateHorizontal == true then
-			if useSide == true then
-				return "Side"
-			else
-				return "Hori"
-			end
+			return useSide == true and "Side" or "Hori"
 
 		-- Left / Right
 		elseif angleDegrees > -45 and angleDegrees < 45 then
@@ -238,8 +279,14 @@ end
 --[[ Movement presets ]]--
 -- Wander around randomly
 function mod:WanderAround(entity, speed)
-	entity.Pathfinder:MoveRandomlyBoss(false)
-	entity.Velocity = entity.Velocity:Resized(speed)
+	-- Chase if charmed of friendly / Run away if feared
+	if entity:HasEntityFlags(EntityFlag.FLAG_CHARM) or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY)
+	or entity:HasEntityFlags(EntityFlag.FLAG_FEAR)  or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+		mod:ChasePlayer(entity, speed)
+	else
+		entity.Pathfinder:MoveRandomlyBoss(false)
+		entity.Velocity = entity.Velocity:Resized(speed)
+	end
 end
 
 
@@ -260,7 +307,7 @@ function mod:ChasePlayer(entity, speed, canFly)
 		-- If there is a path to the player
 		if entity.Pathfinder:HasPathToPos(target.Position) or canFly == true then
 			-- If there is a direct line to the player
-			if Game():GetRoom():CheckLine(entity.Position, target.Position, 1, 0, false, false) or canFly == true then
+			if Game():GetRoom():CheckLine(entity.Position, target.Position, LineCheckMode.RAYCAST) or canFly == true then
 				entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Resized(speed), 0.25)
 			else
 				entity.Pathfinder:FindGridPath(target.Position, speed / 6, 500, false)
@@ -280,7 +327,7 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, dontDoubleBack)
 	local room = Game():GetRoom()
 
 	-- Align my position to the grid
-	local gridAlignedPos = room:GetGridPosition(room:GetGridIndex(entity.Position))
+	local gridAlignedPos = mod:GridAlignedPosition(entity.Position)
 
 	-- Get which grids I can't go over
 	local maxValidGridCol = GridCollisionClass.COLLISION_NONE
@@ -424,7 +471,7 @@ function mod:AvoidPlayer(entity, radius, wanderSpeed, runSpeed, canFly)
 
 		-- Go around obstacles
 		if entity.Pathfinder:HasPathToPos(targetPos) or (canFly == true and room:IsPositionInRoom(targetPos, 0)) then
-			if room:CheckLine(entity.Position, targetPos, 0, 0, false, false) or canFly == true then
+			if room:CheckLine(entity.Position, targetPos, LineCheckMode.ENTITY) or canFly == true then
 				entity.Velocity = mod:Lerp(entity.Velocity, (targetPos - entity.Position):Resized(runSpeed), 0.25)
 			else
 				entity.Pathfinder:FindGridPath(targetPos, runSpeed / 6, 500, false)
@@ -702,7 +749,7 @@ end
 
 -- Smoke particles
 function mod:SmokeParticles(entity, offset, radius, scale, color, newSprite)
-	if not StageAPI and entity:IsFrame(2, 0) then
+	if entity:IsFrame(2, 0) then
 		for i = 1, 4 do
 			local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DARK_BALL_SMOKE_PARTICLE, 0, entity.Position, mod:RandomVector(), entity):ToEffect()
 			local sprite = trail:GetSprite()
@@ -803,43 +850,65 @@ end
 
 
 -- Fire ring attack
-function mod:FireRing(entity, radius, subtype)
-	local data = entity:GetData()
+local fireRingHelperVariant = Isaac.GetEntityVariantByName("Fire Ring Helper")
 
-	if data.startFireRing == true then
-		if data.fireRingDelay <= 0 then
-			-- Stop
-			if data.fireRingIndex > 1 then
-				data.startFireRing = nil
+function mod:CreateFireRing(entity, subtype, rings, delay, distance, startIndex, startDistance)
+	local pos = entity and entity.Position or Game():GetRoom():GetCenterPos()
+	local timer = Isaac.Spawn(EntityType.ENTITY_EFFECT, fireRingHelperVariant, subtype, pos, Vector.Zero, entity):ToEffect()
+	timer.Parent = entity
+	timer.LifeSpan = startIndex or 0
 
-			else
-				-- Inner
-				local amount = 4
-				local distance = radius / 2
-				local scale = 0.9
+	local data = timer:GetData()
+	data.Delay = delay
+	data.Rings = rings
+	data.StartDistance = startDistance
+	data.Distance = distance
 
-				-- Outer
-				if data.fireRingIndex == 1 then
-					amount = 8
-					distance = radius
-					scale = 0.75
-				end
+	return timer
+end
 
-				-- Spawn fire jets
-				for i = 0, amount - 1 do
-					local fire = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, subtype or 0, entity.Position + Vector.FromAngle(i * (360 / amount)) * distance, Vector.Zero, entity)
-					fire.SpriteScale = Vector(scale, scale)
-				end
+function mod:FireRingHelperInit(timer)
+	timer.Visible = false
+	timer.Timeout = 0
+	timer:GetData().Timer = 0
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.FireRingHelperInit, fireRingHelperVariant)
 
-				data.fireRingIndex = data.fireRingIndex + 1
-				data.fireRingDelay = 5
+function mod:FireRingHelperUpdate(timer)
+	local data = timer:GetData()
+
+	if data.Timer <= 0 then
+		-- Get the amount of fire jets
+		local fireCount = math.max(1, timer.LifeSpan * 4)
+
+		for i = 0, fireCount - 1 do
+			-- Get position
+			local angle = 360 / fireCount * i
+			local extraDistance = data.StartDistance or 0
+			local pos = timer.Position + Vector.FromAngle(angle):Resized(timer.LifeSpan * data.Distance + extraDistance)
+
+			if Game():GetRoom():IsPositionInRoom(pos, 0) then
+				local fire = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, timer.SubType, pos, Vector.Zero, timer.Parent)
+				fire.SpriteScale = Vector.One * timer.Scale
 			end
-
-		else
-			data.fireRingDelay = data.fireRingDelay - 1
 		end
+
+		timer.LifeSpan = timer.LifeSpan + 1
+		timer.Timeout = timer.Timeout + 1 -- Always starts at 0
+		timer.Scale = math.max(0.1, timer.Scale - timer.Timeout / 10)
+
+		-- Remove self after all rings have spawned
+		data.Timer = data.Delay
+		data.Rings = data.Rings - 1
+		if data.Rings <= 0 then
+			timer:Remove()
+		end
+
+	else
+		data.Timer = data.Timer - 1
 	end
 end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.FireRingHelperUpdate, fireRingHelperVariant)
 
 
 

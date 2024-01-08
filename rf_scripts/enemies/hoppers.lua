@@ -84,17 +84,12 @@ function mod:FlamingHopperUpdate(entity)
 			entity.TargetPosition = entity.Position
 			entity.ProjectileCooldown = 3
 
-			local data = entity:GetData()
-			data.startFireRing = true
-			data.fireRingIndex = 0
-			data.fireRingDelay = 0
+			mod:CreateFireRing(entity, entity.SubType, 2, 8, 35, 1)
 
 			-- Effect
 			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_SPLAT, 0, entity.Position, Vector.Zero, entity).Color = splatColor
 			mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END, 1.1)
 		end
-
-		mod:FireRing(entity, 70, entity.SubType)
 	end
 
 

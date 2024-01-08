@@ -465,7 +465,7 @@ function mod:HeartInfamyUpdate(entity)
 					params.Variant = ProjectileVariant.PROJECTILE_HUSH
 					params.BulletFlags = ProjectileFlags.SMART
 					params.Scale = 1.25
-					params.CircleAngle = mod:Random(1) * 0.5
+					params.CircleAngle = mod:Random(1) * mod:DegreesToRadians(30)
 					entity:FireProjectiles(entity.Child.Position, Vector(10, 6), 9, params)
 
 					-- Effects

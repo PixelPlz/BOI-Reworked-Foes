@@ -35,7 +35,7 @@ function mod:DrownedBoomFlyDeath(entity)
 				projectile.CollisionDamage = 1
 			end
 
-			params.CircleAngle = offset + 0.5
+			params.CircleAngle = offset + mod:DegreesToRadians(30)
 			for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, Vector(10, 6), 9, params)) do
 				projectile.CollisionDamage = 1
 			end

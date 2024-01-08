@@ -599,7 +599,7 @@ function mod:RedMegaFattyUpdate(entity)
 					params.Scale = 1.5
 					params.HeightModifier = -20
 					params.BulletFlags = ProjectileFlags.SINE_VELOCITY
-					params.CircleAngle = 0.8 + entity.StateFrame * 0.3
+					params.CircleAngle = mod:DegreesToRadians(45) + entity.StateFrame * 0.3
 
 					entity:FireProjectiles(entity.Position, Vector(6, 4), 9, params)
 					entity.StateFrame = entity.StateFrame + 1

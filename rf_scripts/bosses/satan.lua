@@ -38,12 +38,12 @@ function mod:SatanUpdate(entity)
 			params.Color = mod.Colors.BrimShot
 
 			params.Scale = 1.25
-			params.CircleAngle = 0.2
+			params.CircleAngle = 0
 			mod:FireProjectiles(entity, pos, Vector(Settings.LaserShotSpeed, 16), 9, params, Color.Default)
 
-			params.CircleAngle = 0.4
+			params.CircleAngle = mod:DegreesToRadians(22.5)
 			params.Scale = 1.75
-			mod:FireProjectiles(entity, pos, Vector(Settings.LaserShotSpeed - 4.5, 8), 9, params, Color.Default)
+			mod:FireProjectiles(entity, pos, Vector(Settings.LaserShotSpeed - 4, 8), 9, params, Color.Default)
 
 
 		-- Custom hand bullet attack

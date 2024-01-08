@@ -3,52 +3,58 @@ local mod = ReworkedFoes
 
 
 function mod:HushInit(entity)
-	entity:GetData().hushFix = {
-		lastState = 0,
-		animation = "Idle"
-	}
+	if not REPENTOGON then
+		entity:GetData().hushFix = {
+			lastState = 0,
+			animation = "Idle"
+		}
+	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.HushInit, EntityType.ENTITY_HUSH)
 
 function mod:HushUpdate(entity)
-	local sprite = entity:GetSprite()
-	local data = entity:GetData()
+	if not REPENTOGON then
+		local sprite = entity:GetSprite()
+		local data = entity:GetData()
 
-	-- Chill state
-	if entity.State == 80085 then
-		if sprite:IsFinished(data.hushFix.animation) then
-			if (string.match(data.hushFix.animation, "FaceVanish")) then
-				data.hushFix.animation = "FaceAppearDown"
-				sprite:Play(data.hushFix.animation, true)
+		-- Chill state
+		if entity.State == 80085 then
+			if sprite:IsFinished(data.hushFix.animation) then
+				if (string.match(data.hushFix.animation, "FaceVanish")) then
+					data.hushFix.animation = "FaceAppearDown"
+					sprite:Play(data.hushFix.animation, true)
 
-			elseif data.hushFix.animation == "LaserLoop" then
-				data.hushFix.animation = "LaserEnd"
-				sprite:Play(data.hushFix.animation, true)
+				elseif data.hushFix.animation == "LaserLoop" then
+					data.hushFix.animation = "LaserEnd"
+					sprite:Play(data.hushFix.animation, true)
 
-			else
-				sprite:Play("Wiggle", true)
+				else
+					sprite:Play("Wiggle", true)
+				end
 			end
+
+			if entity.StateFrame <= 0 then
+				entity.State = NpcState.STATE_IDLE
+			else
+				entity.StateFrame = entity.StateFrame -1
+			end
+
+
+		-- Chill the fuck out
+		elseif entity.State == NpcState.STATE_IDLE and data.hushFix.lastState ~= NpcState.STATE_IDLE
+		and entity.HitPoints / math.max(entity.MaxHitPoints, 0.001) < .5
+		and entity.HitPoints / math.max(entity.MaxHitPoints, 0.001) > .01 then
+			entity.State = 80085
+			entity.StateFrame = 45
+			data.hushFix.animation = sprite:GetAnimation()
 		end
 
-		if entity.StateFrame <= 0 then
-			entity.State = NpcState.STATE_IDLE
-		else
-			entity.StateFrame = entity.StateFrame -1
-		end
-
-
-	-- Chill the fuck out
-	elseif entity.State == NpcState.STATE_IDLE and data.hushFix.lastState ~= NpcState.STATE_IDLE
-	and entity.HitPoints / math.max(entity.MaxHitPoints, 0.001) < .5
-	and entity.HitPoints / math.max(entity.MaxHitPoints, 0.001) > .01 then
-		entity.State = 80085
-		entity.StateFrame = 45
-		data.hushFix.animation = sprite:GetAnimation()
+		data.hushFix.lastState = entity.State
 	end
-
-	data.hushFix.lastState = entity.State
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.HushUpdate, EntityType.ENTITY_HUSH)
+
+
 
 -- Fix the laser not getting slowed
 function mod:HushLaserUpdate(effect)

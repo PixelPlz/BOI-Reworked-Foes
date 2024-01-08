@@ -1,3 +1,36 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.5", [[
+
+{FSIZE2}Balance changes
+- Membrains now shoot a ring of 6 shots
+instead 8
+
+- Membrain homing shots no longer
+accelarate and they stay in the air
+for less time
+
+- Isaac can now only do his new
+light beam patterns after
+the first light beam attack
+
+- Isaac's new light beam patterns
+are now slower
+
+
+
+{FSIZE2}Other changes
+- The Hush fixes are now only applied
+if REPENTOGON is not enabled
+since it already fixes the issue
+
+- Small code improvements
+
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.4", [[
 
 {FSIZE2}Additions

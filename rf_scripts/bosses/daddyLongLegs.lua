@@ -3,7 +3,7 @@ local mod = ReworkedFoes
 local Settings = {
 	NewHealth = 650,
 
-	HeadSmashSpeed = 16,
+	HeadSmashSpeed = 17,
 	HeadSmashTimer = 30,
 	HeadSmashShotSpeed = 12
 }
@@ -40,7 +40,7 @@ function mod:DaddyLongLegsUpdate(entity)
 
 			-- Align position to grid for multi stomp attack
 			elseif entity.FrameCount <= 1 then
-				entity.Position = Game():GetRoom():GetGridPosition(Game():GetRoom():GetGridIndex(entity.Position))
+				entity.Position = mod:GridAlignedPosition(entity.Position)
 			end
 
 
@@ -63,15 +63,16 @@ function mod:DaddyLongLegsUpdate(entity)
 
 				-- Projectiles
 				local params = ProjectileParams()
-				params.CircleAngle = 0.41
+				params.CircleAngle = mod:DegreesToRadians(22.5)
 				params.Scale = 1.5
 				entity:FireProjectiles(entity.Position, Vector(Settings.HeadSmashShotSpeed - 4, 8), 9, params)
 				params.Scale = 1.25
 				entity:FireProjectiles(entity.Position, Vector(Settings.HeadSmashShotSpeed, 0), 8, params)
 
 				-- Effects
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 1, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
+				for i = 1, 2 do
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, i, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
+				end
 
 				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 1.1)
 				mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 1.1)

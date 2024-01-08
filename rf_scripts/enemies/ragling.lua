@@ -3,10 +3,11 @@ local mod = ReworkedFoes
 
 
 function mod:RaglingInit(entity)
+	entity.SplatColor = mod.Colors.RagManBlood
+
 	-- Rag Man's Ragling
 	if entity.Variant == 1 then
 		entity.MaxHitPoints = 25 -- Same as the HP for Ragman's head
-		entity.SplatColor = mod.Colors.RagManBlood
 
 		-- Inherit the rolling head's subtype
 		if entity.SpawnerType == EntityType.ENTITY_RAG_MAN and entity.SpawnerVariant == 1 and entity.SpawnerEntity then

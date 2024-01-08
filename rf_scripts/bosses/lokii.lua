@@ -242,7 +242,7 @@ function mod:LokiiUpdate(entity)
 					-- 6 shots
 					elseif entity.I2 == 2 then
 						local params = ProjectileParams()
-						params.CircleAngle = (entity.I1 - 1) * 0.5
+						params.CircleAngle = (entity.I1 - 1) * mod:DegreesToRadians(30)
 						entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 6), 9, params)
 					end
 

@@ -7,15 +7,8 @@ function mod:FlamingFattyUpdate(entity)
 		mod:EmberParticles(entity, Vector(0, -48))
 
 		-- Fire ring
-		if entity.State == NpcState.STATE_ATTACK then
-			if entity:GetSprite():IsEventTriggered("Shoot") then
-				local data = entity:GetData()
-				data.startFireRing = true
-				data.fireRingIndex = 0
-				data.fireRingDelay = 0
-			end
-
-			mod:FireRing(entity, 80)
+		if entity.State == NpcState.STATE_ATTACK and entity:GetSprite():IsEventTriggered("Shoot") then
+			mod:CreateFireRing(entity, 0, 2, 10, 40, 1)
 		end
 	end
 end

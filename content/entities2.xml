@@ -214,4 +214,5 @@
 	<entity name="Single Brimstone Swirl"    id="1000" variant="403"   anm2path="1000.071_brimstoneswirl.anm2"   friction="1" />
 	<entity name="Triachnid Leg Segment"     id="1000" variant="404"   anm2path="101.001_triachnid.anm2"   		 friction="1" />
 	<entity name="Sister Vis Laser Effect"   id="1000" variant="405"   anm2path="sister vis sky laser.anm2"   	 friction="1" />
+	<entity name="Fire Ring Helper"   		 id="1000" variant="406"   anm2path="1000.147_fire jet.anm2"   		 friction="1" />
 </entities>

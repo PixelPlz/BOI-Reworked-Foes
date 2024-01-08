@@ -490,7 +490,7 @@ function mod:TriachnidUpdate(entity)
 						-- Projectiles + creep
 						local params = ProjectileParams()
 						params.Color = mod.Colors.WhiteShot
-						params.CircleAngle = 0.41
+						params.CircleAngle = mod:DegreesToRadians(22.5)
 						params.Scale = 1.35
 						entity:FireProjectiles(entity.Position, Vector(8, 8), 9, params)
 						params.Scale = 1.5

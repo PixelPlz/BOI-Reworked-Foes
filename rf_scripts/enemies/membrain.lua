@@ -21,11 +21,13 @@ function mod:MembrainUpdate(entity)
 			-- Shoot
 			if sprite:IsEventTriggered("ShootNew") then
 				params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
-				params.ChangeFlags = (ProjectileFlags.SMART | ProjectileFlags.ACCELERATE)
+				params.ChangeFlags = ProjectileFlags.SMART
+				params.Acceleration = 1.2
 				params.ChangeTimeout = 9999
+				params.CircleAngle = mod:Random(1) * mod:DegreesToRadians(30)
 
 				data.stoppedProjectiles = {}
-				for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, Vector(8, 8), 8, params)) do
+				for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, Vector(10, 6), 9, params)) do
 					table.insert(data.stoppedProjectiles, projectile)
 				end
 
@@ -40,9 +42,8 @@ function mod:MembrainUpdate(entity)
 				if sprite:IsEventTriggered("Activate") then
 					for i, projectile in pairs(data.stoppedProjectiles) do
 						projectile.ChangeTimeout = 0
-						projectile.Acceleration = 1.025
 						projectile.FallingAccel = -0.075
-						projectile.Velocity = (entity:GetPlayerTarget().Position - projectile.Position):Resized(8)
+						projectile.Velocity = (entity:GetPlayerTarget().Position - projectile.Position):Resized(10)
 
 						-- Effect
 						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 5, projectile.Position, Vector.Zero, entity):GetSprite()
