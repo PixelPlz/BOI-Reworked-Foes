@@ -77,6 +77,7 @@ mod.Colors = {
 	PukeOrange = Color(0.5,0.5,0.5, 1, 0.64,0.4,0.16),
 	Sketch 	   = Color(0,0,0, 1, 0.48,0.4,0.36),
 	CrispyMeat = mod:ColorEx({1,1,1, 1},   {0.32,0.25,0.2, 1}),
+	GateCreep  = mod:ColorEx({1,1,1, 1}, {3.2, 3.2, 2.3, 1}),
 
 	EmberFade    = mod:ColorEx({0,0,0, 1.1, 1,0.514,0.004},   {0,0,0, 0},   {0,0,0, 1.1}),
 	RedFireShot  = Color(1,1,1, 1, 0.6,0.1,0),

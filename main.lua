@@ -128,6 +128,7 @@ local championScripts = {
 	"fallen",
 	"headlessHorseman",
 	"darkOne",
+	"nonBoss",
 }
 mod:LoadScripts(championScripts, "champions")
 
