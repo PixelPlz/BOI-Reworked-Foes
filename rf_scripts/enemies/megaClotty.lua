@@ -35,5 +35,11 @@ function mod:MegaClottyUpdate(entity)
 			entity:FireProjectiles(entity.Position, Vector(10, 0), mode, ProjectileParams())
 		end
 	end
+
+
+	-- Make their hitboxes not stupidly small
+	if entity.FrameCount <= 1 then
+		entity:SetSize(30 * entity.Scale, Vector(1, 0.75), 12)
+	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MegaClottyUpdate, EntityType.ENTITY_MEGA_CLOTTY)

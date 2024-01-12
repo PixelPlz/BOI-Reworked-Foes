@@ -3,9 +3,11 @@ local mod = ReworkedFoes
 mod.RNG = RNG()
 
 -- Randomize the seed, since RNG is always initialized at 2853650767
-mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function ()
-	mod.RNG:SetSeed(Game():GetSeeds():GetStartSeed())
-end)
+if REPENTOGON then
+	mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function ()
+		mod.RNG:SetSeed(Game():GetSeeds():GetStartSeed())
+	end)
+end
 
 
 
@@ -77,7 +79,7 @@ mod.Colors = {
 	PukeOrange = Color(0.5,0.5,0.5, 1, 0.64,0.4,0.16),
 	Sketch 	   = Color(0,0,0, 1, 0.48,0.4,0.36),
 	CrispyMeat = mod:ColorEx({1,1,1, 1},   {0.32,0.25,0.2, 1}),
-	GateCreep  = mod:ColorEx({1,1,1, 1}, {3.2, 3.2, 2.3, 1}),
+	DrossPoop  = mod:ColorEx({1,1,1, 1},   {0.9,0.8,0.7, 1}),
 
 	EmberFade    = mod:ColorEx({0,0,0, 1.1, 1,0.514,0.004},   {0,0,0, 0},   {0,0,0, 1.1}),
 	RedFireShot  = Color(1,1,1, 1, 0.6,0.1,0),
@@ -107,6 +109,7 @@ mod.Colors = {
 	HushOrange   = Color(1,1,1, 1, 0.4,0.2,0),
 	HushPink 	 = Color(1,1,1, 1, 0.2,0,0.2),
 
+	CageCreep 	   = mod:ColorEx({1,1,1, 1},   {3.2, 3.2, 2.3, 1}),
 	CageGreenShot  = mod:ColorEx({1,1,1, 1},   {0.75,1,0.5, 1}),
 	CageGreenCreep = mod:ColorEx({1,1,1, 1},   {2.25,3.25,1.25, 1}),
 	CagePinkShot   = mod:ColorEx({1,1,1, 1},   {1,0.9,0.7, 1}),

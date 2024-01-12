@@ -110,12 +110,12 @@ end
 
 -- Extended color constructor
 function mod:ColorEx(rgb, colorize, tint)
-	local color = Color(rgb.R or rgb[1], rgb.G or rgb[2], rgb.B or rgb[3],   rgb.A or rgb[4],   rgb.RO or rgb[5], rgb.GO or rgb[6], rgb.BO or rgb[7])
+	local color = Color(rgb[1],rgb[2],rgb[3], rgb[4], rgb[5],rgb[6],rgb[7])
 	if colorize then
-		color:SetColorize(colorize.RC or colorize[1], colorize.GC or colorize[2], colorize.BC or colorize[3],   colorize.AC or colorize[4])
+		color:SetColorize(colorize[1],colorize[2],colorize[3], colorize[4])
 	end
 	if tint then
-		color:SetTint(tint.RT or tint[1], tint.GT or tint[2], tint.BT or tint[3],   tint.AT or tint[4])
+		color:SetTint(tint[1],tint[2],tint[3], tint[4])
 	end
 	return color
 end

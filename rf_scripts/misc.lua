@@ -150,6 +150,31 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.Monstro2Init, EntityType.ENTI
 
 
 
+--[[ Increase Pin's HP ]]--
+function mod:PinInit(entity)
+	if entity.Variant == 0 then
+		local newHealth = 140
+		if entity.SubType == 1 then
+			newHealth = 175
+		end
+
+		entity.MaxHitPoints = newHealth
+		entity.HitPoints = entity.MaxHitPoints
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PinInit, EntityType.ENTITY_PIN)
+
+
+
+--[[ Increase Pestilence's HP ]]--
+function mod:PestilenceInit(entity)
+	entity.MaxHitPoints = 360
+	entity.HitPoints = entity.MaxHitPoints
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PestilenceInit, EntityType.ENTITY_PESTILENCE)
+
+
+
 --[[ Death ]]--
 -- Better Scythes
 function mod:ScytheInit(entity)
@@ -188,6 +213,24 @@ function mod:PeepEyeCollision(entity, target, bool)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.PeepEyeCollision, EntityType.ENTITY_PEEP)
+
+
+
+--[[ Decrease Peep's and increase The Bloat's HP ]]--
+function mod:PeepInit(entity)
+	if entity.Variant <= 1 then
+		local newHealth = 390
+		if entity.Variant == 1 then
+			newHealth = 500
+		elseif entity.SubType ~= 0 then
+			newHealth = 350
+		end
+
+		entity.MaxHitPoints = newHealth
+		entity.HitPoints = entity.MaxHitPoints
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PeepInit, EntityType.ENTITY_PEEP)
 
 
 
@@ -230,6 +273,19 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.BigSpiderInit, EntityType.ENT
 
 
 --[[ Gurdy Jr. ]]--
+function mod:GurdyJrInit(entity)
+	local newHealth = 320
+	if entity.SubType == 1 then
+		newHealth = 176
+	elseif entity.SubType == 2 then
+		newHealth = 400
+	end
+
+	entity.MaxHitPoints = newHealth
+	entity.HitPoints = entity.MaxHitPoints
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GurdyJrInit, EntityType.ENTITY_GURDY_JR)
+
 function mod:GurdyJrUpdate(entity)
 	local sprite = entity:GetSprite()
 
@@ -333,6 +389,16 @@ function mod:TubeWormEffects(effect)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_EFFECT_RENDER, mod.TubeWormEffects, EffectVariant.BLOOD_EXPLOSION)
+
+
+
+-- Make Dinga hitboxes not stupidly small
+function mod:DingaUpdate(entity)
+	if entity.FrameCount <= 1 then
+		entity:SetSize(30 * entity.Scale, Vector(1, 0.75), 12)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DingaUpdate, EntityType.ENTITY_DINGA)
 
 
 
@@ -507,6 +573,20 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.CageCollide, EntityType.E
 
 
 
+--[[ Increase Polycephalus's HP ]]--
+function mod:PolycephalusInit(entity)
+	local newHealth = 320
+	if entity.SubType == 2 then
+		newHealth = 140
+	end
+
+	entity.MaxHitPoints = newHealth
+	entity.HitPoints = entity.MaxHitPoints
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PolycephalusInit, EntityType.ENTITY_POLYCEPHALUS)
+
+
+
 --[[ Red Ghost ]]--
 function mod:RedGhostUpdate(entity)
 	local sprite = entity:GetSprite()
@@ -586,6 +666,20 @@ function mod:ReapCreepInit(entity)
 	entity.HitPoints = entity.MaxHitPoints
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ReapCreepInit, EntityType.ENTITY_REAP_CREEP)
+
+
+
+--[[ Decrease Clog's HP ]]
+function mod:ClogInit(entity)
+	local newHealth = 360
+	if entity.SubType == 1 then -- For Repentance Boss Champions
+		newHealth = 432
+	end
+
+	entity.MaxHitPoints = newHealth
+	entity.HitPoints = entity.MaxHitPoints
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ClogInit, EntityType.ENTITY_CLOG)
 
 
 

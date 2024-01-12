@@ -351,7 +351,7 @@ function mod:PeepUpdate(entity)
 					entity:FireProjectiles(entity.Position, (entity:GetPlayerTarget().Position - entity.Position):Resized(10), 0, params)
 
 					mod:PlaySound(nil, SoundEffect.SOUND_TEARS_FIRE, 0.8)
-					mod:ShootEffect(entity, 5, Vector(0, -24), mod.Colors.TearEffect, 0.8, true)
+					mod:ShootEffect(entity, 5, Vector(-2, -24), mod.Colors.TearEffect, 0.85, true)
 				end
 
 				if sprite:IsFinished() then
@@ -363,6 +363,7 @@ function mod:PeepUpdate(entity)
 		elseif entity.SpawnerEntity and entity.SpawnerEntity.SubType == 2 then
 			entity.SubType = 2
 			sprite:Load("gfx/068.010_peep eye_cyan.anm2", true)
+			sprite:Play("Idle", true)
 			entity.ProjectileCooldown = 45
 		end
 	end
@@ -407,7 +408,7 @@ function mod:GreenBloatInit(entity)
 	-- Replace the eyes with Spitties
 	if entity.Variant == 11 and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
 		entity:Remove()
-		Isaac.Spawn(EntityType.ENTITY_SPITTY, 0, 0, entity.Position, Vector.Zero, entity)
+		Isaac.Spawn(EntityType.ENTITY_CHARGER, 0, 0, entity.Position, Vector.Zero, entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GreenBloatInit, EntityType.ENTITY_PEEP)

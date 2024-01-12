@@ -336,6 +336,16 @@ function mod:EditPukeProjectiles(projectile)
 			elseif projectile.SpawnerEntity.SubType == 2 then
 				sprite.Color = mod.Colors.CagePinkShot
 			end
+
+
+		-- Cloggy
+		elseif projectile.SpawnerType == EntityType.ENTITY_CLOGGY then
+			sprite.Color = mod.Colors.DrossPoop
+
+
+		-- Clog
+		elseif projectile.SpawnerType == EntityType.ENTITY_CLOG then
+			sprite.Color = mod.Colors.DrossPoop
 		end
 	end
 end

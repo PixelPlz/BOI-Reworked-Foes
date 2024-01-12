@@ -1,4 +1,37 @@
 ================================================
+    Version 3.1.6
+================================================
+
+-- Additions --
+- Dark Red champions now have a unique sprite when in regen mode that changes depending on the size of the enemy
+- Gray champions now leave a large pool of gray creep on death
+
+
+-- Balance changes --
+- Modified champion drops:
+    - Magenta: Half soul heart
+    - Pulsating Gray: Random card
+    - Light White: Pretty Fly pill
+    - Pulsating Red: Blended heart
+- Increased Pin's health from 100 to 140
+- Increased Pestilence's health from 280 to 360
+- Decreased Peep's health from 450 to 390
+- Increased The Bloat's health from 450 to 500
+- Increased Gurdy Jr's health from 250 to 320
+- Increased Polycephalus' health from 200 to 320
+- Decreased Clog's health from 420 to 360
+- Green Bloat now spawns with 2 Chargers instead of 2 Spitties
+- Membrains, Mama Guts, Dead Meat, Dingas and Mega Clotties now have more appropriate hitbox sizes
+
+
+-- Fixes --
+- Fixed the game giving an error on startup if REPENTOGON is not enabled
+- Fixed some reworked enemies / bosses not moving as they should when feared or confused
+
+
+
+
+================================================
     Version 3.1.5
 ================================================
 

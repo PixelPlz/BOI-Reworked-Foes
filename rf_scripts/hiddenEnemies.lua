@@ -4,8 +4,8 @@ local mod = ReworkedFoes
 
 -- [[ Pin / Scolex / Frail ]]--
 function mod:PinAppearInit(entity)
-	if mod.Config.AppearPins == true and entity.Variant < 3 -- Only if it's not Wormwood
-	and not entity.Parent and not entity.SpawnerEntity -- Only head
+	if mod.Config.AppearPins == true and entity.Variant < 3 -- If it's not Wormwood
+	and not entity.Parent and not entity.SpawnerEntity -- Only the head
 	and (not FiendFolio or entity.SubType ~= 2) -- Not Fiend Folio Technopin
 	and (not GBMd or entity.Variant > 0) then -- Not the Greed Mode skin for Pin (it fucks with the animations for some reason)
 		local sprite = entity:GetSprite()
@@ -49,8 +49,8 @@ function mod:PinAppearUpdate(entity)
 
 
 	-- Dirt effect
-	if mod.Config.NoHiddenPins == true and entity.Variant < 3 -- Only if it's not Wormwood
-	and not entity.Parent and entity.Visible == false -- Only the head while its underground
+	if mod.Config.NoHiddenPins == true and entity.Variant < 3 -- If it's not Wormwood
+	and not entity.Parent and entity.Visible == false -- Only the head while it's underground
 	and entity:IsFrame(6, 0) then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DIRT_PILE, 0, entity.Position, Vector.Zero, entity).SpriteScale = Vector(1.2, 1.2)
 	end

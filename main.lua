@@ -1,6 +1,6 @@
 ReworkedFoes = RegisterMod("Improved & Reworked Foes", 1)
 local mod = ReworkedFoes
-mod.Version = "3.1.5"
+mod.Version = "3.1.6"
 
 
 
@@ -123,12 +123,12 @@ mod:LoadScripts(bossScripts, "bosses")
 
 -- Champions
 local championScripts = {
+	"nonBoss",
 	"vanillaChanges",
 	"pin",
 	"fallen",
 	"headlessHorseman",
 	"darkOne",
-	"nonBoss",
 }
 mod:LoadScripts(championScripts, "champions")
 
