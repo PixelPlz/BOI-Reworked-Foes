@@ -307,7 +307,7 @@ function mod:ChasePlayer(entity, speed, canFly)
 		-- If there is a path to the player
 		if entity.Pathfinder:HasPathToPos(target.Position) or canFly == true then
 			-- If there is a direct line to the player
-			if Game():GetRoom():CheckLine(entity.Position, target.Position, LineCheckMode.RAYCAST) or canFly == true then
+			if Game():GetRoom():CheckLine(entity.Position, target.Position, 1) or canFly == true then
 				entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Resized(speed), 0.25)
 			else
 				entity.Pathfinder:FindGridPath(target.Position, speed / 6, 500, false)
@@ -471,7 +471,7 @@ function mod:AvoidPlayer(entity, radius, wanderSpeed, runSpeed, canFly)
 
 		-- Go around obstacles
 		if entity.Pathfinder:HasPathToPos(targetPos) or (canFly == true and room:IsPositionInRoom(targetPos, 0)) then
-			if room:CheckLine(entity.Position, targetPos, LineCheckMode.ENTITY) or canFly == true then
+			if room:CheckLine(entity.Position, targetPos, 0) or canFly == true then
 				entity.Velocity = mod:Lerp(entity.Velocity, (targetPos - entity.Position):Resized(runSpeed), 0.25)
 			else
 				entity.Pathfinder:FindGridPath(targetPos, runSpeed / 6, 500, false)

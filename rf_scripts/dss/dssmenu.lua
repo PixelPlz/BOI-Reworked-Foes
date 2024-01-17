@@ -11,6 +11,7 @@ mod.DefaultConfig = {
 	-- General
 	BreakableHosts 		= true,
 	CoinStealing 		= true,
+	ChampionChanges 	= true,
 	ClassicEternalFlies = true,
 	NoChapter1Nests 	= true,
 	EnvyRework 			= true,
@@ -193,6 +194,7 @@ local directory = {
 
 			mod:CreateDSSToggle("BreakableHosts",      "breakable hosts",         { 'host armor', 'can be broken', 'by a bomb', 'or high damage' }),
 			mod:CreateDSSToggle("CoinStealing",        "coin stealing enemies",   { 'greed themed', 'enemies', 'will steal', 'nearby coins' }),
+			mod:CreateDSSToggle("ChampionChanges",     "enemy champion changes",  { 'some enemy', 'champions', 'will have', 'different', 'drops or', 'behaviour' }),
 			mod:CreateDSSToggle("ClassicEternalFlies", "classic eternal flies",   { 'eternal flies', 'will keep', 'their', 'appearance', 'when chasing', 'the player' }),
 			mod:CreateDSSToggle("NoChapter1Nests",     "no chapter 1 nests",      { 'replace nests', 'in chapter 1', 'with easier', 'mullicocoons' }),
 			mod:CreateDSSToggle("EnvyRework",          "envy rework",             { 'envy heads', 'will bounce', 'off of each', 'other' }),
@@ -245,6 +247,7 @@ local directory = {
 
 			{ str = '- kittenchilly -', fsize = 3 },
 			{ str = 'beast tweaks', fsize = 2, nosel = true },
+			{ str = 'enemy champion changes', fsize = 2, nosel = true },
 			{ str = 'classic eternal flies', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 

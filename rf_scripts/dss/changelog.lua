@@ -1,3 +1,26 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.7", [[
+
+{FSIZE2}Additions
+- Added a config option to disable
+the enemy champion changes
+introduced in a recent update
+
+- Mushrooms now have a short animation
+between popping out and shooting
+
+
+
+{FSIZE2}Fixes
+- Fixed missing enum errors
+if REPENTOGON is not enabled
+
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.6", [[
 
 {FSIZE2}Balance changes

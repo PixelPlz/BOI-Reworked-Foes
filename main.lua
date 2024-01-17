@@ -80,7 +80,7 @@ local minibossScripts = {
 	"greed",
 	"envy",
 	"pride",
-	"fallenAngels",
+	"angels",
 }
 mod:LoadScripts(minibossScripts, "minibosses")
 

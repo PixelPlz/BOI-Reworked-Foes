@@ -15,7 +15,7 @@ end
 mod.Entities = {
 	-- Projectiles
 	FeatherProjectile = Isaac.GetEntityVariantByName("Angelic Feather Projectile"),
-	SuckerProjectile  = Isaac.GetEntityVariantByName("Sucker Projectile"),
+	SuckerProjectile  = Isaac.GetEntityVariantByName("Sucker Projectile (RF)"),
 	EggSackProjectile = Isaac.GetEntityVariantByName("Egg Sack Projectile"),
 
 

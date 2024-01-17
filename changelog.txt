@@ -1,4 +1,19 @@
 ================================================
+    Version 3.1.7
+================================================
+
+-- Additions --
+- Added a config option to disable the enemy champion changes introduced in a recent update
+- Mushrooms now have a short animation between popping out and shooting
+
+
+-- Fixes --
+- Fixed missing enum errors if REPENTOGON is not enabled
+
+
+
+
+================================================
     Version 3.1.6
 ================================================
 

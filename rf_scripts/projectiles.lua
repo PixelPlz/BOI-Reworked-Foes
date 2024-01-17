@@ -63,8 +63,13 @@ function mod:EditNormalProjectiles(projectile)
 		local sprite = projectile:GetSprite()
 		local data = projectile:GetData()
 
+		-- Tainted Pooter backsplit shots
+		if projectile.SpawnerType == EntityType.ENTITY_POOTER and projectile.SpawnerVariant == 2 and projectile:HasProjectileFlags(ProjectileFlags.BACKSPLIT) then
+			data.trailColor = Color.Default
+
+
 		-- Clotty variants
-		if projectile.SpawnerType == EntityType.ENTITY_CLOTTY then
+		elseif projectile.SpawnerType == EntityType.ENTITY_CLOTTY then
 			-- I. Blob (+ Retribution Curdle)
 			if projectile.SpawnerVariant == 2
 			or (Retribution and projectile.SpawnerEntity and projectile.SpawnerVariant == 1873 and projectile.SpawnerEntity.SubType == 0) then

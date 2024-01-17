@@ -45,7 +45,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.DarkRedChampionRender)
 
 
 function mod:ChampionDeath(entity)
-    if entity:IsChampion() then
+    if mod.Config.ChampionChanges == true and entity:IsChampion() then
         -- Grey champion creep
         if entity:GetChampionColorIdx() == ChampionColor.GREY then
             local creep = mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 2.5)
@@ -83,7 +83,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.ChampionDeath)
 
 -- Modified drops
 function mod:ChampionOverrideDrop(type, variant, subtype, pos, vel, spawner, seed) -- This might accidentally replace unintended things, but it'd be rare and there's no better way
-    if spawner and spawner:ToNPC() and spawner:ToNPC():IsChampion() then
+    if mod.Config.ChampionChanges == true and spawner and spawner:ToNPC() and spawner:ToNPC():IsChampion() then
         local npc = spawner:ToNPC()
 
         -- Light white - Pretty fly pill
