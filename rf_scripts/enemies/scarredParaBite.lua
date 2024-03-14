@@ -35,7 +35,7 @@ function mod:ScarredParaBiteUpdate(entity)
 			entity.I2 = entity.I2 + 1
 
 			if entity.I2 % 2 == 0 then
-				mod:PlaySound(entity, SoundEffect.SOUND_BLOODSHOOT)
+				mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
 				mod:ShootEffect(entity, 2, Vector(0, -18))
 			end
 		end

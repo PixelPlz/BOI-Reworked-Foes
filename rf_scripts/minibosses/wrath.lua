@@ -2,80 +2,58 @@ local mod = ReworkedFoes
 
 
 
-function mod:WrathInit(entity)
-	-- Bestiary fix
-	if not (entity.Variant == 0 and entity.SubType == 1) then
-		local sprite = entity:GetSprite()
-		sprite:ReplaceSpritesheet(3, "")
-		sprite:LoadGraphics()
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.WrathInit, EntityType.ENTITY_WRATH)
-
 function mod:WrathUpdate(entity)
-	if mod:CheckValidMiniboss(entity) == true then
+	if mod:CheckValidMiniboss(entity) then
 		local sprite = entity:GetSprite()
+		local target = entity:GetPlayerTarget()
 
-		-- Better charge for all of them
-		if entity.State == NpcState.STATE_ATTACK then
-			mod:LoopingOverlay(sprite, "HeadAngry")
-			entity.V2 = entity.V2:Resized(1.5)
+		-- Fire effects for champion
+		if entity.Variant == 0 and mod:IsRFChampion(entity, "Wrath") then
+			mod:EmberParticles(entity, Vector(0, -40))
 
-		-- Head overlay
-		elseif entity.State == NpcState.STATE_MOVE then
-			mod:LoopingOverlay(sprite, "Head")
-
-		else
-			sprite:RemoveOverlay()
+			-- Fire overlay
+			if entity.State == NpcState.STATE_MOVE then
+				mod:LoopingOverlay(sprite, "Fire", true)
+			else
+				sprite:RemoveOverlay()
+			end
 		end
 
 
-		-- Fire effects for Burning Wrath
-		if entity.Variant == 0 and entity.SubType == 1 then
-			mod:EmberParticles(entity, Vector(0, -40))
+		-- Replace charge with custom bomb attack
+		if entity.State == NpcState.STATE_ATTACK then
+			entity.State = NpcState.STATE_ATTACK3
+			sprite:Play("Attack", true)
+
+		-- Custom bomb attack
+		elseif entity.State == NpcState.STATE_ATTACK3 then
+			entity.Velocity = mod:StopLerp(entity.Velocity)
+
+			if sprite:GetFrame() == 4 then
+				local vector = (target.Position - entity.Position):Normalized()
+				vector = mod:ClampVector(vector, 90)
+
+				-- Champion
+				if mod:IsRFChampion(entity, "Wrath") then
+					local rocket = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_ROCKET, 0, entity.Position + vector:Resized(entity.Size), Vector.Zero, entity):ToBomb()
+					rocket.RadiusMultiplier = 0.75
+					rocket:SetRocketAngle(vector:GetAngleDegrees())
+					rocket:SetRocketSpeed(0.25)
+					rocket:Update()
+					mod:PlaySound(nil, SoundEffect.SOUND_ROCKET_LAUNCH_SHORT, 0.75)
 
 
-		-- Super Wrath
-		elseif entity.Variant == 1 then
-			local data = entity:GetData()
-
-			if entity.State == NpcState.STATE_MOVE or entity.State == NpcState.STATE_ATTACK then
-				data.lastAnim = sprite:GetAnimation()
-				data.lastHeadAnim = sprite:GetOverlayAnimation()
-
-				-- Attack cooldown
-				if entity.ProjectileCooldown > 0 then
-					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
-				end
-
-
-			-- Replace original attack
-			elseif entity.State == NpcState.STATE_ATTACK2 then
-				if entity.ProjectileCooldown <= 0 then
-					entity.State = NpcState.STATE_ATTACK3
-					entity.I1 = 0
-					sprite:RemoveOverlay()
+				-- Regular / Super
 				else
-					entity.State = NpcState.STATE_MOVE
-					sprite:Play(data.lastAnim, true)
-					sprite:PlayOverlay(data.lastHeadAnim, true)
-				end
-
-
-			-- Custom attack
-			elseif entity.State == NpcState.STATE_ATTACK3 then
-				entity.Velocity = mod:StopLerp(entity.Velocity)
-
-				if sprite:GetFrame() == 4 then
-					local target = entity:GetPlayerTarget()
-					local vector = (target.Position - entity.Position):Normalized()
-					local speed = math.min(12, entity.Position:Distance(target.Position) / 15)
+					local speed = math.min(13, entity.Position:Distance(target.Position) / 15)
+					local throwHeight = -28
 
 					local type = BombVariant.BOMB_NORMAL
 					local flags = TearFlags.TEAR_NORMAL
 
-					-- Second bomb has bomb effects
-					if entity.I1 == 1 then
+					-- Super Wrath has special bombs
+					if entity.Variant == 1 then
+						throwHeight = -36
 						local choose = mod:Random(3)
 
 						-- Scatter Bombs
@@ -97,22 +75,26 @@ function mod:WrathUpdate(entity)
 						end
 					end
 
-					local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, type, 0, entity.Position + vector:Resized(20), vector:Resized(speed), entity):ToBomb()
-					bomb.PositionOffset = Vector(0, -38) -- 28 is the minimum for it to go over rocks
+					local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, type, 40, entity.Position + vector:Resized(entity.Size), vector:Resized(speed), entity):ToBomb()
+					bomb.PositionOffset = Vector(0, throwHeight) -- 28 is the minimum for it to go over rocks
 					bomb:AddTearFlags(flags)
 					bomb.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 
-					entity.I1 = entity.I1 + 1
-				end
+					mod:PlaySound(nil, SoundEffect.SOUND_FETUS_JUMP, 1, 0.9)
 
-				if sprite:IsFinished() then
-					-- Attack twice
-					if entity.I1 >= 2 then
-						entity.State = NpcState.STATE_MOVE
-						entity.ProjectileCooldown = 30
-					else
-						sprite:Play("Attack", true)
-					end
+					-- Make him run away from where he threw the bomb
+					entity.V1 = bomb.Position
+				end
+			end
+
+			if sprite:IsFinished() then
+				entity.State = NpcState.STATE_MOVE
+
+				-- Make him run away from where he threw the bomb if not champion
+				if mod:IsRFChampion(entity, "Wrath") then
+					entity.StateFrame = 10
+				else
+					entity.StateFrame = 60
 				end
 			end
 		end
@@ -122,9 +104,8 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.WrathUpdate, EntityType.ENTITY_W
 
 -- Don't take damage from non-player explosions
 function mod:WrathDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if Isaac.GetChallenge() ~= Challenge.CHALLENGE_HOT_POTATO -- HOT POTATO EXPLOSIONS DOESN'T COUNT AS PLAYER EXPLOSIONS FUCK THIS GAME
-	and mod:CheckForRev() == false
-	and damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) then
+	if mod:CheckValidMiniboss(entity) and damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0)
+	and Isaac.GetChallenge() ~= Challenge.CHALLENGE_HOT_POTATO then -- HOT POTATO EXPLOSIONS DOESN'T COUNT AS PLAYER EXPLOSIONS FUCK THIS GAME
 		return false
 	end
 end
@@ -132,28 +113,54 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.WrathDMG, EntityType.ENTITY
 
 
 
--- Replace Wrath's bombs
+-- Replace regular bombs
 function mod:WrathBombInit(bomb)
-	if bomb.SpawnerType == EntityType.ENTITY_WRATH and bomb.SpawnerEntity and mod:CheckValidMiniboss(bomb.SpawnerEntity) == true and bomb.SpawnerVariant == 0 then
+	if bomb.SpawnerType == EntityType.ENTITY_WRATH and bomb.SpawnerVariant == 0 and bomb.SubType ~= 40
+	and bomb.SpawnerEntity and mod:CheckValidMiniboss(bomb.SpawnerEntity) then
 		-- Hot Bombs for champion Wrath
-		if bomb.SpawnerEntity.SubType == 1 then
+		if mod:IsRFChampion(bomb.SpawnerEntity, "Wrath") then
 			bomb:AddTearFlags(TearFlags.TEAR_BURN)
-
-		-- Bomber Boy bombs for regular Wrath
-		else
-			bomb:AddTearFlags(TearFlags.TEAR_CROSS_BOMB)
 			bomb.Velocity = Vector.Zero
+
+		-- Mr. Mega bombs for regular Wrath
+		else
+			bomb:Remove()
+			local newBomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_MR_MEGA, 40, bomb.Position, Vector.Zero, bomb.SpawnerEntity):ToBomb()
+			newBomb.RadiusMultiplier = 1.4
 		end
+
+		mod:PlaySound(nil, SoundEffect.SOUND_FETUS_LAND)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_BOMB_INIT, mod.WrathBombInit, BombVariant.BOMB_NORMAL)
 
+function mod:WrathBombCollision(bomb, collider, bool)
+	if bomb.SpawnerType == EntityType.ENTITY_WRATH then
+		-- Champion rockets
+		if bomb.Variant == BombVariant.BOMB_ROCKET
+		and ((collider.Type == EntityType.ENTITY_FIREPLACE and collider.Variant >= 10) -- Go through fires from Hot Bombs
+		or collider.Type == EntityType.ENTITY_PLAYER) then -- Don't go through players
+			-- Explode on collision with players
+			if collider.Type == EntityType.ENTITY_PLAYER then
+				bomb:SetExplosionCountdown(0)
+			end
+			return true
+
+		-- Bombs placed by Wrath
+		elseif collider.Type == EntityType.ENTITY_WRATH then
+			return true -- I have to make the bombs ignore the collision instead of Wrath otherwise they can still go through them for some reason
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_PRE_BOMB_COLLISION, mod.WrathBombCollision)
 
 
-function mod:ChampionWrathReward(entity)
+
+function mod:ChampionWrathReward(pickup)
 	-- Hot Bombs
-	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_WRATH and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.SubType ~= CollectibleType.COLLECTIBLE_HOT_BOMBS then
-		entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_HOT_BOMBS, false, true, false)
+	if mod:CheckMinibossDropReplacement(pickup, EntityType.ENTITY_WRATH, "Wrath")
+	and pickup.SubType ~= CollectibleType.COLLECTIBLE_HOT_BOMBS then
+		pickup:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_HOT_BOMBS, false, true, false)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.ChampionWrathReward, PickupVariant.PICKUP_COLLECTIBLE)

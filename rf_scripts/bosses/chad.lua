@@ -432,7 +432,7 @@ function mod:ChadUpdate(entity)
 
 				-- Surface
 				if entity.ProjectileCooldown <= -60 -- If submerged for too long
-				or (entity.ProjectileCooldown <= 0 and ((entity.Position:Distance(entity.TargetPosition) < 0 or entity.I1 > 0) -- At target position
+				or (entity.ProjectileCooldown <= 0 and ((entity.Position:Distance(entity.TargetPosition) < entity.Size or entity.I1 > 0) -- At target position
 				or not entity.Pathfinder:HasPathToPos(entity.TargetPosition))) then -- If it doesn't have a path to the target position
 					if entity.I2 ~= 3 or entity.I1 == 0 then
 						entity.Visible = true

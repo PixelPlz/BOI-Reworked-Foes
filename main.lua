@@ -1,6 +1,6 @@
 ReworkedFoes = RegisterMod("Improved & Reworked Foes", 1)
 local mod = ReworkedFoes
-mod.Version = "3.1.6"
+mod.Version = "3.1.8"
 
 
 
@@ -19,8 +19,6 @@ local generalScripts = {
 	"constants",
 	"dss.dssmenu",
 	"projectiles",
-	"misc",
-	"hiddenEnemies",
 }
 mod:LoadScripts(generalScripts)
 
@@ -39,7 +37,6 @@ local enemyScripts = {
 	"pokies",
 	"sketches",
 	"greedyEnemies",
-	"holyLeech",
 	"lump",
 	"membrain",
 	"scarredParaBite",
@@ -48,11 +45,11 @@ local enemyScripts = {
 	"giantSpike",
 	"nest",
 	"babyLongLegs",
-	"flamingFatty",
 	"dankDeathsHead",
 	"momsHand",
 	"codWorm",
 	"skinny",
+	"homunculusBegotten",
 	"tumors",
 	"nerveEnding2",
 	"ragling",
@@ -66,6 +63,8 @@ local enemyScripts = {
 	"ulcer",
 	"blister",
 	"portal",
+	"misc",
+	"champions",
 }
 mod:LoadScripts(enemyScripts, "enemies")
 
@@ -91,6 +90,7 @@ local bossScripts = {
 	"carrionQueen",
 	"gish",
 	"mom",
+	"pin",
 	"scolex",
 	"conquest",
 	"husk",
@@ -117,26 +117,16 @@ local bossScripts = {
 	"sisterVis",
 	"siren",
 	"beast",
+	"misc",
+	"champions",
 }
 mod:LoadScripts(bossScripts, "bosses")
-
-
--- Champions
-local championScripts = {
-	"nonBoss",
-	"vanillaChanges",
-	"pin",
-	"fallen",
-	"headlessHorseman",
-	"darkOne",
-}
-mod:LoadScripts(championScripts, "champions")
 
 
 -- Compatibility
 local compatibilityScripts = {
 	"baptismal_preloader",
-	"compatibility",
+	"loader",
 	"retribution",
 	"warning",
 }
@@ -144,33 +134,7 @@ mod:LoadScripts(compatibilityScripts, "compatibility")
 
 
 
-
-
 --[[ Startup text ]]--
 local startupText = mod.Name .. " " .. mod.Version .. " Initialized"
 Isaac.DebugString(startupText)
-
-local flavorText = {
-	"The reworkening",
-	"Look Teratomar, it's you!", "Look Terrytomar, it's you!",
-	"Thank you for playing :)",
-	"All oiled up",
-	"Monstro rework when?",
-	"Now 11% funnier!",
-	"Not for baby gamers",
-	"01101000 01101001 00100000 00111010 00101001",
-	"Reworked Foes? More like STINKY Foes",
-	"Hi YouTube / Twitch!",
-	"Also check out Improved Backdrops and Visuals!",
-	"Ruining Tainted Lost runs since 2022!",
-	"ratratrat was here!",
-	"WARNING: Some reworks might require you to pay attention!",
-	"It will even fix your marriage!",
-	"The Husk was hiding the Forgotten!",
-	"We will rework your wife. We will rework your son. We will rework your infant daughter.",
-	"They see me rollin', they Stevin'",
-	"Over 2 reworks! DO THE MATH",
-	"PUSH THE BUTTONS",
-	"Across the Edmund-verse",
-}
-print(startupText .. " - " .. mod:RandomIndex(flavorText))
+print(startupText)

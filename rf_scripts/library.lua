@@ -9,8 +9,8 @@ function mod:Lerp(first, second, percent)
 end
 
 -- Lerp to Vector.Zero
-function mod:StopLerp(vector)
-	return mod:Lerp(vector, Vector.Zero, 0.25)
+function mod:StopLerp(vector, percent)
+	return mod:Lerp(vector, Vector.Zero, percent or 0.25)
 end
 
 
@@ -276,7 +276,7 @@ end
 
 
 
---[[ Movement presets ]]--
+--[[ NPC functions ]]--
 -- Wander around randomly
 function mod:WanderAround(entity, speed)
 	-- Chase if charmed of friendly / Run away if feared
@@ -662,6 +662,31 @@ function mod:CheckCardinalAlignment(entity, sideRange, forwardRange, lineCheckMo
 end
 
 
+-- Check if render callback effects should play
+function mod:ShouldDoRenderEffects()
+	return not (Game():IsPaused() or Game():GetRoom():GetRenderMode() == RenderMode.RENDER_WATER_REFLECT)
+end
+
+
+-- Revelations compatibility check for minibosses
+function mod:CheckValidMiniboss(entity)
+	if REVEL and REVEL.IsRevelStage(true) then
+		return false
+	elseif entity.Type == EntityType.ENTITY_ENVY or entity.Variant <= 1 then
+		return true
+	end
+end
+
+
+-- Champion check
+function mod:IsRFChampion(entity, variable)
+	if ReworkedFoesChampions and mod.Champions and mod.Champions[variable] then
+		return entity.SubType == mod.Champions[variable]
+	end
+	return false
+end
+
+
 
 --[[ Spawning helper functions ]]--
 -- Creep
@@ -747,6 +772,88 @@ function mod:QuickTrail(parent, length, color, width)
 end
 
 
+-- Ember particles
+function mod:EmberParticles(entity, offset, radiusModifier, color)
+	if entity:IsFrame(math.random(5, 10), 0) then
+		local radius = math.random(-10, 10)
+		if radiusModifier then
+			radius = math.random(-radiusModifier, radiusModifier)
+		end
+		local pos = Vector(entity.Position.X + radius, entity.Position.Y)
+
+		local ember = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.EMBER_PARTICLE, 0, pos, Vector.FromAngle(-90), entity)
+		ember.PositionOffset = offset * entity.Scale
+		ember.DepthOffset = entity.DepthOffset - 10
+
+		if color then
+			ember:GetSprite().Color = color
+		end
+	end
+end
+
+
+-- Fire ring attack
+local fireRingHelperVariant = Isaac.GetEntityVariantByName("Fire Ring Helper")
+
+function mod:CreateFireRing(entity, subtype, rings, delay, distance, startIndex, startDistance)
+	local pos = entity and entity.Position or Game():GetRoom():GetCenterPos()
+	local timer = Isaac.Spawn(EntityType.ENTITY_EFFECT, fireRingHelperVariant, subtype, pos, Vector.Zero, entity):ToEffect()
+	timer.Parent = entity
+	timer.LifeSpan = startIndex or 0
+
+	local data = timer:GetData()
+	data.Delay = delay
+	data.Rings = rings
+	data.StartDistance = startDistance
+	data.Distance = distance
+
+	return timer
+end
+
+function mod:FireRingHelperInit(timer)
+	timer.Visible = false
+	timer.Timeout = 0
+	timer:GetData().Timer = 0
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.FireRingHelperInit, fireRingHelperVariant)
+
+function mod:FireRingHelperUpdate(timer)
+	local data = timer:GetData()
+
+	if data.Timer <= 0 then
+		-- Get the amount of fire jets
+		local fireCount = math.max(1, timer.LifeSpan * 4)
+
+		for i = 0, fireCount - 1 do
+			-- Get position
+			local angle = 360 / fireCount * i
+			local extraDistance = data.StartDistance or 0
+			local pos = timer.Position + Vector.FromAngle(angle):Resized(timer.LifeSpan * data.Distance + extraDistance)
+
+			if Game():GetRoom():IsPositionInRoom(pos, 0) then
+				local fire = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, timer.SubType, pos, Vector.Zero, timer.Parent)
+				fire.SpriteScale = Vector.One * timer.Scale
+			end
+		end
+
+		data.Timer = data.Delay
+		timer.LifeSpan = timer.LifeSpan + 1
+		timer.Timeout = timer.Timeout + 1 -- Always starts at 0
+		timer.Scale = math.max(0.1, timer.Scale - timer.Timeout / 10)
+
+		-- Remove self after all rings have spawned
+		data.Rings = data.Rings - 1
+		if data.Rings <= 0 then
+			timer:Remove()
+		end
+
+	else
+		data.Timer = data.Timer - 1
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.FireRingHelperUpdate, fireRingHelperVariant)
+
+
 -- Smoke particles
 function mod:SmokeParticles(entity, offset, radius, scale, color, newSprite)
 	if entity:IsFrame(2, 0) then
@@ -772,26 +879,6 @@ function mod:SmokeParticles(entity, offset, radius, scale, color, newSprite)
 			end
 
 			trail:Update()
-		end
-	end
-end
-
-
--- Ember particles
-function mod:EmberParticles(entity, offset, radiusModifier, color)
-	if entity:IsFrame(math.random(5, 10), 0) then
-		local radius = math.random(-10, 10)
-		if radiusModifier then
-			radius = math.random(-radiusModifier, radiusModifier)
-		end
-		local pos = Vector(entity.Position.X + radius, entity.Position.Y)
-
-		local ember = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.EMBER_PARTICLE, 0, pos, Vector.FromAngle(-90), entity)
-		ember.PositionOffset = offset * entity.Scale
-		ember.DepthOffset = entity.DepthOffset - 10
-
-		if color then
-			ember:GetSprite().Color = color
 		end
 	end
 end
@@ -849,68 +936,6 @@ function mod:ThrowDip(position, spawner, targetPosition, variant, yOffset)
 end
 
 
--- Fire ring attack
-local fireRingHelperVariant = Isaac.GetEntityVariantByName("Fire Ring Helper")
-
-function mod:CreateFireRing(entity, subtype, rings, delay, distance, startIndex, startDistance)
-	local pos = entity and entity.Position or Game():GetRoom():GetCenterPos()
-	local timer = Isaac.Spawn(EntityType.ENTITY_EFFECT, fireRingHelperVariant, subtype, pos, Vector.Zero, entity):ToEffect()
-	timer.Parent = entity
-	timer.LifeSpan = startIndex or 0
-
-	local data = timer:GetData()
-	data.Delay = delay
-	data.Rings = rings
-	data.StartDistance = startDistance
-	data.Distance = distance
-
-	return timer
-end
-
-function mod:FireRingHelperInit(timer)
-	timer.Visible = false
-	timer.Timeout = 0
-	timer:GetData().Timer = 0
-end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.FireRingHelperInit, fireRingHelperVariant)
-
-function mod:FireRingHelperUpdate(timer)
-	local data = timer:GetData()
-
-	if data.Timer <= 0 then
-		-- Get the amount of fire jets
-		local fireCount = math.max(1, timer.LifeSpan * 4)
-
-		for i = 0, fireCount - 1 do
-			-- Get position
-			local angle = 360 / fireCount * i
-			local extraDistance = data.StartDistance or 0
-			local pos = timer.Position + Vector.FromAngle(angle):Resized(timer.LifeSpan * data.Distance + extraDistance)
-
-			if Game():GetRoom():IsPositionInRoom(pos, 0) then
-				local fire = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, timer.SubType, pos, Vector.Zero, timer.Parent)
-				fire.SpriteScale = Vector.One * timer.Scale
-			end
-		end
-
-		timer.LifeSpan = timer.LifeSpan + 1
-		timer.Timeout = timer.Timeout + 1 -- Always starts at 0
-		timer.Scale = math.max(0.1, timer.Scale - timer.Timeout / 10)
-
-		-- Remove self after all rings have spawned
-		data.Timer = data.Delay
-		data.Rings = data.Rings - 1
-		if data.Rings <= 0 then
-			timer:Remove()
-		end
-
-	else
-		data.Timer = data.Timer - 1
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.FireRingHelperUpdate, fireRingHelperVariant)
-
-
 
 --[[ Misc. functions ]]--
 -- Turn red poops in the room into regular ones
@@ -933,17 +958,10 @@ function mod:RemoveRedPoops()
 end
 
 
--- Revelations compatibility check for minibosses
-function mod:CheckForRev()
-	if REVEL and REVEL.IsRevelStage(true) then
-		return true
-	else
-		return false
-	end
-end
-
-function mod:CheckValidMiniboss(entity)
-	if mod:CheckForRev() == false and ((entity.Variant == 0 and entity.SubType <= 1) or entity.Variant == 1) then
+-- Check for Champion sin drop replacement
+function mod:CheckMinibossDropReplacement(pickup, entityType, miniboss)
+	if pickup.SpawnerType == entityType and pickup.SpawnerVariant == 0 and pickup.SpawnerEntity
+	and mod:CheckValidMiniboss(pickup.SpawnerEntity) and mod:IsRFChampion(pickup.SpawnerEntity, miniboss) then
 		return true
 	end
 	return false

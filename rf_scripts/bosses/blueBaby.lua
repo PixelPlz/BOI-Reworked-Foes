@@ -873,6 +873,34 @@ function mod:BlueBabyUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.BlueBabyUpdate, EntityType.ENTITY_ISAAC)
 
+-- Appear sounds
+function mod:BlueBabyRender(entity, offset)
+	if entity.Variant == 1 and mod:ShouldDoRenderEffects()
+	and entity:GetSprite():IsPlaying("Appear") then
+        local sprite = entity:GetSprite()
+		local data = entity:GetData()
+
+
+        -- Get up
+        if sprite:IsEventTriggered("Start") and not data.AppearGetUp then
+            data.AppearGetUp = true
+            mod:PlaySound(nil, SoundEffect.SOUND_FETUS_JUMP, 0.8, 0.95)
+
+        -- Gain wings
+		elseif sprite:IsEventTriggered("Shoot") and not data.AppearWings then
+            data.AppearWings = true
+		    mod:PlaySound(nil, SoundEffect.SOUND_SUPERHOLY)
+
+		-- Flap
+		elseif sprite:IsEventTriggered("Flap") and not data.AppearFlap then
+			data.AppearFlap = true
+			mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_WING, 0.7)
+		end
+	end
+end
+
+mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.BlueBabyRender, EntityType.ENTITY_ISAAC)
+
 function mod:BlueBabyDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if entity.Variant == 1 then
 		-- Don't take damage during transitioning

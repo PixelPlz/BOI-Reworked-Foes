@@ -230,7 +230,7 @@ function mod:SingleBrimstoneSwirlUpdate(effect)
 		spawner = effect.Parent
 	end
 
-	effect.Velocity = mod:Lerp(effect.Velocity, Vector.Zero, 0.1)
+	effect.Velocity = mod:StopLerp(effect.Velocity, 0.1)
 
 
 	-- Tracer, get starting position

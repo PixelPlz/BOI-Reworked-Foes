@@ -2,6 +2,33 @@ local mod = ReworkedFoes
 
 
 
+--[[ Both ]]--
+function mod:MomsHandAppearInit(entity)
+	if mod.Config.AppearMomsHands == true then
+		entity:GetSprite():Play("JumpUp", true)
+		entity:GetData().init = false
+		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+	end
+
+	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.MomsHandAppearInit, EntityType.ENTITY_MOMS_HAND)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.MomsHandAppearInit, EntityType.ENTITY_MOMS_DEAD_HAND)
+
+function mod:MomsHandAppearUpdate(entity)
+	if entity:GetData().init == false then
+		if entity:GetSprite():IsFinished() then
+			entity:GetData().init = true
+		end
+
+		return true
+	end
+end
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.MomsHandAppearUpdate, EntityType.ENTITY_MOMS_HAND)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.MomsHandAppearUpdate, EntityType.ENTITY_MOMS_DEAD_HAND)
+
+
+
 --[[ Mom's Hand ]]--
 function mod:MomsHandUpdate(entity)
 	-- Go to previous room if Isaac is grabbed

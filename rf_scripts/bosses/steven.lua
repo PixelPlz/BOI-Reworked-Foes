@@ -130,18 +130,13 @@ function mod:StevenUpdate(entity)
 							-- If there is a direct line to the player
 							if room:CheckLine(entity.Position, target.Position, 1, 0, false, false) then
 								entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Resized(speed), 0.04)
-
 							else
-								local before = entity.Velocity
-								entity.Pathfinder:FindGridPath(target.Position, speed / 6, 500, false)
-								local after = entity.Velocity * 6
-
-								entity.Velocity = mod:Lerp(before, after, 0.045)
+								entity.Pathfinder:FindGridPath(target.Position, speed / 12, 500, false)
 							end
 
 						-- Otherwise stay still
 						else
-							entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.05)
+							entity.Velocity = mod:StopLerp(entity.Velocity, 0.05)
 						end
 					end
 
@@ -263,6 +258,8 @@ function mod:StevenUpdate(entity)
 				if entity.StateFrame == 0 then
 					if entity.I2 <= 0 then
 						entity.StateFrame = 1
+						entity.HitPoints = entity.MaxHitPoints
+						entity:ClearEntityFlags(EntityFlag.FLAG_HIDE_HP_BAR)
 
 						-- Static effect
 						if not mod.StevenStatic then
@@ -459,11 +456,11 @@ function mod:StevenUpdate(entity)
 					newSteven.Visible = false
 					newSteven.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 					newSteven.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
-					newSteven:AddEntityFlags(EntityFlag.FLAG_NO_BLOOD_SPLASH | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+					newSteven:AddEntityFlags(EntityFlag.FLAG_NO_BLOOD_SPLASH | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_HIDE_HP_BAR)
 					newSteven.SplatColor = Color(0,0,0, 0)
 
 					newSteven.MaxHitPoints = Settings.SecondPhaseHP
-					newSteven.HitPoints = newSteven.MaxHitPoints
+					newSteven.HitPoints = 0.1
 				end
 
 				-- Silhouette fix
@@ -481,6 +478,22 @@ function mod:StevenUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.StevenUpdate, EntityType.ENTITY_GEMINI)
+
+function mod:StevenRender(entity, offset)
+	if entity.Variant == 1 and mod:ShouldDoRenderEffects() then
+        local sprite = entity:GetSprite()
+		local data = entity:GetData()
+
+		-- Appear effects
+        if sprite:IsPlaying("Appear") and sprite:IsEventTriggered("Shoot")
+		and not data.AppearSound then
+			data.AppearSound = true
+			mod:PlaySound(entity, mod.Sounds.StevenVoice, 1.3)
+		end
+	end
+end
+
+mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.StevenRender, EntityType.ENTITY_GEMINI)
 
 function mod:StevenDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	-- 2nd phase only takes damage when Wallaces take damage

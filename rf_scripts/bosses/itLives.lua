@@ -342,12 +342,10 @@ function mod:ItLivesUpdate(entity)
 
 			--[[ Idle ]]--
 			if entity.State == NpcState.STATE_IDLE then
-				-- Spawn Homunculi
+				-- Spawn the Homunculi
 				if not data.homunculiSpawned then
-					for i = -1, 1, 2 do
-						Isaac.Spawn(EntityType.ENTITY_HOMUNCULUS, 0, 0, Vector(entity.Position.X + i * 140, room:GetTopLeftPos().Y + 40), Vector.Zero, entity)
-					end
-					mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
+					guts.State = NpcState.STATE_SUMMON2
+					guts:GetSprite():Play("ShootBoth", true)
 
 					data.homunculiSpawned = true
 					entity.ProjectileCooldown = Settings.FetusCooldown[1]
@@ -657,14 +655,16 @@ function mod:ItLivesUpdate(entity)
 							entity.V1 = (target.Position - entity.Position):Normalized()
 						else
 							local angle = mod:GetSign(entity.I1 % 2) * mod:Random(90, 150)
-							local distance = mod:Random(60, 160)
+							local distance = mod:Random(80, 160)
 							pos = entity.Position + entity.V1:Rotated(angle):Resized(distance)
 						end
 
 						pos = room:GetClampedPosition(pos, 20)
 
 						-- Target
-						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TARGET, 0, pos, Vector.Zero, entity):ToEffect().Timeout = 30
+						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TARGET, 0, pos, Vector.Zero, entity):ToEffect()
+						effect.Timeout = 30
+						effect:GetSprite().Color = Color(0.8,0.2,0.2, 1)
 
 						local params = ProjectileParams()
 						params.HeightModifier = -500
@@ -1172,6 +1172,19 @@ function mod:ItLivesUpdate(entity)
 						entity.State = NpcState.STATE_IDLE
 					end
 
+				--[[ Summon Homunculi at the beginning of the fight ]]--
+				elseif entity.State == NpcState.STATE_SUMMON2 then
+					if sprite:IsEventTriggered("Shoot") then
+						for i = -1, 1, 2 do
+							Isaac.Spawn(EntityType.ENTITY_HOMUNCULUS, 0, 0, getShootPos(i), Vector.Zero, fetus)
+						end
+						mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
+					end
+
+					if sprite:IsFinished() then
+						entity.State = NpcState.STATE_IDLE
+					end
+
 
 
 				--[[ Rotating shots ]]--
@@ -1307,6 +1320,20 @@ function mod:ItLivesUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ItLivesUpdate, EntityType.ENTITY_MOMS_HEART)
+
+-- Appear effects
+function mod:ItLivesRender(entity, offset)
+	if entity.Variant == 1 and mod:ShouldDoRenderEffects()
+	and entity.State == NpcState.STATE_APPEAR and entity:GetSprite():IsEventTriggered("ComeDown")
+	and not entity:GetData().AppearEffects then
+        entity:GetData().AppearEffects = true
+
+		mod:PlaySound(nil, SoundEffect.SOUND_HEARTOUT)
+		Game():ShakeScreen(8)
+	end
+end
+
+mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.ItLivesRender, EntityType.ENTITY_MOMS_HEART)
 
 function mod:ItLivesDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if entity.Variant == 1 then

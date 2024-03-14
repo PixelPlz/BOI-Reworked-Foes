@@ -1,3 +1,90 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.8", [[
+
+Custom champions have been moved to
+a separate REPENTOGON exclusive mod.
+For more info check the workshop page!
+
+This change also deprecates the
+compatibility mods and as such they have
+been unlisted and should be disabled!
+
+
+
+{FSIZE2}Reworks / Additions
+- Wrath and Super Wrath
+have been slightly reworked
+
+- Lust now only uses a pill at the
+beginning of the fight and now has a
+smaller pool of only permanent effects
+- She now also tries to go through rocks
+if she can crush them instead of
+trying to go around them
+- Custom pill effects for her
+can now also be added by other mods
+
+- Pride has recieved new sprites
+
+- Added more sounds and effects
+to several reworked bosses'
+appear and death animations
+
+
+
+{FSIZE2}Other changes
+- It Lives' and Mr. Fred's
+explosive shot markers now
+blend in less with the floor
+
+- Vulnerable Eternal Flies with the
+'Classic Eternal Flies' option
+now blink red
+
+- Lil Portals can no longer
+spawn Crazy Long Legs
+
+- Monstro 2 and Gish now have consistent
+death effects with other bosses
+
+- Conquest's 2nd phase no longer uses
+a new entity, making him more consistent
+between phases
+
+
+
+{FSIZE2}Fixes
+- Fixed Friendly greedy enemies
+being able to pick up coins
+
+- Fixed Friendly Nests
+getting replaced with Mullicocoons
+
+- Fixed broken Hosts
+not taking damage from Mom's Knife
+and some other damage sources
+
+- Fixed Delirium's health bar going away
+if he transforms into Steven
+while using Enhanced Boss Bars
+
+- Fixed Holy Leeches not doing
+their death animation if they're killed
+during their appear animation
+
+- Fixed Triachnid getting stuck in his
+death animation in rooms with reflections
+
+- Using Chaos Card on Triachnid's legs
+now kills him instead of
+leaving him in a bugged state
+
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.7", [[
 
 {FSIZE2}Additions

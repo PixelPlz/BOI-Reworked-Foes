@@ -1,0 +1,6 @@
+<sounds root="sfx/">
+    <!-- Pins Lament -->
+    <sound name="Larry Scream">
+        <sample weight="1" path="larry_scream.wav" />
+    </sound>
+</sounds>

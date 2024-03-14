@@ -3,12 +3,12 @@ local mod = ReworkedFoes
 
 
 function mod:NestInit(entity)
-	if entity.Variant == 0 and entity.SubType == 0 then
+	if entity.Variant == 0 and entity.SubType == 0
+	and entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) == false then -- Not friendly
 		local stage = Game():GetRoom():GetRoomConfigStage()
 
 		-- Only replace Nests on chaper 1 floors and if they are not friendly
 		if mod.Config.NoChapter1Nests == true
-		and entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) == false -- Not friendly
 		and ((stage > 0 and stage < 4) or (stage > 26 and stage < 29)) then -- Chapter 1
 			entity:Remove()
 			Isaac.Spawn(EntityType.ENTITY_MULLIGAN, mod.Entities.Mullicocoon, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)

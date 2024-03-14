@@ -999,32 +999,33 @@ function mod:SisterVisUpdate(entity)
 
 
 
-	if entity:HasMortalDamage() then
-		-- Replace blood color with default red blood
+	-- Replace blood color with the default red
+	if entity:IsDead() then
 		entity.SplatColor = Color.Default
+		sprite.PlaybackSpeed = 1
+	end
 
-		-- Cancel death for the first sister and turn into a corpse
-		if not data.corpse and sibling and isSiblingDead == false then
-			entity.State = NpcState.STATE_SPECIAL
-			sprite:Play("Death", true)
-			sprite.PlaybackSpeed = 1
+	-- Cancel death for the first sister and turn into a corpse
+	if entity:HasMortalDamage() and not data.corpse
+	and sibling and isSiblingDead == false then
+		entity.State = NpcState.STATE_SPECIAL
+		sprite:Play("Death", true)
 
-			entity.HitPoints = 1000
-			entity.MaxHitPoints = 0
-			data.corpse = true
-			resetVariables(entity)
+		entity.HitPoints = 1000
+		entity.MaxHitPoints = 0
+		data.corpse = true
+		resetVariables(entity)
 
-			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
-			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
+		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
+		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 
-			entity:AddEntityFlags(EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_BOSSDEATH_TRIGGERED | EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
-			entity:ClearEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+		entity:AddEntityFlags(EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
+		entity:ClearEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
-			-- Get rid of the laser
-			if data.brim then
-				data.brim:SetTimeout(1)
-				data.brim = nil
-			end
+		-- Get rid of the laser
+		if data.brim then
+			data.brim:SetTimeout(1)
+			data.brim = nil
 		end
 	end
 

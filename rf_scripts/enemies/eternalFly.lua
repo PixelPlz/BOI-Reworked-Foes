@@ -18,19 +18,21 @@ function mod:EternalFlyUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.EternalFlyUpdate, EntityType.ENTITY_ETERNALFLY)
 
+
+
 function mod:EternalFlyConvert(entity)
-	if entity:GetData().isEternalFly and mod.Config.ClassicEternalFlies == true then
-		local sprite = entity:GetSprite()
-		sprite:Load("gfx/096.000_eternal fly.anm2", true)
-		sprite:Play("Fly", true)
+	if mod.Config.ClassicEternalFlies == true and not entity:GetData().ConvertedEternalFly
+	and (entity:GetData().isEternalFly or entity.SubType == 96) then
+		entity:GetSprite():Load("gfx/018.000_attack eternal fly.anm2", true)
+		entity.SubType = 96
 
 		entity.MaxHitPoints = 10
 		entity.HitPoints = entity.MaxHitPoints
 		entity:SetSize(11, Vector(1, 1), 4)
 		entity.I1 = 0
-		entity.SubType = 96
 
 		entity:GetData().isEternalFly = nil
+		entity:GetData().ConvertedEternalFly = true
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.EternalFlyConvert, EntityType.ENTITY_ATTACKFLY)

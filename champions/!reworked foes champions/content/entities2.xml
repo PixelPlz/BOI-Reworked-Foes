@@ -1,0 +1,5 @@
+<entities anm2root="gfx/" version="5" deathanm2="gfx/death_enemies.anm2">
+	<entity name="Gluttony Chubber Worm"   id="49" variant="22"   anm2path="049.022_Gluttony Chubber Projectile.anm2" shadowSize="15" portrait="0"
+	baseHP="0" shutdoors="false" tags="noreroll"
+	friction="1" collisionRadius="18" gridCollision="none" collisionMass="1" collisionDamage="2" />
+</entities>

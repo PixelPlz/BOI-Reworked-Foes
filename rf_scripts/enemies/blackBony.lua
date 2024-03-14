@@ -3,11 +3,11 @@ local mod = ReworkedFoes
 local path = "monsters/better/black boney/277.000_blackboney head_"
 
 mod.BlackBonyTypes = {
-	{effect = TearFlags.TEAR_CROSS_BOMB,   spriteType = "sprite", spriteFile = path .. "1", hasSpark = false},
-	{effect = TearFlags.TEAR_SCATTER_BOMB, spriteType = "sprite", spriteFile = path .. "2"},
-	{effect = TearFlags.TEAR_POISON, 	   spriteType = "sprite", spriteFile = path .. "3"},
-	{effect = TearFlags.TEAR_BURN, 		   spriteType = "sprite", spriteFile = path .. "4", hasSpark = false},
-	{effect = TearFlags.TEAR_SAD_BOMB, 	   spriteType = "sprite", spriteFile = path .. "5"},
+	{effect = TearFlags.TEAR_CROSS_BOMB,   spriteFile = path .. "1", hasSpark = false},
+	{effect = TearFlags.TEAR_SCATTER_BOMB, spriteFile = path .. "2"},
+	{effect = TearFlags.TEAR_POISON, 	   spriteFile = path .. "3"},
+	{effect = TearFlags.TEAR_BURN, 		   spriteFile = path .. "4", hasSpark = false},
+	{effect = TearFlags.TEAR_SAD_BOMB, 	   spriteFile = path .. "5"},
 }
 
 
@@ -49,7 +49,7 @@ function mod:BlackBonyUpdate(entity)
 			local entry = mod.BlackBonyTypes[entity.SubType]
 
 			-- Animation replacement
-			if entry.spriteType == "anm2" then
+			if entry.spriteType and entry.spriteType == "anm2" then
 				sprite:Load("gfx/" .. entry.spriteFile .. ".anm2", true)
 
 
@@ -92,37 +92,49 @@ function mod:BlackBonyUpdate(entity)
 	if entity.State == NpcState.STATE_ATTACK then
 		entity.StateFrame = 2
 	end
-
-	-- Death animation
-	if entity:HasMortalDamage() then
-		sprite:Play("Death", true)
-		entity.State = NpcState.STATE_DEATH
-	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BlackBonyUpdate, EntityType.ENTITY_BLACK_BONY)
 
-function mod:BlackBonyDeath(entity)
-	-- Special variants
-	if entity.SubType > 0 then
-		local effect = mod.BlackBonyTypes[entity.SubType].effect
+function mod:BlackBonyRender(entity, offset)
+	if mod:ShouldDoRenderEffects() then
+		local sprite = entity:GetSprite()
+		local data = entity:GetData()
 
-		-- Custom effect
-		if type(effect) == "function" then
-			effect(entity)
 
-		-- Bomb effect
-		else
-			local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_NORMAL, 0, entity.Position, Vector.Zero, entity):ToBomb()
-			bomb.Visible = false
-			bomb:AddTearFlags(effect)
-			bomb:SetExplosionCountdown(0)
+		-- Start the death animation
+		if entity:IsDead() and entity.State ~= NpcState.STATE_UNIQUE_DEATH then
+			sprite:Play("Death", true)
+			entity:KillUnique()
+			entity.Visible = true
+
+
+		-- Death effects
+		elseif sprite:IsFinished("Death") and not data.DeathEffects then
+			data.DeathEffects = true
+
+			-- Special variants
+			if entity.SubType > 0 then
+				local effect = mod.BlackBonyTypes[entity.SubType].effect
+
+				-- Custom effect
+				if type(effect) == "function" then
+					effect(_, entity)
+
+				-- Bomb effect
+				else
+					local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_NORMAL, 0, entity.Position, Vector.Zero, entity):ToBomb()
+					bomb.Visible = false
+					bomb:AddTearFlags(effect)
+					bomb:SetExplosionCountdown(0)
+				end
+
+			-- Default
+			else
+				local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_NORMAL, 0, entity.Position, Vector.Zero, entity):ToBomb()
+				bomb.Visible = false
+				bomb:SetExplosionCountdown(0)
+			end
 		end
-
-	-- Default
-	else
-		local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_NORMAL, 0, entity.Position, Vector.Zero, entity):ToBomb()
-		bomb.Visible = false
-		bomb:SetExplosionCountdown(0)
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.BlackBonyDeath, EntityType.ENTITY_BLACK_BONY)
+mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.BlackBonyRender, EntityType.ENTITY_BLACK_BONY)

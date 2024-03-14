@@ -31,7 +31,7 @@ function mod:DankGlobinUpdate(entity)
 		if entity.I1 == 1 and entity.Pathfinder:HasPathToPos(place, false) then
 			entity.Pathfinder:FindGridPath(place, 5.5 / 6, 500, false)
 
-			if entity:IsFrame(3, 0) then
+			if entity:IsFrame(4, 0) then
 				mod:QuickCreep(EffectVariant.CREEP_BLACK, entity, entity.Position, 0.9)
 			end
 		end

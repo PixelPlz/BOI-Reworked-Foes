@@ -14,7 +14,7 @@ local Settings = {
 function mod:BlackGlobinUpdate(entity)
 	if entity:IsDead() or entity.State == NpcState.STATE_APPEAR_CUSTOM then
 		-- Spawn from head
-		if entity.State == NpcState.STATE_APPEAR_CUSTOM then	
+		if entity.State == NpcState.STATE_APPEAR_CUSTOM then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
 			if entity:GetSprite():IsEventTriggered("Regen") then

@@ -152,7 +152,7 @@ function mod:MaskInfamyUpdate(entity)
 
 	-- Stunned
 	elseif entity.State == NpcState.STATE_IDLE then
-		entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.15)
+		entity.Velocity = mod:StopLerp(entity.Velocity, 0.15)
 
 		if entity.I2 <= 0 then
 			entity.State = NpcState.STATE_MOVE
@@ -419,7 +419,7 @@ function mod:HeartInfamyUpdate(entity)
 
 		-- Pushed back
 		if sprite:WasEventTriggered("Shoot") and not sprite:WasEventTriggered("Shoot2") then
-			entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.1)
+			entity.Velocity = mod:StopLerp(entity.Velocity, 0.1)
 
 			-- Yellow champion piss stream
 			if entity.SubType == 2 and entity:IsFrame(entity.I2 % 2 + 1, 0) then

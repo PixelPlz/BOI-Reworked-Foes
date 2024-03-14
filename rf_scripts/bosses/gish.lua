@@ -31,18 +31,6 @@ function mod:GishInit(entity)
 	if entity.Variant == 1 then
 		entity.ProjectileCooldown = Settings.Cooldown / 2
 		entity:GetData().counter = 1
-
-		-- Hera's Altar Scamps
-		if entity.SubType == 1 then
-			for i = -1, 1, 2 do
-				local pos = entity.Position + Vector(i * 70, 0)
-				pos = Game():GetRoom():FindFreePickupSpawnPosition(pos, 0, true, true)
-
-				local scamp = Isaac.Spawn(EntityType.ENTITY_WHIPPER, 0, 0, pos, Vector.Zero, entity)
-				scamp:GetData().altarScamp = true
-				scamp:GetSprite():Load("gfx/834.000_altar scamp.anm2", true)
-			end
-		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GishInit, EntityType.ENTITY_MONSTRO2)
@@ -58,8 +46,8 @@ function mod:GishUpdate(entity)
 		data.effectColor = mod.Colors.Tar
 		data.creepType   = EffectVariant.CREEP_BLACK
 
-		-- Champion / Delirium
-		if entity.SubType == 1 or data.wasDelirium then
+		-- Champion / Delirium / Delirious
+		if mod:IsRFChampion(entity, "Gish") or data.wasDelirium or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) == true then
 			data.effectColor  = mod.Colors.WhiteShot
 			data.creepType    = EffectVariant.CREEP_WHITE
 			entity.SplatColor = mod.Colors.WhiteShot
@@ -67,7 +55,7 @@ function mod:GishUpdate(entity)
 
 
 		-- Target any Sister Vis first
-		if not entity.Target and entity.SubType ~= 1 and not data.wasDelirium then
+		if not entity.Target and not mod:IsRFChampion(entity, "Gish") and not data.wasDelirium then
 			for i, sis in pairs(Isaac.FindByType(EntityType.ENTITY_SISTERS_VIS, -1, -1, false, false)) do
 				if sis:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) ~= entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) and not sis:GetData().wasDelirium then
 					entity.Target = sis
@@ -124,13 +112,13 @@ function mod:GishUpdate(entity)
 				else
 					local attackCount = 3
 					-- Only have up to 3 Clots
-					if entity.SubType == 1 or Isaac.CountEntities(nil, EntityType.ENTITY_CLOTTY, 1, -1) >= Settings.MaxClots then
+					if mod:IsRFChampion(entity, "Gish") or Isaac.CountEntities(nil, EntityType.ENTITY_CLOTTY, 1, -1) >= Settings.MaxClots then
 						attackCount = 2
 					end
 					local attack = mod:Random(1, attackCount)
 
 					-- Do the spit attack instead of the jump one for Hera
-					if entity.SubType == 1 and attack == 2 then
+					if mod:IsRFChampion(entity, "Gish") and attack == 2 then
 						attack = 3
 					end
 
@@ -167,7 +155,7 @@ function mod:GishUpdate(entity)
 				-- Creep
 				if entity:IsFrame(3, 0) then
 					-- For Hera
-					if entity.SubType == 1 then
+					if mod:IsRFChampion(entity, "Gish") then
 						local creep = mod:QuickCreep(data.creepType, entity, entity.Position, 1.5, -1)
 						table.insert(data.bubblies, creep)
 
@@ -207,7 +195,7 @@ function mod:GishUpdate(entity)
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.75)
 
 					-- For Hera
-					if entity.SubType == 1 then
+					if mod:IsRFChampion(entity, "Gish") then
 						data.bubblies = {}
 					end
 
@@ -263,7 +251,7 @@ function mod:GishUpdate(entity)
 					params.Color = data.effectColor
 
 					-- Hera bubbly spots
-					if entity.SubType == 1 then
+					if mod:IsRFChampion(entity, "Gish") then
 						for i, bubbly in pairs(data.bubblies) do
 							bubbly:SetTimeout(1)
 
@@ -419,7 +407,9 @@ function mod:GishUpdate(entity)
 					entity.TargetPosition = room:GetClampedPosition(entity.TargetPosition, 20)
 
 					-- Target
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TARGET, 0, entity.TargetPosition, Vector.Zero, entity):ToEffect().Timeout = 25
+					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TARGET, 0, entity.TargetPosition, Vector.Zero, entity):ToEffect()
+					effect.Timeout = 25
+					effect:GetSprite().Color = Color(0.5,0.5,0.5, 1)
 
 					-- Projectile
 					local params = ProjectileParams()
@@ -536,7 +526,7 @@ function mod:GishUpdate(entity)
 
 			if sprite:IsEventTriggered("Shoot") then
 				-- Hera
-				if entity.SubType == 1 then
+				if mod:IsRFChampion(entity, "Gish") then
 					for i = -1, 1, 2 do
 						local params = ProjectileParams()
 						params.Color = data.effectColor
@@ -801,7 +791,7 @@ function mod:GishUpdate(entity)
 				mod:LoopingAnim(sprite, "JumpAcrossLoop")
 
 				-- Projectiles for Hera
-				if entity.SubType == 1 then
+				if mod:IsRFChampion(entity, "Gish") then
 					if entity:IsFrame(2, 0) then
 						local params = ProjectileParams()
 						params.Color = data.effectColor
@@ -834,7 +824,7 @@ function mod:GishUpdate(entity)
 					sprite.FlipY = not sprite.FlipY
 
 					-- Projectiles
-					if entity.SubType ~= 1 then
+					if not mod:IsRFChampion(entity, "Gish") then
 						local params = ProjectileParams()
 						params.Color = data.effectColor
 						params.Scale = 1.25
@@ -878,7 +868,7 @@ function mod:GishUpdate(entity)
 				params.Color = data.effectColor
 
 				-- Hera
-				if entity.SubType == 1 then
+				if mod:IsRFChampion(entity, "Gish") then
 					params.Spread = 1.2
 					params.Scale = 1.5
 					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(7.5), 5, params)
@@ -974,18 +964,37 @@ function mod:GishUpdate(entity)
 					entity.StateFrame = 0
 				end
 			end
-		end
 
+
+
+		-- Force Delirium out of this form because for some reason he just deletes the data that holds the references to the legs
+		elseif data.wasDelirium then
+			entity.StateFrame = 0
+			entity.State = NpcState.STATE_ATTACK2
+		end
 
 
 		if entity.FrameCount > 1 then
 			return true
 
-		-- Remove Clots for Hera's boss rooms
-		elseif entity.SubType == 1 then
+		-- Hera
+		elseif mod:IsRFChampion(entity, "Gish") and not data.wasDelirium and not data.altarScampsSpawned then
+			-- Remove Clots
 			for i, clot in pairs(Isaac.FindByType(EntityType.ENTITY_CLOTTY, 1, -1, false, false)) do
 				clot:Remove()
 			end
+
+			-- Altar Scamps
+			for i = -1, 1, 2 do
+				local pos = entity.Position + Vector(i * 70, 0)
+				pos = Game():GetRoom():FindFreePickupSpawnPosition(pos, 0, true, true)
+
+				local scamp = Isaac.Spawn(EntityType.ENTITY_WHIPPER, 0, 0, pos, Vector.Zero, entity)
+				scamp:GetData().altarScamp = true
+				scamp:GetSprite():Load("gfx/834.000_altar scamp.anm2", true)
+			end
+
+			data.altarScampsSpawned = true
 		end
 	end
 end
@@ -1042,7 +1051,7 @@ function mod:GishFallingShots(projectile)
 			mod:PlaySound(nil, SoundEffect.SOUND_PLOP, 0.9, 1, 1)
 
 			-- For Hera
-			if spawner.SubType == 1 then
+			if mod:IsRFChampion(spawner, "Gish") then
 				mod:QuickCreep(spawnerData.creepType, spawner, projectile.Position, 2, Settings.CreepTime)
 			end
 		end

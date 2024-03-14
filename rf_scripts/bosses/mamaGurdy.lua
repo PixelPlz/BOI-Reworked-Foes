@@ -27,6 +27,7 @@ function mod:MamaGurdyUpdate(entity)
 				end
 			end
 
+
 			-- Spike trap attack
 			if entity.I1 == 11 then
 				entity.State = NpcState.STATE_ATTACK5
@@ -38,23 +39,28 @@ function mod:MamaGurdyUpdate(entity)
 
 
 			-- Bouncing shots attack
-			elseif sprite:IsEventTriggered("Shoot") then
-				local params = ProjectileParams()
-				params.Scale = 1.75
-				params.Color = mod.Colors.PukeOrange
-				params.FallingSpeedModifier = 1
-				params.FallingAccelModifier = -0.13
+			else
+				if sprite:IsEventTriggered("Sound") then
+					mod:PlaySound(entity, SoundEffect.SOUND_MOUTH_FULL, 0.9)
 
-				entity:FireProjectiles(shootPos, (target.Position - shootPos):Resized(9), 5, params)
+				elseif sprite:IsEventTriggered("Shoot") then
+					local params = ProjectileParams()
+					params.Scale = 1.75
+					params.Color = mod.Colors.PukeOrange
+					params.FallingSpeedModifier = 1
+					params.FallingAccelModifier = -0.13
 
-				params.Spread = 0.77
-				params.BulletFlags = ProjectileFlags.BOUNCE
-				for i, projectile in pairs(mod:FireProjectiles(entity, shootPos, (target.Position - shootPos):Resized(7), 4, params)) do
-					mod:QuickTrail(projectile, 0.09, Color(0.64,0.4,0.16, 1), projectile.Scale * 1.6)
+					entity:FireProjectiles(shootPos, (target.Position - shootPos):Resized(9), 5, params)
+
+					params.Spread = 0.77
+					params.BulletFlags = ProjectileFlags.BOUNCE
+					for i, projectile in pairs(mod:FireProjectiles(entity, shootPos, (target.Position - shootPos):Resized(7), 4, params)) do
+						mod:QuickTrail(projectile, 0.09, Color(0.64,0.4,0.16, 1), projectile.Scale * 1.6)
+					end
+
+					mod:ShootEffect(entity, 4, Vector(0, 8), mod.Colors.PukeOrange)
+					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF)
 				end
-
-				mod:ShootEffect(entity, 4, Vector(0, 8), mod.Colors.PukeOrange)
-				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF)
 			end
 
 
@@ -98,11 +104,14 @@ function mod:MamaGurdyUpdate(entity)
 
 			-- Shoot
 			elseif entity.I2 == 1 then
-				if sprite:IsEventTriggered("Shoot") then
+				-- Sounds
+				if sprite:IsEventTriggered("Sound") then
+					mod:PlaySound(entity, SoundEffect.SOUND_MOUTH_FULL, 0.9)
+				elseif sprite:IsEventTriggered("Shoot") then
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF)
 				end
 
-				-- Only shoot 3 spreads
+				-- Shoot 3 spreads
 				if sprite:WasEventTriggered("Shoot") and entity.I1 < 3 then
 					if entity.ProjectileCooldown <= 0 then
 						local params = ProjectileParams()
@@ -132,12 +141,18 @@ function mod:MamaGurdyUpdate(entity)
 		-- Off-screen / Puke attack
 		elseif entity.State == NpcState.STATE_ATTACK3 then
 			-- Set starting spike cooldown
-			if sprite:IsPlaying("Attack1") and sprite:GetFrame() == 2 then
+			if sprite:IsPlaying("Attack1") and sprite:IsEventTriggered("Shoot") then
 				entity.ProjectileDelay = Settings.Cooldown / 2
 
-			-- Puke effects
-			elseif sprite:IsPlaying("Puke") and sprite:WasEventTriggered("Shoot") and entity:IsFrame(5, 0) and not sprite:WasEventTriggered("BloodStop") and sprite:GetFrame() < 65 then
-				mod:ShootEffect(entity, 4, Vector(0, 8), mod.Colors.PukeOrange)
+			elseif sprite:IsPlaying("Puke") then
+				-- Sound
+				if sprite:IsEventTriggered("Sound") and entity.I1 == 0 then
+					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_ROAR_1, 1.1)
+
+				-- Puke effects
+				elseif entity:IsFrame(5, 0) and sprite:WasEventTriggered("Shoot") and not sprite:WasEventTriggered("BloodStop") then
+					mod:ShootEffect(entity, 4, Vector(0, 8), mod.Colors.PukeOrange)
+				end
 			end
 
 
@@ -167,6 +182,33 @@ function mod:MamaGurdyUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MamaGurdyUpdate, EntityType.ENTITY_MAMA_GURDY)
+
+function mod:MamaGurdyRender(entity, offset)
+	if mod:ShouldDoRenderEffects() then
+        local sprite = entity:GetSprite()
+		local data = entity:GetData()
+
+		-- Appear effects
+        if sprite:IsPlaying("Appear") and sprite:IsEventTriggered("Sound")
+		and not data.AppearEffects then
+			data.AppearEffects = true
+
+			mod:PlaySound(nil, SoundEffect.SOUND_BOSS_LITE_ROAR, 1.1)
+			Game():ShakeScreen(6)
+
+
+		-- Death effects
+		elseif sprite:IsPlaying("Death") and sprite:IsEventTriggered("BloodStart")
+		and not data.DeathEffects then
+			data.DeathEffects = true
+			Game():GetRoom():EmitBloodFromWalls(25, 3)
+		end
+	end
+end
+
+mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.MamaGurdyRender, EntityType.ENTITY_MAMA_GURDY)
+
+
 
 -- Replace default spikes
 function mod:MamaGurdySpawns(effect)

@@ -1,7 +1,8 @@
 local mod = ReworkedFoes
 
 mod.IncompatibleMods = {
-	{ Variable = bpattern, Name = "Hardmode Major Boss Patterns" },
+	{ Variable = bpattern, 		Name = "Hardmode Major Boss Patterns" },
+	{ Variable = SCROTOMODPLUS, Name = "SCROTO MOD +"},
 }
 
 

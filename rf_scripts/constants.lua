@@ -19,7 +19,7 @@ mod.Entities = {
 	EggSackProjectile = Isaac.GetEntityVariantByName("Egg Sack Projectile"),
 
 
-	-- Enemies / Bosses
+	-- NPCs
 	Type = 200,
 
 	Brazier 	= Isaac.GetEntityVariantByName("Brazier"),
@@ -43,19 +43,14 @@ mod.Entities = {
 		LostHolyOrb	   = 2,
 
 
-	-- Champion subtypes
-	PinChampion 	= 2,
-	KrampusChampion = 1,
-
-
 	-- Effects
-	OneTimeEffect  = Isaac.GetEntityVariantByName("One Time Effect"),
-	DirtHelper 	   = Isaac.GetEntityVariantByName("Scolex Dirt Helper"),
-	HealingAura    = Isaac.GetEntityVariantByName("Healing Aura"),
-	HolyTracer 	   = Isaac.GetEntityVariantByName("Holy Tracer"),
-	BrimstoneSwirl = Isaac.GetEntityVariantByName("Single Brimstone Swirl"),
-	SkyLaserEffect = Isaac.GetEntityVariantByName("Sister Vis Laser Effect"),
-	FireRingHelper = Isaac.GetEntityVariantByName("Fire Ring Helper"),
+	OneTimeEffect 	= Isaac.GetEntityVariantByName("One Time Effect"),
+	DirtHelper 		= Isaac.GetEntityVariantByName("Scolex Dirt Helper"),
+	HealingAura 	= Isaac.GetEntityVariantByName("Healing Aura"),
+	HolyTracer 		= Isaac.GetEntityVariantByName("Holy Tracer"),
+	BrimstoneSwirl  = Isaac.GetEntityVariantByName("Single Brimstone Swirl"),
+	SkyLaserEffect  = Isaac.GetEntityVariantByName("Sister Vis Laser Effect"),
+	FireRingHelper  = Isaac.GetEntityVariantByName("Fire Ring Helper"),
 
 	TriachnidLeg = Isaac.GetEntityVariantByName("Triachnid Leg Segment"),
 		TriachnidJoint    = 0,
@@ -68,7 +63,6 @@ mod.Entities = {
 --[[ Colors ]]--
 mod.Colors = {
 	BrimShot   = Color(1,0.25,0.25, 1, 0.25,0,0),
-	ShadyRed   = Color(-1,-1,-1, 1, 1,0,0),
 	Tar 	   = mod:ColorEx({1,1,1, 1, 0,0,0},   {1,1,1, 1},   {0.5,0.5,0.5, 1}),
 	WhiteShot  = mod:ColorEx({1,1,1, 1, 0.5,0.5,0.5},   {1,1,1, 1}),
 	SunBeam    = Color(1,1,1, 1, 0.3,0.3,0),
@@ -144,9 +138,6 @@ mod.Sounds = {
 	ChadAttackSpit = Isaac.GetSoundIdByName("C.H.A.D. Attack Spit"),
 	ChadStunned    = Isaac.GetSoundIdByName("C.H.A.D. Stunned"),
 	ChadDeath 	   = Isaac.GetSoundIdByName("C.H.A.D. Death"),
-
-	-- Blue Pin
-	LarryScream = Isaac.GetSoundIdByName("Larry Scream"),
 
 	-- Steven
 	StevenVoice  = Isaac.GetSoundIdByName("Steven Voice"),

@@ -67,13 +67,6 @@
 	<entity name="Scolex Dirt Helper"   id="200" variant="4062"   anm2path="062.001_scolex.anm2"   shutdoors="false" tags="noreroll"   friction="1" gridCollision="none" />
 
 
-	<!-- Conquest 2nd phase -->
-	<!-- Conquest without horse -->
-	<entity name="Conquest Without Horse"   id="65" variant="11"   anm2path="065.011_conquest without horse.anm2" shadowSize="19" portrait="20"
-	baseHP="500" boss="1" bossID="38" tags="nodelirium"
-	friction="1" collisionRadius="25" gridCollision="walls" collisionMass="30" collisionDamage="2" numGridCollisionPoints="12" >
-		<gibs amount="12"   large="1"   blood="1" bone="1" gut="1" />
-	</entity>
 	<!-- Conquest Horse -->
 	<entity name="Conquest Horse"   id="65" variant="20"   anm2path="065.020_conquest horse.anm2" shadowSize="19" portrait="20"
 	baseHP="150" boss="1" bossID="38" tags="nodelirium"
@@ -109,9 +102,17 @@
 	</entity>
 
 
+	<!-- Triachnid Foot -->
+	<entity name="Triachnid Foot"   id="101" variant="10"   anm2path="101.001_Triachnid.anm2" shadowSize="33" portrait="23"
+	baseHP="500" shutdoors="false" boss="1" bossID="42" tags="nodelirium"
+	friction="1" collisionRadius="20" collisionMass="80" collisionDamage="1" numGridCollisionPoints="12" >
+		<gibs amount="8"   blood="1" bone="1" />
+	</entity>
+
+
 	<!-- ??? -->
 	<!-- Forgotten Body -->
-	<entity name="Forgotten Body (Boss)"   id="200" variant="4102" subtype="0"   anm2path="forgotten body (boss).anm2" shadowSize="16" portrait="23"
+	<entity name="Forgotten Body (Boss)"   id="200" variant="4102" subtype="0"   anm2path="forgotten body (boss).anm2" shadowSize="16" portrait="24"
 	shutdoors="false" boss="1" bossID="63" tags="nodelirium"
 	friction="1" collisionRadius="18" gridCollision="walls" collisionMass="100" collisionDamage="1" numGridCollisionPoints="12" >
 		<gibs amount="10"   sound_bone="1"   bone="1" dust="1" />
@@ -121,7 +122,7 @@
 	shutdoors="false" tags="noreroll"
 	friction="1" gridCollision="none" />
 	<!-- Lost Holy Orb -->
-	<entity name="Lost Holy Orb"   id="200" variant="4102" subtype="2"   anm2path="holy orb.anm2" shadowSize="16" portrait="23"
+	<entity name="Lost Holy Orb"   id="200" variant="4102" subtype="2"   anm2path="holy orb.anm2" shadowSize="16" portrait="24"
 	shutdoors="false" tags="noreroll"
 	friction="1" collisionRadius="13" gridCollision="walls" collisionMass="100" collisionDamage="1" numGridCollisionPoints="12" />
 

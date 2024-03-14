@@ -84,6 +84,25 @@ function mod:DaddyLongLegsUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DaddyLongLegsUpdate, EntityType.ENTITY_DADDYLONGLEGS)
 
+-- Death effects
+function mod:DaddyLongLegsRender(entity, offset)
+	if entity.Variant == 0 and mod:ShouldDoRenderEffects() then
+        local sprite = entity:GetSprite()
+		local data = entity:GetData()
+
+        if sprite:IsPlaying("Death") and sprite:IsEventTriggered("Land")
+		and not data.DeathEffects then
+			data.DeathEffects = true
+
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
+			mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS)
+			Game():ShakeScreen(6)
+		end
+	end
+end
+
+mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.DaddyLongLegsRender, EntityType.ENTITY_DADDYLONGLEGS)
+
 function mod:DaddyLongLegsCollision(entity, target, bool)
 	if target.Type == EntityType.ENTITY_DADDYLONGLEGS or target.Type == EntityType.ENTITY_BLISTER or target.Type == EntityType.ENTITY_BOIL then
 		return true -- Ignore collision

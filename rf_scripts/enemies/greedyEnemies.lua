@@ -13,7 +13,8 @@ local Settings = {
 function mod:CollectCoins(entity)
 	if mod.Config.CoinStealing == true
 	and not Game():IsGreedMode() -- Don't pick up coins in Greed Mode
-	and entity.FrameCount > 20 and not entity:IsDead() then -- Don't try to pick up coins during the appear animation / post-mortem
+	and entity.FrameCount > 20 and not entity:IsDead() -- Don't try to pick up coins during the appear animation / post-mortem
+	and not entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then -- Friendly enemies shouldn't pick up coins
 
 		for _, pickup in pairs(Isaac.FindInRadius(entity.Position, Settings.CoinMagnetRange, EntityPartition.PICKUP)) do
 			if pickup.Variant == PickupVariant.PICKUP_COIN and pickup.SubType ~= CoinSubType.COIN_STICKYNICKEL -- Don't try to pick up sticky nickels

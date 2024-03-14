@@ -62,13 +62,8 @@ function mod:RagMegaUpdate(entity)
 			mod:LoopingOverlay(sprite, "Rags", true)
 
 			-- Remove plasmas from the list if they don't exist
-			for i = 1, #data.balls do
-				local ball = data.balls[i]
+			for i, ball in pairs(data.balls) do
 				if ball and (not ball:Exists() or ball:IsDead()) then
-					if ball.Child then
-						ball.Child:Remove()
-					end
-
 					table.remove(data.balls, i)
 				end
 			end
@@ -76,7 +71,7 @@ function mod:RagMegaUpdate(entity)
 
 			-- Stationary
 			if entity.I1 == 0 then
-				entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.1)
+				entity.Velocity = mod:StopLerp(entity.Velocity, 0.1)
 
 			-- Move diagonally
 			elseif entity.I1 == 1 then
@@ -519,7 +514,7 @@ function mod:RagPlasmaUpdate(entity)
 
 			-- Slow down
 			elseif entity.State == NpcState.STATE_STOMP then
-				entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.1)
+				entity.Velocity = mod:StopLerp(entity.Velocity, 0.1)
 
 			-- Go to parent
 			elseif entity.State == NpcState.STATE_JUMP then

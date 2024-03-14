@@ -50,12 +50,8 @@ function mod:TriachnidInit(entity)
 			local foot = Isaac.Spawn(entity.Type, 10, entity.SubType, entity.Position + Vector.FromAngle(-90 + i * 120):Resized(20), Vector.Zero, entity):ToNPC()
 			foot:GetData().index = i
 			foot.Parent = entity
-			foot:SetSize(20, Vector(entity.Scale, entity.Scale), 12)
 			foot:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_NO_REWARD)
-
-			local footSprite = foot:GetSprite()
-			footSprite:Load(entity:GetSprite():GetFilename(), true)
-			footSprite:Play("FootIdle", true)
+			foot:GetSprite():Play("FootIdle", true)
 
 
 			-- Joint
@@ -599,8 +595,19 @@ function mod:TriachnidUpdate(entity)
 				entity.PositionOffset = Vector(0, Settings.HeadHeight)
 			end
 
+
+
+			-- Die if one of the legs doesn't exist
+			for i, leg in pairs(data.legs) do
+				if leg and (not leg.foot or not leg.foot:Exists() or leg.foot:IsDead()) then
+					leg.foot:KillUnique()
+					leg.foot:GetSprite():Play("FootIdle", true) -- This is very dumb but it works soooo ¯\_(ツ)_/¯
+					entity:Kill()
+				end
+			end
+
 			-- Death sound
-			if entity:HasMortalDamage() then
+			if entity:IsDead() then
 				mod:PlaySound(entity, mod.Sounds.TriachnidHurt, 1.2)
 			end
 
@@ -827,7 +834,8 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.TriachnidDMG, EntityType.EN
 
 --[[ Legs ]]--			Heavily based off of Dusk's elbow code from Fiend Folio (thanks Erfly!)
 function mod:TriachnidRender(entity, offset)
-	if not Game():IsPaused() and entity.Variant == 1 and entity:GetData().legs then
+	if entity.Variant == 1 and mod:ShouldDoRenderEffects()
+	and entity:GetData().legs then
 		local data = entity:GetData()
 		local sprite = entity:GetSprite()
 
@@ -903,13 +911,12 @@ function mod:TriachnidRender(entity, offset)
 			if sprite:IsEventTriggered("Vomit") then
 				for i, leg in pairs(data.legs) do
 					for j, segment in pairs(leg) do
-						segment:Remove()
-
-						-- Bone gibs
-						if segment.Type == EntityType.ENTITY_EFFECT and segment.SubType == 2 then
-							local boneEffect = Isaac.Spawn(EntityType.ENTITY_BONY, 0, 0, segment.Position, Vector.Zero, entity)
-							boneEffect.Visible = false
-							boneEffect:Kill()
+						-- Do proper death for the feet
+						if j == "foot" then
+							segment:KillUnique()
+							segment:GetSprite():Play("FootDeath", true)
+						else
+							segment:Remove()
 						end
 					end
 				end

@@ -70,7 +70,7 @@ function mod:BreakHost(entity, brokenData)
 
 	-- Stunned state for the new entity
 	if brokenData.Script ~= nil then
-		brokenData.Script(entity)
+		brokenData.Script(_, entity)
 
 	else
 		if entity.Type == EntityType.ENTITY_FLESH_MOBILE_HOST then
@@ -80,6 +80,9 @@ function mod:BreakHost(entity, brokenData)
 		end
 		entity.StateFrame = 10
 	end
+
+	-- Make sure the NO_TARGET flag is removed
+	entity:ClearEntityFlags(EntityFlag.FLAG_NO_TARGET)
 
 
 	-- Effects
@@ -97,7 +100,7 @@ function mod:hostBreakCheck(entity)
 		local brokenData = mod:IsBreakableHost(entity)
 
 		if brokenData ~= false -- Is a Host that can be broken
-		and ((brokenData.Condition ~= nil and brokenData.Condition(entity) == true) -- Has custom condition
+		and ((brokenData.Condition ~= nil and brokenData.Condition(_, entity) == true) -- Has custom condition
 		or (entity:GetSprite():IsPlaying("Bombed") or entity:GetSprite():IsOverlayPlaying("Bombed"))) then -- Default condition
 			mod:BreakHost(entity, brokenData)
 		end

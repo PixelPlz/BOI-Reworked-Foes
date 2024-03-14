@@ -227,7 +227,7 @@ function mod:FlorianUpdate(entity)
 			-- Follow Ed if he's alive
 			if entity.Parent then
 				if entity.Position:Distance(entity.Parent.Position) <= Settings.FlorianMaxDistance then
-					entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.15)
+					entity.Velocity = mod:StopLerp(entity.Velocity, 0.15)
 				else
 					entity.Velocity = mod:Lerp(entity.Velocity, (entity.Parent.Position - entity.Position):Resized(Settings.FlorianSpeed), 0.15)
 				end

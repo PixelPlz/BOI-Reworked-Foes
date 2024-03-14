@@ -379,3 +379,13 @@ function mod:PortalDMG(entity, damageAmount, damageFlags, damageSource, damageCo
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.PortalDMG, EntityType.ENTITY_PORTAL)
+
+
+
+--[[ Turn Crazy Long Legs from Lil Portals into Level 2 Spiders ]]--
+function mod:CrazyLongLegsInit(entity)
+	if entity.SpawnerType == EntityType.ENTITY_PORTAL and entity.SpawnerVariant == 1 then
+		entity:Morph(EntityType.ENTITY_SPIDER_L2, 0, 0, entity:GetChampionColorIdx())
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.CrazyLongLegsInit, EntityType.ENTITY_BABY)

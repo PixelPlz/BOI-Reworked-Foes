@@ -116,7 +116,7 @@ function mod:DrownedChargerUpdate(entity)
 
 			-- Stop blowing
 			elseif entity.ProjectileCooldown == 2 then
-				entity.Velocity = mod:Lerp(entity.Velocity, Vector.Zero, 0.1)
+				entity.Velocity = mod:StopLerp(entity.Velocity, 0.1)
 
 				if sprite:IsFinished() then
 					entity.ProjectileCooldown = 0

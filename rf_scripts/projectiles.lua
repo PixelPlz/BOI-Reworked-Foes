@@ -217,11 +217,6 @@ function mod:EditNormalProjectiles(projectile)
 			end
 
 
-		-- Black champion Dark One
-		elseif projectile.SpawnerType == EntityType.ENTITY_DARK_ONE and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 then
-			sprite.Color = mod.Colors.ShadyRed
-
-
 		-- Angels
 		elseif (projectile.SpawnerType == EntityType.ENTITY_URIEL or projectile.SpawnerType == EntityType.ENTITY_GABRIEL) and projectile.SpawnerEntity and not projectile.SpawnerEntity:GetData().wasDelirium then
 			mod:ChangeProjectile(projectile, mod.Entities.FeatherProjectile)

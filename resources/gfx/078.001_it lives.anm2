@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="Ferpe" CreatedOn="2023. 07. 03. 23:03:14" Version="148" Fps="30"/>
+	<Info CreatedBy="Ferpe" CreatedOn="2024. 03. 08. 16:16:17" Version="149" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="bosses\classic\boss_070_itlives.png" Id="0"/>
@@ -78,7 +78,9 @@
 					<Frame XPosition="0" YPosition="-80" XScale="100" YScale="100" Delay="1" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="false"/>
 				</NullAnimation>
 			</NullAnimations>
-			<Triggers/>
+			<Triggers>
+				<Trigger EventId="7" AtFrame="4"/>
+			</Triggers>
 		</Animation>
 		<Animation Name="1Idle" FrameNum="32" Loop="true">
 			<RootAnimation>

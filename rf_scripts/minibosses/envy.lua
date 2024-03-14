@@ -18,7 +18,7 @@ local Settings = {
 
 
 function mod:EnvyUpdate(entity)
-	if mod:CheckForRev() == false and mod.Config.EnvyRework == true then
+	if mod:CheckValidMiniboss(entity) and mod.Config.EnvyRework == true then
 		if entity.Variant >= 10 and entity.FrameCount == 0 then
 			entity.I2 = 1
 			entity.ProjectileCooldown = Settings.InitialTimer
@@ -45,7 +45,7 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.EnvyUpdate, EntityType.ENTITY_ENVY)
 
 function mod:EnvyCollision(entity, target, bool)
-	if mod:CheckForRev() == false and mod.Config.EnvyRework == true and target.Type == EntityType.ENTITY_ENVY and (entity.I1 == 1 or entity.Variant < 2) then
+	if mod:CheckValidMiniboss(entity) and mod.Config.EnvyRework == true and target.Type == EntityType.ENTITY_ENVY and (entity.I1 == 1 or entity.Variant <= 1) then
 		-- Get bounce strength
 		local eSize = math.floor(entity.Variant / 10)
 		local tSize = math.floor(target.Variant / 10)
@@ -70,9 +70,12 @@ function mod:EnvyCollision(entity, target, bool)
 
 
 		-- Champion shots
-		if entity.SubType == 1 and bool == true then
+		if mod:IsRFChampion(entity, "Envy") and bool == true then
+			local params = ProjectileParams()
+			params.Variant = ProjectileVariant.PROJECTILE_TEAR
+
 			for i = -1, 1, 2 do
-				entity:FireProjectiles(entity.Position, (entity.Position - target.Position):Rotated(i * 90):Resized(Settings.BaseShotSpeed + strength), 0, ProjectileParams())
+				entity:FireProjectiles(entity.Position, (entity.Position - target.Position):Rotated(i * 90):Resized(Settings.BaseShotSpeed + strength), 0, params)
 			end
 		end
 
@@ -83,11 +86,12 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.EnvyCollision, EntityType
 
 -- Pink champion projectiles
 function mod:EnvyDeath(entity)
-	if mod:CheckForRev() == false and entity.SubType == 1
+	if mod:CheckValidMiniboss(entity) and mod:IsRFChampion(entity, "Envy")
 	and (entity.Variant == 0 or (mod.Config.EnvyRework == false and (entity.Variant == 10 or entity.Variant == 20))) then
 		local amount = 8 - (entity.Variant / 10) * 2
 
 		local params = ProjectileParams()
+		params.Variant = ProjectileVariant.PROJECTILE_TEAR
 		params.CircleAngle = 0
 		entity:FireProjectiles(entity.Position, Vector(Settings.BaseShotSpeed + 1, amount), 9, params)
 	end
@@ -96,16 +100,17 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.EnvyDeath, EntityType.ENTITY
 
 
 
-function mod:EnvyRewards(entity)
-	if mod:CheckForRev() == false and entity.SpawnerType == EntityType.ENTITY_ENVY then
-		-- Tammy's Head
-		if entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 and entity.Variant == PickupVariant.PICKUP_COLLECTIBLE and entity.SubType ~= CollectibleType.COLLECTIBLE_TAMMYS_HEAD then
-			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_TAMMYS_HEAD, false, true, false)
+function mod:EnvyRewards(pickup)
+	-- Trinkets
+	if pickup.SpawnerType == EntityType.ENTITY_ENVY
+	and pickup.Variant == PickupVariant.PICKUP_BOMB and pickup.SubType == BombSubType.BOMB_TROLL then
+		pickup:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_TRINKET, 0, false, true, false)
+	end
 
-		-- Trinkets
-		elseif entity.Variant == PickupVariant.PICKUP_BOMB and entity.SubType == BombSubType.BOMB_TROLL then
-			entity:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_TRINKET, 0, false, true, false)
-		end
+	-- Tammy's Head
+	if mod:CheckMinibossDropReplacement(pickup, EntityType.ENTITY_ENVY, "Envy")
+	and pickup.Variant == PickupVariant.PICKUP_COLLECTIBLE and pickup.SubType ~= CollectibleType.COLLECTIBLE_TAMMYS_HEAD then
+		pickup:Morph(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_TAMMYS_HEAD, false, true, false)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PICKUP_INIT, mod.EnvyRewards)

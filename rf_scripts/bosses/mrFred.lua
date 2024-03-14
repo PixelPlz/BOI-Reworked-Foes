@@ -199,7 +199,10 @@ function mod:MrFredUpdate(entity)
 			-- Projectiles
 			elseif sprite:IsEventTriggered("Shoot") then
 				entity.TargetPosition = room:GetClampedPosition(target.Position + mod:RandomVector(mod:Random(10, 100)), 0)
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TARGET, 0, entity.TargetPosition, Vector.Zero, entity):ToEffect().Timeout = 30
+
+				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.TARGET, 0, entity.TargetPosition, Vector.Zero, entity):ToEffect()
+				effect.Timeout = 30
+				effect:GetSprite().Color = Color(0.8,0.2,0.2, 1)
 
 				local params = ProjectileParams()
 				params.BulletFlags = ProjectileFlags.EXPLODE
@@ -323,6 +326,27 @@ function mod:MrFredUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.MrFredUpdate, EntityType.ENTITY_MR_FRED)
 
+-- Appear sounds
+function mod:MrFredRender(entity, offset)
+	if entity.Variant == 0 and entity.SubType == 0 and mod:ShouldDoRenderEffects()
+	and entity.State == NpcState.STATE_APPEAR then
+        local sprite = entity:GetSprite()
+		local data = entity:GetData()
+
+
+        if sprite:IsEventTriggered("Burrow") and not data.AppearPopUp then
+			data.AppearPopUp = true
+			mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_BURST_OUT, 0.75)
+
+		elseif sprite:IsEventTriggered("Shoot") and not data.AppearSound then
+			data.AppearSound = true
+			mod:PlaySound(entity, SoundEffect.SOUND_FAT_WIGGLE, 1.25, 0.95)
+		end
+	end
+end
+
+mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.MrFredRender, EntityType.ENTITY_MR_FRED)
+
 
 
 --[[ Trailing projectile ]]--
@@ -331,7 +355,7 @@ function mod:TrailingProjectileUpdate(projectile)
 		local params = ProjectileParams()
 		params.BulletFlags = (ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
 		params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
-		params.ChangeTimeout = 120
+		params.ChangeTimeout = 150
 
 		params.Acceleration = 1.1
 		params.FallingSpeedModifier = 1

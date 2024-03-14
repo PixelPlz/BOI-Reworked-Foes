@@ -1,0 +1,68 @@
+<bosscolors version="1" anm2root="gfx/" portraitroot="gfx/ui/boss/">
+	<!-- Gish -->
+	<boss id="43" variant="1">
+		<color name="Hera" anm2path="043.001_gish_heraglow.anm2" scale="0.9"/>
+	</boss>
+
+	<!-- Sloth -->
+    <boss id="46" variant="0">
+		<color name="Dank Sloth" anm2path="046.000_sloth_dank.anm2" scale="1.15" hp="1.15"/>
+	</boss>
+
+	<!-- Lust -->
+    <boss id="47" variant="0">
+		<color name="Fortune Teller Lust" anm2path="047.000_lust_fortune_teller.anm2" scale="1.15"/>
+	</boss>
+
+	<!-- Wrath -->
+    <boss id="48" variant="0">
+		<color name="Burning Wrath" anm2path="048.000_wrath_burning.anm2" scale="1.15"/>
+	</boss>
+
+	<!-- Gluttony -->
+    <boss id="49" variant="0">
+		<color name="Infested Gluttony" anm2path="049.000_gluttony_infested.anm2" scale="1.15"/>
+	</boss>
+
+	<!-- Greed -->
+    <boss id="50" variant="0">
+		<color name="Golden Greed" anm2path="050.000_greed_golden.anm2" scale="1.15"/>
+	</boss>
+
+	<!-- Envy -->
+    <boss id="51" variant="0">
+		<color name="Lonely Envy" suffix="_lonely" scale="1.15" hp="0.85"/>
+	</boss>
+	<boss id="51" variant="10">
+		<color name="Lonely Envy" suffix="_lonely" scale="1.15" hp="0.85"/>
+	</boss>
+	<boss id="51" variant="20">
+		<color name="Lonely Envy" suffix="_lonely" scale="1.15" hp="0.85"/>
+	</boss>
+	<boss id="51" variant="30">
+		<color name="Lonely Envy" suffix="_lonely" scale="1.15" hp="0.85"/>
+	</boss>
+
+	<!-- Pride -->
+    <boss id="52" variant="0">
+		<color name="Holy Pride" suffix="_holy" scale="1.15"/>
+	</boss>
+
+	<!-- Pin -->
+	<boss id="62" variant="0">
+		<color name="Pins Lament" anm2path="062.000_pins_lament.anm2" scale="0.9" hp="0.4"/>
+	</boss>
+
+	<!-- Conquest -->
+	<boss id="65" variant="1">
+		<color name="Bloody Conquest" suffix="_bloody" scale="1.15"/>
+	</boss>
+	<boss id="65" variant="20">
+		<color name="Bloody Conquest" suffix="_bloody" scale="1.15"/>
+	</boss>
+
+	<!-- Dark One -->
+	<boss id="267" variant="0">
+		<color name="Darkest One" suffix="_darker"/>
+	</boss>
+</bosscolors>

@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2022-12-07 19:03:32" Version="154" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2024. 03. 08. 16:52:47" Version="155" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="bosses\classic\boss_059_daddylonglegs.png" Id="0"/>
@@ -193,6 +193,7 @@
 			</NullAnimations>
 			<Triggers>
 				<Trigger EventId="1" AtFrame="0"/>
+				<Trigger EventId="3" AtFrame="13"/>
 				<Trigger EventId="0" AtFrame="27"/>
 			</Triggers>
 		</Animation>

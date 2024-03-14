@@ -1,76 +1,70 @@
 <sounds root="sfx/">
 	<!-- C.H.A.D. -->
 	<sound name="C.H.A.D. Attack Swim">
-        <sample weight="1" path="chad_attack1.wav" />
+        <sample weight="1" path="chad/attack1.wav" />
     </sound>
 	<sound name="C.H.A.D. Attack Jump">
-        <sample weight="1" path="chad_attack2.wav" />
+        <sample weight="1" path="chad/attack2.wav" />
     </sound>
 	<sound name="C.H.A.D. Attack Spit">
-        <sample weight="1" path="chad_attack3.wav" />
+        <sample weight="1" path="chad/attack3.wav" />
     </sound>
 
 	<sound name="C.H.A.D. Stunned">
-        <sample weight="1" path="chad_stunned1.wav" />
-		<sample weight="1" path="chad_stunned2.wav" />
-		<sample weight="1" path="chad_stunned3.wav" />
+        <sample weight="1" path="chad/stunned1.wav" />
+		<sample weight="1" path="chad/stunned2.wav" />
+		<sample weight="1" path="chad/stunned3.wav" />
     </sound>
 
 	<sound name="C.H.A.D. Die">
-        <sample weight="1" path="chad_death.wav" />
-    </sound>
-
-
-    <!-- Blue Pin -->
-    <sound name="Larry Scream">
-        <sample weight="1" path="larry_scream.wav" />
+        <sample weight="1" path="chad/death.wav" />
     </sound>
 
 
 	<!-- Steven -->
 	<sound name="Steven Voice">
-        <sample weight="1" path="steven_voice.wav" />
+        <sample weight="1" path="steven/voice.wav" />
     </sound>
 
 	<sound name="Steven Teleport Loop">
-        <sample weight="1" path="steven_teleport.wav" />
+        <sample weight="1" path="steven/teleport.wav" />
     </sound>
 
 	<sound name="Steven Layer Change">
-        <sample weight="1" path="steven_change1.wav" />
-		<sample weight="1" path="steven_change2.wav" />
-		<sample weight="1" path="steven_change3.wav" />
+        <sample weight="1" path="steven/change1.wav" />
+		<sample weight="1" path="steven/change2.wav" />
+		<sample weight="1" path="steven/change3.wav" />
     </sound>
 
 	<sound name="Steven Land">
-        <sample weight="1" path="steven_land1.wav" />
-		<sample weight="1" path="steven_land2.wav" />
-		<sample weight="1" path="steven_land3.wav" />
+        <sample weight="1" path="steven/land1.wav" />
+		<sample weight="1" path="steven/land2.wav" />
+		<sample weight="1" path="steven/land3.wav" />
     </sound>
 
 	<sound name="Steven Death">
-        <sample weight="1" path="steven_death.wav" />
+        <sample weight="1" path="steven/death.wav" />
     </sound>
 
 	<sound name="Steven Flip">
-        <sample weight="1" path="steven_flip.wav" />
+        <sample weight="1" path="steven/flip.wav" />
     </sound>
 
 
     <!-- Triachnid -->
 	<sound name="Triachnid Happy">
-        <sample weight="1" path="triachnid_happy.wav" />
+        <sample weight="1" path="triachnid/happy.wav" />
     </sound>
 
 	<sound name="Triachnid Hurt">
-        <sample weight="1" path="triachnid_hurt1.wav" />
-		<sample weight="1" path="triachnid_hurt2.wav" />
-		<sample weight="1" path="triachnid_hurt3.wav" />
+        <sample weight="1" path="triachnid/hurt1.wav" />
+		<sample weight="1" path="triachnid/hurt2.wav" />
+		<sample weight="1" path="triachnid/hurt3.wav" />
     </sound>
 
 
     <!-- Sister Vis -->
 	<sound name="Giant Laser Loop Fixed">
-        <sample weight="1" path="giant_laser_loop.wav" />
+        <sample weight="1" path="v2/blood laser long loop.wav" />
     </sound>
 </sounds>
