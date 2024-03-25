@@ -237,6 +237,11 @@ function mod:HeartInfamyInit(entity)
 	-- Yellow champion
 	elseif entity.SubType == 2 then
 		entity.SplatColor = FiendFolio.ColorLemonYellow
+
+		local sprite = entity:GetSprite()
+		sprite:Load("gfx/098.000_heart of infamy.anm2", true)
+		sprite:Play("HeartAppear", true)
+		sprite:ReplaceSpritesheet(0, "gfx/bosses/classic/boss_057_maskofinfamy_yellow.png", true)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.HeartInfamyInit, EntityType.ENTITY_HEART_OF_INFAMY)

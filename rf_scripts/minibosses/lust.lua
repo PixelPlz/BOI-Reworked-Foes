@@ -17,6 +17,32 @@ local Settings = {
 
 
 
+-- Add's the effect to the specified variant and subtype's pool of effects
+-- 'OnUseScript' is ran once when the item is used. Can be left as nil.
+-- 'UpdateScript' is ran every update frame after the item is used. Can be left as nil.
+-- 'UseSound' is the announcer line played alongside the pill/card sound
+-- 'Anim' is the custom animation it should play when using the item. Can be left as nil.
+-- 'Sprite' is the 32x32 spritesheet of the item that gets loaded. Can be left as nil. Not needed if a custom animation is defined.
+function mod:AddLustEffect(Variant, Subtype, OnUseScript, UpdateScript, UseSound, Anim, Sprite)
+	local typeData = {
+		Activate = OnUseScript,
+		Passive  = UpdateScript,
+		SFX 	 = UseSound,
+		Anim 	 = Anim,
+		Sprite   = Sprite,
+	}
+
+	if not mod.LustEffects[Variant] then
+		mod.LustEffects[Variant] = {}
+	end
+	if not mod.LustEffects[Variant][Subtype] then
+		mod.LustEffects[Variant][Subtype] = {}
+	end
+	table.insert(mod.LustEffects[Variant][Subtype], typeData)
+end
+
+
+
 --[[ Effect functions ]]--
 -- One makes you larger
 function mod:LustOneMakesYouLarger(entity)
@@ -104,22 +130,22 @@ mod.LustEffects = {
 	-- Regular
 	[0] = { -- Variant
 		[0] = { -- Subtype
-			{ SFX = SoundEffect.SOUND_LARGER, 	   Activate = mod.LustOneMakesYouLarger, Passive = mod.LustCrushRocks },
-			{ SFX = SoundEffect.SOUND_PRETTY_FLY,  Activate = mod.LustPrettyFly },
-			{ SFX = SoundEffect.SOUND_SPEED_UP,    Activate = mod.LustSpeedUp },
-			{ SFX = SoundEffect.SOUND_HP_UP, 	   Activate = mod.LustHealthUp },
-			{ SFX = SoundEffect.SOUND_LEMON_PARTY, Passive  = mod.LustLemonParty },
+			{ SFX = SoundEffect.SOUND_LARGER, 	   Anim = "OneMakesYouLarger", Activate = mod.LustOneMakesYouLarger, Passive = mod.LustCrushRocks },
+			{ SFX = SoundEffect.SOUND_PRETTY_FLY,  Anim = "PrettyFly", 		   Activate = mod.LustPrettyFly },
+			{ SFX = SoundEffect.SOUND_SPEED_UP,    Anim = "SpeedUp", 		   Activate = mod.LustSpeedUp },
+			{ SFX = SoundEffect.SOUND_HP_UP, 	   Anim = "HealthUp", 		   Activate = mod.LustHealthUp },
+			{ SFX = SoundEffect.SOUND_LEMON_PARTY, Anim = "LemonParty", 	   Passive  = mod.LustLemonParty },
 		},
 	},
 
 	-- Super Lust
 	[1] = { -- Variant
 		[0] = { -- Subtype
-			{ SFX = SoundEffect.SOUND_MEGA_ONE_MAKES_YOU_LARGER, Activate = mod.LustOneMakesYouLarger, Passive = mod.LustCrushRocks },
-			{ SFX = SoundEffect.SOUND_MEGA_PRETTY_FLY, 			 Activate = mod.LustPrettyFly },
-			{ SFX = SoundEffect.SOUND_MEGA_SPEED_UP, 			 Activate = mod.LustSpeedUp },
-			{ SFX = SoundEffect.SOUND_MEGA_HEALTH_UP, 			 Activate = mod.LustHealthUp },
-			{ SFX = SoundEffect.SOUND_MEGA_LEMON_PARTY, 		 Passive  = mod.LustLemonParty },
+			{ SFX = SoundEffect.SOUND_MEGA_ONE_MAKES_YOU_LARGER, Anim = "OneMakesYouLarger", Activate = mod.LustOneMakesYouLarger, Passive = mod.LustCrushRocks },
+			{ SFX = SoundEffect.SOUND_MEGA_PRETTY_FLY, 			 Anim = "PrettyFly", 		 Activate = mod.LustPrettyFly },
+			{ SFX = SoundEffect.SOUND_MEGA_SPEED_UP, 			 Anim = "SpeedUp", 			 Activate = mod.LustSpeedUp },
+			{ SFX = SoundEffect.SOUND_MEGA_HEALTH_UP, 			 Anim = "HealthUp", 		 Activate = mod.LustHealthUp },
+			{ SFX = SoundEffect.SOUND_MEGA_LEMON_PARTY, 		 Anim = "LemonParty", 		 Passive  = mod.LustLemonParty },
 		},
 	},
 }
@@ -187,7 +213,6 @@ function mod:LustUpdate(entity)
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
 			if sprite:IsEventTriggered("Use") then
-			--if sprite:GetFrame() == 4 then
 				local array = mod.LustEffects[entity.Variant][entity.SubType][entity.I1]
 				data.passiveEffect = array.Passive
 
@@ -223,9 +248,23 @@ function mod:LustUpdate(entity)
 		-- Use an item at the beginning of the fight
 		elseif entity.FrameCount > 1 and entity.State == NpcState.STATE_INIT then
 			entity.State = NpcState.STATE_ATTACK
-			local array = mod.LustEffects[entity.Variant][entity.SubType]
-			entity.I1 = mod:Random(1, #array)
-			sprite:Play("Use0" .. entity.I1, true)
+
+			entity.I1 = mod:Random(1, #mod.LustEffects[entity.Variant][entity.SubType])
+			local array = mod.LustEffects[entity.Variant][entity.SubType][entity.I1]
+			local anim = "UseCustom"
+
+			-- Custom animation
+			if array.Anim then
+				anim = "Use" .. array.Anim
+			end
+
+			-- Default animation with different sprite
+			if array.Sprite then
+				sprite:ReplaceSpritesheet(2, array.Sprite)
+				sprite:LoadGraphics()
+			end
+
+			sprite:Play(anim, true)
 		end
 
 

@@ -1,26 +1,27 @@
 local mod = ReworkedFoes
 
-local path = "monsters/better/black boney/277.000_blackboney head_"
+local path = "gfx/monsters/better/black boney/277.000_blackboney head_"
 
 mod.BlackBonyTypes = {
-	{effect = TearFlags.TEAR_CROSS_BOMB,   spriteFile = path .. "1", hasSpark = false},
-	{effect = TearFlags.TEAR_SCATTER_BOMB, spriteFile = path .. "2"},
-	{effect = TearFlags.TEAR_POISON, 	   spriteFile = path .. "3"},
-	{effect = TearFlags.TEAR_BURN, 		   spriteFile = path .. "4", hasSpark = false},
-	{effect = TearFlags.TEAR_SAD_BOMB, 	   spriteFile = path .. "5"},
+	{Effect = TearFlags.TEAR_CROSS_BOMB,   SpriteFile = path .. "1", HasSpark = false},
+	{Effect = TearFlags.TEAR_SCATTER_BOMB, SpriteFile = path .. "2"},
+	{Effect = TearFlags.TEAR_POISON, 	   SpriteFile = path .. "3"},
+	{Effect = TearFlags.TEAR_BURN, 		   SpriteFile = path .. "4", HasSpark = false},
+	{Effect = TearFlags.TEAR_SAD_BOMB, 	   SpriteFile = path .. "5"},
 }
 
 
 
--- effect can be either a function or a tear flag (if it's a function it won't explode by default to allow for more flexible behaviour)
--- sprite should be a table with the first value determening if it's a head sprite or anm2 replacement ("sprite" or "anm2"), and the second value being the actual file (the 'gfx/' and '.png' / '.anm2' are included by default)
--- hasSpark is true by default, it can be left out (it also doesn't do anything for anm2 replacements)
-function mod:AddBlackBonyType(effect, spriteType, spriteFile, hasSpark)
+-- 'Effect' can be either a function or a tear flag (if it's a function it won't explode by default to allow for more flexible behaviour)
+-- If 'SpriteType' is set to ".anm2" then the specified 'SpriteFile' will be loaded as an animation file, otherwise it will be loaded as a spritesheet.
+	-- The file type should be left out from 'SpriteFile' so the proper champion spritesheets can be loaded!
+-- 'HasSpark' is true by default and can be left as nil (it also doesn't do anything for anm2 replacements)
+function mod:AddBlackBonyType(Effect, SpriteType, SpriteFile, HasSpark)
 	local typeData = {
-		effect 	   = effect,
-		spriteType = spriteType,
-		spriteFile = spriteFile,
-		hasSpark   = hasSpark
+		Effect 	   = Effect,
+		SpriteType = SpriteType,
+		SpriteFile = SpriteFile,
+		HasSpark   = HasSpark,
 	}
 	table.insert(mod.BlackBonyTypes, typeData)
 end
@@ -49,8 +50,8 @@ function mod:BlackBonyUpdate(entity)
 			local entry = mod.BlackBonyTypes[entity.SubType]
 
 			-- Animation replacement
-			if entry.spriteType and entry.spriteType == "anm2" then
-				sprite:Load("gfx/" .. entry.spriteFile .. ".anm2", true)
+			if entry.SpriteType and entry.SpriteType == "anm2" then
+				sprite:Load(entry.SpriteFile .. "anm2", true)
 
 
 			-- Head sprite replacement
@@ -60,10 +61,10 @@ function mod:BlackBonyUpdate(entity)
 					suffix = "_champion"
 				end
 
-				sprite:ReplaceSpritesheet(1, "gfx/" .. entry.spriteFile .. suffix .. ".png")
+				sprite:ReplaceSpritesheet(1, entry.SpriteFile .. suffix .. ".png")
 
 				-- Remove bomb spark for some variants
-				if entry.hasSpark == false then
+				if entry.HasSpark == false then
 					sprite:ReplaceSpritesheet(2, "")
 				end
 
@@ -89,7 +90,7 @@ function mod:BlackBonyUpdate(entity)
 
 
 	-- Only attack once
-	if entity.State == NpcState.STATE_ATTACK then
+	if entity.SubType > 0 and entity.State == NpcState.STATE_ATTACK then
 		entity.StateFrame = 2
 	end
 end
@@ -114,7 +115,7 @@ function mod:BlackBonyRender(entity, offset)
 
 			-- Special variants
 			if entity.SubType > 0 then
-				local effect = mod.BlackBonyTypes[entity.SubType].effect
+				local effect = mod.BlackBonyTypes[entity.SubType].Effect
 
 				-- Custom effect
 				if type(effect) == "function" then

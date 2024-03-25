@@ -61,10 +61,14 @@ function mod:RagMegaUpdate(entity)
 
 			mod:LoopingOverlay(sprite, "Rags", true)
 
-			-- Remove plasmas from the list if they don't exist
 			for i, ball in pairs(data.balls) do
-				if ball and (not ball:Exists() or ball:IsDead()) then
+				-- Remove plasmas from the list if they don't exist
+				if not ball:Exists() or ball:IsDead() then
 					table.remove(data.balls, i)
+
+				-- Spawned from Delirious
+				elseif entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+					ball:AddEntityFlags(EntityFlag.FLAG_FRIENDLY)
 				end
 			end
 

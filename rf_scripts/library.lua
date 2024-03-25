@@ -538,7 +538,7 @@ function mod:OrbitParent(entity, parent, speed, distance, group)
 
 		-- No specified group
 		else
-			others = Isaac.FindByType(entity.Type, entity.Variant, entity.SubType, false, true)
+			others = Isaac.FindByType(entity.Type, entity.Variant, entity.SubType, false, false)
 		end
 
 
@@ -547,8 +547,9 @@ function mod:OrbitParent(entity, parent, speed, distance, group)
 		local leader = nil
 
 		for i, sibling in pairs(others) do
-			-- Orbiting the same parent
-			if sibling:HasCommonParentWithEntity(entity) then
+			-- Orbiting the same parent and is on the same "team"
+			if sibling:HasCommonParentWithEntity(entity)
+			and sibling:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) == entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
 				local siblingData = sibling:GetData()
 
 				siblingData.orbitIndex = siblingCount

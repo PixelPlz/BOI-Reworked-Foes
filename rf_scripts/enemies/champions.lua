@@ -48,7 +48,7 @@ function mod:ChampionDeath(entity)
     if mod.Config.ChampionChanges == true and entity:IsChampion() then
         -- Grey champion creep
         if entity:GetChampionColorIdx() == ChampionColor.GREY then
-            local creep = mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 2.5)
+            local creep = mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 2)
             creep.Color = mod.Colors.CageCreep
         end
 

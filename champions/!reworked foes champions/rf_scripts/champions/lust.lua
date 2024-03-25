@@ -89,10 +89,10 @@ end
 
 --[[ Define the effects ]]--
 local effects = {
-	{ SFX = SoundEffect.SOUND_HANGED_MAN, Activate = mod.LustHangedMan },
-	{ SFX = SoundEffect.SOUND_HERMIT, 	  Activate = mod.LustHermit, Passive = mod.CollectCoins },
-	{ SFX = SoundEffect.SOUND_TEMPERANCE, Activate = mod.LustTemperanceActivate, Passive = mod.LustTemperancePassive },
-	{ SFX = SoundEffect.SOUND_STRENGTH,   Activate = mod.LustStrength },
-	{ SFX = SoundEffect.SOUND_DEATH, 	  Passive  = mod.LustDeathCard },
+	{ SFX = SoundEffect.SOUND_HANGED_MAN, Anim = "HangedMan",  Activate = mod.LustHangedMan },
+	{ SFX = SoundEffect.SOUND_HERMIT, 	  Anim = "Hermit",     Activate = mod.LustHermit, Passive = mod.CollectCoins },
+	{ SFX = SoundEffect.SOUND_TEMPERANCE, Anim = "Temperance", Activate = mod.LustTemperanceActivate, Passive = mod.LustTemperancePassive },
+	{ SFX = SoundEffect.SOUND_STRENGTH,   Anim = "Strength",   Activate = mod.LustStrength },
+	{ SFX = SoundEffect.SOUND_DEATH, 	  Anim = "Death", 	   Passive  = mod.LustDeathCard },
 }
 mod.LustEffects[0][mod.Champions.Lust] = effects

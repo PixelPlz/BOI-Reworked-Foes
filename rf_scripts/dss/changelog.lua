@@ -1,3 +1,32 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.9", [[
+
+{FSIZE2}Balance changes
+- Creep from gray champions
+is now smaller
+
+- It Lives' blood cell attack
+is now shorter but with less space
+between each group of cells
+
+
+
+{FSIZE2}Fixes
+- Custom pill effects for Lust
+can now properly be added
+
+- Fixed yellow Mask of Infamy
+from Fiend Folio not working properly
+
+- Fixed Delirious Rag Mega's
+plasma balls hurting the player
+
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.8", [[
 
 Custom champions have been moved to

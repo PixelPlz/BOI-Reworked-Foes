@@ -1004,7 +1004,7 @@ function mod:ItLivesUpdate(entity)
 			elseif entity.State == NpcState.STATE_SUMMON3 then
 				mod:LoopingAnim(sprite, animPrefix .. "HideIdle")
 
-				if entity.I1 < 10 then
+				if entity.I1 <= 8 then
 					-- Come down delay
 					entity.StateFrame = 90
 
@@ -1047,7 +1047,7 @@ function mod:ItLivesUpdate(entity)
 						end
 
 
-						entity.ProjectileDelay = 20
+						entity.ProjectileDelay = 18
 						entity.I1 = entity.I1 + 1
 
 					else

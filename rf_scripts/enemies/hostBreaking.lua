@@ -12,10 +12,10 @@ mod.BreakableHosts = {
 
 -- Putting nil as the Variant or SubType will make it work on any of that type's variants or subtypes
 -- Putting nil as any of the broken values will make them not change it when they get broken
--- BreakCheckScript should be a function that returns true if some custom condition is met for them breaking. (something that isn't their animation or overlay being "Bombed")
+-- 'BreakCheckScript' should be a function that returns true if some custom condition is met for them breaking. (something that isn't their animation or overlay being "Bombed")
 	-- The first argument should be the entity.
 	-- Can be set to nil to use default conditions.
--- BrokenScript gets triggered when they break. If your Host doesn't use StateFrame for the timer or use "Bombed" as their animation like vanilla Hosts then you should set up that stuff here.
+-- 'BrokenScript' gets triggered when they break. If your Host doesn't use StateFrame for the timer or use "Bombed" as their animation like vanilla Hosts then you should set up that stuff here.
 	-- The first argument should be the entity.
 	-- Can be left out.
 function mod:AddBreakableHost(Type, Variant, SubType, BrokenType, BrokenVariant, BrokenSubType, BreakCheckScript, BrokenScript)
