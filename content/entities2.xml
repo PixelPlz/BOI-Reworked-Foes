@@ -70,7 +70,7 @@
 	<!-- Conquest Horse -->
 	<entity name="Conquest Horse"   id="65" variant="20"   anm2path="065.020_conquest horse.anm2" shadowSize="19" portrait="20"
 	baseHP="150" boss="1" bossID="38" tags="nodelirium"
-	friction="1" collisionRadius="25" gridCollision="none" collisionMass="1" collisionDamage="2" >
+	friction="1" collisionRadius="25" collisionMass="1" collisionDamage="2" >
 		<gibs amount="6"   blood="1" bone="1" />
 	</entity>
 

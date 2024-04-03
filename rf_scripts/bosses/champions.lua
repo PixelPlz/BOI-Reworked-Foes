@@ -301,10 +301,24 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.RedMawReplace, EntityType.ENT
 
 
 
---[[ Peep ]]--
+--[[ Peep / Bloat ]]--
+function mod:PeepInit(entity)
+	-- Inherit the parent's subtype for the eyes
+	if (entity.Variant == 10 or entity.Variant == 11) and entity.SpawnerEntity then
+		entity.SubType = entity.SpawnerEntity.SubType
+	end
+
+	-- Green blood for green Bloat
+	if (entity.Variant == 1 or entity.Variant == 11) and entity.SubType == 1 then
+		entity.SplatColor = mod.Colors.GreenBlood
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PeepInit, EntityType.ENTITY_PEEP)
+
 function mod:PeepUpdate(entity)
 	local sprite = entity:GetSprite()
 
+	--[[ Peep ]]--
 	if entity.Variant == 0 then
 		-- Remove Yellow champion piss attack
 		if entity.SubType == 1 and entity.State == NpcState.STATE_SUMMON and sprite:GetFrame() == 0 then
@@ -326,97 +340,53 @@ function mod:PeepUpdate(entity)
 		end
 
 
-	-- Blue champion eye
-	elseif entity.Variant == 10 then
-		if entity.SubType == 2 then
-			mod:LoopingOverlay(sprite, "Blood", true)
 
-			-- Idle
-			if entity.State == NpcState.STATE_MOVE then
-				mod:LoopingAnim(sprite, "Idle")
-
-				if entity.ProjectileCooldown <= 0 then
-					entity.State = NpcState.STATE_ATTACK
-					sprite:Play("Shoot", true)
-					entity.ProjectileCooldown = 90
-				else
-					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
-				end
-
-			-- Attacking
-			elseif entity.State == NpcState.STATE_ATTACK then
-				if sprite:IsEventTriggered("Shoot") then
-					local params = ProjectileParams()
-					params.Variant = ProjectileVariant.PROJECTILE_TEAR
-					entity:FireProjectiles(entity.Position, (entity:GetPlayerTarget().Position - entity.Position):Resized(10), 0, params)
-
-					mod:PlaySound(nil, SoundEffect.SOUND_TEARS_FIRE, 0.8)
-					mod:ShootEffect(entity, 5, Vector(-2, -24), mod.Colors.TearEffect, 0.85, true)
-				end
-
-				if sprite:IsFinished() then
-					entity.State = NpcState.STATE_MOVE
-				end
-			end
-
-		-- Set the subtype to 2 and load the new animations
-		elseif entity.SpawnerEntity and entity.SpawnerEntity.SubType == 2 then
-			entity.SubType = 2
+	--[[ Cyan peep eye ]]--
+	elseif entity.Variant == 10 and entity.SubType == 2 then
+		-- Load the animation file
+		if not entity:GetData().anm2Loaded then
 			sprite:Load("gfx/068.010_peep eye_cyan.anm2", true)
 			sprite:Play("Idle", true)
+			entity:GetData().anm2Loaded = true
 			entity.ProjectileCooldown = 45
 		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.PeepUpdate, EntityType.ENTITY_PEEP)
 
--- Blue effect colors
-function mod:BluePeepEffects(effect)
-	if effect.FrameCount <= 1 and effect.SpawnerType == EntityType.ENTITY_PEEP and effect.SpawnerVariant == 0 and effect.SpawnerEntity and effect.SpawnerEntity.SubType == 2 then
-		local sprite = effect:GetSprite()
 
-		-- Creep
-		if effect.Variant == EffectVariant.CREEP_YELLOW then
-			local anim = sprite:GetAnimation()
-			sprite:Load("gfx/1000.022_creep (red).anm2", true)
-			sprite:Play(anim, true)
+		mod:LoopingOverlay(sprite, "Blood", true)
 
-			effect.Variant = EffectVariant.CREEP_SLIPPERY_BROWN
-			sprite.Color = mod.Colors.TearTrail
+		-- Idle
+		if entity.State == NpcState.STATE_MOVE then
+			mod:LoopingAnim(sprite, "Idle")
 
-		-- Effects
-		elseif effect.Variant == EffectVariant.POOF02 then
-			sprite.Color = mod.Colors.TearEffect
+			if entity.ProjectileCooldown <= 0 then
+				entity.State = NpcState.STATE_ATTACK
+				sprite:Play("Shoot", true)
+				entity.ProjectileCooldown = 90
+			else
+				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+			end
+
+
+		-- Attacking
+		elseif entity.State == NpcState.STATE_ATTACK then
+			if sprite:IsEventTriggered("Shoot") then
+				local params = ProjectileParams()
+				params.Variant = ProjectileVariant.PROJECTILE_TEAR
+				entity:FireProjectiles(entity.Position, (entity:GetPlayerTarget().Position - entity.Position):Resized(10), 0, params)
+
+				mod:PlaySound(nil, SoundEffect.SOUND_TEARS_FIRE, 0.8)
+				mod:ShootEffect(entity, 5, Vector(-2, -24), mod.Colors.TearEffect, 0.85, true)
+			end
+
+			if sprite:IsFinished() then
+				entity.State = NpcState.STATE_MOVE
+			end
 		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.BluePeepEffects)
-
-function mod:BluePeepPissEffects(effect)
-	for i, peep in pairs(Isaac.FindByType(EntityType.ENTITY_PEEP, 0, 2, false, false)) do
-		if peep:ToNPC().State == NpcState.STATE_SUMMON and peep.Position:Distance(effect.Position) <= 40 and effect.FrameCount == 0 then -- Of course they don't have a spawner entity set...
-			effect:GetSprite().Color = mod.Colors.TearEffect
-		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_RENDER, mod.BluePeepPissEffects, EffectVariant.BLOOD_EXPLOSION)
 
 
 
---[[ Green Bloat ]]--
-function mod:GreenBloatInit(entity)
-	-- Replace the eyes with Spitties
-	if entity.Variant == 11 and entity.SpawnerEntity and entity.SpawnerEntity.SubType == 1 then
-		entity:Remove()
-		Isaac.Spawn(EntityType.ENTITY_CHARGER, 0, 0, entity.Position, Vector.Zero, entity)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GreenBloatInit, EntityType.ENTITY_PEEP)
-
-function mod:GreenBloatUpdate(entity)
-	if entity.Variant == 1 and entity.SubType == 1 then
-		local sprite = entity:GetSprite()
-
+	--[[ Green Bloat ]]--
+	elseif entity.Variant == 1 and entity.SubType == 1 then
 		-- Replace Brimstone attack with Chubber attack
 		if entity.State == NpcState.STATE_ATTACK2 or entity.State == NpcState.STATE_ATTACK3 then
 			entity.State = entity.State + 2
@@ -426,9 +396,6 @@ function mod:GreenBloatUpdate(entity)
 		-- Chubber attack
 		elseif entity.State == NpcState.STATE_ATTACK4 or entity.State == NpcState.STATE_ATTACK5 then
 			if sprite:IsEventTriggered("Shoot") then
-				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_SLOPPY_ROAR)
-				mod:PlaySound(nil, SoundEffect.SOUND_MEATHEADSHOOT)
-
 				-- Chubber worms
 				for i = -1, 1, 2 do
 					local angle = 90
@@ -443,19 +410,78 @@ function mod:GreenBloatUpdate(entity)
 
 					mod:ShootEffect(entity, 2, Vector(i * 12, -46), mod.Colors.GreenBlood, 1, true)
 				end
+
+				-- Effects
+				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_SLOPPY_ROAR)
+				mod:PlaySound(nil, SoundEffect.SOUND_MEATHEADSHOOT)
 			end
 
-			if sprite:GetFrame() == 54 then
+			if sprite:GetFrame() == 58 then -- Extra sound
 				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS)
 			end
-
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
 			end
 		end
+
+
+
+	--[[ Green Bloat eye ]]--
+	elseif entity.Variant == 11 and entity.SubType == 1 then
+		-- Change the drip color
+		if not entity:GetData().sheetLoaded then
+			sprite:ReplaceSpritesheet(1, "gfx/effects/effect_poisondrip.png")
+			sprite:LoadGraphics()
+		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GreenBloatUpdate, EntityType.ENTITY_PEEP)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.PeepUpdate, EntityType.ENTITY_PEEP)
+
+-- Slippery tear creep for cyan Peep
+function mod:BluePeepPiss(effect)
+	if effect.FrameCount <= 1
+	and effect.SpawnerType == EntityType.ENTITY_PEEP and effect.SpawnerVariant == 0
+	and effect.SpawnerEntity and effect.SpawnerEntity.SubType == 2 then
+		effect.Variant = EffectVariant.CREEP_SLIPPERY_BROWN
+
+		local sprite = effect:GetSprite()
+		local anim = sprite:GetAnimation()
+
+		sprite:Load("gfx/1000.022_creep (red).anm2", true)
+		sprite:Play(anim, true)
+		sprite.Color = mod.Colors.TearTrail
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.BluePeepPiss, EffectVariant.CREEP_YELLOW)
+
+-- Blue effect colors for cyan Peep
+-- (For some reason I can't get his piss trail to change color at all...)
+function mod:BluePeepPissPoof(effect)
+	if effect.FrameCount <= 1
+	and effect.SpawnerType == EntityType.ENTITY_PEEP and effect.SpawnerVariant == 0
+	and effect.SpawnerEntity and effect.SpawnerEntity.SubType == 2 then
+		effect:GetSprite().Color = mod.Colors.TearEffect
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.BluePeepPissPoof, EffectVariant.POOF02)
+
+function mod:BluePeepPissSplat(effect)
+	for i, peep in pairs(Isaac.FindByType(EntityType.ENTITY_PEEP, 0, 2, false, false)) do
+		if peep:ToNPC().State == NpcState.STATE_SUMMON and peep.Position:Distance(effect.Position) <= 40 and effect.FrameCount == 0 then -- Of course they don't have a spawner entity set...
+			effect:GetSprite().Color = mod.Colors.TearEffect
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_RENDER, mod.BluePeepPissSplat, EffectVariant.BLOOD_EXPLOSION)
+
+-- Green trail for green Bloat
+function mod:GreenBloatEffects(effect)
+	if effect.SpawnerType == EntityType.ENTITY_PEEP and (effect.SpawnerVariant == 1 or effect.SpawnerVariant == 11)
+	and effect.SpawnerEntity and effect.SpawnerEntity.SubType == 1 then
+		effect:GetSprite().Color = mod.Colors.GreenBlood
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.GreenBloatEffects, EffectVariant.BLOOD_SPLAT)
 
 
 

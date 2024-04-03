@@ -1,3 +1,46 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.10", [[
+
+{FSIZE2}Other changes
+- Green Bloat now has his eyes again
+instead of spawning with Spitties
+
+- Some enemies and bosses now
+flash white instead of red
+if their damage taken is reduced
+
+- It Lives can now do his
+blood cell attack in big rooms again
+and it now properly scales
+with the room size
+(mainly for Greed Mode)
+
+- It Lives now only considers
+enemies specifically spawned by him
+to check if he can come down or not,
+preventing potential softlocks
+with other mods
+
+
+
+{FSIZE2}Fixes
+- Fixed Conquest's horse
+getting stuck on walls
+
+- Fixed some of It Lives'
+projectiles never disappearing
+in big rooms
+
+- Fixed yellow Mask of Infamy
+from Fiend Folio not using
+the correct animation file
+
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.9", [[
 
 {FSIZE2}Balance changes

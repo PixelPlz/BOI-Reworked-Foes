@@ -318,6 +318,30 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.RedGhostUpdate, EntityType.ENTIT
 
 
 
+--[[ Mushroom ]]--
+function mod:MushroomDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity:ToNPC().State == NpcState.STATE_IDLE and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+		entity:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+		entity:SetColor(mod.Colors.ArmorFlash, 2, 0, false, false)
+		return false
+	end
+end
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.MushroomDMG, EntityType.ENTITY_MUSHROOM)
+
+
+
+--[[ Blaster ]]--
+function mod:BlasterDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if not (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0) and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+		entity:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+		entity:SetColor(mod.Colors.ArmorFlash, 2, 0, false, false)
+		return false
+	end
+end
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.BlasterDMG, EntityType.ENTITY_BLASTER)
+
+
+
 --[[ Tainted Faceless ]]--
 function mod:TaintedFacelessUpdate(entity)
 	if entity.Variant == 1 then

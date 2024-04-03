@@ -311,12 +311,23 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DeliriumHelper, EntityType.ENTIT
 
 
 
---[[ Decrease Reap Creep's HP ]]--
+--[[ Reap Creep ]]--
+-- Decrease his HP
 function mod:ReapCreepInit(entity)
 	entity.MaxHitPoints = 600
 	entity.HitPoints = entity.MaxHitPoints
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ReapCreepInit, EntityType.ENTITY_REAP_CREEP)
+
+-- Flash white when damage reduction is active
+function mod:ReapCreepDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity:ToNPC().State == NpcState.STATE_SPECIAL and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+		entity:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+		entity:SetColor(mod.Colors.ArmorFlash, 2, 0, false, false)
+		return false
+	end
+end
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ReapCreepDMG, EntityType.ENTITY_REAP_CREEP)
 
 
 

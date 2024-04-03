@@ -125,7 +125,7 @@ mod.Colors = {
 
 	Heal 		= Color(1,1,1, 1, 0.64,0,0),
 	DamageFlash = Color(0.5,0.5,0.5, 1, 0.8,0,0),
-	ArmorFlash  = Color(1,1,1, 1, 0.25,0.25,0.25),
+	ArmorFlash  = Color(1,1,1, 1, 0.4,0.4,0.4),
 }
 
 

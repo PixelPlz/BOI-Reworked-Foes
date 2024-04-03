@@ -73,3 +73,15 @@ function mod:PinUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.PinUpdate, EntityType.ENTITY_PIN)
+
+
+
+--[[ Wormwood damage reduction flash ]]--
+function mod:WormwoodDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
+	if entity.Variant == 3 and entity:ToNPC().I2 == 1 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+		entity:TakeDamage(damageAmount, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+		entity:SetColor(mod.Colors.ArmorFlash, 2, 0, false, false)
+		return false
+	end
+end
+mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.WormwoodDMG, EntityType.ENTITY_PIN)

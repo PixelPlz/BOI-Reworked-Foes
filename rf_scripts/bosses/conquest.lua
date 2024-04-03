@@ -32,7 +32,6 @@ function mod:ConquestInit(entity)
 
 	--[[ Horse ]]--
 	elseif entity.Variant == 20 then
-		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS_Y
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
 		entity.State = NpcState.STATE_MOVE
@@ -204,6 +203,7 @@ function mod:ConquestUpdate(entity)
 			if sprite:IsEventTriggered("Dash") then
 				entity.I1 = 1
 				entity.V1 = Vector(mod:GetSign(not sprite.FlipX), 0)
+				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS_Y
 				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_YELL_A, 0.9)
 			end
 
@@ -263,6 +263,7 @@ function mod:ConquestDMG(entity, damageAmount, damageFlags, damageSource, damage
 	and (entity.HitPoints <= entity.MaxHitPoints / 2 -- Main Conquest
 	or (entity.SpawnerEntity and entity.SpawnerEntity.HitPoints <= entity.SpawnerEntity.MaxHitPoints / 2)) then -- Clones
 		entity:TakeDamage(damageAmount / 4, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+		entity:SetColor(mod.Colors.ArmorFlash, 2, 0, false, false)
 		return false
 	end
 end

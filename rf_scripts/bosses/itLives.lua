@@ -140,13 +140,7 @@ function mod:ItLivesUpdate(entity)
 				end
 
 				-- Set state
-				if attack == 1 then
-					entity.State = NpcState.STATE_ATTACK
-				elseif attack == 2 then
-					entity.State = NpcState.STATE_ATTACK2
-				elseif attack == 3 then
-					entity.State = NpcState.STATE_ATTACK3
-				end
+				entity.State = NpcState.STATE_ATTACK + (attack - 1)
 
 
 				-- Set animation and other variables
@@ -213,22 +207,6 @@ function mod:ItLivesUpdate(entity)
 				mod:PlaySound(entity, SoundEffect.SOUND_MULTI_SCREAM)
 				Game():MakeShockwave(entity.Position + Vector(0, 48), 0.02, 0.025, 15)
 				Game():ShakeScreen(8)
-			end
-
-
-			-- Should this enemy keep him retracted and get killed by his spikes
-			local function isValidEnemy(fucker)
-				if  fucker:ToNPC() and fucker:ToNPC():IsActiveEnemy(false)
-				and fucker.Type ~= EntityType.ENTITY_MOMS_HEART
-				and not (fucker.Type == EntityType.ENTITY_HOMUNCULUS and fucker.Variant == 10)
-				and not (Isaac.GetEntityTypeByName("Salem") ~= 0 -- Dumb Salem fix (Hey fuckface, add proper globals for your mod so other mods can check for them too.)
-				and fucker.Type == Isaac.GetEntityTypeByName("Salem") and fucker.Variant == Isaac.GetEntityVariantByName("Salem"))
-				and not fucker:IsDead()
-				and fucker:IsInvincible() == false and fucker.MaxHitPoints > 0
-				and fucker:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) == false then
-					return true
-				end
-				return false
 			end
 
 
@@ -310,7 +288,7 @@ function mod:ItLivesUpdate(entity)
 			local canComeDown = true
 
 			for i, enemy in pairs(Isaac.GetRoomEntities()) do
-				if isValidEnemy(enemy) == true or (enemy.Type == EntityType.ENTITY_PROJECTILE and enemy.Variant == ProjectileVariant.PROJECTILE_MEAT) then
+				if enemy:GetData().itLivesSpawn and not enemy:IsDead() then
 					canComeDown = false
 					break
 				end
@@ -363,16 +341,20 @@ function mod:ItLivesUpdate(entity)
 				if entity.ProjectileCooldown <= 0 then
 					resetVariables()
 
-					-- FUCK YOU FUCK YOU FUCK YOU
+					-- Delirium version should randomly choose attacks and never summon enemies / retract
 					if data.wasDelirium then
-						data.attackCounter = 3 - (animPrefix - 1)
+						if data.enraged then
+							data.attackCounter = 1
+						else
+							data.attackCounter = 2 + mod:RandomSign()
+						end
 					end
 
 
 					-- Enraged
 					if data.phase == 4 then
-						-- Retract if in a regular room
-						if data.attackCounter == 3 and room:GetRoomShape() == RoomShape.ROOMSHAPE_1x1 then
+						-- Retract
+						if data.attackCounter == 3 then
 							entity.State = NpcState.STATE_JUMP
 							sprite:Play(animPrefix .. "Hide", true)
 
@@ -429,7 +411,7 @@ function mod:ItLivesUpdate(entity)
 
 					-- Summon spikes to kill all enemies
 					for i, enemy in pairs(Isaac.GetRoomEntities()) do
-						if isValidEnemy(enemy) == true then
+						if enemy:GetData().itLivesSpawn and not enemy:IsDead() then
 							Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, 0, enemy.Position, Vector.Zero, entity).Parent = enemy
 						end
 					end
@@ -608,6 +590,7 @@ function mod:ItLivesUpdate(entity)
 							if entity.I1 % 5 == 0 then
 								local params = baseProjectileParams
 								params.Scale = 1.75
+								params.FallingAccelModifier = -0.09
 
 								-- Get curve direction
 								local curveDir = ProjectileFlags.CURVE_LEFT
@@ -699,6 +682,7 @@ function mod:ItLivesUpdate(entity)
 
 						if entity.ProjectileDelay <= 0 then
 							local params = baseProjectileParams
+							params.FallingAccelModifier = -0.09
 							params.BulletFlags = params.BulletFlags + ProjectileFlags.SINE_VELOCITY
 
 							if entity.I1 % 2 == 0 then
@@ -933,19 +917,24 @@ function mod:ItLivesUpdate(entity)
 					-- For Gurglings
 					if type == EntityType.ENTITY_GURGLING then
 						for i = -1, 1, 2 do
-							Isaac.Spawn(type, variant, subtype, entity.Position + Vector(i * 30, 40), Vector.Zero, entity).SubType = 0 -- They don't work properly if their subtype is higher than 2
+							local spawn = Isaac.Spawn(type, variant, subtype, entity.Position + Vector(i * 30, 40), Vector.Zero, entity)
+							spawn.SubType = 0 -- They don't work properly if their subtype is higher than 2
+							spawn:GetData().itLivesSpawn = true
 						end
 
 					-- For Chub
 					elseif type == EntityType.ENTITY_CHUB then
 						for i = -1, 1 do
-							Isaac.Spawn(type, variant, subtype, entity.Position + Vector(i * 30, 40), Vector.Zero, entity)
+							local spawn = Isaac.Spawn(type, variant, subtype, entity.Position + Vector(i * 30, 40), Vector.Zero, entity)
+							spawn:GetData().itLivesSpawn = true
 						end
 
 					else
-						Isaac.Spawn(type, variant, subtype, entity.Position + Vector(0, 40), Vector.Zero, entity)
+						local spawn = Isaac.Spawn(type, variant, subtype, entity.Position + Vector(0, 40), Vector.Zero, entity)
+						spawn:GetData().itLivesSpawn = true
 					end
 
+					-- Effects
 					mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
 					mod:PlaySound(entity, SoundEffect.SOUND_MOM_VOX_FILTERED_EVILLAUGH)
@@ -990,14 +979,8 @@ function mod:ItLivesUpdate(entity)
 				end
 
 				if sprite:IsFinished() then
-					-- Only do the blood cell attack in regular rooms
-					if room:GetRoomShape() ~= RoomShape.ROOMSHAPE_1x1 then
-						entity.State = NpcState.STATE_IDLE
-
-					else
-						entity.State = NpcState.STATE_JUMP
-						sprite:Play(animPrefix .. "Hide", true)
-					end
+					entity.State = NpcState.STATE_JUMP
+					sprite:Play(animPrefix .. "Hide", true)
 				end
 
 			--[[ Blood cell attack ]]--
@@ -1009,6 +992,14 @@ function mod:ItLivesUpdate(entity)
 					entity.StateFrame = 90
 
 					if entity.ProjectileDelay <= 0 then
+						local params = ProjectileParams()
+						params.FallingSpeedModifier = 1
+						params.FallingAccelModifier = -0.18
+						params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.WIGGLE)
+
+						local burstChoice = mod:Random(-1, 1)
+
+
 						-- Get movement direction
 						local direction = 90 + entity.I2 * 90
 
@@ -1020,16 +1011,22 @@ function mod:ItLivesUpdate(entity)
 						end
 
 
-						local params = ProjectileParams()
-						params.FallingSpeedModifier = 1
-						params.FallingAccelModifier = -0.18
-						params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.WIGGLE)
+						-- Get the amount of lines and the size of the gap between them
+						local minMax = 1
+						local cellGap = 100
+						local roomShape = room:GetRoomShape()
 
-						local burstChoice = mod:Random(-1, 1)
+						if roomShape == RoomShape.ROOMSHAPE_1x2 or roomShape == RoomShape.ROOMSHAPE_IIV -- Tall rooms
+						or roomShape >= RoomShape.ROOMSHAPE_2x2 then -- L rooms
+							minMax = 2
+							cellGap = 120
+						end
 
 
-						for i = -1, 1 do
-							local pos = basePos + Vector.FromAngle(direction):Rotated(90):Resized(i * 100 + (entity.I1 % 2) * 40)
+						-- Create the cells
+						for i = -minMax, minMax do
+							local offset = (entity.I1 % 2) * 40
+							local pos = basePos + Vector.FromAngle(direction):Rotated(90):Resized(i * cellGap + offset)
 
 							local shot = mod:FireProjectiles(entity, pos, Vector.FromAngle(direction):Resized(6.5), 0, params)
 							shot.Scale = 1.5
@@ -1047,7 +1044,7 @@ function mod:ItLivesUpdate(entity)
 						end
 
 
-						entity.ProjectileDelay = 18
+						entity.ProjectileDelay = 19
 						entity.I1 = entity.I1 + 1
 
 					else
@@ -1163,7 +1160,8 @@ function mod:ItLivesUpdate(entity)
 						local selectedSpawn = mod:RandomIndex(spawnGroup)
 
 						for i = -1, 1, 2 do
-							Isaac.Spawn(selectedSpawn[1], selectedSpawn[2] or 0, selectedSpawn[3] or 0, getShootPos(i), Vector.Zero, fetus)
+							local spawn = Isaac.Spawn(selectedSpawn[1], selectedSpawn[2] or 0, selectedSpawn[3] or 0, getShootPos(i), Vector.Zero, fetus)
+							spawn:GetData().itLivesSpawn = true
 						end
 						mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 					end
@@ -1176,7 +1174,8 @@ function mod:ItLivesUpdate(entity)
 				elseif entity.State == NpcState.STATE_SUMMON2 then
 					if sprite:IsEventTriggered("Shoot") then
 						for i = -1, 1, 2 do
-							Isaac.Spawn(EntityType.ENTITY_HOMUNCULUS, 0, 0, getShootPos(i), Vector.Zero, fetus)
+							local spawn = Isaac.Spawn(EntityType.ENTITY_HOMUNCULUS, 0, 0, getShootPos(i), Vector.Zero, fetus)
+							spawn:GetData().itLivesSpawn = true
 						end
 						mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 					end
@@ -1350,7 +1349,8 @@ end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.ItLivesDMG, EntityType.ENTITY_MOMS_HEART)
 
 function mod:ItLivesCollision(entity, target, bool)
-	if entity.Variant == 1 and target.SpawnerType == entity.Type or (target.SpawnerEntity and target.SpawnerEntity.SpawnerType == entity.Type) then
+	if entity.Variant == 1 and target.SpawnerType == entity.Type
+	or (target.SpawnerEntity and target.SpawnerEntity.SpawnerType == entity.Type) then
 		return true -- Ignore collision
 	end
 end
@@ -1407,3 +1407,13 @@ function mod:ItLivesProjectileUpdate(projectile)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.ItLivesProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)
+
+
+
+--[[ Enemy spawns from It Lives spawns should inherit the marker ]]--
+function mod:ItLivesSpawnInit(entity)
+	if entity.SpawnerEntity and entity.SpawnerEntity:GetData().itLivesSpawn then
+		entity:GetData().itLivesSpawn = true
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ItLivesSpawnInit)
