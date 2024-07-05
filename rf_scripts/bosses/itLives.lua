@@ -305,7 +305,7 @@ function mod:ItLivesUpdate(entity)
 			end
 
 
-			-- Make other enemies not go near him
+			-- Make enemies not go behind him
 			if entity.State ~= NpcState.STATE_SUMMON2 and entity.State ~= NpcState.STATE_SUMMON3 then
 				for i = -1, 1 do
 					for j = -1, 1 do

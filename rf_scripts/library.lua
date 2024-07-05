@@ -3,6 +3,7 @@ local mod = ReworkedFoes
 
 
 --[[ General functions ]]--
+
 -- Lerp
 function mod:Lerp(first, second, percent)
 	return (first + (second - first) * percent)
@@ -62,6 +63,22 @@ function mod:GridAlignedPosition(position)
 end
 
 
+-- Get angle degrees (improved)
+function mod:GetPositiveAngleDegrees(input)
+	local angle
+	if type(input) == "number" then
+		angle = input
+	else
+		angle = input:GetAngleDegrees()
+	end
+
+	if angle < 0 then
+		return angle + 360
+	end
+	return angle
+end
+
+
 -- Better shoot function
 function mod:FireProjectiles(entity, from, velocity, shootType, params, trailColor)
 	-- Start recording projectiles
@@ -108,21 +125,9 @@ function mod:PlaySound(entity, id, volume, pitch, cooldown, loop, pan)
 end
 
 
--- Extended color constructor
-function mod:ColorEx(rgb, colorize, tint)
-	local color = Color(rgb[1],rgb[2],rgb[3], rgb[4], rgb[5],rgb[6],rgb[7])
-	if colorize then
-		color:SetColorize(colorize[1],colorize[2],colorize[3], colorize[4])
-	end
-	if tint then
-		color:SetTint(tint[1],tint[2],tint[3], tint[4])
-	end
-	return color
-end
-
-
 
 --[[ Random functions ]]--
+
 -- Replaces math.random 
 function mod:Random(min, max, rng)
 	rng = rng or mod.RNG
@@ -179,6 +184,7 @@ end
 
 
 --[[ Sprite functions ]]--
+
 -- Looping animation
 function mod:LoopingAnim(sprite, anim, dontReset)
 	if not sprite:IsPlaying(anim) then
@@ -276,7 +282,8 @@ end
 
 
 
---[[ NPC functions ]]--
+--[[ Entity functions ]]--
+
 -- Wander around randomly
 function mod:WanderAround(entity, speed)
 	-- Chase if charmed of friendly / Run away if feared
@@ -637,7 +644,7 @@ function mod:CheckCardinalAlignment(entity, sideRange, forwardRange, lineCheckMo
 	local target = entity:GetPlayerTarget()
 
 	-- Don't check if there are obstacles in the way
-	if Game():GetRoom():CheckLine(entity.Position, target.Position, lineCheckMode, 0, false, false) then
+	if Game():GetRoom():CheckLine(entity.Position, target.Position, lineCheckMode) then
 		for i = 0, 1 do
 			-- Get the position to check
 			local lineEnd = Vector(target.Position.X, entity.Position.Y)
@@ -648,11 +655,15 @@ function mod:CheckCardinalAlignment(entity, sideRange, forwardRange, lineCheckMo
 			-- Check if the distances are within range
 			if (target.Position - lineEnd):Length() <= sideRange and (entity.Position - lineEnd):Length() <= forwardRange then
 				local targetAngle = (lineEnd - entity.Position):GetAngleDegrees()
-				local facingAngle = facingAngle or entity.Velocity:GetAngleDegrees()
+				local facingAngle = mod:GetPositiveAngleDegrees(facingAngle or entity.Velocity)
+
+				-- Get the difference between the angles
+				local sub = facingAngle - mod:GetPositiveAngleDegrees(targetAngle)
+				local angleDifference = math.abs((sub + 180) % 360 - 180)
 
 				if not directionCheckMode or directionCheckMode == 0 -- Allow all directions
-				or (directionCheckMode == 1 and targetAngle == facingAngle) -- Only allow the direction I'm facing
-				or (directionCheckMode == 2 and math.abs(targetAngle - facingAngle) <= 90) then -- Allow the direction I'm facing + the directions to my side
+				or (directionCheckMode == 1 and angleDifference <= 30) -- Only allow the direction I'm facing
+				or (directionCheckMode == 2 and angleDifference <= 120) then -- Allow the direction I'm facing + the directions to my side
 					return targetAngle
 				end
 			end
@@ -690,6 +701,7 @@ end
 
 
 --[[ Spawning helper functions ]]--
+
 -- Creep
 function mod:QuickCreep(type, spawner, position, scale, timeout)
 	local creep = Isaac.Spawn(EntityType.ENTITY_EFFECT, type, 0, position, Vector.Zero, spawner):ToEffect()
@@ -794,11 +806,9 @@ end
 
 
 -- Fire ring attack
-local fireRingHelperVariant = Isaac.GetEntityVariantByName("Fire Ring Helper")
-
 function mod:CreateFireRing(entity, subtype, rings, delay, distance, startIndex, startDistance)
 	local pos = entity and entity.Position or Game():GetRoom():GetCenterPos()
-	local timer = Isaac.Spawn(EntityType.ENTITY_EFFECT, fireRingHelperVariant, subtype, pos, Vector.Zero, entity):ToEffect()
+	local timer = Isaac.Spawn(EntityType.ENTITY_EFFECT, mod.Entities.FireRingHelper, subtype, pos, Vector.Zero, entity):ToEffect()
 	timer.Parent = entity
 	timer.LifeSpan = startIndex or 0
 
@@ -816,7 +826,7 @@ function mod:FireRingHelperInit(timer)
 	timer.Timeout = 0
 	timer:GetData().Timer = 0
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.FireRingHelperInit, fireRingHelperVariant)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.FireRingHelperInit, mod.Entities.FireRingHelper)
 
 function mod:FireRingHelperUpdate(timer)
 	local data = timer:GetData()
@@ -852,7 +862,7 @@ function mod:FireRingHelperUpdate(timer)
 		data.Timer = data.Timer - 1
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.FireRingHelperUpdate, fireRingHelperVariant)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.FireRingHelperUpdate, mod.Entities.FireRingHelper)
 
 
 -- Smoke particles
@@ -939,6 +949,7 @@ end
 
 
 --[[ Misc. functions ]]--
+
 -- Turn red poops in the room into regular ones
 function mod:RemoveRedPoops()
 	local room = Game():GetRoom()

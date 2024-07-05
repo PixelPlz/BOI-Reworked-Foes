@@ -48,12 +48,11 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.MaskInfamyInit, EntityType.EN
 
 function mod:MaskInfamyUpdate(entity)
 	local sprite = entity:GetSprite()
-	local facingAngle = entity.Velocity:GetAngleDegrees()
-
 
 	-- Play the correct animation when moving
 	local function playDirectionalAnimation()
 		local prefix = entity.I1 == 1 and "Angry" or "Sad"
+		local facingAngle = entity.Velocity:GetAngleDegrees()
 		mod:LoopingAnim(sprite, prefix .. "Mask" .. mod:GetDirectionString(facingAngle))
 	end
 
@@ -79,7 +78,7 @@ function mod:MaskInfamyUpdate(entity)
 		playDirectionalAnimation()
 
 		if entity.ProjectileCooldown <= 0 then
-			local chargeCheck = mod:CheckCardinalAlignment(entity, Settings.SideRange, Settings.FrontRange, 3, 2, facingAngle)
+			local chargeCheck = mod:CheckCardinalAlignment(entity, Settings.SideRange, Settings.FrontRange, 3, 2)
 
 			-- Charge if in range
 			if chargeCheck ~= false then

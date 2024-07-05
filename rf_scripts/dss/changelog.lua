@@ -1,3 +1,43 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.11", [[
+
+{FSIZE2}Additions
+- Reimplemented the cut
+burst out of wall attack
+for Adult Leeches
+
+- Large Attack flies spawned
+by the Duke of Flies now
+have a unique appearance
+instead of simply being upscaled
+
+
+
+{FSIZE2}Balance changes
+- Adult Leeches now have
+a slower max speed for their
+dash attack
+
+- Red Maws now need to be
+close for a longer time
+before self detonating
+
+
+
+{FSIZE2}Fixes
+- Fixed some vanilla projectile
+changes not applying on their
+first frame after spawning
+
+- Fixed Hot Bomb Black Bonies
+not having their fire costume
+
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.10", [[
 
 {FSIZE2}Other changes

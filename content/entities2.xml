@@ -22,8 +22,24 @@
 	</entity>
 
 
+	<!-- Fat Attack Fly -->
+	<entity name="Fat Attack Fly"   id="18" variant="40"   anm2path="018.000_fat attack fly.anm2" shadowSize="14" portrait="1"
+	baseHP="9" tags="fly"
+	friction="1" collisionRadius="20" gridCollision="walls" collisionMass="4" collisionDamage="1" numGridCollisionPoints="6" >
+		<bestiary parent="18.0" />
+		<devolve id="18.0.0" weight="1" />
+	</entity>
+	<!-- Attack Eternal Fly -->
+	<entity name="Attack Eternal Fly"   id="18" variant="496"   anm2path="018.000_attack eternal fly.anm2" shadowSize="11" portrait="1"
+	baseHP="10" tags="fly"
+	friction="1" collisionRadius="11" gridCollision="walls" collisionMass="3" collisionDamage="1" numGridCollisionPoints="4" >
+		<bestiary parent="18.0" />
+		<devolve id="18.0.0" weight="1" />
+	</entity>
+
+
 	<!-- Soft Host -->
-	<entity name="Soft Host"   id="27" variant="3" subtype="40"   anm2path="027.003_soft host.anm2" shadowSize="25" portrait="1"
+	<entity name="Soft Host"   id="27" variant="3" subtype="40"   anm2path="027.003_soft host.anm2" shadowSize="25" portrait="2"
 	baseHP="16" champion="1"
 	friction="1" collisionRadius="13" collisionMass="15" collisionDamage="1" numGridCollisionPoints="12" >
 		<gibs amount="9"   dust="1" rock="1" />
@@ -34,28 +50,28 @@
 
 	<!-- Ultra Pride sketches -->
 	<!-- Clotty -->
-	<entity name="Clotty Sketch"   id="15" variant="4046"   anm2path="sketch_clotty.anm2" shadowSize="28" portrait="2"
+	<entity name="Clotty Sketch"   id="15" variant="4046"   anm2path="sketch_clotty.anm2" shadowSize="28" portrait="3"
 	baseHP="10" stageHP="0.5" tags="noreroll"
 	friction="1" collisionRadius="13" collisionMass="10" collisionDamage="1" numGridCollisionPoints="12" >
 		<gibs amount="6"   blood="1" bone="1" eye="1" />
 		<bestiary anim="Hop" transform="0,0,1"/>
 	</entity>
 	<!-- Charger -->
-	<entity name="Charger Sketch"   id="23" variant="4046"   anm2path="sketch_charger.anm2" shadowSize="17" portrait="3"
+	<entity name="Charger Sketch"   id="23" variant="4046"   anm2path="sketch_charger.anm2" shadowSize="17" portrait="4"
 	baseHP="15" stageHP="0.5" tags="noreroll"
 	friction="1" collisionRadius="13" collisionMass="7" collisionDamage="1" numGridCollisionPoints="12" >
 		<gibs amount="4"   blood="1" eye="1" gut="1" />
 		<bestiary anim="Move Hori" transform="0,-3,1"/>
 	</entity>
 	<!-- Globin -->
-	<entity name="Globin Sketch"   id="24" variant="4046"   anm2path="sketch_globin.anm2" shadowSize="14" portrait="4"
+	<entity name="Globin Sketch"   id="24" variant="4046"   anm2path="sketch_globin.anm2" shadowSize="14" portrait="5"
 	baseHP="20" stageHP="0.5" tags="noreroll"
 	friction="1" collisionRadius="13" collisionMass="10" collisionDamage="1" numGridCollisionPoints="12" >
 		<gibs amount="6"   blood="1" bone="1" gut="1" />
 		<bestiary anim="WalkVert" transform="0,0,1"/>
 	</entity>
 	<!-- Maw -->
-	<entity name="Maw Sketch"   id="26" variant="4046"   anm2path="sketch_maw.anm2" shadowSize="16" portrait="5"
+	<entity name="Maw Sketch"   id="26" variant="4046"   anm2path="sketch_maw.anm2" shadowSize="16" portrait="6"
 	baseHP="15" stageHP="0.5" tags="noreroll"
 	friction="1" collisionRadius="13" gridCollision="walls" collisionMass="7" collisionDamage="1" numGridCollisionPoints="12" >
 		<gibs amount="6"   blood="1" />
@@ -93,7 +109,7 @@
 
 
 	<!-- Coffer -->
-	<entity name="Coffer"   id="86" variant="450"   anm2path="086.450_coffer.anm2" shadowSize="14" portrait="6"
+	<entity name="Coffer"   id="86" variant="450"   anm2path="086.450_coffer.anm2" shadowSize="14" portrait="7"
 	baseHP="8" stageHP="1"
 	friction="1" collisionRadius="13" collisionMass="10" collisionDamage="1" numGridCollisionPoints="12" >
 		<gibs amount="4"   blood="1" dust="1" />
@@ -128,14 +144,14 @@
 
 
 	<!-- Bone orbital -->
-	<entity name="Enemy Bone Orbital"   id="200" variant="4436" subtype="0"   anm2path="bone orbital.anm2" hasFloorAlts="true" shadowSize="12" portrait="7"
+	<entity name="Enemy Bone Orbital"   id="200" variant="4436" subtype="0"   anm2path="bone orbital.anm2" hasFloorAlts="true" shadowSize="12" portrait="8"
 	baseHP="10" stageHP="1" shutdoors="false" tags="noreroll"
 	friction="1" collisionRadius="10" gridCollision="none" collisionMass="1" collisionDamage="1" >
 		<gibs amount="1"   sound_bone="1"   bone="1" />
 		<bestiary anim="Idle0" transform="0,0,1" />
 	</entity>
 	<!-- Forgotten bone orbital -->
-	<entity name="Forgotten Bone Orbital"   id="200" variant="4436" subtype="1"   anm2path="bone orbital forgotten.anm2" shadowSize="12" portrait="7"
+	<entity name="Forgotten Bone Orbital"   id="200" variant="4436" subtype="1"   anm2path="bone orbital forgotten.anm2" shadowSize="12" portrait="8"
 	baseHP="30" shutdoors="false" tags="noreroll"
 	friction="1" collisionRadius="10" gridCollision="none" collisionMass="1" collisionDamage="1" >
 		<gibs amount="1"   sound_bone="1"   bone="1" />
@@ -143,7 +159,7 @@
 
 
 	<!-- Giant spike -->
-	<entity name="Giant Spike"   id="200" variant="4437"   anm2path="giant spike.anm2" hasFloorAlts="true" portrait="8"
+	<entity name="Giant Spike"   id="200" variant="4437"   anm2path="giant spike.anm2" hasFloorAlts="true" portrait="9"
 	shutdoors="false" tags="noreroll"
 	friction="1" collisionRadius="18" gridCollision="none" collisionMass="100" collisionDamage="2" numGridCollisionPoints="12" >
 		<gibs amount="6"   dust="1" rock="1" />
@@ -151,7 +167,7 @@
 
 
 	<!-- Mullicocoon -->
-	<entity name="Mullicocoon"   id="16" variant="40"   anm2path="016.040_mullicocoon.anm2" shadowSize="13" portrait="9"
+	<entity name="Mullicocoon"   id="16" variant="40"   anm2path="016.040_mullicocoon.anm2" shadowSize="13" portrait="10"
 	baseHP="13" champion="1"
 	friction="1" collisionRadius="13" collisionMass="6" numGridCollisionPoints="12" >
 		<gibs amount="6"   blood="1" bone="1" eye="1" gut="1" />
@@ -159,7 +175,7 @@
 		<devolve id="11.0.0" weight="1" />
 	</entity>
 	<!-- Nest -->
-	<entity name="#NEST"   id="22" variant="40"   anm2path="205.000_nest.anm2" shadowSize="14" portrait="10"
+	<entity name="#NEST"   id="22" variant="40"   anm2path="205.000_nest.anm2" shadowSize="14" portrait="11"
 	baseHP="20" champion="1"
 	friction="1" collisionRadius="13" collisionMass="7" numGridCollisionPoints="12" >
 		<gibs amount="6"   blood="1" bone="1" eye="1" gut="1" />
@@ -169,7 +185,7 @@
 
 
 	<!-- Bone Knight -->
-	<entity name="#BONE_KNIGHT"   id="41" variant="40"   anm2path="283.000_BoneKnight.anm2" shadowSize="14" portrait="11"
+	<entity name="#BONE_KNIGHT"   id="41" variant="40"   anm2path="283.000_BoneKnight.anm2" shadowSize="14" portrait="12"
 	baseHP="20" champion="1"
 	friction="1" collisionRadius="13" collisionMass="10" collisionDamage="1" numGridCollisionPoints="12" >
 		<gibs amount="6"   bone="1" gut="1" worm="1" />
@@ -199,7 +215,7 @@
 
 
 	<!-- Flesh Floast -->
-	<entity name="Flesh Floast"   id="859" variant="1"   anm2path="859.001_flesh floating host.anm2" shadowSize="20" portrait="12"
+	<entity name="Flesh Floast"   id="859" variant="1"   anm2path="859.001_flesh floating host.anm2" shadowSize="20" portrait="13"
 	baseHP="21" champion="1"
 	friction="1" collisionRadius="13" gridCollision="walls" collisionMass="40" collisionDamage="1" numGridCollisionPoints="12" >
 		<gibs amount="6"   blood="1" bone="1" worm="1" />

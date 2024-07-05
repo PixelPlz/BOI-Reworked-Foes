@@ -28,6 +28,7 @@ function mod:GiantSpikeUpdate(entity)
 	if entity.Variant == mod.Entities.GiantSpike then
 		local sprite = entity:GetSprite()
 		local target = nil
+		local room = Game():GetRoom()
 
 
 		-- Follow target if it's set
@@ -55,7 +56,7 @@ function mod:GiantSpikeUpdate(entity)
 				if sprite:IsEventTriggered("Sound") then
 					-- Effects
 					for i = 1, 2 do
-						local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, entity.Position, mod:RandomVector(2), entity):ToEffect()
+						local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, room:GetBackdropType(), entity.Position, mod:RandomVector(2), entity):ToEffect()
 						rocks:GetSprite():Play("rubble", true)
 						rocks.State = 2
 					end
@@ -84,7 +85,6 @@ function mod:GiantSpikeUpdate(entity)
 		-- Extended
 		elseif entity.State == NpcState.STATE_ATTACK then
 			-- Make enemies go around them
-			local room = Game():GetRoom()
 			local gridIndex = room:GetGridIndex(entity.Position)
 			room:SetGridPath(gridIndex, 900)
 
@@ -95,7 +95,7 @@ function mod:GiantSpikeUpdate(entity)
 
 					-- Effects
 					for i = 1, 6 do
-						local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, entity.Position, mod:RandomVector(3), entity):ToEffect()
+						local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, room:GetBackdropType(), entity.Position, mod:RandomVector(3), entity):ToEffect()
 						rocks:GetSprite():Play("rubble", true)
 						rocks.State = 2
 					end

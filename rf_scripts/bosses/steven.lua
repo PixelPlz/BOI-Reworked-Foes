@@ -182,7 +182,7 @@ function mod:StevenUpdate(entity)
 						entity.TargetPosition = room:FindFreePickupSpawnPosition(entity.TargetPosition, 0, true, false)
 
 						-- Effect
-						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, 132, 1, entity.TargetPosition, Vector.Zero, entity):GetSprite()
+						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BIG_SPLASH, 1, entity.TargetPosition, Vector.Zero, entity):GetSprite()
 						entity:GetData().effect = effect
 						effect:Load("gfx/steven silhouette.anm2", true)
 						effect:Play("Appear", true)

@@ -1,8 +1,8 @@
 <AnimatedActor>
-	<Info CreatedBy="Pixel" CreatedOn="2023. 05. 31. 17:13:24" Version="115" Fps="30"/>
+	<Info CreatedBy="Pixel" CreatedOn="2024. 06. 12. 2:33:14" Version="116" Fps="30"/>
 	<Content>
 		<Spritesheets>
-			<Spritesheet Path="monsters\better\death_scythe.png" Id="0"/>
+			<Spritesheet Path="monsters\classic\death_scythe.png" Id="0"/>
 		</Spritesheets>
 		<Layers>
 			<Layer Name="body" Id="0" SpritesheetId="0"/>

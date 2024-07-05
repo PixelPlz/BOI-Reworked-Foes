@@ -293,7 +293,7 @@ function mod:RedMawReplace(entity)
 
 		local scythe = Isaac.Spawn(EntityType.ENTITY_DEATH, 10, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
 		scythe.Parent = entity.SpawnerEntity
-		scythe:GetSprite():ReplaceSpritesheet(0, "gfx/monsters/better/death_scythe_black.png")
+		scythe:GetSprite():ReplaceSpritesheet(0, "gfx/monsters/classic/death_scythe_black.png")
 		scythe:GetSprite():LoadGraphics()
 	end
 end

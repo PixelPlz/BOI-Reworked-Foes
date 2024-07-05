@@ -87,7 +87,7 @@ function mod:BreakHost(entity, brokenData)
 
 	-- Effects
 	for i = 0, 5 do
-		local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, entity.Position, mod:RandomVector(3), entity):ToEffect()
+		local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, BackdropType.DEPTHS, entity.Position, mod:RandomVector(3), entity):ToEffect()
 		rocks:GetSprite():Play("rubble", true)
 		rocks.State = 2
 	end

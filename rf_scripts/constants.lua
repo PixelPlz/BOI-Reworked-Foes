@@ -23,6 +23,8 @@ mod.Entities = {
 	Type = 200,
 
 	Brazier 	= Isaac.GetEntityVariantByName("Brazier"),
+	FatAFly 	= Isaac.GetEntityVariantByName("Fat Attack Fly"),
+	AEternalFly = Isaac.GetEntityVariantByName("Attack Eternal Fly"),
 	Teratomar 	= Isaac.GetEntityVariantByName("Teratomar"),
 	GiantSpike 	= Isaac.GetEntityVariantByName("Giant Spike"),
 	Wallace 	= Isaac.GetEntityVariantByName("Wallace"),
@@ -61,6 +63,18 @@ mod.Entities = {
 
 
 --[[ Colors ]]--
+-- Extended color constructor
+function mod:ColorEx(rgb, colorize, tint)
+	local color = Color(rgb[1],rgb[2],rgb[3], rgb[4], rgb[5],rgb[6],rgb[7])
+	if colorize then
+		color:SetColorize(colorize[1],colorize[2],colorize[3], colorize[4])
+	end
+	if tint then
+		color:SetTint(tint[1],tint[2],tint[3], tint[4])
+	end
+	return color
+end
+
 mod.Colors = {
 	BrimShot   = Color(1,0.25,0.25, 1, 0.25,0,0),
 	Tar 	   = mod:ColorEx({1,1,1, 1, 0,0,0},   {1,1,1, 1},   {0.5,0.5,0.5, 1}),

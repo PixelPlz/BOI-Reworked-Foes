@@ -30,7 +30,7 @@ function mod:DarkRedChampionRender(entity)
                     gooSize = 2
                 end
 
-                sprite:ReplaceSpritesheet(1, "gfx/monsters/classic/champion_regen_" .. tostring(gooSize) .. ".png")
+                sprite:ReplaceSpritesheet(1, "gfx/monsters/better/champion_regen_" .. tostring(gooSize) .. ".png")
                 sprite:LoadGraphics()
                 entity:GetData().ReplacedGooSprite = true
             end

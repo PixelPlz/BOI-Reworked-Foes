@@ -21,25 +21,22 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.EternalFlyUpdate, EntityType.ENT
 
 
 function mod:EternalFlyConvert(entity)
-	if mod.Config.ClassicEternalFlies == true and not entity:GetData().ConvertedEternalFly
-	and (entity:GetData().isEternalFly or entity.SubType == 96) then
-		entity:GetSprite():Load("gfx/018.000_attack eternal fly.anm2", true)
-		entity.SubType = 96
-
+	if entity.Variant == 0 and entity:GetData().isEternalFly
+	and mod.Config.ClassicEternalFlies == true  then
+		entity:Morph(entity.Type, mod.Entities.AEternalFly, 0, -1)
 		entity.MaxHitPoints = 10
 		entity.HitPoints = entity.MaxHitPoints
-		entity:SetSize(11, Vector(1, 1), 4)
 		entity.I1 = 0
 
 		entity:GetData().isEternalFly = nil
-		entity:GetData().ConvertedEternalFly = true
+		entity:Update()
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.EternalFlyConvert, EntityType.ENTITY_ATTACKFLY)
 
 -- RAT TIME!!!
 function mod:EternalFlyBloodExplosion(entity)
-    if entity.SubType == 96 then
+    if entity.Variant == mod.Entities.AEternalFly then
 		for _, effect in ipairs(Isaac.FindByType(EntityType.ENTITY_EFFECT, EffectVariant.FLY_EXPLOSION, -1, false, false)) do
 			if effect.Position:Distance(entity.Position) <= 16 and effect.FrameCount == 0 then
 				local sprite = effect:GetSprite()

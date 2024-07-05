@@ -159,16 +159,11 @@ function mod:ScolexUpdate(entity)
 
 						-- Effects
 						for i = 0, 5 do
-							local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, entity.Position, mod:RandomVector(3), entity):ToEffect()
-							local rockSprite = rocks:GetSprite()
-
+							local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, BackdropType.WOMB, entity.Position, mod:RandomVector(3), entity):ToEffect()
+							rocks:GetSprite():Play("rubble", true)
 							rocks.State = 2
 							rocks.m_Height = entity.PositionOffset.Y
 							rocks:Update()
-
-							rockSprite:Play("rubble", true)
-							rockSprite:ReplaceSpritesheet(0, "gfx/grid/rocks_womb.png")
-							rockSprite:LoadGraphics()
 						end
 
 						mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.9)

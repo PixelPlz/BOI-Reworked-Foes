@@ -12,10 +12,20 @@ function mod:RedMawUpdate(entity)
 				entity:TakeDamage(entity.MaxHitPoints * 2, 0, EntityRef(entity), 0)
 			end
 
+
 		-- Prime if close enough
-		elseif entity.Position:Distance(entity:GetPlayerTarget().Position) <= 100 then
-			entity.State = NpcState.STATE_ATTACK
-			sprite:Play("Shoot", true)
+		elseif entity.Position:Distance(entity:GetPlayerTarget().Position) <= 120 then
+			if entity.I1 >= 30 then
+				entity.State = NpcState.STATE_ATTACK
+				sprite:Play("Shoot", true)
+
+			else
+				entity.I1 = entity.I1 + 1
+			end
+
+		-- Reset timer otherwise
+		elseif entity.I1 > 0 then
+			entity.I1 = entity.I1 - 1
 		end
 	end
 end

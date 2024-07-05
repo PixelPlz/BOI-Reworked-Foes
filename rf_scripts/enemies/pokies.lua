@@ -76,29 +76,11 @@ function mod:SlideUpdate(entity)
 					mod:LoopingAnim(sprite, "Spikes")
 
 					-- Attack if in range
-					if Game():GetRoom():CheckLine(entity.Position, target.Position, 0, 0, false, false) then
-						-- Horizontal
-						if entity.Position.Y <= target.Position.Y + Settings.SideRange and entity.Position.Y >= target.Position.Y - Settings.SideRange then
-							if target.Position.X > (entity.Position.X - Settings.FrontRange) and target.Position.X < entity.Position.X then
-								entity.V1 = Vector(-1, 0)
-								entity.State = NpcState.STATE_ATTACK
+					local attackCheck = mod:CheckCardinalAlignment(entity, Settings.SideRange, Settings.FrontRange, 0)
 
-							elseif target.Position.X < (entity.Position.X + Settings.FrontRange) and target.Position.X > entity.Position.X then
-								entity.V1 = Vector(1, 0)
-								entity.State = NpcState.STATE_ATTACK
-							end
-
-						-- Vertical
-						elseif entity.Position.X <= target.Position.X + Settings.SideRange and entity.Position.X >= target.Position.X - Settings.SideRange then
-							if target.Position.Y > (entity.Position.Y - Settings.FrontRange) and target.Position.Y < entity.Position.Y then
-								entity.V1 = Vector(0, -1)
-								entity.State = NpcState.STATE_ATTACK
-
-							elseif target.Position.Y < (entity.Position.Y + Settings.FrontRange) and target.Position.Y > entity.Position.Y then
-								entity.V1 = Vector(0, 1)
-								entity.State = NpcState.STATE_ATTACK
-							end
-						end
+					if attackCheck ~= false then
+						entity.State = NpcState.STATE_ATTACK
+						entity.V1 = Vector.FromAngle(attackCheck)
 					end
 				end
 			end

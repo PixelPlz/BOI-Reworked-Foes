@@ -30,6 +30,19 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.CloggyUpdate, EntityType.ENTITY_
 
 
 
+--[[ Fat Attack Fly ]]--
+function mod:FatFuckFlyInit(entity)
+	if entity.Variant == 0 and entity.Scale == 1.25 -- Big fly
+	and entity.SpawnerType == EntityType.ENTITY_DUKE and entity.SpawnerVariant == 0 then -- From Duke of Flies
+		entity.Scale = 1
+		entity:Morph(entity.Type, mod.Entities.FatAFly, 0, -1)
+		entity:Update()
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.FatFuckFlyInit, EntityType.ENTITY_ATTACKFLY)
+
+
+
 --[[ Drowned Hive ]]--
 function mod:DrownedHiveUpdate(entity, target, bool)
 	if entity.Variant == 1 then
@@ -351,11 +364,23 @@ function mod:TaintedFacelessUpdate(entity)
 			local params = ProjectileParams()
 			params.CircleAngle = mod:DegreesToRadians(30)
 			params.Scale = 1.5
-			entity:FireProjectiles(entity.Position, Vector(5, 6), 9, params)
+			params.FallingSpeedModifier = 1
+			params.FallingAccelModifier = -0.065
+			entity:FireProjectiles(entity.Position, Vector(6, 6), 9, params)
 		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.TaintedFacelessUpdate, EntityType.ENTITY_FACELESS)
+
+
+
+--[[ Cohort ]]--
+function mod:StopSlidingAfterHopCohortEdition(entity)
+	if entity.State == NpcState.STATE_JUMP and entity:GetSprite():WasEventTriggered("Land") then
+		entity.Velocity = mod:StopLerp(entity.Velocity)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.StopSlidingAfterHopCohortEdition, EntityType.ENTITY_COHORT)
 
 
 

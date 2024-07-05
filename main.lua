@@ -1,6 +1,6 @@
 ReworkedFoes = RegisterMod("Improved & Reworked Foes", 1)
 local mod = ReworkedFoes
-mod.Version = "3.1.10"
+mod.Version = "3.1.11"
 
 
 
@@ -15,8 +15,8 @@ end
 
 -- General
 local generalScripts = {
-	"library",
 	"constants",
+	"library",
 	"dss.dssmenu",
 	"projectiles",
 }
@@ -63,6 +63,7 @@ local enemyScripts = {
 	"ulcer",
 	"blister",
 	"portal",
+	"adultLeech",
 	"misc",
 	"champions",
 }
