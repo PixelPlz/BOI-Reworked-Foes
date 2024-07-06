@@ -56,8 +56,9 @@ function mod:ChampionDeath(entity)
         -- New drops
         if Game():GetRoom():IsFirstVisit() and Isaac.GetChallenge() ~= Challenge.CHALLENGE_ULTRA_HARD and entity.SpawnerType ~= EntityType.ENTITY_PORTAL
         and Game():GetLevel():GetStage() ~= LevelStage.STAGE7 and Game():GetVictoryLap() < 1 then -- Ugly but I think this is all the checks
-            local rng = entity:GetDropRNG()
             local room = Game():GetRoom()
+            local rng = RNG()
+            rng:SetSeed(entity.DropSeed, 35)
 
             -- Magenta - Half soul heart
             if entity:GetChampionColorIdx() == ChampionColor.PINK then
@@ -65,7 +66,6 @@ function mod:ChampionDeath(entity)
                     local pos = room:FindFreeTilePosition(entity.Position, 40)
                     Game():Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_HEART, pos, Vector.Zero, entity, HeartSubType.HEART_HALF_SOUL, entity.DropSeed)
                 end
-
 
             -- Pulsating grey - Card
             elseif entity:GetChampionColorIdx() == ChampionColor.PULSE_GREY then
@@ -89,13 +89,14 @@ function mod:ChampionOverrideDrop(type, variant, subtype, pos, vel, spawner, see
         -- Light white - Pretty fly pill
         if npc:GetChampionColorIdx() == ChampionColor.FLY_PROTECTED
         and type == EntityType.ENTITY_ATTACKFLY then
-            local rng = npc:GetDropRNG()
+            local rng = RNG()
+            rng:SetSeed(npc.DropSeed, 35)
 
             if mod:ShouldChampionDropReward(rng) == true -- Have to add this since the attack fly always spawns no matter what difficulty
-            and rng:RandomInt(5) == 0 then
+            and rng:RandomInt(4) == 0 then
                 return {EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_PILL, Game():GetItemPool():ForceAddPillEffect(PillEffect.PILLEFFECT_PRETTY_FLY), seed}
             else
-                return {type, variant, 96, seed} -- Turn the Attack Fly into an Attack Eternal Fly
+                return {type, mod.Entities.AEternalFly, 0, seed} -- Turn the Attack Fly into an Attack Eternal Fly
             end
 
 

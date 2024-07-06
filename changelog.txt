@@ -1,4 +1,15 @@
 ================================================
+    Version 3.1.12
+================================================
+
+-- Fixes --
+- Fixed some vanilla projectile changes not working after the last update
+- Hopefully fixed drop RNG errors with changed champion drops
+
+
+
+
+================================================
     Version 3.1.11
 ================================================
 

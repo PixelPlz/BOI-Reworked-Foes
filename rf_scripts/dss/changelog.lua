@@ -1,3 +1,20 @@
+DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.12", [[
+
+{FSIZE2}Fixes
+- Fixed some vanilla projectile
+changes not working after
+the last update
+
+- Hopefully fixed drop RNG errors
+with changed champion drops
+
+
+]])
+
+
+
+
+
 DeadSeaScrollsMenu.AddChangelog("reworked foes", "v3.1.11", [[
 
 {FSIZE2}Additions

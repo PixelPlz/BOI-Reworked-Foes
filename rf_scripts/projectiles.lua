@@ -12,33 +12,7 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_INIT, mod.ProjectileTracker)
 
 
 
-
-
 --[[ Edit vanilla projectiles ]]--
-function mod:AddProjectileChangeCallbacks(variant, baseScript)
-	local function init(projectile)
-		baseScript(_, projectile)
-		projectile:GetData().reworkedFoesProjectileInitialized = true
-	end
-
-
-	-- Callbacks
-	-- Init
-	local function editedProjectileInit(_, projectile)
-		init(projectile)
-	end
-	mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_INIT, editedProjectileInit, variant)
-
-	-- Late init
-	local function editedProjectileUpdate(_, projectile)
-		if projectile.FrameCount <= 2 and not projectile:GetData().reworkedFoesProjectileInitialized then
-			init(projectile)
-		end
-	end
-	mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, editedProjectileUpdate, variant)
-end
-
-
 -- Easily change a projectile's variant
 function mod:ChangeProjectile(projectile, variant, color, anm2, newSheet)
 	local sprite = projectile:GetSprite()
@@ -84,303 +58,316 @@ end
 
 
 -- Default projectile
-function mod:EditNormalProjectiles(projectile)
-	local sprite = projectile:GetSprite()
-	local data = projectile:GetData()
-
-	-- Tainted Pooter backsplit shots
-	if projectile.SpawnerType == EntityType.ENTITY_POOTER and projectile.SpawnerVariant == 2 and projectile:HasProjectileFlags(ProjectileFlags.BACKSPLIT) then
-		data.trailColor = Color.Default
-
-
-	-- Clotty variants
-	elseif projectile.SpawnerType == EntityType.ENTITY_CLOTTY then
-		-- I. Blob (+ Retribution Curdle)
-		if projectile.SpawnerVariant == 2
-		or (Retribution and projectile.SpawnerEntity and projectile.SpawnerVariant == 1873 and projectile.SpawnerEntity.SubType == 0) then
-			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
-
-		-- Grilled Clotty
-		elseif projectile.SpawnerVariant == 3 then
-			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR, mod.Colors.CrispyMeat)
-		end
-
-
-	-- Retribution Drowned Spitties
-	elseif Retribution and (projectile.SpawnerType == EntityType.ENTITY_SPITTY or projectile.SpawnerType == EntityType.ENTITY_CONJOINED_SPITTY) and projectile.SpawnerVariant == 1873 then
-		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
-
-		projectile:AddProjectileFlags(ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
-		projectile:AddChangeFlags(ProjectileFlags.ANTI_GRAVITY)
-		projectile.ChangeTimeout = 60
-
-		projectile.Acceleration = 1.09
-		projectile:AddFallingSpeed(1)
-		projectile:AddFallingAccel(-0.1)
-
-
-	-- Dead Meat
-	elseif projectile.SpawnerType == EntityType.ENTITY_MEMBRAIN and projectile.SpawnerVariant == 2 then
-		sprite.Color = mod.Colors.CorpseGreen
-		mod:QuickTrail(projectile, 0.1, mod.Colors.CorpseGreenTrail, projectile.Scale * 1.6)
-
-
-	-- The Frail
-	elseif projectile.SpawnerType == EntityType.ENTITY_PIN and projectile.SpawnerVariant == 2 and projectile.SpawnerEntity then
-		-- 1st phase
-		if projectile.SpawnerEntity:ToNPC().I2 == 0 then
-			if not projectile.SpawnerEntity:GetData().wasDelirium then
-				sprite.Color = mod.Colors.CorpseGreen
-			end
-			if projectile:HasProjectileFlags(ProjectileFlags.EXPLODE) then
-				projectile:AddProjectileFlags(ProjectileFlags.ACID_GREEN)
-			end
-
-		-- 2nd phase
-		elseif projectile.SpawnerEntity:ToNPC().I2 == 1 and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
-			-- Black champion (this is dumb)
-			if projectile.SpawnerEntity.SpawnerEntity and projectile.SpawnerEntity.SpawnerEntity.SubType == 1 then
-				if projectile.Velocity:GetAngleDegrees() ~= 45 then
-					projectile:Remove()
-
-				else
-					projectile.Position = projectile.SpawnerEntity.Position
-					projectile.Velocity = Vector.Zero
-
-					projectile.Scale = 2
-					sprite.Color = mod.Colors.BlueFireShot
-
-					projectile:ClearProjectileFlags(ProjectileFlags.BURST)
-					projectile:AddProjectileFlags(ProjectileFlags.FIRE)
-					data.customFireWave = {X = true, Type = 3}
-					projectile:AddFallingSpeed(2)
-				end
-
-			-- Default
-			else
-				projectile.Scale = 1.5
-				data.trailColor = Color.Default
-			end
-		end
-
-
-	-- Blue Peep
-	elseif projectile.SpawnerType == EntityType.ENTITY_PEEP and projectile.SpawnerVariant == 0 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 then
-		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
-
-
-	-- Blastocyst
-	elseif projectile.SpawnerType == EntityType.ENTITY_BLASTOCYST_BIG or projectile.SpawnerType == EntityType.ENTITY_BLASTOCYST_MEDIUM or projectile.SpawnerType == EntityType.ENTITY_BLASTOCYST_SMALL then
-		sprite:ReplaceSpritesheet(0, "gfx/projectiles/blastocyst_projectile.png")
-		sprite:LoadGraphics()
-
-
-	-- Retribution Drowned Grub
-	elseif Retribution and projectile.SpawnerType == EntityType.ENTITY_GRUB and projectile.SpawnerVariant == 0 then
-		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
-
-
-	-- Tube Worm
-	elseif projectile.SpawnerType == EntityType.ENTITY_ROUND_WORM and projectile.SpawnerVariant == 1 then
-		local bg = Game():GetRoom():GetBackdropType()
-
-		-- Boiler water
-		if FFGRACE and FFGRACE.STAGE.Boiler:IsStage() then
-			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR, FFGRACE.ColorBoilerWater)
-		-- Regular water
-		elseif bg == BackdropType.FLOODED_CAVES or bg == BackdropType.DOWNPOUR then
-			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
-		-- Shit water
-		elseif bg == BackdropType.DROSS then
-			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_PUKE)
-		end
-
-
-	-- Night Crawler
-	elseif projectile.SpawnerType == EntityType.ENTITY_NIGHT_CRAWLER then
-		sprite.Color = Color(0.5,0,0.5, 1) -- Same color as vanilla Ragling shots
-
-
-	-- Blue Conjoined Fatty
-	elseif projectile.SpawnerType == EntityType.ENTITY_CONJOINED_FATTY and projectile.SpawnerVariant == 1 then
-		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_HUSH)
-
-
+function mod:EditNormalProjectilesInit(projectile)
 	-- The Haunt / Lil Haunts
-	elseif projectile.SpawnerType == EntityType.ENTITY_THE_HAUNT and not projectile:HasProjectileFlags(ProjectileFlags.GHOST) then
+	if projectile.SpawnerType == EntityType.ENTITY_THE_HAUNT and not projectile:HasProjectileFlags(ProjectileFlags.GHOST) then
 		projectile:AddProjectileFlags(ProjectileFlags.GHOST)
-
-
-	-- Mega Maw
-	elseif projectile.SpawnerType == EntityType.ENTITY_MEGA_MAW and projectile.SpawnerEntity and not projectile.SpawnerEntity:GetData().wasDelirium then
-		-- Red champion
-		if projectile.SpawnerEntity.SubType == 1 then
-			projectile.CollisionDamage = 1
-		else
-			projectile:AddProjectileFlags(ProjectileFlags.SMART)
-		end
-
-
-	-- The Gate
-	elseif projectile.SpawnerType == EntityType.ENTITY_GATE and projectile.SpawnerEntity and not projectile:GetData().dontChange and not projectile.SpawnerEntity:GetData().wasDelirium then
-		-- Red champion
-		if projectile.SpawnerEntity.SubType == 1 then
-			projectile.CollisionDamage = 1
-
-		-- Fire projectiles for regular and black champion
-		else
-			local color = Color.Default
-			-- Blue fires for black champion
-			if projectile.SpawnerEntity.SubType == 2 then
-				color = mod.Colors.BlueFire
-			end
-
-			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_FIRE, color)
-			projectile:AddProjectileFlags(ProjectileFlags.FIRE)
-			projectile:ClearProjectileFlags(ProjectileFlags.HIT_ENEMIES)
-			sprite.Offset = Vector(0, 15)
-		end
-
-
-	-- Angels
-	elseif (projectile.SpawnerType == EntityType.ENTITY_URIEL or projectile.SpawnerType == EntityType.ENTITY_GABRIEL) and projectile.SpawnerEntity and not projectile.SpawnerEntity:GetData().wasDelirium then
-		mod:ChangeProjectile(projectile, mod.Entities.FeatherProjectile)
-		-- Black feather
-		if projectile.SpawnerVariant == 1 then
-			projectile.SubType = 1
-		end
-
-
-	-- Blue boil (+ Retribution variants)
-	elseif projectile.SpawnerType == EntityType.ENTITY_HUSH_BOIL
-	or (Retribution and projectile.SpawnerType == EntityType.ENTITY_WALKINGBOIL and projectile.SpawnerVariant == 0 and projectile.SpawnerEntity
-	and (projectile.SpawnerEntity.SubType == 184 or projectile.SpawnerEntity.SubType == 185)) then
-		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_HUSH, mod.Colors.HushDarkBlue)
-
-
-	-- Mr. Mine
-	elseif projectile.SpawnerType == EntityType.ENTITY_MR_MINE and (not TheFuture or TheFuture.Stage:IsStage() == false) then
-		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
-
-
-	-- Black Rag Man
-	elseif projectile.SpawnerType == EntityType.ENTITY_RAG_MAN and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 and not projectile:HasProjectileFlags(ProjectileFlags.SMART) then
-		projectile:AddProjectileFlags(ProjectileFlags.SMART)
-
-
-	-- Adult Leech
-	elseif projectile.SpawnerType == EntityType.ENTITY_ADULT_LEECH then
-		local bg = Game():GetRoom():GetBackdropType()
-
-		if bg == BackdropType.CORPSE or bg == BackdropType.CORPSE2 then
-			sprite.Color = mod.Colors.CorpseGreen
-		elseif bg ~= BackdropType.WOMB and bg ~= BackdropType.UTERO and bg ~= BackdropType.SCARRED_WOMB and bg ~= BackdropType.CORPSE3 then
-			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_ROCK)
-			projectile.Scale = 0.9
-		end
-
-
-	-- Cohort burst shots
-	elseif projectile.SpawnerType == EntityType.ENTITY_COHORT and projectile:HasProjectileFlags(ProjectileFlags.BURST8) then
-		data.trailColor = Color.Default
-
-
-	-- Cyst
-	elseif projectile.SpawnerType == EntityType.ENTITY_CYST then
-		sprite.Color = mod.Colors.CorpseYellow
-
-
-	-- Visage
-	elseif projectile.SpawnerType == EntityType.ENTITY_VISAGE then
-		sprite.Color = mod.Colors.RedFireShot
 	end
 end
-mod:AddProjectileChangeCallbacks(ProjectileVariant.PROJECTILE_NORMAL, mod.EditNormalProjectiles)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_INIT, mod.EditNormalProjectilesInit, ProjectileVariant.PROJECTILE_NORMAL)
+
+function mod:EditNormalProjectiles(projectile)
+	if projectile.FrameCount <= 1 then
+		local sprite = projectile:GetSprite()
+		local data = projectile:GetData()
+
+		-- Tainted Pooter backsplit shots
+		if projectile.SpawnerType == EntityType.ENTITY_POOTER and projectile.SpawnerVariant == 2 and projectile:HasProjectileFlags(ProjectileFlags.BACKSPLIT) then
+			data.trailColor = Color.Default
+
+
+		-- Clotty variants
+		elseif projectile.SpawnerType == EntityType.ENTITY_CLOTTY then
+			-- I. Blob (+ Retribution Curdle)
+			if projectile.SpawnerVariant == 2
+			or (Retribution and projectile.SpawnerEntity and projectile.SpawnerVariant == 1873 and projectile.SpawnerEntity.SubType == 0) then
+				mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
+
+			-- Grilled Clotty
+			elseif projectile.SpawnerVariant == 3 then
+				mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR, mod.Colors.CrispyMeat)
+			end
+
+
+		-- Retribution Drowned Spitties
+		elseif Retribution and (projectile.SpawnerType == EntityType.ENTITY_SPITTY or projectile.SpawnerType == EntityType.ENTITY_CONJOINED_SPITTY) and projectile.SpawnerVariant == 1873 then
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
+
+			projectile:AddProjectileFlags(ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
+			projectile:AddChangeFlags(ProjectileFlags.ANTI_GRAVITY)
+			projectile.ChangeTimeout = 60
+
+			projectile.Acceleration = 1.09
+			projectile:AddFallingSpeed(1)
+			projectile:AddFallingAccel(-0.1)
+
+
+		-- Dead Meat
+		elseif projectile.SpawnerType == EntityType.ENTITY_MEMBRAIN and projectile.SpawnerVariant == 2 then
+			sprite.Color = mod.Colors.CorpseGreen
+			mod:QuickTrail(projectile, 0.1, mod.Colors.CorpseGreenTrail, projectile.Scale * 1.6)
+
+
+		-- The Frail
+		elseif projectile.SpawnerType == EntityType.ENTITY_PIN and projectile.SpawnerVariant == 2 and projectile.SpawnerEntity then
+			-- 1st phase
+			if projectile.SpawnerEntity:ToNPC().I2 == 0 then
+				if not projectile.SpawnerEntity:GetData().wasDelirium then
+					sprite.Color = mod.Colors.CorpseGreen
+				end
+				if projectile:HasProjectileFlags(ProjectileFlags.EXPLODE) then
+					projectile:AddProjectileFlags(ProjectileFlags.ACID_GREEN)
+				end
+
+			-- 2nd phase
+			elseif projectile.SpawnerEntity:ToNPC().I2 == 1 and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
+				-- Black champion (this is dumb)
+				if projectile.SpawnerEntity.SpawnerEntity and projectile.SpawnerEntity.SpawnerEntity.SubType == 1 then
+					if projectile.Velocity:GetAngleDegrees() ~= 45 then
+						projectile:Remove()
+
+					else
+						projectile.Position = projectile.SpawnerEntity.Position
+						projectile.Velocity = Vector.Zero
+
+						projectile.Scale = 2
+						sprite.Color = mod.Colors.BlueFireShot
+
+						projectile:ClearProjectileFlags(ProjectileFlags.BURST)
+						projectile:AddProjectileFlags(ProjectileFlags.FIRE)
+						data.customFireWave = {X = true, Type = 3}
+						projectile:AddFallingSpeed(2)
+					end
+
+				-- Default
+				else
+					projectile.Scale = 1.5
+					data.trailColor = Color.Default
+				end
+			end
+
+
+		-- Blue Peep
+		elseif projectile.SpawnerType == EntityType.ENTITY_PEEP and projectile.SpawnerVariant == 0 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 then
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
+
+
+		-- Blastocyst
+		elseif projectile.SpawnerType == EntityType.ENTITY_BLASTOCYST_BIG or projectile.SpawnerType == EntityType.ENTITY_BLASTOCYST_MEDIUM or projectile.SpawnerType == EntityType.ENTITY_BLASTOCYST_SMALL then
+			sprite:ReplaceSpritesheet(0, "gfx/projectiles/blastocyst_projectile.png")
+			sprite:LoadGraphics()
+
+
+		-- Retribution Drowned Grub
+		elseif Retribution and projectile.SpawnerType == EntityType.ENTITY_GRUB and projectile.SpawnerVariant == 0 then
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
+
+
+		-- Tube Worm
+		elseif projectile.SpawnerType == EntityType.ENTITY_ROUND_WORM and projectile.SpawnerVariant == 1 then
+			local bg = Game():GetRoom():GetBackdropType()
+
+			-- Boiler water
+			if FFGRACE and FFGRACE.STAGE.Boiler:IsStage() then
+				mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR, FFGRACE.ColorBoilerWater)
+			-- Regular water
+			elseif bg == BackdropType.FLOODED_CAVES or bg == BackdropType.DOWNPOUR then
+				mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
+			-- Shit water
+			elseif bg == BackdropType.DROSS then
+				mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_PUKE)
+			end
+
+
+		-- Night Crawler
+		elseif projectile.SpawnerType == EntityType.ENTITY_NIGHT_CRAWLER then
+			sprite.Color = Color(0.5,0,0.5, 1) -- Same color as vanilla Ragling shots
+
+
+		-- Blue Conjoined Fatty
+		elseif projectile.SpawnerType == EntityType.ENTITY_CONJOINED_FATTY and projectile.SpawnerVariant == 1 then
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_HUSH)
+
+
+		-- Mega Maw
+		elseif projectile.SpawnerType == EntityType.ENTITY_MEGA_MAW and projectile.SpawnerEntity and not projectile.SpawnerEntity:GetData().wasDelirium then
+			-- Red champion
+			if projectile.SpawnerEntity.SubType == 1 then
+				projectile.CollisionDamage = 1
+			else
+				projectile:AddProjectileFlags(ProjectileFlags.SMART)
+			end
+
+
+		-- The Gate
+		elseif projectile.SpawnerType == EntityType.ENTITY_GATE and projectile.SpawnerEntity and not projectile:GetData().dontChange and not projectile.SpawnerEntity:GetData().wasDelirium then
+			-- Red champion
+			if projectile.SpawnerEntity.SubType == 1 then
+				projectile.CollisionDamage = 1
+
+			-- Fire projectiles for regular and black champion
+			else
+				local color = Color.Default
+				-- Blue fires for black champion
+				if projectile.SpawnerEntity.SubType == 2 then
+					color = mod.Colors.BlueFire
+				end
+
+				mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_FIRE, color)
+				projectile:AddProjectileFlags(ProjectileFlags.FIRE)
+				projectile:ClearProjectileFlags(ProjectileFlags.HIT_ENEMIES)
+				sprite.Offset = Vector(0, 15)
+			end
+
+
+		-- Angels
+		elseif (projectile.SpawnerType == EntityType.ENTITY_URIEL or projectile.SpawnerType == EntityType.ENTITY_GABRIEL) and projectile.SpawnerEntity and not projectile.SpawnerEntity:GetData().wasDelirium then
+			mod:ChangeProjectile(projectile, mod.Entities.FeatherProjectile)
+			-- Black feather
+			if projectile.SpawnerVariant == 1 then
+				projectile.SubType = 1
+			end
+
+
+		-- Blue boil (+ Retribution variants)
+		elseif projectile.SpawnerType == EntityType.ENTITY_HUSH_BOIL
+		or (Retribution and projectile.SpawnerType == EntityType.ENTITY_WALKINGBOIL and projectile.SpawnerVariant == 0 and projectile.SpawnerEntity
+		and (projectile.SpawnerEntity.SubType == 184 or projectile.SpawnerEntity.SubType == 185)) then
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_HUSH, mod.Colors.HushDarkBlue)
+
+
+		-- Mr. Mine
+		elseif projectile.SpawnerType == EntityType.ENTITY_MR_MINE and (not TheFuture or TheFuture.Stage:IsStage() == false) then
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_TEAR)
+
+
+		-- Black Rag Man
+		elseif projectile.SpawnerType == EntityType.ENTITY_RAG_MAN and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 and not projectile:HasProjectileFlags(ProjectileFlags.SMART) then
+			projectile:AddProjectileFlags(ProjectileFlags.SMART)
+
+
+		-- Adult Leech
+		elseif projectile.SpawnerType == EntityType.ENTITY_ADULT_LEECH then
+			local bg = Game():GetRoom():GetBackdropType()
+
+			if bg == BackdropType.CORPSE or bg == BackdropType.CORPSE2 then
+				sprite.Color = mod.Colors.CorpseGreen
+			elseif bg ~= BackdropType.WOMB and bg ~= BackdropType.UTERO and bg ~= BackdropType.SCARRED_WOMB and bg ~= BackdropType.CORPSE3 then
+				mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_ROCK)
+				projectile.Scale = 0.9
+			end
+
+
+		-- Cohort burst shots
+		elseif projectile.SpawnerType == EntityType.ENTITY_COHORT and projectile:HasProjectileFlags(ProjectileFlags.BURST8) then
+			data.trailColor = Color.Default
+
+
+		-- Cyst
+		elseif projectile.SpawnerType == EntityType.ENTITY_CYST then
+			sprite.Color = mod.Colors.CorpseYellow
+
+
+		-- Visage
+		elseif projectile.SpawnerType == EntityType.ENTITY_VISAGE then
+			sprite.Color = mod.Colors.RedFireShot
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditNormalProjectiles, ProjectileVariant.PROJECTILE_NORMAL)
 
 
 
 -- Bone projectile
 function mod:EditBoneProjectiles(projectile)
-	local sprite = projectile:GetSprite()
+	if projectile.FrameCount <= 1 then
+		local sprite = projectile:GetSprite()
 
-	-- Black Bony
-	if projectile.SpawnerType == EntityType.ENTITY_BLACK_BONY then
-		sprite.Color = mod.Colors.BlackBony
+		-- Black Bony
+		if projectile.SpawnerType == EntityType.ENTITY_BLACK_BONY then
+			sprite.Color = mod.Colors.BlackBony
+		end
 	end
 end
-mod:AddProjectileChangeCallbacks(ProjectileVariant.PROJECTILE_BONE, mod.EditBoneProjectiles)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditBoneProjectiles, ProjectileVariant.PROJECTILE_BONE)
 
 
 
 -- Fire projectile
 function mod:EditFireProjectiles(projectile)
-	local sprite = projectile:GetSprite()
+	if projectile.FrameCount <= 1 then
+		local sprite = projectile:GetSprite()
 
-	-- Mega Maw
-	if projectile.SpawnerType == EntityType.ENTITY_MEGA_MAW then
-		projectile:AddProjectileFlags(ProjectileFlags.FIRE)
-		sprite.Offset = Vector(0, 15)
+		-- Mega Maw
+		if projectile.SpawnerType == EntityType.ENTITY_MEGA_MAW then
+			projectile:AddProjectileFlags(ProjectileFlags.FIRE)
+			sprite.Offset = Vector(0, 15)
 
 
-	-- Forsaken
-	elseif projectile.SpawnerType == EntityType.ENTITY_FORSAKEN then
-		sprite.Offset = Vector(0, 15)
+		-- Forsaken
+		elseif projectile.SpawnerType == EntityType.ENTITY_FORSAKEN then
+			sprite.Offset = Vector(0, 15)
+		end
 	end
 end
-mod:AddProjectileChangeCallbacks(ProjectileVariant.PROJECTILE_FIRE, mod.EditFireProjectiles)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditFireProjectiles, ProjectileVariant.PROJECTILE_FIRE)
 
 
 
 -- Puke projectile
 function mod:EditPukeProjectiles(projectile)
-	local sprite = projectile:GetSprite()
+	if projectile.FrameCount <= 1 then
+		local sprite = projectile:GetSprite()
 
-	-- Black champion Dingle
-	if projectile.SpawnerType == EntityType.ENTITY_DINGLE and projectile.SpawnerVariant == 0 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 then
-		sprite.Color = mod.Colors.Tar
-
-
-	-- Red champion Mega Fatty poop attack
-	elseif projectile.SpawnerType == EntityType.ENTITY_MEGA_FATTY and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 then
-		mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_NORMAL)
+		-- Black champion Dingle
+		if projectile.SpawnerType == EntityType.ENTITY_DINGLE and projectile.SpawnerVariant == 0 and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 then
+			sprite.Color = mod.Colors.Tar
 
 
-	-- Cage
-	elseif projectile.SpawnerType == EntityType.ENTITY_CAGE and projectile.SpawnerEntity then
-		-- Green champion
-		if projectile.SpawnerEntity.SubType == 1 then
-			sprite.Color = mod.Colors.CageGreenShot
+		-- Red champion Mega Fatty poop attack
+		elseif projectile.SpawnerType == EntityType.ENTITY_MEGA_FATTY and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 1 then
+			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_NORMAL)
 
-		-- Pink champion
-		elseif projectile.SpawnerEntity.SubType == 2 then
-			sprite.Color = mod.Colors.CagePinkShot
+
+		-- Cage
+		elseif projectile.SpawnerType == EntityType.ENTITY_CAGE and projectile.SpawnerEntity then
+			-- Green champion
+			if projectile.SpawnerEntity.SubType == 1 then
+				sprite.Color = mod.Colors.CageGreenShot
+
+			-- Pink champion
+			elseif projectile.SpawnerEntity.SubType == 2 then
+				sprite.Color = mod.Colors.CagePinkShot
+			end
+
+
+		-- Cloggy
+		elseif projectile.SpawnerType == EntityType.ENTITY_CLOGGY then
+			sprite.Color = mod.Colors.DrossPoop
+
+
+		-- Clog
+		elseif projectile.SpawnerType == EntityType.ENTITY_CLOG then
+			sprite.Color = mod.Colors.DrossPoop
 		end
-
-
-	-- Cloggy
-	elseif projectile.SpawnerType == EntityType.ENTITY_CLOGGY then
-		sprite.Color = mod.Colors.DrossPoop
-
-
-	-- Clog
-	elseif projectile.SpawnerType == EntityType.ENTITY_CLOG then
-		sprite.Color = mod.Colors.DrossPoop
 	end
 end
-mod:AddProjectileChangeCallbacks(ProjectileVariant.PROJECTILE_PUKE, mod.EditPukeProjectiles)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditPukeProjectiles, ProjectileVariant.PROJECTILE_PUKE)
 
 
 
 -- Tear projectile
 function mod:EditTearProjectiles(projectile)
-	local data = projectile:GetData()
+	if projectile.FrameCount <= 1 then
+		local data = projectile:GetData()
 
-	-- Isaac burst shots
-	if projectile.SpawnerType == EntityType.ENTITY_ISAAC and projectile.SpawnerVariant == 0 and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
-		data.trailColor = mod.Colors.TearEffect
+		-- Isaac burst shots
+		if projectile.SpawnerType == EntityType.ENTITY_ISAAC and projectile.SpawnerVariant == 0 and projectile:HasProjectileFlags(ProjectileFlags.BURST) then
+			data.trailColor = mod.Colors.TearEffect
+		end
 	end
 end
-mod:AddProjectileChangeCallbacks(ProjectileVariant.PROJECTILE_TEAR, mod.EditTearProjectiles)
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditTearProjectiles, ProjectileVariant.PROJECTILE_TEAR)
 
 
 
