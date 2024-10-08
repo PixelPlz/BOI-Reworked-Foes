@@ -210,17 +210,17 @@ function mod:GishUpdate(entity)
 				mod:FlipTowardsMovement(entity, sprite)
 
 				if room:CheckLine(entity.Position, target.Position, 1, 0, false, false) or entity.Pathfinder:HasPathToPos(target.Position) == false
-				or entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) or entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+				or mod:IsConfused(entity) or mod:IsFeared(entity) then
 					entity.StateFrame = 2
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
 					-- Get direction
 					-- Random if confused
-					if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+					if mod:IsConfused(entity) then
 						entity.TargetPosition = mod:RandomVector()
 
 					-- Away from target if feared
-					elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+					elseif mod:IsFeared(entity) then
 						entity.TargetPosition = (entity.Position - Game():GetNearestPlayer(entity.Position).Position):Normalized()
 
 					else
@@ -420,7 +420,7 @@ function mod:GishUpdate(entity)
 					params.Scale = 2.5
 
 					local speed = entity.Position:Distance(entity.TargetPosition) / 26 -- Cool magic number
-					mod:FireProjectiles(entity, entity.Position, (entity.TargetPosition - entity.Position):Resized(speed), 0, params, Color(0,0,0, 1, 0.15,0.15,0.15)):GetData().fallingShot = true
+					mod:FireProjectiles(entity, entity.Position, (entity.TargetPosition - entity.Position):Resized(speed), 0, params, mod.Colors.TarTrail):GetData().fallingShot = true
 
 					mod:ShootEffect(entity, 5, Vector(0, 190 * entity.Scale * -0.65), data.effectColor, 1.5)
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8)
@@ -472,7 +472,7 @@ function mod:GishUpdate(entity)
 						params.Scale = 2.5
 						params.FallingAccelModifier = 1.25
 						params.FallingSpeedModifier = -26
-						mod:FireProjectiles(entity, bubbly.Position, Vector.Zero, 0, params, Color(0,0,0, 1, 0.15,0.15,0.15)):GetData().kickedUp = true
+						mod:FireProjectiles(entity, bubbly.Position, Vector.Zero, 0, params, mod.Colors.TarTrail):GetData().kickedUp = true
 
 						for j = 0, 3 do
 							params.Scale = 1.65 - (j * 0.15)
@@ -525,7 +525,7 @@ function mod:GishUpdate(entity)
 			end
 
 			if sprite:IsEventTriggered("Shoot") then
-				-- Hera
+				-- Hera burst projectiles
 				if mod:IsRFChampion(entity, "Gish") then
 					for i = -1, 1, 2 do
 						local params = ProjectileParams()
@@ -538,18 +538,15 @@ function mod:GishUpdate(entity)
 						mod:FireProjectiles(entity, entity.Position, vector:Resized(mod:Random(6, 8)), 0, params, Color(0,0,0, 1, 0.6,0.6,0.6)):GetData().kickedUp = true
 					end
 
-				-- Lobbed Clot for Gish
+				-- Gish lobbed Clot
 				else
-					local vector = (target.Position - entity.Position):Normalized()
-					local clot = Isaac.Spawn(EntityType.ENTITY_CLOTTY, 1, 0, entity.Position + vector * 20, vector * 5, entity):ToNPC()
-					clot.SplatColor = Color(0,0,0, 1) -- Color fix
+					local clotParams = ProjectileParams()
+					clotParams.Variant = mod.Entities.ClotProjectile
+					clotParams.FallingAccelModifier = 1.25
+					clotParams.FallingSpeedModifier = -20 + mod:Random(-5, 5)
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(7), 0, clotParams)
 
-					clot.State = NpcState.STATE_APPEAR_CUSTOM
-					clot.PositionOffset = Vector(0, Settings.LandHeight - 10)
-					clot.V2 = Vector(0, Settings.ClotSpeed)
-					clot:GetSprite():Play("Midair", true)
-
-					-- Projectiles
+					-- Extra projectiles
 					local params = ProjectileParams()
 					params.Color = data.effectColor
 					params.Scale = 1.25
@@ -1058,31 +1055,6 @@ function mod:GishFallingShots(projectile)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.GishFallingShots, ProjectileVariant.PROJECTILE_NORMAL)
-
-
-
---[[ Lobbed Clot ]]--
-function mod:ClotUpdate(entity)
-	if entity.Variant == 1 and entity.State == NpcState.STATE_APPEAR_CUSTOM and not entity:HasMortalDamage() then
-		local sprite = entity:GetSprite()
-		mod:LoopingAnim(sprite, "Midair")
-
-		-- Update height
-		entity.V2 = Vector(0, entity.V2.Y - Settings.Gravity)
-		entity.PositionOffset = Vector(0, entity.PositionOffset.Y - entity.V2.Y)
-
-		-- Land
-		if entity.PositionOffset.Y > Settings.LandHeight then
-			entity.PositionOffset = Vector.Zero
-			entity.State = NpcState.STATE_ATTACK
-			sprite:Play("Appear", true)
-			mod:PlaySound(nil, SoundEffect.SOUND_MEAT_IMPACTS, 1.1)
-		end
-
-		return true
-	end
-end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ClotUpdate, EntityType.ENTITY_CLOTTY)
 
 
 

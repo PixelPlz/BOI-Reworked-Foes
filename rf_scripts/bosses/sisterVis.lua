@@ -31,6 +31,7 @@ function mod:SisterVisInit(entity)
 	entity.HitPoints = entity.MaxHitPoints
 
 	entity.ProjectileCooldown = Settings.Cooldown / 2
+	entity:GetData().corpseAnim = mod:Random(1, 3)
 
 	if entity.SpawnerEntity then
 		entity.GroupIdx = 1
@@ -178,11 +179,11 @@ function mod:SisterVisUpdate(entity)
 					local vector = (target.Position - entity.Position):Normalized()
 
 					-- Random if confused
-					if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+					if mod:IsConfused(entity) then
 						vector = mod:RandomVector()
 
 					-- Away from target if feared or is the second sibling
-					elseif (entity.GroupIdx >= 1 and not data.enraged) or entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+					elseif (entity.GroupIdx >= 1 and not data.enraged) or mod:IsFeared(entity) then
 						vector = -vector
 
 					-- At the sibling's corpse if it exists
@@ -584,8 +585,9 @@ function mod:SisterVisUpdate(entity)
 						siblingSprite:Play("CorpseBottom" .. sibling:GetData().corpseAnim, true)
 
 						-- Effects
-						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, sibling.Position, Vector.Zero, sibling)
-						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, sibling.Position, Vector.Zero, sibling)
+						for i = 3, 4 do
+							Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, i, sibling.Position, Vector.Zero, sibling)
+						end
 						mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0)
 
 					-- Alive sibling
@@ -834,12 +836,12 @@ function mod:SisterVisUpdate(entity)
 
 			-- Switch animations
 			if sprite:IsEventTriggered("Jump") then
-				data.corpseAnim = mod:Random(1, 3)
 				sprite:Play("CorpseRollStop" .. data.corpseAnim, true)
 
 				-- Effects
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity)
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity)
+				for i = 3, 4 do
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, i, entity.Position, Vector.Zero, entity)
+				end
 				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.9)
 				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0, 1.1)
 			end
@@ -966,8 +968,9 @@ function mod:SisterVisUpdate(entity)
 					entity:FireBossProjectiles(12, Vector.Zero, 2, params)
 
 					-- Effects
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity)
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity)
+					for i = 3, 4 do
+						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, i, entity.Position, Vector.Zero, entity)
+					end
 					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS)
 					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 1.1)
 					Game():ShakeScreen(6)

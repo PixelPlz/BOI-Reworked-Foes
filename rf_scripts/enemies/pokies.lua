@@ -47,7 +47,6 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.PokyUpdate, EntityType.ENTITY_PO
 function mod:SlideUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
-		local target = entity:GetPlayerTarget()
 
 
 		-- Waiting

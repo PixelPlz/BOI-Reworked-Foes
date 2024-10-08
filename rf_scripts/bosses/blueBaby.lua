@@ -211,11 +211,11 @@ function mod:BlueBabyUpdate(entity)
 		if entity.State == NpcState.STATE_IDLE then
 			-- Movement
 			-- Confused
-			if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+			if mod:IsConfused(entity) then
 				mod:WanderAround(entity, Settings.MoveSpeed)
 
 			-- Feared
-			elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+			elseif mod:IsFeared(entity) then
 				entity.Velocity = mod:Lerp(entity.Velocity, (entity.Position - target.Position):Resized(Settings.MoveSpeed), 0.25)
 
 			-- Normal
@@ -761,10 +761,10 @@ function mod:BlueBabyUpdate(entity)
 					-- Get direction
 					local vector = (target.Position - entity.Position):Resized(35)
 					-- Confused
-					if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+					if mod:IsConfused(entity) then
 						vector = mod:RandomVector(mod:Random(30, 35))
 					-- Feared
-					elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+					elseif mod:IsFeared(entity) then
 						vector = (entity.Position - target.Position):Resized(mod:Random(30, 35))
 					end
 

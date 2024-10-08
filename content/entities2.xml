@@ -9,6 +9,9 @@
 	<entity name="Egg Sack Projectile"   id="9" variant="402"   anm2path="egg sack projectile.anm2" shadowSize="12"
 	friction="1" collisionRadius="20" collisionMass="8" numGridCollisionPoints="8" />
 
+	<entity name="Clot Projectile"   id="9" variant="403"   anm2path="clot projectile.anm2" shadowSize="28"
+	friction="1" collisionRadius="13" collisionMass="10" numGridCollisionPoints="12" />
+
 
 
 	<!-- Enemies / Bosses -->

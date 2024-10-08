@@ -95,10 +95,10 @@ function mod:MrFredUpdate(entity)
 				local pos = target.Position
 
 				-- Confused
-				if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+				if mod:IsConfused(entity) then
 					pos = entity.Position + mod:RandomVector(mod:Random(120, 200))
 				-- Feared
-				elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+				elseif mod:IsFeared(entity) then
 					pos = entity.Position + (entity.Position - target.Position):Resized(mod:Random(120, 200))
 
 				-- Limit jump distance

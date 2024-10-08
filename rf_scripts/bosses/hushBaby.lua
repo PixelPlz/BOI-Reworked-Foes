@@ -71,11 +71,11 @@ function mod:HushBabyUpdate(entity)
 			-- Movement
 			if entity.I1 == 3 then
 				-- Confused
-				if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+				if mod:IsConfused(entity) then
 					mod:WanderAround(entity, Settings.MoveSpeed)
 
 				-- Feared
-				elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+				elseif mod:IsFeared(entity) then
 					entity.Velocity = mod:Lerp(entity.Velocity, (entity.Position - target.Position):Resized(Settings.MoveSpeed), 0.25)
 
 				-- Normal
@@ -419,12 +419,13 @@ function mod:HushBabyUpdate(entity)
 				for i = 0, 3 do
 					local pos = entity.Position + Vector.FromAngle(i * 90):Resized(50)
 					local gaper = Isaac.Spawn(EntityType.ENTITY_HUSH_GAPER, 0, 0, room:GetClampedPosition(pos, 10), Vector.Zero, entity):ToNPC()
-					gaper:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 					gaper.State = NpcState.STATE_SPECIAL
 					gaper:GetSprite():Play("JumpOut", true)
-					gaper.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 				end
+
+				-- Effects
 				mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
+				mod:PlaySound(nil, SoundEffect.SOUND_SKIN_PULL)
 			end
 
 			if sprite:IsFinished() then
@@ -518,15 +519,11 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.HushFlyAttackUpdate, EntityT
 
 
 
---[[ Hush Gaper special appear animation ]]--
+--[[ Hush Gapers ]]--
 function mod:HushGaperUpdate(entity)
-	if entity.State == NpcState.STATE_SPECIAL and entity:GetSprite():IsPlaying("JumpOut") then
+	-- Don't move during the jump out animation
+	if entity.State == NpcState.STATE_SPECIAL then
 		entity.Velocity = Vector.Zero
-
-		if entity:GetSprite():IsEventTriggered("Jump") then
-			mod:PlaySound(nil, SoundEffect.SOUND_SKIN_PULL, 0.9)
-			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
-		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.HushGaperUpdate, EntityType.ENTITY_HUSH_GAPER)

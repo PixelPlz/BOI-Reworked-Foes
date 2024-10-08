@@ -46,11 +46,11 @@ function mod:BlisterUpdate(entity)
 				entity.TargetPosition = entity.Position + (target.Position - entity.Position):Rotated(mod:Random(-60, 60)):Resized(mod:Random(80, 120))
 
 				-- No players in range / confused
-				if entity.Position:Distance(Game():GetNearestPlayer(entity.Position).Position) > 240 or entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+				if entity.Position:Distance(Game():GetNearestPlayer(entity.Position).Position) > 240 or mod:IsConfused(entity) then
 					entity.TargetPosition = entity.Position + mod:RandomVector(80, 120)
 
 				-- Feared
-				elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+				elseif mod:IsFeared(entity) then
 					entity.TargetPosition = entity.Position + (entity.Position - target.Position):Resized(mod:Random(80, 120))
 				end
 

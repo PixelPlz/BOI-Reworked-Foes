@@ -132,8 +132,6 @@ end
 local DSSInitializerFunction = require("rf_scripts.dss.dssmenucore")
 local dssmod = DSSInitializerFunction(DSSModName, DSSCoreVersion, MenuProvider)
 
-include("rf_scripts.dss.changelog")
-
 
 
 -- Settings helper

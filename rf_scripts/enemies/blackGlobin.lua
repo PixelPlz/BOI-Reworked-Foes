@@ -1,11 +1,10 @@
 local mod = ReworkedFoes
 
 local Settings = {
-	RegenTime = 90,
+	SlideTime = 40,
+	SlideSpeed = 14,
+	RegenTime = 80,
 	NewHealth = 20,
-	SlideTime = 45,
-	SlideSpeed = 15,
-	CreepTime = 45
 }
 
 
@@ -13,11 +12,15 @@ local Settings = {
 --[[ Black Globin ]]--
 function mod:BlackGlobinUpdate(entity)
 	if entity:IsDead() or entity.State == NpcState.STATE_APPEAR_CUSTOM then
-		-- Spawn from head
+		-- Regened from a head
 		if entity.State == NpcState.STATE_APPEAR_CUSTOM then
+			local sprite = entity:GetSprite()
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
-			if entity:GetSprite():IsEventTriggered("Regen") then
+			if sprite:IsEventTriggered("Sound") then
+				mod:PlaySound(entity, SoundEffect.SOUND_DEATH_REVERSE, 1.2)
+
+			elseif sprite:IsEventTriggered("Regen") then
 				entity.State = NpcState.STATE_MOVE
 			end
 		end
@@ -27,30 +30,37 @@ function mod:BlackGlobinUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.BlackGlobinUpdate, EntityType.ENTITY_BLACK_GLOBIN)
 
+-- Keep track of the last hit direction
 function mod:BlackGlobinDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	entity:ToNPC().V2 = (entity.Position - damageSource.Position):Normalized()
+	entity:ToNPC().V1 = (entity.Position - damageSource.Position):Normalized()
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.BlackGlobinDMG, EntityType.ENTITY_BLACK_GLOBIN)
 
 function mod:BlackGlobinDeath(entity)
+	entity = entity:ToNPC()
+
+	-- Create the sliding head
 	local head = Isaac.Spawn(EntityType.ENTITY_BLACK_GLOBIN_HEAD, 0, 0, entity.Position, Vector.Zero, entity):ToNPC()
 	head.State = NpcState.STATE_STOMP
-	head:GetSprite():Play("KnockedOff", true)
+	head.Velocity = entity.V1:Resized(Settings.SlideSpeed)
+	head.I1 = Settings.SlideTime
+	mod:FlipTowardsMovement(head, head:GetSprite(), true)
 
-	head.Velocity = entity.V2:Resized(Settings.SlideSpeed)
-	head.I1 = 1
-	head.I2 = Settings.SlideTime
-	head.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
+	-- Turn into a body
+	entity:Morph(EntityType.ENTITY_BLACK_GLOBIN_BODY, 0, 0, entity:GetChampionColorIdx())
+	entity.HitPoints = entity.MaxHitPoints
+	entity.State = NpcState.STATE_MOVE
+	entity:SetDead(false)
+end
+mod:AddCallback(ModCallbacks.MC_POST_ENTITY_KILL, mod.BlackGlobinDeath, EntityType.ENTITY_BLACK_GLOBIN)
 
-	local body = Isaac.Spawn(EntityType.ENTITY_BLACK_GLOBIN_BODY, 0, 0, entity.Position, Vector.Zero, entity):ToNPC()
-	body.State = NpcState.STATE_MOVE
-
-	if entity:IsChampion() then
-		head:ToNPC():MakeChampion(1, entity:GetChampionColorIdx(), true)
-		body:MakeChampion(1, entity:GetChampionColorIdx(), true)
+function mod:BlackGlobinCollision(entity, target, bool)
+	if target.Type == EntityType.ENTITY_SPIDER
+	or target.Type == EntityType.ENTITY_BLACK_GLOBIN_HEAD or target.Type == EntityType.ENTITY_BLACK_GLOBIN_BODY then
+		return true -- Ignore collision
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.BlackGlobinDeath, EntityType.ENTITY_BLACK_GLOBIN)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.BlackGlobinCollision, EntityType.ENTITY_BLACK_GLOBIN)
 
 
 
@@ -58,26 +68,17 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.BlackGlobinDeath, EntityType
 function mod:BlackGlobinHeadUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	-- Regen
-	if entity.State == NpcState.STATE_MOVE then
-		-- Only regen if spawned from a Black Globin
-		if entity.I1 == 1 then
-			if entity.I2 <= 0 then
-				local spawn = Isaac.Spawn(EntityType.ENTITY_BLACK_GLOBIN, 0, 0, entity.Position, Vector.Zero, entity):ToNPC()
-				spawn.State = NpcState.STATE_APPEAR_CUSTOM
-				spawn:GetSprite():Play("Appear", true)
-				spawn:GetSprite().FlipX = not sprite.FlipX
-				spawn.HitPoints = Settings.NewHealth
-				mod:PlaySound(entity, SoundEffect.SOUND_DEATH_REVERSE, 1.2)
+	-- Regen (only if spawned from a Black Globin)
+	if entity.State == NpcState.STATE_MOVE and entity.SpawnerType == EntityType.ENTITY_BLACK_GLOBIN then
+		if entity.I1 <= 0 then
+			entity:Morph(EntityType.ENTITY_BLACK_GLOBIN, 0, 0, entity:GetChampionColorIdx())
+			entity.HitPoints = Settings.NewHealth
+			entity.State = NpcState.STATE_APPEAR_CUSTOM
+			sprite:Play("Appear", true)
+			sprite.FlipX = not sprite.FlipX
 
-				if entity:IsChampion() then
-					spawn:MakeChampion(1, entity:GetChampionColorIdx(), true)
-				end
-				entity:Remove()
-
-			else
-				entity.I2 = entity.I2 - 1
-			end
+		else
+			entity.I1 = entity.I1 - 1
 		end
 
 
@@ -90,35 +91,33 @@ function mod:BlackGlobinHeadUpdate(entity)
 
 		-- Sliding
 		if entity.State == NpcState.STATE_STOMP then
-			if not sprite:IsPlaying("Sliding") and not sprite:IsPlaying("KnockedOff") then
-				sprite:Play("Sliding", true)
-				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
-			end
+			mod:LoopingAnim(sprite, "Sliding")
 
-			if entity.I2 <= 0 then
+			-- Recover
+			if entity.I1 <= 0 then
 				entity.State = NpcState.STATE_JUMP
+				sprite:Play("Recover", true)
 			else
-				entity.I2 = entity.I2 - 1
+				entity.I1 = entity.I1 - 1
 			end
 
-			-- Impact with grids
-			if entity:CollidesWithGrid() or sprite:IsEventTriggered("Splat") then
-				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS)
-				mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 1.5, Settings.CreepTime)
+			-- Squishy meat sounds
+			if entity:CollidesWithGrid() then
+				mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.9)
 			end
 
 
-		-- Recover
+		-- Recovering
 		elseif entity.State == NpcState.STATE_JUMP then
-			entity.Velocity = mod:StopLerp(entity.Velocity)
-			mod:LoopingAnim(sprite, "Recover")
+			entity.Velocity = mod:StopLerp(entity.Velocity, 0.15)
 
-			if sprite:IsEventTriggered("Splat") then
-				mod:PlaySound(nil, SoundEffect.SOUND_GOOATTACH0, 0.9)
+			if sprite:IsEventTriggered("Recover") then
+				entity.Velocity = Vector.Zero
+				mod:PlaySound(nil, SoundEffect.SOUND_GOOATTACH0, 0.75)
 
-			elseif sprite:IsEventTriggered("Recover") then
+			elseif sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
-				entity.I2 = Settings.RegenTime
+				entity.I1 = Settings.RegenTime
 			end
 		end
 
@@ -126,3 +125,10 @@ function mod:BlackGlobinHeadUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.BlackGlobinHeadUpdate, EntityType.ENTITY_BLACK_GLOBIN_HEAD)
+
+function mod:BlackGlobinHeadCollision(entity, target, bool)
+	if target.Type == EntityType.ENTITY_SPIDER or target.Type == EntityType.ENTITY_BLACK_GLOBIN_BODY then
+		return true -- Ignore collision
+	end
+end
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.BlackGlobinHeadCollision, EntityType.ENTITY_BLACK_GLOBIN_HEAD)

@@ -147,7 +147,8 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GurdyJrInit, EntityType.ENTIT
 function mod:GurdyJrUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	if entity.State == NpcState.STATE_ATTACK and sprite:IsPlaying("Attack03Start") and sprite:GetFrame() < 8 then
+	if entity.State == NpcState.STATE_ATTACK and sprite:IsPlaying("Attack03Start")
+	and not sprite:WasEventTriggered("Shoot") then
 		entity.Velocity = Vector.Zero
 	end
 end
@@ -158,11 +159,10 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GurdyJrUpdate, EntityType.ENTITY
 --[[ Gurglings ]]--
 -- Different sprites for boss Gurglings
 function mod:GurglingInit(entity)
-	if entity.Variant == 1 and (entity.SubType == 0 or entity.SubType == 500) then
+	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
-		sprite:ReplaceSpritesheet(1, "gfx/monsters/rebirth/monster_237_gurgling_boss.png")
-		sprite:ReplaceSpritesheet(2, "gfx/monsters/rebirth/monster_237_gurgling_boss.png")
-		sprite:LoadGraphics()
+		sprite:Load("gfx/237.000_gurgling_boss.anm2", true)
+		sprite:Play("Appear", true)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GurglingInit, EntityType.ENTITY_GURGLING)

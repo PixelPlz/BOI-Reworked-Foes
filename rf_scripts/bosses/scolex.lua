@@ -269,9 +269,9 @@ function mod:ScolexUpdate(entity)
 					-- No attack
 					else
 						local vector = (target.Position - entity.Position):Normalized()
-						if entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+						if mod:IsFeared(entity) then
 							vector = -vector
-						elseif entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+						elseif mod:IsConfused(entity) then
 							vector = mod:RandomVector()
 						end
 
@@ -425,12 +425,12 @@ function mod:ScolexUpdate(entity)
 					-- Steering jump
 					if entity.StateFrame == 3 then
 						-- Confused
-						if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+						if mod:IsConfused(entity) then
 							mod:WanderAround(entity, Settings.MoveSpeed + 1)
 
 						else
 							local vector = (target.Position - entity.Position):Normalized()
-							if entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+							if mod:IsFeared(entity) then
 								vector = -vector
 							end
 

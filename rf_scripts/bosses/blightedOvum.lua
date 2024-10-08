@@ -11,6 +11,9 @@ local Settings = {
 
 	ChaseTime = 120,
 	CreepTime = 100,
+
+	GhostExplosionRadius = 60,
+	GhostExplosionDamage = 40,
 }
 
 
@@ -40,7 +43,8 @@ function mod:BlightedOvumUpdate(entity)
 
 		--[[ Contusion ]]--
 		if entity.Variant == 2 then
-			if entity.State == NpcState.STATE_MOVE or entity.State == NpcState.STATE_ATTACK or entity.State == NpcState.STATE_ATTACK2 or entity.State == NpcState.STATE_ATTACK3 then
+			if entity.State == NpcState.STATE_MOVE or entity.State == NpcState.STATE_ATTACK
+			or entity.State == NpcState.STATE_ATTACK2 or entity.State == NpcState.STATE_ATTACK3 then
 				local speed = Settings.MoveSpeed
 				local anim = "IdleHead"
 
@@ -301,14 +305,27 @@ function mod:BlightedOvumDMG(entity, damageAmount, damageFlags, damageSource, da
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.BlightedOvumDMG, EntityType.ENTITY_GEMINI)
 
+-- Do a ghost explosion on death
 function mod:BlightedOvumDeath(entity)
 	if entity.Variant == 12 then
+		-- Damage entities in its radius
+		local colliders = Isaac.FindInRadius(entity.Position, Settings.GhostExplosionRadius, EntityPartition.FAMILIAR | EntityPartition.ENEMY | EntityPartition.PLAYER)
+
+		for i, collider in pairs(colliders) do
+			if collider.EntityCollisionClass >= EntityCollisionClass.ENTCOLL_ENEMIES then
+				-- Get the amount of damage to deal
+				local damage = Settings.GhostExplosionDamage
+				if collider:ToPlayer() then -- To players
+					damage = 1
+				end
+
+				collider:TakeDamage(damage, DamageFlag.DAMAGE_IGNORE_ARMOR, EntityRef(entity), 0)
+			end
+		end
+
+		-- Effects
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ENEMY_GHOST, 2, entity.Position, Vector.Zero, entity)
 		mod:PlaySound(nil, SoundEffect.SOUND_DEMON_HIT)
-
-		for i, e in pairs(Isaac.FindInRadius(entity.Position, 60, EntityPartition.ENEMY)) do
-			e:TakeDamage(40, 0, EntityRef(entity), 0)
-		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.BlightedOvumDeath, EntityType.ENTITY_GEMINI)

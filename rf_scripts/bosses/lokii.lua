@@ -74,10 +74,10 @@ function mod:LokiiUpdate(entity)
 				entity.TargetPosition = Vector(target.Position.X + (mod:GetSign(entity.I1 - 1) * Settings.PlayerDistance), target.Position.Y)
 
 				-- Confused
-				if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+				if mod:IsConfused(entity) then
 					mod:WanderAround(entity, Settings.MoveSpeed)
 				-- Feared
-				elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+				elseif mod:IsFeared(entity) then
 					entity.Velocity = mod:Lerp(entity.Velocity, (entity.Position - entity.TargetPosition):Resized(Settings.MoveSpeed), 0.25)
 				-- Normal
 				elseif entity.Position:Distance(entity.TargetPosition) > 8 then
@@ -215,10 +215,10 @@ function mod:LokiiUpdate(entity)
 					-- Get direction
 					entity.V2 = (target.Position - entity.Position):Normalized()
 					-- Confused
-					if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+					if mod:IsConfused(entity) then
 						entity.V2 = mod:RandomVector()
 					-- Feared
-					elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+					elseif mod:IsFeared(entity) then
 						entity.V2 = (entity.Position - target.Position):Normalized()
 					end
 

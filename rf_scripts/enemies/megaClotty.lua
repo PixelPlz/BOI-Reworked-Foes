@@ -39,7 +39,7 @@ function mod:MegaClottyUpdate(entity)
 
 	-- Make their hitboxes not stupidly small
 	if entity.FrameCount <= 1 then
-		entity:SetSize(30 * entity.Scale, Vector(1, 0.75), 12)
+		entity:SetSize(28 * entity.Scale, Vector(1, 0.75), 12)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MegaClottyUpdate, EntityType.ENTITY_MEGA_CLOTTY)

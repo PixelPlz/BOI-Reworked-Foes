@@ -116,12 +116,12 @@ function mod:StevenUpdate(entity)
 					-- This sucks
 					local speed = Settings.ChaseSpeed
 					-- Reverse movement if feared
-					if entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+					if mod:IsFeared(entity) then
 						speed = -speed
 					end
 
 					-- Move randomly if confused
-					if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+					if mod:IsConfused(entity) then
 						mod:WanderAround(entity, speed / 2)
 
 					else

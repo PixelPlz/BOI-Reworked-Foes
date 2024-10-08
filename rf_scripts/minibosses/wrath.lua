@@ -35,10 +35,10 @@ function mod:WrathUpdate(entity)
 
 				-- Champion
 				if mod:IsRFChampion(entity, "Wrath") then
-					local rocket = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_ROCKET, 0, entity.Position + vector:Resized(entity.Size), Vector.Zero, entity):ToBomb()
+					local rocket = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_ROCKET, 0, entity.Position + vector:Resized(20), vector:Resized(2), entity):ToBomb()
 					rocket.RadiusMultiplier = 0.75
 					rocket:SetRocketAngle(vector:GetAngleDegrees())
-					rocket:SetRocketSpeed(0.25)
+					rocket:SetRocketSpeed(-5)
 					rocket:Update()
 					mod:PlaySound(nil, SoundEffect.SOUND_ROCKET_LAUNCH_SHORT, 0.75)
 

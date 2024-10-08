@@ -17,6 +17,7 @@ mod.Entities = {
 	FeatherProjectile = Isaac.GetEntityVariantByName("Angelic Feather Projectile"),
 	SuckerProjectile  = Isaac.GetEntityVariantByName("Sucker Projectile (RF)"),
 	EggSackProjectile = Isaac.GetEntityVariantByName("Egg Sack Projectile"),
+	ClotProjectile    = Isaac.GetEntityVariantByName("Clot Projectile"),
 
 
 	-- NPCs
@@ -77,7 +78,6 @@ end
 
 mod.Colors = {
 	BrimShot   = Color(1,0.25,0.25, 1, 0.25,0,0),
-	Tar 	   = mod:ColorEx({1,1,1, 1, 0,0,0},   {1,1,1, 1},   {0.5,0.5,0.5, 1}),
 	WhiteShot  = mod:ColorEx({1,1,1, 1, 0.5,0.5,0.5},   {1,1,1, 1}),
 	SunBeam    = Color(1,1,1, 1, 0.3,0.3,0),
 	DustPoof   = Color(0.7,0.7,0.7, 0.75),
@@ -88,6 +88,9 @@ mod.Colors = {
 	Sketch 	   = Color(0,0,0, 1, 0.48,0.4,0.36),
 	CrispyMeat = mod:ColorEx({1,1,1, 1},   {0.32,0.25,0.2, 1}),
 	DrossPoop  = mod:ColorEx({1,1,1, 1},   {0.9,0.8,0.7, 1}),
+
+	Tar 	 = mod:ColorEx({1,1,1, 1, 0,0,0},   {1,1,1, 1},   {0.5,0.5,0.5, 1}),
+	TarTrail = Color(0,0,0, 1, 0.15,0.15,0.15),
 
 	EmberFade    = mod:ColorEx({0,0,0, 1.1, 1,0.514,0.004},   {0,0,0, 0},   {0,0,0, 1.1}),
 	RedFireShot  = Color(1,1,1, 1, 0.6,0.1,0),
@@ -121,10 +124,6 @@ mod.Colors = {
 	CageGreenShot  = mod:ColorEx({1,1,1, 1},   {0.75,1,0.5, 1}),
 	CageGreenCreep = mod:ColorEx({1,1,1, 1},   {2.25,3.25,1.25, 1}),
 	CagePinkShot   = mod:ColorEx({1,1,1, 1},   {1,0.9,0.7, 1}),
-
-	PrideGray = Color(0,0,0, 1, 0.31,0.31,0.31),
-	PridePink = Color(0,0,0, 1, 0.75,0.31,0.46),
-	PrideHoly = Color(0,0,0, 1, 0.75,0.66,0.31),
 
 	RagManPurple = Color(0,0,0, 1, 0.6,0.1,0.6),
 	RagManBlood  = mod:ColorEx({1,1,1, 1},   {0.84,0.4,0.68, 1}),

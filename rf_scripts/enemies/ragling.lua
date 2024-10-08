@@ -89,11 +89,3 @@ function mod:RaglingUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.RaglingUpdate, EntityType.ENTITY_RAGLING)
-
-function mod:RaglingDeath(entity)
-	if entity.Variant == 0 then
-		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, 1, entity.Position, Vector.Zero, entity)
-		mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END, 0.9)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.RaglingDeath, EntityType.ENTITY_RAGLING)

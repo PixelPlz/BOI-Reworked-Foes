@@ -6,9 +6,7 @@ function mod:GluttonyInit(entity)
 	if mod:CheckValidMiniboss(entity) and mod:IsRFChampion(entity, "Gluttony") then
 		entity.SplatColor = mod.Colors.GreenBlood
 
-	-- Replace Gluttony worm with regular one
 	elseif entity.Variant == 22 then
-		--entity:Morph(EntityType.ENTITY_VIS, 22, 0, entity:GetChampionColorIdx())
 		mod:ChubberWormInit(entity)
 	end
 end
@@ -50,7 +48,7 @@ function mod:GluttonyUpdate(entity)
 						local params = ProjectileParams()
 						params.BulletFlags = ProjectileFlags.EXPLODE
 						params.Scale = 1.65
-						params.FallingAccelModifier = 1.1
+						params.FallingAccelModifier = 1
 						params.FallingSpeedModifier = -15
 
 						for i = 0, 1 do

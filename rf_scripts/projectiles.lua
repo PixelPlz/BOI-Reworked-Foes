@@ -179,11 +179,6 @@ function mod:EditNormalProjectiles(projectile)
 			end
 
 
-		-- Night Crawler
-		elseif projectile.SpawnerType == EntityType.ENTITY_NIGHT_CRAWLER then
-			sprite.Color = Color(0.5,0,0.5, 1) -- Same color as vanilla Ragling shots
-
-
 		-- Blue Conjoined Fatty
 		elseif projectile.SpawnerType == EntityType.ENTITY_CONJOINED_FATTY and projectile.SpawnerVariant == 1 then
 			mod:ChangeProjectile(projectile, ProjectileVariant.PROJECTILE_HUSH)
@@ -531,6 +526,35 @@ function mod:EggSackProjectilePop(projectile)
 end
 
 mod:AddCustomProjectile(mod.Entities.EggSackProjectile, nil, mod.EggSackProjectileUpdate, mod.EggSackProjectilePop)
+
+
+
+-- Clot projectile
+function mod:ClotProjectileInit(projectile)
+	projectile:GetData().trailColor = mod.Colors.TarTrail
+end
+
+function mod:ClotProjectileUpdate(projectile)
+	local sprite = projectile:GetSprite()
+	mod:LoopingAnim(sprite, "Idle")
+end
+
+function mod:ClotProjectilePop(projectile)
+	local clot = Isaac.Spawn(EntityType.ENTITY_CLOTTY, 1, 0, projectile.Position, Vector.Zero, projectile.SpawnerEntity)
+	clot:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+	mod:QuickCreep(EffectVariant.CREEP_BLACK, projectile.SpawnerEntity, projectile.Position, 2.5, 90)
+
+	-- Effects
+	mod:PlaySound(nil, SoundEffect.SOUND_PLOP)
+
+	for i = 3, 4 do
+		local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, i, projectile.Position, Vector.Zero, projectile):GetSprite()
+		effect.Color = mod.Colors.Tar
+		effect.Scale = Vector.One * 0.75
+	end
+end
+
+mod:AddCustomProjectile(mod.Entities.ClotProjectile, mod.ClotProjectileInit, mod.ClotProjectileUpdate, mod.ClotProjectilePop)
 
 
 

@@ -256,10 +256,7 @@ function mod:ItLivesUpdate(entity)
 			-- Always stay in the spawn position
 			entity.Velocity = Vector.Zero
 			entity.Position = entity.TargetPosition
-
-			if entity:HasEntityFlags(EntityFlag.FLAG_KNOCKED_BACK) then
-				entity:ClearEntityFlags(EntityFlag.FLAG_KNOCKED_BACK)
-			end
+			mod:IgnoreKnockoutDrops(entity)
 
 
 			-- Transition to next phase

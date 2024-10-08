@@ -1,4 +1,30 @@
 ================================================
+    Version 3.1.13
+================================================
+
+- Mods that edit the anm2 of bosses reworked in this mod should no longer cause graphical issues, but as a result some resprite mods will have certain sprites overriden
+
+
+-- Additions / changes --
+- Super Pride has recieved new sprites to match regular Pride's new design
+- Red Maws now visually swell up based on how close they are to self-detonating
+- Red Maws now take slightly longer to detonate
+- Dart Flies and Dank Death's Heads have had their movement improved
+- Dank Death's Heads now create more creep when hitting a wall
+- Improved the death animation for Holy Leeches 
+- Improved animations for Black Globins
+- Selfless Knights now shoot less often
+- Champion Wrath's rockets now have a short wind-up before moving to give more time to dodge
+
+
+-- Fixes --
+- Fixed Rotties and Skinnies crashing the game when hit with fear shots and Knockout Drops shots at the same time
+- Fixed champion Envy not dropping Tammy's Head
+
+
+
+
+================================================
     Version 3.1.12
 ================================================
 

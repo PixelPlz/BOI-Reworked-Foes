@@ -288,10 +288,10 @@ mod:AddCallback(ModCallbacks.MC_POST_EFFECT_RENDER, mod.TubeWormEffects, EffectV
 
 
 
--- Make Dinga hitboxes not stupidly small
+--[[ Make Dinga hitboxes not stupidly small ]]--
 function mod:DingaUpdate(entity)
 	if entity.FrameCount <= 1 then
-		entity:SetSize(30 * entity.Scale, Vector(1, 0.75), 12)
+		entity:SetSize(28 * entity.Scale, Vector(1, 0.75), 12)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DingaUpdate, EntityType.ENTITY_DINGA)

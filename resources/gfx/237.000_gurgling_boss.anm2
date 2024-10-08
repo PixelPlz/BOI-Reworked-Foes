@@ -1,9 +1,9 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2023. 06. 02. 16:37:03" Version="115" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2024. 10. 08. 1:10:51" Version="116" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="monsters\rebirth\monster_237_gurgling hands.png" Id="0"/>
-			<Spritesheet Path="monsters\rebirth\monster_237_gurgling.png" Id="1"/>
+			<Spritesheet Path="monsters\rebirth\monster_237_gurgling_boss.png" Id="1"/>
 		</Spritesheets>
 		<Layers>
 			<Layer Name="body" Id="0" SpritesheetId="0"/>

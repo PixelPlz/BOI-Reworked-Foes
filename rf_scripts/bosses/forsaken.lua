@@ -328,9 +328,7 @@ function mod:ForsakenUpdate(entity)
 	-- Rotating brimstone attack
 	elseif entity.State == NpcState.STATE_ATTACK then
 		entity.Velocity = mod:StopLerp(entity.Velocity)
-		if entity:HasEntityFlags(EntityFlag.FLAG_KNOCKED_BACK) then
-			entity:ClearEntityFlags(EntityFlag.FLAG_KNOCKED_BACK)
-		end
+		mod:IgnoreKnockoutDrops(entity)
 
 		-- Appear
 		if entity.StateFrame == 0 then

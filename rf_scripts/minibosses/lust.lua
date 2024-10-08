@@ -168,12 +168,12 @@ function mod:LustUpdate(entity)
 			end
 
 			-- Reverse movement if feared
-			if entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+			if mod:IsFeared(entity) then
 				speed = -speed
 			end
 
 			-- Move randomly if confused
-			if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+			if mod:IsConfused(entity) then
 				mod:WanderAround(entity, speed / 2)
 
 			else
@@ -288,37 +288,19 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.LustUpdate, EntityType.ENTIT
 
 
 
--- Kiss the player to heal
+-- Hermit effect
 function mod:LustHit(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if (damageSource.Type == EntityType.ENTITY_LUST and mod:CheckValidMiniboss(damageSource.Entity))
-	or (FiendFolio and damageSource.Type == 160 and damageSource.Variant == 1343) then -- Stinky FF compat for Seducers
-		local lust = damageSource.Entity
-		lust:AddHealth((lust.MaxHitPoints / 100) * Settings.TouchHeal)
+	if damageSource.Type == EntityType.ENTITY_LUST and damageSource.Entity and damageSource.Entity:GetData().greedy then
+		local player = entity:ToPlayer()
 
-		-- Effects
-		mod:PlaySound(lust, SoundEffect.SOUND_KISS_LIPS1, 1.1)
-		lust:SetColor(mod.Colors.Heal, 12, 1, true, false)
+		-- Remove coins
+		local amount = math.min(player:GetNumCoins(), mod:Random(2, 4))
+		player:AddCoins(-amount)
 
-		local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HEART, 0, lust.Position, Vector.Zero, lust)
-		effect:ToEffect():FollowParent(lust)
-		local baseOffset = lust.Variant == 1 and -48 or -40
-		effect:GetSprite().Offset = Vector(0, lust:ToNPC().Scale * baseOffset)
-		effect.DepthOffset = lust.DepthOffset + 1
-
-
-		-- Hermit effect
-		if lust:GetData().greedy then
-			local player = entity:ToPlayer()
-
-			-- Remove coins
-			local amount = math.min(player:GetNumCoins(), mod:Random(2, 4))
-			player:AddCoins(-amount)
-
-			if amount > 1 then
-				local dropAmount = mod:Random(amount - 2)
-				for i = 0, dropAmount do
-					Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COIN, CoinSubType.COIN_PENNY, player.Position, mod:RandomVector(mod:Random(4, 6)), nil)
-				end
+		if amount > 1 then
+			local dropAmount = mod:Random(amount - 2)
+			for i = 0, dropAmount do
+				Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COIN, CoinSubType.COIN_PENNY, player.Position, mod:RandomVector(mod:Random(4, 6)), player)
 			end
 		end
 	end

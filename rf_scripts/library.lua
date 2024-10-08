@@ -284,11 +284,34 @@ end
 
 --[[ Entity functions ]]--
 
+-- Check if the entity is feared.
+function mod:IsFeared(entity)
+	if entity:HasEntityFlags(EntityFlag.FLAG_FEAR)
+	or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+		return true
+	end
+	return false
+end
+
+-- Check if the entity is confused.
+function mod:IsConfused(entity)
+	return entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION)
+end
+
+-- Check if the entity is charmed or friendly.
+function mod:IsCharmed(entity)
+	if entity:HasEntityFlags(EntityFlag.FLAG_CHARM)
+	or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+		return true
+	end
+	return false
+end
+
+
 -- Wander around randomly
 function mod:WanderAround(entity, speed)
 	-- Chase if charmed of friendly / Run away if feared
-	if entity:HasEntityFlags(EntityFlag.FLAG_CHARM) or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY)
-	or entity:HasEntityFlags(EntityFlag.FLAG_FEAR)  or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+	if (mod:IsCharmed(entity) or mod:IsFeared(entity)) and not mod:IsConfused(entity) then
 		mod:ChasePlayer(entity, speed)
 	else
 		entity.Pathfinder:MoveRandomlyBoss(false)
@@ -301,16 +324,16 @@ end
 function mod:ChasePlayer(entity, speed, canFly)
 	local target = entity:GetPlayerTarget()
 
-	-- Reverse movement if feared
-	if entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
-		speed = -speed
-	end
-
 	-- Move randomly if confused
-	if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+	if mod:IsConfused(entity) then
 		mod:WanderAround(entity, speed)
 
 	else
+		-- Reverse movement if feared
+		if mod:IsFeared(entity) then
+			speed = -speed
+		end
+
 		-- If there is a path to the player
 		if entity.Pathfinder:HasPathToPos(target.Position) or canFly == true then
 			-- If there is a direct line to the player
@@ -359,7 +382,7 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, dontDoubleBack)
 	end
 
 	-- Check for either fear or charm
-	local fearedOrCharmed = entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) or entity:HasEntityFlags(EntityFlag.FLAG_CHARM) or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY)
+	local fearedOrCharmed = mod:IsFeared(entity) or mod:IsCharmed(entity)
 
 
 	-- Get valid directions
@@ -390,14 +413,14 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, dontDoubleBack)
 		else
 			local chosenDirection = mod:RandomIndex(validDirections)
 
-			if fearedOrCharmed == true then
+			if fearedOrCharmed then
 				for i, direction in pairs(validDirections) do
 					local currentChosenPosition = gridAlignedPos + (Vector.FromAngle(chosenDirection * 90) * 40)
 					local checkPos = gridAlignedPos + (Vector.FromAngle(direction * 90) * 40)
 					local nearestPlayer = Game():GetNearestPlayer(entity.Position).Position
 
-					if ((entity:HasEntityFlags(EntityFlag.FLAG_FEAR)  or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK))   and checkPos:Distance(nearestPlayer) > currentChosenPosition:Distance(nearestPlayer))
-					or ((entity:HasEntityFlags(EntityFlag.FLAG_CHARM) or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY)) and checkPos:Distance(nearestPlayer) < currentChosenPosition:Distance(nearestPlayer)) then
+					if (mod:IsFeared(entity)  and checkPos:Distance(nearestPlayer) > currentChosenPosition:Distance(nearestPlayer))
+					or (mod:IsCharmed(entity) and checkPos:Distance(nearestPlayer) < currentChosenPosition:Distance(nearestPlayer)) then
 						chosenDirection = direction
 					end
 				end
@@ -408,34 +431,34 @@ function mod:MoveRandomGridAligned(entity, speed, canFly, dontDoubleBack)
 
 		data.moveTimer = mod:Random(1, 4)
 		data.currentIndex = room:GetGridIndex(entity.Position)
+	end
 
 
 	-- Move in the selected direction
-	else
-		entity.Velocity = mod:Lerp(entity.Velocity, ((gridAlignedPos + Vector.FromAngle(data.movementDirection * 90) * 40) - entity.Position):Resized(speed), 0.35)
+	local targetPos = (gridAlignedPos + Vector.FromAngle(data.movementDirection * 90) * 40)
+	entity.Velocity = mod:Lerp(entity.Velocity, (targetPos - entity.Position):Resized(speed), 0.35)
 
-		if room:GetGridIndex(entity.Position) ~= data.currentIndex then
-			-- Feared and charmed enemies always try to change directions as soon as they can
-			if fearedOrCharmed == true then
-				data.moveTimer = 0
-			else
-				data.moveTimer = data.moveTimer - 1
-			end
+	if room:GetGridIndex(entity.Position) ~= data.currentIndex then
+		-- Feared and charmed enemies always try to change directions as soon as they can
+		if fearedOrCharmed then
+			data.moveTimer = 0
+		else
+			data.moveTimer = data.moveTimer - 1
 		end
-		data.currentIndex = room:GetGridIndex(entity.Position)
 	end
+	data.currentIndex = room:GetGridIndex(entity.Position)
 end
 
 
 -- Bounce around diagonally
 function mod:MoveDiagonally(entity, speed, lerpStep)
 	-- Move randomly if confused
-	if entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+	if mod:IsConfused(entity) then
 		mod:WanderAround(entity, speed)
 
 
 	-- Run away if feared
-	elseif entity:HasEntityFlags(EntityFlag.FLAG_FEAR) or entity:HasEntityFlags(EntityFlag.FLAG_SHRINK) then
+	elseif mod:IsFeared(entity) then
 		local nearest = Game():GetNearestPlayer(entity.Position)
 		entity.Velocity = mod:Lerp(entity.Velocity, (entity.Position - nearest.Position):Resized(speed * 2), 0.25)
 
@@ -464,12 +487,12 @@ function mod:AvoidPlayer(entity, radius, wanderSpeed, runSpeed, canFly)
 
 
 	-- Chase if charmed of friendly
-	if entity:HasEntityFlags(EntityFlag.FLAG_CHARM) or entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+	if mod:IsCharmed(entity) then
 		mod:ChasePlayer(entity, wanderSpeed + (runSpeed - wanderSpeed) / 2)
 
 
 	-- Run away if there are players in radius
-	elseif nearest.Position:Distance(entity.Position) <= radius and not entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION) then
+	elseif nearest.Position:Distance(entity.Position) <= radius and not mod:IsConfused(entity) then
 		-- Get target position
 		local room = Game():GetRoom()
 		local vector = (entity.Position - nearest.Position):Normalized()
@@ -677,6 +700,14 @@ end
 -- Check if render callback effects should play
 function mod:ShouldDoRenderEffects()
 	return not (Game():IsPaused() or Game():GetRoom():GetRenderMode() == RenderMode.RENDER_WATER_REFLECT)
+end
+
+
+-- Ignore Knockout Drops knockback.
+function mod:IgnoreKnockoutDrops(entity)
+	if entity:HasEntityFlags(EntityFlag.FLAG_KNOCKED_BACK) then
+		entity:ClearEntityFlags(EntityFlag.FLAG_KNOCKED_BACK)
+	end
 end
 
 
@@ -972,8 +1003,8 @@ end
 
 -- Check for Champion sin drop replacement
 function mod:CheckMinibossDropReplacement(pickup, entityType, miniboss)
-	if pickup.SpawnerType == entityType and pickup.SpawnerVariant == 0 and pickup.SpawnerEntity
-	and mod:CheckValidMiniboss(pickup.SpawnerEntity) and mod:IsRFChampion(pickup.SpawnerEntity, miniboss) then
+	if pickup.SpawnerType == entityType and (pickup.SpawnerType == EntityType.ENTITY_ENVY and pickup.SpawnerVariant == 30 or pickup.SpawnerVariant == 0)
+	and pickup.SpawnerEntity and mod:CheckValidMiniboss(pickup.SpawnerEntity) and mod:IsRFChampion(pickup.SpawnerEntity, miniboss) then
 		return true
 	end
 	return false

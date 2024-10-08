@@ -42,11 +42,7 @@ function mod:GiantSpikeUpdate(entity)
 		else
 			entity.Velocity = Vector.Zero
 		end
-
-		-- Don't get knocked back
-		if entity:HasEntityFlags(EntityFlag.FLAG_KNOCKED_BACK) then
-			entity:ClearEntityFlags(EntityFlag.FLAG_KNOCKED_BACK)
-		end
+		mod:IgnoreKnockoutDrops(entity)
 
 
 		-- Retracted

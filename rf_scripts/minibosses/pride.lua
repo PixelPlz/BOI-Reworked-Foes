@@ -1,22 +1,26 @@
 local mod = ReworkedFoes
 
+local function setSplatColor(entity)
+	if entity.Variant == 0 then
+		-- Champion
+		if mod:IsRFChampion(entity, "Pride") then
+			entity.SplatColor = Color(0,0,0, 1, 0.75,0.66,0.31)
+		-- Regular
+		else
+			entity.SplatColor = Color(0,0,0, 1, 0.31,0.31,0.31)
+		end
+
+	-- Super
+	elseif entity.Variant == 1 then
+		entity.SplatColor = mod.Colors.Sketch
+	end
+end
+
 
 
 function mod:PrideInit(entity)
 	if mod:CheckValidMiniboss(entity) then
-		if entity.Variant == 0 then
-			-- Champion
-			if mod:IsRFChampion(entity, "Pride") then
-				entity.SplatColor = mod.Colors.PrideHoly
-			-- Regular
-			else
-				entity.SplatColor = mod.Colors.PrideGray
-			end
-
-		-- Super
-		elseif entity.Variant == 1 then
-			entity.SplatColor = mod.Colors.PridePink
-		end
+		setSplatColor(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PrideInit, EntityType.ENTITY_PRIDE)
@@ -24,6 +28,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PrideInit, EntityType.ENTITY_
 function mod:PrideUpdate(entity)
 	if mod:CheckValidMiniboss(entity) then
 		local sprite = entity:GetSprite()
+
 
 		-- Replace default laser attack
 		if entity.State == NpcState.STATE_ATTACK then
@@ -53,12 +58,16 @@ function mod:PrideUpdate(entity)
 
 					-- Pink laser for Super Pride
 					if entity.Variant == 1 then
-						laser:GetSprite():ReplaceSpritesheet(0, "gfx/effects/effect_018_lasereffects02_pink.png")
+						laser:GetSprite():ReplaceSpritesheet(0, "gfx/effects/effect_018_lasereffects02_super.png")
 						laser:GetSprite():LoadGraphics()
 					end
 				end
 
+				-- Sounds
 				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_HISS)
+				if not mod:IsRFChampion(entity, "Pride") then
+					mod:PlaySound(nil, SoundEffect.SOUND_BLOOD_LASER, 0.75, 1.05)
+				end
 
 			-- Super pride attacks twice
 			elseif sprite:IsEventTriggered("Reset") and entity.I2 == 0 then
@@ -97,19 +106,7 @@ function mod:PrideUpdate(entity)
 
 		-- Fix blood color
 		if entity:IsDead() then
-			if entity.Variant == 0 then
-				-- Champion
-				if mod:IsRFChampion(entity, "Pride") then
-					entity.SplatColor = mod.Colors.PrideHoly
-				-- Regular
-				else
-					entity.SplatColor = mod.Colors.PrideGray
-				end
-
-			-- Super
-			elseif entity.Variant == 1 then
-				entity.SplatColor = mod.Colors.PridePink
-			end
+			setSplatColor(entity)
 		end
 	end
 end
