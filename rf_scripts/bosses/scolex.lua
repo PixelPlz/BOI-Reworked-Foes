@@ -10,8 +10,10 @@ local Settings = {
 	BurrowHeight = 7.5,
 
 	MoveSpeed = 5,
-	Gravity = 0.5,
+	SteerMoveSpeed = 6,
+	LongJumpMoveSpeed = 10.5,
 
+	Gravity = 0.5,
 	JumpSpeed = 9,
 	LongJumpSpeed = 6,
 	SteerJumpSpeed = 11,
@@ -74,7 +76,8 @@ function mod:ScolexUpdate(entity)
 		end
 
 
-		-- Initialize
+
+		--[[ Initialize ]]--
 		if entity.State == NpcState.STATE_INIT then
 			-- Head
 			entity.GroupIdx = 0
@@ -268,15 +271,8 @@ function mod:ScolexUpdate(entity)
 
 					-- No attack
 					else
-						local vector = (target.Position - entity.Position):Normalized()
-						if mod:IsFeared(entity) then
-							vector = -vector
-						elseif mod:IsConfused(entity) then
-							vector = mod:RandomVector()
-						end
-
 						data.zVelocity = Settings.JumpSpeed
-						entity.TargetPosition = vector
+						entity.TargetPosition = mod:GetTargetVector(entity, target)
 					end
 
 					entity.ProjectileDelay = delay
@@ -359,6 +355,7 @@ function mod:ScolexUpdate(entity)
 						entity.State = NpcState.STATE_JUMP
 					end
 
+
 				-- Attack after jumping out
 				else
 					if entity.ProjectileDelay == 0 then
@@ -419,34 +416,24 @@ function mod:ScolexUpdate(entity)
 				end
 
 
-				-- Movement
+
+				--[[ Movement ]]--
 				-- Head
 				if entity.GroupIdx == 0 then
 					-- Steering jump
 					if entity.StateFrame == 3 then
-						-- Confused
-						if mod:IsConfused(entity) then
-							mod:WanderAround(entity, Settings.MoveSpeed + 1)
-
-						else
-							local vector = (target.Position - entity.Position):Normalized()
-							if mod:IsFeared(entity) then
-								vector = -vector
-							end
-
-							entity.Velocity = mod:Lerp(entity.Velocity, vector * (Settings.MoveSpeed + 1), 0.2)
-						end
+						mod:ChasePlayer(entity, Settings.SteerMoveSpeed)
 
 					-- Long and regular jump
 					else
 						local speed = Settings.MoveSpeed
-						-- Long jump
-						if entity.StateFrame == 2 then
-							speed = Settings.MoveSpeed + 5.5
+						if entity.StateFrame == 2 then -- Long jump
+							speed = Settings.LongJumpMoveSpeed
 						end
 
 						entity.Velocity = mod:Lerp(entity.Velocity, entity.TargetPosition * speed, 0.25)
 					end
+
 
 				-- Body segments
 				else

@@ -1,14 +1,15 @@
 ReworkedFoes = RegisterMod("Improved & Reworked Foes", 1)
 local mod = ReworkedFoes
-mod.Version = "3.1.13"
+mod.Version = "3.x.x"
 
 
 
 --[[ Load scripts ]]--
 function mod:LoadScripts(scripts, subfolder)
-	subfolder = subfolder or ""
+	subfolder = subfolder and subfolder .. "." or ""
+
 	for i, script in pairs(scripts) do
-		include("rf_scripts." .. subfolder .. "." .. script)
+		include("rf_scripts." .. subfolder .. script)
 	end
 end
 
@@ -48,6 +49,7 @@ local enemyScripts = {
 	"dankDeathsHead",
 	"momsHand",
 	"codWorm",
+	"oob",
 	"skinny",
 	"homunculusBegotten",
 	"tumors",
@@ -93,7 +95,11 @@ local bossScripts = {
 	"mom",
 	"pin",
 	"scolex",
+	"famine",
+	"pestilence",
+	"war",
 	"conquest",
+	"death",
 	"husk",
 	"lokii",
 	"teratoma",
@@ -110,6 +116,7 @@ local bossScripts = {
 	"hushBaby",
 	"gate",
 	"mamaGurdy",
+	"adversary",
 	"mrFred",
 	"stain",
 	"forsaken",
@@ -128,7 +135,6 @@ mod:LoadScripts(bossScripts, "bosses")
 local compatibilityScripts = {
 	"baptismal_preloader",
 	"loader",
-	"retribution",
 	"warning",
 }
 mod:LoadScripts(compatibilityScripts, "compatibility")

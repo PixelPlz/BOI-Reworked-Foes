@@ -4,7 +4,7 @@ local mod = ReworkedFoes
 
 --[[ Appear animations for Pin / Scolex / Frail ]]--
 function mod:PinAppearInit(entity)
-	if mod.Config.AppearPins == true and entity.Variant < 3 -- If it's not Wormwood
+	if mod.Config.AppearPins and entity.Variant < 3 -- If it's not Wormwood
 	and not entity.Parent and not entity.SpawnerEntity -- Only the head
 	and (not FiendFolio or entity.SubType ~= 2) -- Not Fiend Folio Technopin
 	and (not GBMd or entity.Variant > 0) then -- Not the Greed Mode skin for Pin (it fucks with the animations for some reason)
@@ -56,8 +56,7 @@ function mod:PinInit(entity)
 			newHealth = 175
 		end
 
-		entity.MaxHitPoints = newHealth
-		entity.HitPoints = entity.MaxHitPoints
+		mod:ChangeMaxHealth(entity, newHealth)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PinInit, EntityType.ENTITY_PIN)
@@ -66,7 +65,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PinInit, EntityType.ENTITY_PI
 
 --[[ Burrowing indicator ]]--
 function mod:PinUpdate(entity)
-	if mod.Config.NoHiddenPins == true and entity.Variant < 3 -- If it's not Wormwood
+	if mod.Config.NoHiddenPins and entity.Variant < 3 -- If it's not Wormwood
 	and not entity.Parent and entity.Visible == false -- Only the head while it's underground
 	and entity:IsFrame(6, 0) then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DIRT_PILE, 0, entity.Position, Vector.Zero, entity).SpriteScale = Vector(1.2, 1.2)

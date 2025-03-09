@@ -9,7 +9,7 @@ local Settings = {
 
 
 function mod:CodWormInit(entity)
-	entity:AddEntityFlags(EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	entity.State = NpcState.STATE_IDLE
 	entity.TargetPosition = entity.Position
 	entity.ProjectileCooldown = Settings.HideTime

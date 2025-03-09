@@ -2,44 +2,59 @@ local mod = ReworkedFoes
 
 
 
+function mod:MegaClottyInit(entity)
+	entity:SetSize(28, Vector(1, 0.75), 16)
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.MegaClottyInit, EntityType.ENTITY_MEGA_CLOTTY)
+
 function mod:MegaClottyUpdate(entity)
-	local sprite = entity:GetSprite()
+	if not (Retribution and entity.Variant == 1873)
+	and (entity.State == NpcState.STATE_ATTACK or entity.State == NpcState.STATE_ATTACK2) then
+		local sprite = entity:GetSprite()
 
-	if sprite:IsPlaying("Attack") then
-		entity.Velocity = Vector.Zero
-		entity.State = NpcState.STATE_ATTACK -- Prevents them from stopping the attack randomly
-	end
-
-
-	if sprite:IsEventTriggered("Shoot1") or sprite:IsEventTriggered("Shoot2") or sprite:IsEventTriggered("Shoot3") then
-		-- Effects
-		local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity):GetSprite()
-		effect.Scale = Vector(entity.Scale * 0.75, entity.Scale * 0.75)
-		mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.8)
-
-
-		-- Retribution Mega Clot
-		if Retribution and entity.Variant == 1873 then
-			entity:FireProjectiles(entity.Position, Vector(10, 6), 9, ProjectileParams())
-			mod:QuickCreep(EffectVariant.CREEP_BLACK, entity, entity.Position, 2)
-			effect.Color = mod.Colors.Tar
-
-		-- Mega Clotty
-		else
-			local mode = 6
-			if sprite:IsEventTriggered("Shoot2") then
-				mode = 7
-			elseif sprite:IsEventTriggered("Shoot3") then
-				mode = 8
-			end
-			entity:FireProjectiles(entity.Position, Vector(10, 0), mode, ProjectileParams())
+		-- Replace the default attack
+		if entity.State == NpcState.STATE_ATTACK then
+			entity.State = NpcState.STATE_ATTACK2
+			sprite:Play("Attack", true)
 		end
-	end
 
 
-	-- Make their hitboxes not stupidly small
-	if entity.FrameCount <= 1 then
-		entity:SetSize(28 * entity.Scale, Vector(1, 0.75), 12)
+		-- New attack
+		if entity.State == NpcState.STATE_ATTACK2 then
+			entity.Velocity = mod:StopLerp(entity.Velocity)
+
+			if sprite:IsEventTriggered("Shoot") then
+				local params = ProjectileParams()
+				params.Scale = 1.4
+
+				-- Get the pattern to attack in
+				local pattern = mod:Random(1, 8) -- No weighted outcome picker :-(
+				local mode = 6
+
+				-- I.Blob shots
+				if pattern >= 7 then
+					mode = 8
+				-- Clot shots
+				elseif pattern >= 4 then
+					mode = 7
+				end
+
+				entity:FireProjectiles(entity.Position, Vector(10, 0), mode, params)
+
+
+				-- Effects
+				mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, 0.8)
+
+				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 3, entity.Position, Vector.Zero, entity):GetSprite()
+				effect.Scale = Vector.One * entity.Scale * 0.8
+			end
+
+			if sprite:GetFrame() >= 50 then
+				entity.State = NpcState.STATE_MOVE
+			end
+		end
+
+		return true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MegaClottyUpdate, EntityType.ENTITY_MEGA_CLOTTY)
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.MegaClottyUpdate, EntityType.ENTITY_MEGA_CLOTTY)

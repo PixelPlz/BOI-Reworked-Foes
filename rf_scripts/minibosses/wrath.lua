@@ -3,7 +3,7 @@ local mod = ReworkedFoes
 
 
 function mod:WrathUpdate(entity)
-	if mod:CheckValidMiniboss(entity) then
+	if mod:CheckValidMiniboss() then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
 
@@ -104,7 +104,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.WrathUpdate, EntityType.ENTITY_W
 
 -- Don't take damage from non-player explosions
 function mod:WrathDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if mod:CheckValidMiniboss(entity) and damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0)
+	if mod:CheckValidMiniboss() and damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0)
 	and Isaac.GetChallenge() ~= Challenge.CHALLENGE_HOT_POTATO then -- HOT POTATO EXPLOSIONS DOESN'T COUNT AS PLAYER EXPLOSIONS FUCK THIS GAME
 		return false
 	end
@@ -115,8 +115,8 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.WrathDMG, EntityType.ENTITY
 
 -- Replace regular bombs
 function mod:WrathBombInit(bomb)
-	if bomb.SpawnerType == EntityType.ENTITY_WRATH and bomb.SpawnerVariant == 0 and bomb.SubType ~= 40
-	and bomb.SpawnerEntity and mod:CheckValidMiniboss(bomb.SpawnerEntity) then
+	if bomb.SpawnerType == EntityType.ENTITY_WRATH and mod:CheckValidMiniboss()
+	and bomb.SpawnerVariant == 0 and bomb.SubType ~= 40 then
 		-- Hot Bombs for champion Wrath
 		if mod:IsRFChampion(bomb.SpawnerEntity, "Wrath") then
 			bomb:AddTearFlags(TearFlags.TEAR_BURN)

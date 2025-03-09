@@ -27,9 +27,7 @@ local Settings = {
 
 
 function mod:SisterVisInit(entity)
-	entity.MaxHitPoints = Settings.NewHealth
-	entity.HitPoints = entity.MaxHitPoints
-
+	mod:ChangeMaxHealth(entity, Settings.NewHealth)
 	entity.ProjectileCooldown = Settings.Cooldown / 2
 	entity:GetData().corpseAnim = mod:Random(1, 3)
 
@@ -414,8 +412,7 @@ function mod:SisterVisUpdate(entity)
 					local angle = 90 + entity.I1 * 90
 					local offset = Vector.FromAngle(angle):Resized(10) + Vector(0, -30)
 
-					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.GIANT_RED, entity.Position, angle, 30, offset, entity), entity}
-					data.brim = laser_ent_pair.laser
+					data.brim = EntityLaser.ShootAngle(LaserVariant.GIANT_RED, entity.Position, angle, 30, offset, entity)
 					data.brim.DepthOffset = entity.DepthOffset - 10
 
 					-- Effect
@@ -796,6 +793,8 @@ function mod:SisterVisUpdate(entity)
 
 		--[[ Transition ]]--
 		elseif entity.State == NpcState.STATE_SPECIAL then
+			entity.Velocity = mod:StopLerp(entity.Velocity)
+
 			if sprite:IsEventTriggered("Jump") then
 				data.enraged = true
 			end
@@ -1003,7 +1002,7 @@ function mod:SisterVisUpdate(entity)
 
 
 	-- Replace blood color with the default red
-	if entity:IsDead() then
+	if entity:HasMortalDamage() or entity:IsDead() then
 		entity.SplatColor = Color.Default
 		sprite.PlaybackSpeed = 1
 	end

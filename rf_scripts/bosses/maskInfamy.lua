@@ -57,7 +57,7 @@ function mod:MaskInfamyUpdate(entity)
 	end
 
 
-	-- Schmovin'
+	--[[ Schmovin' ]]--
 	if entity.State == NpcState.STATE_MOVE then
 		-- Movement
 		-- Stay near the heart (for non-champion 2nd phase and black champion)
@@ -77,8 +77,9 @@ function mod:MaskInfamyUpdate(entity)
 
 		playDirectionalAnimation()
 
-		if entity.ProjectileCooldown <= 0 then
-			local chargeCheck = mod:CheckCardinalAlignment(entity, Settings.SideRange, Settings.FrontRange, 3, 2)
+		if entity.ProjectileCooldown <= 0
+		and not mod:IsFeared(entity) and not mod:IsConfused(entity) then
+			local chargeCheck = mod:CheckCardinalAlignment(entity, Settings.SideRange, Settings.FrontRange, 3, mod.DirectionCheckMode.AllowFacingAndSide)
 
 			-- Charge if in range
 			if chargeCheck ~= false then
@@ -93,7 +94,8 @@ function mod:MaskInfamyUpdate(entity)
 		end
 
 
-	-- Charging
+
+	--[[ Charging ]]--
 	elseif entity.State == NpcState.STATE_ATTACK then
 		-- Movement
 		-- 2nd phase
@@ -154,7 +156,8 @@ function mod:MaskInfamyUpdate(entity)
 			playDirectionalAnimation()
 		end
 
-	-- Stunned
+
+	--[[ Stunned ]]--
 	elseif entity.State == NpcState.STATE_IDLE then
 		entity.Velocity = mod:StopLerp(entity.Velocity, 0.15)
 
@@ -171,7 +174,8 @@ function mod:MaskInfamyUpdate(entity)
 		end
 
 
-	-- Transition
+
+	--[[ Transition ]]--
 	elseif entity.State == NpcState.STATE_SPECIAL then
 		entity.Velocity = mod:StopLerp(entity.Velocity)
 
@@ -229,9 +233,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.MaskInfamyCollision, Enti
 
 --[[ Heart ]]--
 function mod:HeartInfamyInit(entity)
-	entity.MaxHitPoints = Settings.NewHealth
-	entity.HitPoints = entity.MaxHitPoints
-
+	mod:ChangeMaxHealth(entity, Settings.NewHealth)
 	entity.ProjectileCooldown = Settings.Cooldown / 2
 
 	-- Black champion
@@ -394,7 +396,8 @@ function mod:HeartInfamyUpdate(entity)
 		end
 
 
-	-- Push attack
+
+	--[[ Push attack ]]--
 	elseif entity.State == NpcState.STATE_ATTACK2 then
 		if sprite:IsEventTriggered("Shoot") then
 			entity.TargetPosition = (target.Position - entity.Position):Normalized()
@@ -554,6 +557,11 @@ function mod:HeartInfamyUpdate(entity)
 		if sprite:IsFinished() then
 			entity.State = NpcState.STATE_MOVE
 		end
+
+
+	-- Delirium fix
+	elseif entity:GetData().wasDelirium then
+		entity.State = NpcState.STATE_MOVE
 	end
 
 

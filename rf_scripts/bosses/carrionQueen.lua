@@ -1,14 +1,20 @@
 local mod = ReworkedFoes
 
+local Settings = {
+	NewChampionHP = 525,
+
+	ChargeCooldown = 60,
+	MaxDistance = 240,
+}
+
 
 function mod:CarrionQueenInit(entity)
 	if entity.Variant == 2 and entity.I1 == 0 then
-		entity.ProjectileCooldown = 30
+		entity.ProjectileCooldown = Settings.ChargeCooldown / 2
 
 		-- Nerf champion HP
 		if entity.SubType == 1 then
-			entity.MaxHitPoints = 525
-			entity.HitPoints = entity.MaxHitPoints
+			mod:ChangeMaxHealth(entity, Settings.NewChampionHP)
 		end
 	end
 end
@@ -19,7 +25,8 @@ function mod:CarrionQueenUpdate(entity)
 		local room = Game():GetRoom()
 
 		-- Charge diagonally
-		if entity.State == NpcState.STATE_MOVE and ((entity.HitPoints > (entity.MaxHitPoints / 10) * 3) or entity.SubType == 1) then
+		if entity.State == NpcState.STATE_MOVE and ((entity.HitPoints > entity.MaxHitPoints * 0.3) or entity.SubType == 1)
+		and not mod:IsFeared(entity) and not mod:IsConfused(entity) then
 			entity.StateFrame = 1
 
 			if entity.ProjectileCooldown <= 0 then
@@ -29,15 +36,16 @@ function mod:CarrionQueenUpdate(entity)
 					angle = angle + 360
 				end
 
-				-- Check for target diagonally
-				for i = 0, 3 do
-					local chargeAngle = 45 + (i * 90)
+				-- Check for the target diagonally
+				for i = -1, 1 do
+					local chargeAngle = entity.Velocity:GetAngleDegrees() + (i * 45)
 
-					if angle > (chargeAngle - 15) and angle < (chargeAngle + 15) and target.Position:Distance(entity.Position) <= 240
-					and room:CheckLine(target.Position, entity.Position, 0, 0, false, false) == true then
+					if angle > (chargeAngle - 15) and angle < (chargeAngle + 15) -- Lined up
+					and target.Position:Distance(entity.Position) <= Settings.MaxDistance -- Not too far away
+					and room:CheckLine(target.Position, entity.Position, 0, 0, false, false) then -- Line of sight is not blocked
 						entity.State = NpcState.STATE_ATTACK
 						entity.V1 = Vector.FromAngle(chargeAngle)
-						entity.ProjectileCooldown = 30
+						entity.ProjectileCooldown = Settings.ChargeCooldown
 						mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_ROAR_0)
 					end
 				end
@@ -47,11 +55,12 @@ function mod:CarrionQueenUpdate(entity)
 			end
 
 
-		-- Make her eat her own shit
+		-- Make her eat shit
 		elseif entity.State == NpcState.STATE_ATTACK then
-			local index = room:GetGridIndex(entity.Position + entity.Velocity:Resized(entity.Size * entity.Scale) + entity.Velocity:Resized(15))
-			local grid = room:GetGridEntity(index)
-			if grid ~= nil and grid:GetType() == GridEntityType.GRID_POOP then
+			local pos = entity.Position + entity.Velocity:Resized(entity.Size * entity.Scale) + entity.Velocity:Resized(15)
+			local grid = room:GetGridEntityFromPos(pos)
+
+			if grid and grid:GetType() == GridEntityType.GRID_POOP then
 				grid:Hurt(10)
 			end
 
@@ -68,17 +77,19 @@ function mod:CarrionQueenUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.CarrionQueenUpdate, EntityType.ENTITY_CHUB)
 
--- Make the pink champion be able to eat her hearts
+-- Make the pink champion able to eat her hearts when charging
 function mod:CarrionQueenCollision(entity, target, bool)
-	if entity.Variant == 2 and entity.SubType == 1 and entity:ToNPC().I1 == 0 and entity:ToNPC().State == NpcState.STATE_ATTACK and target.Type == EntityType.ENTITY_HEART then
+	if entity.Variant == 2 and entity:ToNPC().I1 == 0 and entity:ToNPC().State == NpcState.STATE_ATTACK
+	and target.Type == EntityType.ENTITY_HEART then
 		target:Kill()
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.CarrionQueenCollision, EntityType.ENTITY_CHUB)
 
--- Turn red poops into regular ones
+-- Turn red poops into regular ones on death
 function mod:CarrionQueenDeath(entity)
-	if entity.Variant == 2 and entity.I1 == 0 and entity.SubType == 0 and Isaac.CountEntities(nil, entity.Type, entity.Variant, -1) <= 1 then
+	if entity.Variant == 2 and entity.SubType == 0
+	and Isaac.CountEntities(nil, entity.Type, entity.Variant, entity.SubType) <= 1 then
 		mod:RemoveRedPoops()
 	end
 end

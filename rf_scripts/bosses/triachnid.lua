@@ -29,9 +29,7 @@ local Settings = {
 --[[ Head and feet ]]--
 function mod:TriachnidInit(entity)
 	if entity.Variant == 1 then
-		entity.MaxHitPoints = Settings.NewHealth
-		entity.HitPoints = entity.MaxHitPoints
-
+		mod:ChangeMaxHealth(entity, Settings.NewHealth)
 		entity.PositionOffset = Vector(0, -20)
 		entity:SetSize(30, Vector(entity.Scale, entity.Scale), 12)
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
@@ -110,7 +108,7 @@ function mod:TriachnidUpdate(entity)
 		local room = Game():GetRoom()
 
 
-		-- Make a leg move to the specified spot
+		-- Make a leg move to the specified position
 		local function startLegMove(leg, pos)
 			leg.State = NpcState.STATE_MOVE
 			leg:GetSprite():Play("FootStepStart")
@@ -234,7 +232,7 @@ function mod:TriachnidUpdate(entity)
 						-- Move
 						else
 							entity.State = NpcState.STATE_MOVE
-							entity.TargetPosition = entity.Position + (target.Position - entity.Position):Resized(120)
+							entity.TargetPosition = entity.Position + mod:GetTargetVector(entity, target):Resized(120)
 							entity.TargetPosition = room:GetClampedPosition(entity.TargetPosition, 40)
 						end
 
@@ -407,7 +405,7 @@ function mod:TriachnidUpdate(entity)
 						entity.PositionOffset = Vector(0, Settings.RaisedHeadHeight)
 						sprite.Offset = Vector(0, -15)
 
-						entity.TargetPosition = entity.Position + (target.Position - entity.Position):Resized(200)
+						entity.TargetPosition = entity.Position + mod:GetTargetVector(entity, target):Resized(200)
 						entity.TargetPosition = room:GetClampedPosition(entity.TargetPosition, 40)
 
 					else
@@ -695,7 +693,8 @@ function mod:TriachnidUpdate(entity)
 
 					-- Move to position
 					else
-						entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Resized(entity.TargetPosition:Distance(entity.Position) / 8), 0.25)
+						local speed = entity.TargetPosition:Distance(entity.Position) / 8
+						entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Resized(speed), 0.25)
 					end
 
 
@@ -944,7 +943,8 @@ function mod:TriachnidLegSegmentUpdate(entity)
 			mod:LoopingAnim(sprite, "Leg")
 
 			local joint
-			if entity.SpawnerEntity:GetData().legs[data.index] then
+			if entity.SpawnerEntity and entity.SpawnerEntity:GetData().legs
+			and entity.SpawnerEntity:GetData().legs[data.index] then
 				joint = entity.SpawnerEntity:GetData().legs[data.index].joint.Position
 			end
 

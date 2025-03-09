@@ -293,7 +293,10 @@ function mod:GateUpdate(entity)
 				params.BulletFlags = ProjectileFlags.HIT_ENEMIES
 				params.Spread = 1.2
 
-				for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(10 - entity.I1), 2 + entity.I1 * 3, params)) do
+				local speed = 9 - entity.I1
+				local mode = entity.I1 == 1 and 5 or 2
+
+				for i, projectile in pairs(mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(speed), mode, params)) do
 					projectile:GetData().dontChange = true
 				end
 			end

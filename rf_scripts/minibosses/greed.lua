@@ -4,12 +4,13 @@ local mod = ReworkedFoes
 
 --[[ Greed ]]--
 function mod:GreedUpdate(entity)
-	if mod:CheckValidMiniboss(entity) then
+	if mod:CheckValidMiniboss() then
 		local sprite = entity:GetSprite()
 
 		if entity.State == NpcState.STATE_ATTACK then
 			-- Replace default attack for champion
-			if mod:IsRFChampion(entity, "Greed") and (sprite:IsPlaying("Attack01Down") or sprite:IsPlaying("Attack01Hori") or sprite:IsPlaying("Attack01Up")) then
+			if mod:IsRFChampion(entity, "Greed")
+			and (sprite:IsPlaying("Attack01Down") or sprite:IsPlaying("Attack01Hori") or sprite:IsPlaying("Attack01Up")) then
 				entity.State = NpcState.STATE_ATTACK3
 
 			-- Make them not silent while shooting
@@ -27,6 +28,7 @@ function mod:GreedUpdate(entity)
 				params.Scale = 1.25
 				params.FallingSpeedModifier = 1
 				params.FallingAccelModifier = -0.1
+
 				entity:FireProjectiles(entity.Position, entity.V1:Resized(8), 1, params)
 				mod:PlaySound(entity, SoundEffect.SOUND_ULTRA_GREED_SPIT, 0.75)
 			end
@@ -37,7 +39,8 @@ function mod:GreedUpdate(entity)
 		end
 
 
-		-- Champion
+
+		-- Extra champion effects
 		if mod:IsRFChampion(entity, "Greed") then
 			-- Bling effects
 			if entity:IsFrame(20, 0) then
@@ -55,7 +58,8 @@ function mod:GreedUpdate(entity)
 				bling:Update()
 			end
 
-			-- Unique death effects for champion Greed
+
+			-- Death effects
 			if entity:IsDead() then
 				mod:PlaySound(nil, SoundEffect.SOUND_ULTRA_GREED_COIN_DESTROY)
 				entity.SplatColor = Color(1,1,1, 0)
@@ -98,7 +102,6 @@ end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.GreedDMG, EntityType.ENTITY_GREED)
 
 
-
 -- Replace Greed's Hoppers
 function mod:GreedHopperReplace(entity)
 	if entity.Variant == 0 and entity.SubType == 0 and entity.SpawnerType == EntityType.ENTITY_GREED then
@@ -106,14 +109,17 @@ function mod:GreedHopperReplace(entity)
 
 		-- Champion Greed coins
 		if mod:IsRFChampion(entity.SpawnerEntity, "Greed") then
-			local coin = Isaac.Spawn(EntityType.ENTITY_ULTRA_COIN, 2, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
-			coin:ToNPC().Scale = 0.75
-			coin:Update()
 			mod:PlaySound(nil, SoundEffect.SOUND_ULTRA_GREED_PULL_SLOT, 0.8)
+
+			local coin = Isaac.Spawn(EntityType.ENTITY_ULTRA_COIN, 2, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):ToNPC()
+			mod:ChangeMaxHealth(coin, coin.MaxHitPoints / 2)
+			coin.Scale = 0.75
+			coin.SizeMulti = 0.75
+			coin:Update()
 
 		-- Regular Greed Coffers
 		else
-			Isaac.Spawn(EntityType.ENTITY_KEEPER, mod.Entities.Coffer, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):Update()
+			Isaac.Spawn(EntityType.ENTITY_KEEPER, mod.Entities.Coffer, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
 		end
 	end
 end
@@ -121,26 +127,26 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GreedHopperReplace, EntityTyp
 
 
 
--- Super Greed hitting a player
+-- Steal more pickups when Super Greed hits a player
 function mod:GreedHit(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if (damageSource.Type == EntityType.ENTITY_PROJECTILE and damageSource.SpawnerType == EntityType.ENTITY_GREED and damageSource.SpawnerVariant == 1)
 	or (damageSource.Type == EntityType.ENTITY_GREED and damageSource.Variant == 1) then
 		local player = entity:ToPlayer()
 
 		-- Remove bombs
-		local amount = math.min(player:GetNumBombs(), mod:Random(1, 2))
-		player:AddBombs(-amount)
+		local bombAmount = math.min(player:GetNumBombs(), mod:Random(1, 2))
+		player:AddBombs(-bombAmount)
 
-		if amount > 1 then
+		if bombAmount > 1 then
 			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_BOMB, BombSubType.BOMB_NORMAL, player.Position, mod:RandomVector(mod:Random(4, 6)), nil)
 		end
 
 
 		-- Remove keys
-		local amount = math.min(player:GetNumKeys(), mod:Random(1, 2))
-		player:AddKeys(-amount)
+		local keyAmount = math.min(player:GetNumKeys(), mod:Random(1, 2))
+		player:AddKeys(-keyAmount)
 
-		if amount > 1 then
+		if keyAmount > 1 then
 			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_KEY, KeySubType.KEY_NORMAL, player.Position, mod:RandomVector(mod:Random(4, 6)), nil)
 		end
 	end

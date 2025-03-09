@@ -15,7 +15,7 @@ mod.BlackBonyTypes = {
 -- 'Effect' can be either a function or a tear flag (if it's a function it won't explode by default to allow for more flexible behaviour)
 -- If 'SpriteType' is set to ".anm2" then the specified 'SpriteFile' will be loaded as an animation file, otherwise it will be loaded as a spritesheet.
 	-- The file type should be left out from 'SpriteFile' so the proper champion spritesheets can be loaded!
--- 'HasSpark' is true by default and can be left as nil (it also doesn't do anything for anm2 replacements)
+-- 'HasSpark' is true by default and can be left out (it also doesn't do anything for anm2 replacements)
 function mod:AddBlackBonyType(Effect, SpriteType, SpriteFile, HasSpark)
 	local typeData = {
 		Effect 	   = Effect,
@@ -30,7 +30,7 @@ end
 
 function mod:BlackBonyInit(entity)
 	-- Get random bomb type
-	if mod.Config.BlackBonyBombs == true and entity.SubType == 0 then
+	if mod.Config.BlackBonyBombs and entity.SubType == 0 then
 		entity.SubType = mod:Random(1, #mod.BlackBonyTypes)
 	end
 end

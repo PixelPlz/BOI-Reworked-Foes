@@ -4,7 +4,7 @@ local mod = ReworkedFoes
 
 --[[ Both ]]--
 function mod:MomsHandAppearInit(entity)
-	if mod.Config.AppearMomsHands == true then
+	if mod.Config.AppearMomsHands then
 		entity:GetSprite():Play("JumpUp", true)
 		entity:GetData().init = false
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
@@ -50,7 +50,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MomsHandUpdate, EntityType.ENTIT
 function mod:MomsDeadHandUpdate(entity)
 	local sprite = entity:GetSprite()
 
-	-- Replace appear sound
+	-- Replace the laugh
 	if SFXManager():IsPlaying(SoundEffect.SOUND_MOM_VOX_EVILLAUGH) then
 		SFXManager():Stop(SoundEffect.SOUND_MOM_VOX_EVILLAUGH)
 		mod:PlaySound(entity, SoundEffect.SOUND_MOTHERSHADOW_APPEAR)
@@ -76,10 +76,13 @@ function mod:MomsDeadHandUpdate(entity)
 		-- Get fitting projectile
 		local bg = Game():GetRoom():GetBackdropType()
 
+		-- Corpse
 		if bg == BackdropType.CORPSE or bg == BackdropType.CORPSE2 then
 			params.Color = mod.Colors.CorpseGreen
+		-- Outside chapter 4
 		elseif bg ~= BackdropType.WOMB and bg ~= BackdropType.UTERO and bg ~= BackdropType.SCARRED_WOMB and bg ~= BackdropType.CORPSE3 then
 			params.Variant = ProjectileVariant.PROJECTILE_ROCK
+			params.Scale = 1
 		end
 
 		entity:FireProjectiles(entity.Position, Vector(11, 8), 8, params)

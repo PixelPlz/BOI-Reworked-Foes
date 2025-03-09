@@ -3,7 +3,7 @@ local mod = ReworkedFoes
 
 
 function mod:GluttonyInit(entity)
-	if mod:CheckValidMiniboss(entity) and mod:IsRFChampion(entity, "Gluttony") then
+	if mod:CheckValidMiniboss() and mod:IsRFChampion(entity, "Gluttony") then
 		entity.SplatColor = mod.Colors.GreenBlood
 
 	elseif entity.Variant == 22 then
@@ -13,7 +13,7 @@ end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GluttonyInit, EntityType.ENTITY_GLUTTONY)
 
 function mod:GluttonyUpdate(entity)
-	if mod:CheckValidMiniboss(entity) then
+	if mod:CheckValidMiniboss() then
 		local sprite = entity:GetSprite()
 
 		-- Replace default projectile attack
@@ -26,6 +26,7 @@ function mod:GluttonyUpdate(entity)
 				sprite:Play("FatAttack", true)
 			end
 
+
 		-- Custom projectile attack
 		elseif entity.State == NpcState.STATE_ATTACK4 then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -37,6 +38,7 @@ function mod:GluttonyUpdate(entity)
 					local pos = entity.Position + dir:Resized(30)
 					Isaac.Spawn(EntityType.ENTITY_MAGGOT, 0, 0, pos, Vector.Zero, entity)
 					mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
+
 
 				-- Regular / Super
 				else
@@ -67,6 +69,7 @@ function mod:GluttonyUpdate(entity)
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
 			end
+
 
 
 		-- Replace laser attack for champion

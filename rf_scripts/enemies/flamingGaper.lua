@@ -24,7 +24,6 @@ function mod:FlamingGaperUpdate(entity)
 
 		if not data.wasFlamingGaper then
 			-- Bestiary fix
-			local sprite = entity:GetSprite()
 			sprite:ReplaceSpritesheet(5, "")
 			sprite:LoadGraphics()
 
@@ -145,7 +144,7 @@ function mod:FlamingGusherUpdate(entity)
 
 	-- Turn Gushers and Pacers from Flaming Gapers into Braziers
 	elseif entity:GetData().wasFlamingGaper then
-		if mod.Config.BurningGushers == true then
+		if mod.Config.BurningGushers then
 			entity:Morph(EntityType.ENTITY_GUSHER, mod.Entities.Brazier, 0, entity:GetChampionColorIdx())
 
 		else

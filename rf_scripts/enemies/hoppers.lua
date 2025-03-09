@@ -6,7 +6,8 @@ local mod = ReworkedFoes
 function mod:StopSlidingAfterHop(entity)
 	local sprite = entity:GetSprite()
 
-	if (entity.Type == EntityType.ENTITY_HOPPER and entity.Variant == 3 and sprite:IsEventTriggered("Land")) or (sprite:IsPlaying("Hop") and sprite:GetFrame() == 22) then
+	if (entity.Type == EntityType.ENTITY_HOPPER and entity.Variant == 3 and sprite:IsEventTriggered("Land"))
+	or (sprite:IsPlaying("Hop") and sprite:GetFrame() == 22) then
 		entity.Velocity = Vector.Zero
 		entity.TargetPosition = entity.Position
 	end
@@ -20,8 +21,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.StopSlidingAfterHop, EntityType.
 
 --[[ Flaming Hopper ]]--
 function mod:FlamingHopperInit(entity)
-	entity.MaxHitPoints = 10
-	entity.HitPoints = entity.MaxHitPoints
+	mod:ChangeMaxHealth(entity, 10)
 	entity.ProjectileCooldown = 1
 
 	-- Purple variant
@@ -61,7 +61,7 @@ function mod:FlamingHopperUpdate(entity)
 	-- Ground pound
 	elseif sprite:IsPlaying("Attack") then
 		-- Wind-up
-		if sprite:GetFrame() < 12 then
+		if not sprite:WasEventTriggered("Jump") then
 			entity.Velocity = Vector.Zero
 
 		-- Launched by Gate
@@ -78,15 +78,28 @@ function mod:FlamingHopperUpdate(entity)
 		end
 
 
+		-- Stop moving before stomping down
+		if sprite:IsEventTriggered("Stop") then
+			entity.TargetPosition = entity.Position
+
 		-- Fire ring
-		if sprite:IsEventTriggered("Land") then
+		elseif sprite:IsEventTriggered("Land") then
 			entity.Velocity = Vector.Zero
 			entity.TargetPosition = entity.Position
 			entity.ProjectileCooldown = 3
 
-			mod:CreateFireRing(entity, entity.SubType, 2, 8, 35, 1)
+			for i = 1, 6 do
+				-- Get position
+				local angle = 360 / 6 * i
+				local distance = 45
+				local pos = entity.Position + Vector.FromAngle(angle):Resized(distance)
 
-			-- Effect
+				if Game():GetRoom():IsPositionInRoom(pos, 0) then
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FIRE_JET, entity.SubType, pos, Vector.Zero, entity)
+				end
+			end
+
+			-- Effects
 			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_SPLAT, 0, entity.Position, Vector.Zero, entity).Color = splatColor
 			mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_END, 1.1)
 		end

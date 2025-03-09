@@ -84,15 +84,11 @@ function mod:CamilloJrUpdate(entity)
 			local angle = (target.Position - entity.Position):GetAngleDegrees()
 			entity.TargetPosition = Vector(angle, 0)
 			mod:QuickTracer(entity, angle, Vector(0, -30), 15, 1)
-			mod:PlaySound(nil, SoundEffect.SOUND_LASERRING_WEAK, 1, 1.1)
+			mod:PlaySound(nil, SoundEffect.SOUND_LASERRING_WEAK, 0.9, 1.1)
 
 		-- Shoot
 		elseif sprite:IsEventTriggered("Shoot") then
-			-- Create laser
-			local laser_ent_pair = {laser = EntityLaser.ShootAngle(2, entity.Position, entity.TargetPosition.X, 3, Vector(0, entity.SpriteScale.Y * -35), entity), entity}
-			local laser = laser_ent_pair.laser
-
-			-- Set up parameters
+			local laser = EntityLaser.ShootAngle(LaserVariant.THIN_RED, entity.Position, entity.TargetPosition.X, 3, Vector(0, entity.SpriteScale.Y * -35), entity)
 			laser.Mass = 0
 			laser.OneHit = true
 
@@ -140,22 +136,14 @@ function mod:PsyTumorUpdate(entity)
 			sprite:Play(data.previousAnim[1], true)
 			sprite:SetFrame(data.previousAnim[2])
 
-		-- New projectiles + give them the cooldown
+		-- Less projectiles + give them the cooldown
 		elseif sprite:IsEventTriggered("NewShoot") then
 			entity.ProjectileCooldown = 15
+			mod:PlaySound(entity, SoundEffect.SOUND_WHEEZY_COUGH, 1.1)
 
 			local params = ProjectileParams()
-			params.BulletFlags = (ProjectileFlags.NO_WALL_COLLIDE | ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.SMART)
-			params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
-			params.ChangeTimeout = 90
-
-			params.Acceleration = 1.1
-			params.FallingSpeedModifier = 1
-			params.FallingAccelModifier = -0.1
-			params.Scale = 1.5
-
-			entity:FireProjectiles(entity.Position, Vector(6, 3), 9, params)
-			mod:PlaySound(entity, SoundEffect.SOUND_WHEEZY_COUGH, 1.1)
+			params.BulletFlags = ProjectileFlags.SMART
+			entity:FireProjectiles(entity.Position, Vector(9, 3), 9, params)
 		end
 
 	else

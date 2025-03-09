@@ -4,27 +4,27 @@ local Settings = {
 	CoinHealPercentage = 3,
 	CoinCollectRange = 20,
 	CoinMagnetRange = 40,
-	CoinMagnetSpeed = 15
+	CoinMagnetSpeed = 15,
 }
 
 
 
 --[[ Make greedy enemies collect coins ]]--
 function mod:CollectCoins(entity)
-	if mod.Config.CoinStealing == true
-	and not Game():IsGreedMode() -- Don't pick up coins in Greed Mode
+	if mod.Config.CoinStealing and not Game():IsGreedMode() -- Don't pick up coins in Greed Mode
 	and entity.FrameCount > 20 and not entity:IsDead() -- Don't try to pick up coins during the appear animation / post-mortem
 	and not entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then -- Friendly enemies shouldn't pick up coins
 
-		for _, pickup in pairs(Isaac.FindInRadius(entity.Position, Settings.CoinMagnetRange, EntityPartition.PICKUP)) do
+		for i, pickup in pairs(Isaac.FindInRadius(entity.Position, Settings.CoinMagnetRange, EntityPartition.PICKUP)) do
 			if pickup.Variant == PickupVariant.PICKUP_COIN and pickup.SubType ~= CoinSubType.COIN_STICKYNICKEL -- Don't try to pick up sticky nickels
 			and pickup:ToPickup():CanReroll() == true -- Don't try to pick up coins that haven't finished spawning
 			and not pickup:GetData().greedRobber then
 
 				-- In collecting range
-				if (entity.Position - pickup.Position):Length() <= Settings.CoinCollectRange then
+				if pickup.Position:Distance(entity.Position) <= Settings.CoinCollectRange then
 					pickup:GetData().greedRobber = entity
 					pickup.Velocity = Vector.Zero
+					pickup.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 
 				-- Not behind obstacles
 				elseif Game():GetRoom():CheckLine(entity.Position, pickup.Position, 0, 0, false, false) then
@@ -95,8 +95,9 @@ function mod:KeeperUpdate(entity)
 
 	-- For Coffers
 	if entity.Variant == mod.Entities.Coffer then
-		-- Follow the turning coin
-		if not Game():IsGreedMode() and not entity:IsDead() then
+		-- Target coins on the ground
+		if mod.Config.CoinStealing and not Game():IsGreedMode()
+		and not entity:IsDead() and not entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
 			for _, pickup in pairs(Isaac.FindInRadius(entity.Position, Settings.CoinMagnetRange * 3, EntityPartition.PICKUP)) do
 				if pickup.Variant == PickupVariant.PICKUP_COIN and pickup.SubType ~= CoinSubType.COIN_STICKYNICKEL -- Don't try to pick up sticky nickels
 				and pickup:ToPickup():CanReroll() == true -- Don't try to pick up coins that haven't finished spawning

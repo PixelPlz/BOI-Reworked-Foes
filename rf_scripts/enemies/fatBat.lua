@@ -1,13 +1,21 @@
 local mod = ReworkedFoes
 
 local Settings = {
-	MaxPoops = 3,
-	PushBackSpeed = 5,
+	NewSize = 18,
 	Cooldown = 30,
+
+	PushBackSpeed = 5,
+
+	MaxPoops = 3,
 	FartRadius = 80,
 }
 
 
+
+function mod:FatBatInit(entity)
+	entity:SetSize(Settings.NewSize, Vector.One, 12)
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.FatBatInit, EntityType.ENTITY_FAT_BAT)
 
 function mod:FatBatUpdate(entity)
 	local sprite = entity:GetSprite()

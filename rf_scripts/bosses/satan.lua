@@ -10,8 +10,7 @@ local Settings = {
 
 
 function mod:SatanInit(entity)
-	entity.MaxHitPoints = Settings.NewHealth
-	entity.HitPoints = entity.MaxHitPoints
+	mod:ChangeMaxHealth(entity, Settings.NewHealth)
 
 	if entity.Variant == 10 then
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
@@ -26,10 +25,13 @@ function mod:SatanUpdate(entity)
 
 	--[[ 1st phase ]]--
 	if entity.Variant == 0 then
+		--[[ Double spread shoot effect ]]--
 		if entity.State == NpcState.STATE_ATTACK and (sprite:IsEventTriggered("Shoot") or sprite:IsEventTriggered("Shoot2")) then
 			mod:ShootEffect(entity, 5, Vector(0, -26), Color(1,1,1, 0.8), 1.25)
 
-		-- Single brimstone
+
+
+		--[[ Single brimstone ]]--
 		elseif entity.State == NpcState.STATE_ATTACK2 and sprite:IsEventTriggered("Shoot") then
 			local pos = Vector(entity.Position.X, Game():GetRoom():GetBottomRightPos().Y - 1)
 
@@ -46,18 +48,19 @@ function mod:SatanUpdate(entity)
 			mod:FireProjectiles(entity, pos, Vector(Settings.LaserShotSpeed - 4, 8), 9, params, Color.Default)
 
 
-		-- Custom hand bullet attack
+
+		--[[ Custom hand bullet attack ]]--
 		elseif entity.State == NpcState.STATE_ATTACK4 then
 			entity.State = NpcState.STATE_ATTACK5
 
 		elseif entity.State == NpcState.STATE_ATTACK5 then
 			if sprite:IsEventTriggered("Shoot") then
-				local params = ProjectileParams()
-				params.Scale = 1.5
-				params.FallingSpeedModifier = 1
-				params.FallingAccelModifier = -0.09
-
 				for i = -1, 1, 2 do
+					local params = ProjectileParams()
+					params.Scale = 1.5
+					params.FallingSpeedModifier = 1
+					params.FallingAccelModifier = -0.09
+
 					local pos = entity.Position + Vector(i * 90, -40)
 					entity:FireProjectiles(pos, Vector(Settings.HandShotSpeed, 16), 9, params)
 					mod:ShootEffect(entity, 5, Vector(i * 68, -34), Color.Default, 1.25)
@@ -71,6 +74,7 @@ function mod:SatanUpdate(entity)
 			end
 		end
 
+
 		-- Extra death sounds
 		if sprite:IsPlaying("Death") and sprite:IsEventTriggered("Shoot") then
 			mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 0.9)
@@ -78,48 +82,18 @@ function mod:SatanUpdate(entity)
 
 
 
+
+
 	--[[ 2nd phase ]]--
 	elseif entity.Variant == 10 then
-		-- Regular stomp
+		-- Extra stomp sound
 		if sprite:GetFrame() == 10 then
 			mod:PlaySound(nil, SoundEffect.SOUND_SATAN_STOMP, 0.9)
-		end
 
-		if sprite:IsEventTriggered("Stomp") then
+		-- Rock waves
+		elseif sprite:IsEventTriggered("Stomp") then
 			for i = 0, 3 do
 				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACKWAVE, 1, entity.Position + Vector.FromAngle(i * 90):Resized(20), Vector.Zero, entity):ToEffect().Rotation = i * 90
-			end
-		end
-
-
-		-- Double stomp
-		if entity.Child then
-			if entity.ProjectileCooldown <= 0 then
-				-- Wait for both of them to be off-screen
-				if sprite:GetFrame() == 1 or entity.Child:GetSprite():GetFrame() == 1 then
-					if entity.I2 == 0 then
-						mod:PlaySound(entity, SoundEffect.SOUND_SATAN_CHARGE_UP)
-						entity.I2 = 1
-					end
-
-					-- Set animation speed to 0
-					if sprite:GetFrame() == 1 then
-						sprite.PlaybackSpeed = 0
-					elseif entity.Child:GetSprite():GetFrame() == 1 then
-						entity.Child:GetSprite().PlaybackSpeed = 0
-					end
-				end
-
-				-- Stomp at the same time if both are off-screen
-				if sprite:GetFrame() == 1 and entity.Child:GetSprite():GetFrame() == 1 then
-					entity.ProjectileCooldown = Settings.DoubleStompCooldown
-					sprite.PlaybackSpeed = 1
-					entity.Child:GetSprite().PlaybackSpeed = 1
-					entity.I2 = 0
-				end
-
-			else
-				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 			end
 		end
 
@@ -131,6 +105,8 @@ function mod:SatanUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.SatanUpdate, EntityType.ENTITY_SATAN)
+
+
 
 -- Replace Kamikaze Leeches
 function mod:KamikazeLeechReplace(entity)

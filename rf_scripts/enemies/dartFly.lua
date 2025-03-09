@@ -23,7 +23,13 @@ function mod:DartFlyUpdate(entity)
 
 	-- Face the target
 	local function faceTarget()
-		entity.V1 = (target.Position - entity.Position):Normalized()
+		-- Face away from the target if feared
+		if mod:IsFeared(entity) then
+			entity.V1 = (entity.Position - target.Position):Normalized()
+		else
+			entity.V1 = (target.Position - entity.Position):Normalized()
+		end
+
 		entity.V2 = mod:Lerp(entity.V2, entity.V1, 0.15)
 		sprite.Rotation = entity.V2:GetAngleDegrees() - 90
 	end
@@ -47,6 +53,11 @@ function mod:DartFlyUpdate(entity)
 	-- Dash
 	elseif entity.State == NpcState.STATE_ATTACK then
 		if sprite:IsEventTriggered("Dash") then
+			-- Go in a random direction if confused
+			if mod:IsConfused(entity) then
+				entity.V2 = mod:RandomVector()
+			end
+
 			entity.Velocity = entity.V2:Resized(Settings.MoveSpeed)
 		end
 

@@ -1,6 +1,7 @@
 local mod = ReworkedFoes
 
 local Settings = {
+	PlayerDistance = 100,
 	MoveSpeed = 5,
 	Cooldown = 60,
 	TearCooldown = 22,
@@ -70,13 +71,9 @@ function mod:HushBabyUpdate(entity)
 
 			-- Movement
 			if entity.I1 == 3 then
-				-- Confused
-				if mod:IsConfused(entity) then
-					mod:WanderAround(entity, Settings.MoveSpeed)
-
-				-- Feared
-				elseif mod:IsFeared(entity) then
-					entity.Velocity = mod:Lerp(entity.Velocity, (entity.Position - target.Position):Resized(Settings.MoveSpeed), 0.25)
+				-- Confused / feared
+				if mod:IsConfused(entity) or mod:IsFeared(entity) then
+					mod:ChasePlayer(entity, Settings.MoveSpeed)
 
 				-- Normal
 				else
@@ -84,7 +81,7 @@ function mod:HushBabyUpdate(entity)
 					if not data.angle or entity:IsFrame(60, 0) then
 						data.angle = mod:Random(7) * 45
 					end
-					local pos = target.Position + Vector.FromAngle(data.angle):Resized(100)
+					local pos = target.Position + Vector.FromAngle(data.angle):Resized(Settings.PlayerDistance)
 
 					if entity.Position:Distance(pos) < 20 then
 						entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -522,7 +519,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.HushFlyAttackUpdate, EntityT
 --[[ Hush Gapers ]]--
 function mod:HushGaperUpdate(entity)
 	-- Don't move during the jump out animation
-	if entity.State == NpcState.STATE_SPECIAL then
+	if entity.State == NpcState.STATE_SPECIAL and entity:GetSprite():IsPlaying("JumpOut") then
 		entity.Velocity = Vector.Zero
 	end
 end

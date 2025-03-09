@@ -1,32 +1,9 @@
 local mod = ReworkedFoes
 
-local function setSplatColor(entity)
-	if entity.Variant == 0 then
-		-- Champion
-		if mod:IsRFChampion(entity, "Pride") then
-			entity.SplatColor = Color(0,0,0, 1, 0.75,0.66,0.31)
-		-- Regular
-		else
-			entity.SplatColor = Color(0,0,0, 1, 0.31,0.31,0.31)
-		end
 
-	-- Super
-	elseif entity.Variant == 1 then
-		entity.SplatColor = mod.Colors.Sketch
-	end
-end
-
-
-
-function mod:PrideInit(entity)
-	if mod:CheckValidMiniboss(entity) then
-		setSplatColor(entity)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PrideInit, EntityType.ENTITY_PRIDE)
 
 function mod:PrideUpdate(entity)
-	if mod:CheckValidMiniboss(entity) then
+	if mod:CheckValidMiniboss() then
 		local sprite = entity:GetSprite()
 
 
@@ -39,24 +16,25 @@ function mod:PrideUpdate(entity)
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
 			if sprite:IsEventTriggered("Shoot") then
+				-- Get the laser type
 				local laserVariant = LaserVariant.PRIDE
 				if mod:IsRFChampion(entity, "Pride") then
 					laserVariant = LaserVariant.LIGHT_BEAM
 				end
 
+				-- Get the angles
 				local baseAngle = 45
 				if entity.I2 >= 1 or mod:IsRFChampion(entity, "Pride") then
 					baseAngle = 0
 				end
 
-				-- Lasers
+				-- Create the lasers
 				for i = 0, 3 do
-					local laser_ent_pair = {laser = EntityLaser.ShootAngle(laserVariant, entity.Position, baseAngle + (i * 90), 15, Vector(0, -30), entity), entity}
-					local laser = laser_ent_pair.laser
+					local laser = EntityLaser.ShootAngle(laserVariant, entity.Position, baseAngle + (i * 90), 15, Vector(0, -30), entity)
 					laser.DepthOffset = entity.DepthOffset - 10
 					laser.Mass = 0
 
-					-- Pink laser for Super Pride
+					-- Pink lasers for Super Pride
 					if entity.Variant == 1 then
 						laser:GetSprite():ReplaceSpritesheet(0, "gfx/effects/effect_018_lasereffects02_super.png")
 						laser:GetSprite():LoadGraphics()
@@ -75,7 +53,7 @@ function mod:PrideUpdate(entity)
 				sprite:SetFrame(14)
 			end
 
-			if sprite:IsFinished("Attack01") then
+			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
 				entity.I2 = 0
 			end
@@ -98,15 +76,27 @@ function mod:PrideUpdate(entity)
 				mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_BEAM, 0.9)
 			end
 
-			if sprite:IsFinished("Attack02") then
+			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
 			end
 		end
 
 
-		-- Fix blood color
+		-- Set the gib color
 		if entity:IsDead() then
-			setSplatColor(entity)
+			if entity.Variant == 0 then
+				-- Champion
+				if mod:IsRFChampion(entity, "Pride") then
+					entity.SplatColor = Color(0,0,0, 1, 0.75,0.66,0.31)
+				-- Regular
+				else
+					entity.SplatColor = Color(0,0,0, 1, 0.31,0.31,0.31)
+				end
+
+			-- Super
+			elseif entity.Variant == 1 then
+				entity.SplatColor = mod.Colors.Sketch
+			end
 		end
 	end
 end

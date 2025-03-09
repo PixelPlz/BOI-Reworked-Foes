@@ -55,7 +55,7 @@ function mod:GrayMonstroUpdate(entity)
 				local effectSprite = effect:GetSprite()
 				effectSprite.Offset = Vector(0, -25)
 				effectSprite.Color = Color(1,1,1, 0.75)
-				effectSprite.Scale = Vector(0.75, 0.75)
+				effectSprite.Scale = Vector.One * 0.75
 			end
 
 			-- Projectiles
@@ -263,41 +263,6 @@ function mod:FrailDMG(entity, damageAmount, damageFlags, damageSource, damageCou
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.FrailDMG, EntityType.ENTITY_PIN)
-
-
-
---[[ Black Death ]]--
--- Horse
-function mod:BlackDeathUpdate(entity)
-	if entity.Variant == 20 then
-		-- Get the parent's subtype
-		if entity.SubType == 0 and entity.SpawnerEntity and entity.SpawnerEntity.SubType > 0 then
-			entity.SubType = entity.SpawnerEntity.SubType
-
-		-- Appear horizontally to the target
-		elseif entity.SubType == 1 then
-			local room = Game():GetRoom()
-
-			if entity.Position.X >= room:GetBottomRightPos().X + 200 or entity.Position.X <= room:GetTopLeftPos().X - 200 then
-				entity.Position = Vector(entity.Position.X, entity:GetPlayerTarget().Position.Y)
-			end
-		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BlackDeathUpdate, EntityType.ENTITY_DEATH)
-
--- Replace Death's Red Maws with homing Scythes
-function mod:RedMawReplace(entity)
-	if entity.Variant == 1 and entity.SpawnerType == EntityType.ENTITY_DEATH and entity.SpawnerEntity then
-		entity:Remove()
-
-		local scythe = Isaac.Spawn(EntityType.ENTITY_DEATH, 10, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
-		scythe.Parent = entity.SpawnerEntity
-		scythe:GetSprite():ReplaceSpritesheet(0, "gfx/monsters/classic/death_scythe_black.png")
-		scythe:GetSprite():LoadGraphics()
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.RedMawReplace, EntityType.ENTITY_MAW)
 
 
 
@@ -510,8 +475,7 @@ function mod:WidowInit(entity)
 			newHealth = 104
 		end
 
-		entity.MaxHitPoints = newHealth
-		entity.HitPoints = entity.MaxHitPoints
+		mod:ChangeMaxHealth(entity, newHealth)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.WidowInit, EntityType.ENTITY_WIDOW)
@@ -603,9 +567,9 @@ function mod:ChampionMegaMawUpdate(entity)
 		elseif entity.State == NpcState.STATE_ATTACK3 then
 			if sprite:IsEventTriggered("Shoot") then
 				local params = ProjectileParams()
-				params.BulletFlags = (ProjectileFlags.SMART | ProjectileFlags.BURST8)
+				params.BulletFlags = (ProjectileFlags.SMART | ProjectileFlags.BACKSPLIT)
 				params.Scale = 2
-				mod:FireProjectiles(entity, entity.Position, (entity:GetPlayerTarget().Position - entity.Position):Resized(12), 0, params, mod.Colors.RagManPurple)
+				mod:FireProjectiles(entity, entity.Position, (entity:GetPlayerTarget().Position - entity.Position):Resized(10), 0, params, mod.Colors.RagManPurple)
 				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_5)
 			end
 
@@ -642,7 +606,7 @@ function mod:RedMegaFattyUpdate(entity)
 					params.Scale = 1.5
 					params.HeightModifier = -20
 					params.BulletFlags = ProjectileFlags.SINE_VELOCITY
-					params.CircleAngle = mod:DegreesToRadians(45) + entity.StateFrame * 0.3
+					params.CircleAngle = mod:DegreesToRadians(45) + entity.StateFrame * 0.4
 
 					entity:FireProjectiles(entity.Position, Vector(6, 4), 9, params)
 					entity.StateFrame = entity.StateFrame + 1
@@ -730,7 +694,7 @@ function mod:ChampionCageUpdate(entity)
 						-- Effect
 						local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_EXPLOSION, 4 - math.ceil(entity.I1 / 3), position, Vector.Zero, entity):GetSprite()
 						effect.Color = mod.Colors.CageGreenCreep
-						effect.Scale = Vector(0.85, 0.85)
+						effect.Scale = Vector.One * 0.85
 					end
 				end
 
@@ -768,8 +732,7 @@ function mod:BrownieDeath(entity)
 	if entity.SubType == 1 and entity.State == NpcState.STATE_SPECIAL and entity:GetSprite():IsFinished() then
 		local dingle = Isaac.Spawn(EntityType.ENTITY_DINGLE, 0, 2, entity.Position, Vector.Zero, entity):ToNPC()
 		dingle:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
-		dingle.MaxHitPoints = 75
-		dingle.HitPoints = dingle.MaxHitPoints
+		mod:ChangeMaxHealth(dingle, 75)
 		dingle:Update()
 	end
 end
@@ -808,7 +771,9 @@ function mod:LittleHornUpdate(entity)
 		local sprite = entity:GetSprite()
 
 		-- Particles
-		mod:SmokeParticles(entity, Vector(0, -20), 10, Vector(80, 100), Color.Default, "effects/effect_088_darksmoke_black")
+		for i = 1, 2 do
+			mod:SmokeParticles(entity, Vector(0, -20), 10, Vector(90, 110), nil, nil, "effects/effect_088_darksmoke_black")
+		end
 
 		-- Re-enable pit spawning attack
 		if entity.State == NpcState.STATE_ATTACK and sprite:GetFrame() == 0 and mod:Random(2) == 2 then

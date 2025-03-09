@@ -5,6 +5,7 @@ local Settings = {
 	AngrySpeed = 4.25,
 	CreepTime = 45,
 	Cooldown = 15,
+	MaxPlayerDistance = 220,
 	ShotSpeed = 10,
 	SoundTimer = {90, 150}
 }
@@ -30,11 +31,11 @@ function mod:SkinnyUpdate(entity)
 		local speed = Settings.MoveSpeed
 
 
-		-- 2nd phase
+		--[[ 2nd phase ]]--
 		if entity.State == NpcState.STATE_ATTACK or entity.State == NpcState.STATE_ATTACK2 then
 			speed = Settings.AngrySpeed
 
-			-- Rotty attack
+			-- Rotty attacking
 			if entity.State == NpcState.STATE_ATTACK2 then
 				if sprite:GetOverlayFrame() == 8 then
 					local params = ProjectileParams()
@@ -51,14 +52,11 @@ function mod:SkinnyUpdate(entity)
 			else
 				mod:LoopingOverlay(sprite, "HeadAngry")
 
-				-- Skinny creep
-				if entity.Variant == 0 and entity:IsFrame(4, 0) then
-					mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 0.5, Settings.CreepTime)
-
 				-- Rotty attack
-				elseif entity.Variant == 1 then
+				if entity.Variant == 1 then
 					if entity.ProjectileCooldown <= 0 then
-						if entity.Position:Distance(target.Position) <= 220 and Game():GetRoom():CheckLine(entity.Position, target.Position, 3, 0, false, false) then
+						if entity.Position:Distance(target.Position) <= Settings.MaxPlayerDistance -- If the player is close enough
+						and Game():GetRoom():CheckLine(entity.Position, target.Position, 3, 0, false, false) then -- There is a clear line of sight
 							entity.State = NpcState.STATE_ATTACK2
 							sprite:PlayOverlay("HeadShoot", true)
 						end
@@ -66,17 +64,21 @@ function mod:SkinnyUpdate(entity)
 					else
 						entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 					end
+
+				-- Skinny creep
+				elseif entity:IsFrame(4, 0) then
+					mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, 0.5, Settings.CreepTime)
 				end
 			end
 
 
-		-- Transition
+
+		--[[ Transition ]]--
 		elseif entity.State == NpcState.STATE_SPECIAL then
 			if sprite:GetOverlayFrame() == 5 then
 				mod:PlaySound(nil, SoundEffect.SOUND_SKIN_PULL, 0.75, 0.9)
 			end
 
-			-- Complete transition
 			if sprite:IsOverlayFinished() then
 				entity.State = NpcState.STATE_ATTACK
 
@@ -86,7 +88,8 @@ function mod:SkinnyUpdate(entity)
 				end
 			end
 
-		-- 1st phase
+
+		--[[ 1st phase ]]--
 		else
 			sprite:SetOverlayFrame("Head", sprite:GetFrame())
 
@@ -96,6 +99,7 @@ function mod:SkinnyUpdate(entity)
 				sprite:PlayOverlay("HeadTransition", true)
 			end
 		end
+
 
 
 		-- Movement
@@ -112,7 +116,6 @@ function mod:SkinnyUpdate(entity)
 			mod:PlaySound(entity, sound)
 
 			entity.I2 = math.random(Settings.SoundTimer[1], Settings.SoundTimer[2])
-
 		else
 			entity.I2 = entity.I2 - 1
 		end

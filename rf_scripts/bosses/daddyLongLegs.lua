@@ -14,8 +14,7 @@ function mod:DaddyLongLegsInit(entity)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 
 	if entity.Variant == 0 then
-		entity.MaxHitPoints = Settings.NewHealth
-		entity.HitPoints = entity.MaxHitPoints
+		mod:ChangeMaxHealth(entity, Settings.NewHealth)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.DaddyLongLegsInit, EntityType.ENTITY_DADDYLONGLEGS)
@@ -68,6 +67,16 @@ function mod:DaddyLongLegsUpdate(entity)
 				entity:FireProjectiles(entity.Position, Vector(Settings.HeadSmashShotSpeed - 4, 8), 9, params)
 				params.Scale = 1.25
 				entity:FireProjectiles(entity.Position, Vector(Settings.HeadSmashShotSpeed, 0), 8, params)
+
+				-- Destroy rocks he slams
+				local room = Game():GetRoom()
+
+				for i = -1, 1 do
+					for j = -1, 1 do
+						local gridPos = entity.Position + Vector(i * 30, j * 30)
+						room:DestroyGrid(room:GetGridIndex(gridPos), true)
+					end
+				end
 
 				-- Effects
 				for i = 1, 2 do

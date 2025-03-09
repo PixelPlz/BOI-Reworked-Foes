@@ -4,7 +4,8 @@ local Settings = {
 	Range = 100,
 	HealAmount = 10,
 	Cooldown = 30,
-	MaxPlayerHeals = 10
+	MaxPlayerHeals = 10,
+	RepPlusHealth = 30, -- For Repentance+
 }
 
 
@@ -63,6 +64,11 @@ function mod:FleshDeathHeadInit(entity)
 	entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 	entity.CanShutDoors = true
 	entity:GetData().playerHeals = 0
+
+	-- Revert their Repentance+ health change
+	if REPENTANCE_PLUS then
+		mod:ChangeMaxHealth(entity, Settings.RepPlusHealth)
+	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.FleshDeathHeadInit, EntityType.ENTITY_FLESH_DEATHS_HEAD)
 

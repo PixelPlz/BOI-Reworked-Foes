@@ -17,12 +17,12 @@ local Settings = {
 
 
 
--- Add's the effect to the specified variant and subtype's pool of effects
--- 'OnUseScript' is ran once when the item is used. Can be left as nil.
--- 'UpdateScript' is ran every update frame after the item is used. Can be left as nil.
+-- Adds the effect to the specified variant and subtype's pool of effects
+-- 'OnUseScript' is ran once when the item is used. Can be left out.
+-- 'UpdateScript' is ran every update frame after the item is used. Can be left out.
 -- 'UseSound' is the announcer line played alongside the pill/card sound
--- 'Anim' is the custom animation it should play when using the item. Can be left as nil.
--- 'Sprite' is the 32x32 spritesheet of the item that gets loaded. Can be left as nil. Not needed if a custom animation is defined.
+-- 'Anim' is the custom animation it should play when using the item. Can be left out.
+-- 'Sprite' is the 32x32 spritesheet of the item that gets loaded. Can be left out. Not needed if a custom animation is defined.
 function mod:AddLustEffect(Variant, Subtype, OnUseScript, UpdateScript, UseSound, Anim, Sprite)
 	local typeData = {
 		Activate = OnUseScript,
@@ -107,7 +107,7 @@ function mod:LustLemonParty(entity)
 		if entity.Variant == 1 then
 			local offset = mod:Random(359)
 			for i = -1, 1, 2 do
-				local pos = entity.Position + Vector.FromAngle(offset + i * 90):Resized(25)
+				local pos = entity.Position + Vector.FromAngle(offset + i * 90):Resized(30)
 				mod:QuickCreep(EffectVariant.CREEP_YELLOW, entity, pos, Settings.LemonPartySize, Settings.LemonPartyTime)
 			end
 
@@ -153,7 +153,7 @@ mod.LustEffects = {
 
 
 function mod:LustUpdate(entity)
-	if mod:CheckValidMiniboss(entity) then
+	if mod:CheckValidMiniboss() then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
 		local data = entity:GetData()
@@ -194,6 +194,7 @@ function mod:LustUpdate(entity)
 				end
 			end
 
+
 			-- Hanged Man effect
 			if data.hanged then
 				mod:LoopingAnim(sprite, "Float")
@@ -206,6 +207,7 @@ function mod:LustUpdate(entity)
 			else
 				entity:AnimWalkFrame("WalkHori", "WalkVert", 0.1)
 			end
+
 
 
 		-- Using item
@@ -245,6 +247,7 @@ function mod:LustUpdate(entity)
 			end
 
 
+
 		-- Use an item at the beginning of the fight
 		elseif entity.FrameCount > 1 and entity.State == NpcState.STATE_INIT then
 			entity.State = NpcState.STATE_ATTACK
@@ -268,17 +271,16 @@ function mod:LustUpdate(entity)
 		end
 
 
+
 		-- Super Lust creep
 		if entity.Variant == 1 and entity:IsFrame(4, 0) then
 			mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, entity.Scale, Settings.CreepTime)
 		end
 
-
 		-- Run passive effect code
 		if data.passiveEffect then
 			data.passiveEffect(_, entity)
 		end
-
 
 		-- Disable default AI (has to be disabled from frame 0 otherwise FindGridPath doesn't work for her)
 		return true

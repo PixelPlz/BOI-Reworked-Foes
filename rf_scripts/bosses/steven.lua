@@ -57,7 +57,7 @@ function mod:StevenUpdate(entity)
 
 		--[[ Big Steven ]]--
 		if entity.Variant == 1 then
-			-- When you walkin'
+			--[[ When you walkin' ]]--
 			if entity.State == NpcState.STATE_MOVE then
 				mod:ChasePlayer(entity, Settings.MoveSpeed)
 
@@ -98,7 +98,8 @@ function mod:StevenUpdate(entity)
 				end
 
 
-			-- They see me rollin', they Stevin'
+
+			--[[ They see me rollin', they Stevin' ]]--
 			elseif entity.State == NpcState.STATE_ATTACK then
 				-- Start
 				if entity.StateFrame == 0 then
@@ -168,7 +169,8 @@ function mod:StevenUpdate(entity)
 				end
 
 
-			-- Teleport
+
+			--[[ Teleport ]]--
 			elseif entity.State == NpcState.STATE_JUMP then
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 
@@ -248,7 +250,7 @@ function mod:StevenUpdate(entity)
 
 
 
-			-- 2nd phase
+			--[[ 2nd phase ]]--
 			elseif entity.State == NpcState.STATE_SPECIAL then
 				entity.Position = room:GetCenterPos()
 				entity.Velocity = Vector.Zero
@@ -321,14 +323,15 @@ function mod:StevenUpdate(entity)
 							if entity.I2 % 3 == 0 then
 								wallace.I1 = mod:Random(1, 2)
 
+								local roomFlags = mod:GetRoomShapeFlags()
 								local cdMin = 20
 								local cdMax = 50
 
-								-- Wide rooms
-								if shape >= 6 then
+								-- Long rooms
+								if roomFlags & mod.RoomShapeFlags.Long > 0 then
 									cdMax = 110
 								-- Thin rooms
-								elseif shape == RoomShape.ROOMSHAPE_IV or shape == RoomShape.ROOMSHAPE_IIV then
+								elseif roomFlags & mod.RoomShapeFlags.Thin > 0 then
 									cdMin = 5
 									cdMax = 10
 								end
@@ -422,6 +425,8 @@ function mod:StevenUpdate(entity)
 				end
 			end
 		end
+
+
 
 
 
@@ -567,7 +572,8 @@ function mod:WallaceUpdate(entity)
 			end
 
 
-			-- Conga line
+
+			--[[ Conga line ]]--
 			if entity.State == NpcState.STATE_MOVE then
 				local anim = "WalkHori"
 				if entity.I1 == 1 then
@@ -596,7 +602,8 @@ function mod:WallaceUpdate(entity)
 				end
 
 
-			-- Shoot
+
+			--[[ Shoot ]]--
 			elseif entity.State == NpcState.STATE_ATTACK then
 				if sprite:IsEventTriggered("Shoot") then
 					local params = ProjectileParams()
@@ -612,7 +619,8 @@ function mod:WallaceUpdate(entity)
 				end
 
 
-			-- Jump
+
+			--[[ Jump ]]--
 			elseif entity.State == NpcState.STATE_JUMP then
 				-- Update height
 				if entity.StateFrame > 0 then
@@ -628,12 +636,14 @@ function mod:WallaceUpdate(entity)
 						mod:PlaySound(nil, mod.Sounds.StevenLand, 1.5)
 
 						-- Get jump height
+						local roomFlags = mod:GetRoomShapeFlags()
 						local jumpHeight = 12
-						local shape = room:GetRoomShape()
 
-						if shape == RoomShape.ROOMSHAPE_1x2 or shape == RoomShape.ROOMSHAPE_IIV or shape >= 8 then
+						-- Tall rooms
+						if roomFlags & mod.RoomShapeFlags.Tall > 0 then
 							jumpHeight = 15
-						elseif shape == RoomShape.ROOMSHAPE_IH or shape == RoomShape.ROOMSHAPE_IIH then
+						-- Short rooms
+						elseif roomFlags & mod.RoomShapeFlags.Short > 0 then
 							jumpHeight = 9
 						end
 

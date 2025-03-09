@@ -3,12 +3,9 @@ local mod = ReworkedFoes
 local Settings = {
 	Cooldown = 50,
 	PlayerDistance = 120,
-	MoveSpeed = 4,
+	MoveSpeed = 4.25,
 	HopSpeed = 12,
-	TPdistance = 280,
-
-	ShotSpeed = 11,
-	AngryShotSpeed = 12,
+	TeleportDistance = 280,
 
 	-- Fly volleyball
 	FlySpeed = 20,
@@ -16,7 +13,7 @@ local Settings = {
 	MaxFlies = 2,
 
 	-- Laser attack
-	LaserSpeed = 5,
+	LaserSpeed = 5.5,
 	LaserBurstSpeed = 10
 }
 
@@ -38,7 +35,7 @@ function mod:LokiiUpdate(entity)
 
 
 		-- Get corresponding half
-		if entity.FrameCount < 2 then
+		if entity.FrameCount <= 1 then
 			for i, pair in pairs(Isaac.FindByType(EntityType.ENTITY_LOKI, 1, -1, false, false)) do
 				if pair:ToNPC().I1 == 1 and not pair:GetData().pair then
 					data.pair = pair
@@ -49,11 +46,12 @@ function mod:LokiiUpdate(entity)
 		end
 
 
-		-- For 2 pairs --
+		--[[ Paired up ]]--
 		if data.pair then
 			local pair = data.pair:ToNPC()
 			local pairSprite = pair:GetSprite()
 
+			-- Go to the enraged form if the pair dies
 			if data.pair:IsDead() or not data.pair:Exists() then
 				data.pair = nil
 				entity.State = NpcState.STATE_APPEAR_CUSTOM
@@ -68,17 +66,15 @@ function mod:LokiiUpdate(entity)
 			end
 
 
-			-- Movement types
+			--[[ Movement ]]--
 			-- Stay to the side of the player
 			if entity.StateFrame == 0 then
 				entity.TargetPosition = Vector(target.Position.X + (mod:GetSign(entity.I1 - 1) * Settings.PlayerDistance), target.Position.Y)
 
-				-- Confused
-				if mod:IsConfused(entity) then
-					mod:WanderAround(entity, Settings.MoveSpeed)
-				-- Feared
-				elseif mod:IsFeared(entity) then
-					entity.Velocity = mod:Lerp(entity.Velocity, (entity.Position - entity.TargetPosition):Resized(Settings.MoveSpeed), 0.25)
+				-- Confused / feared
+				if mod:IsConfused(entity) or mod:IsFeared(entity) then
+					mod:ChasePlayer(entity, Settings.MoveSpeed, true)
+
 				-- Normal
 				elseif entity.Position:Distance(entity.TargetPosition) > 8 then
 					entity.Velocity = mod:Lerp(entity.Velocity, (entity.TargetPosition - entity.Position):Resized(Settings.MoveSpeed), 0.25)
@@ -88,7 +84,7 @@ function mod:LokiiUpdate(entity)
 			elseif entity.StateFrame == 1 then
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 
-			-- Move towards the player
+			-- Move in the specified direction
 			elseif entity.StateFrame == 2 then
 				entity.Velocity = mod:Lerp(entity.Velocity, entity.V2 * Settings.HopSpeed, 0.25)
 
@@ -100,16 +96,28 @@ function mod:LokiiUpdate(entity)
 
 			-- Pushed back from the laser
 			elseif entity.StateFrame == 4 then
-				entity.Velocity = -Vector.FromAngle(data.brim.AngleDegrees) * Settings.LaserSpeed
+				if data.brim then
+					entity.Velocity = -Vector.FromAngle(data.brim.AngleDegrees) * Settings.LaserSpeed
+				else
+					entity.StateFrame = 1
+				end
 			end
 
 
-			-- Idle
+
+			--[[ Idle ]]--
 			if entity.State == NpcState.STATE_IDLE then
 				entity.StateFrame = 0
 				mod:LoopingAnim(sprite, "Walk")
 
 				if entity.ProjectileCooldown <= 0 and pair.State == NpcState.STATE_IDLE then
+					entity.ProjectileCooldown = Settings.Cooldown
+					entity.I2 = 0
+
+					pair.ProjectileCooldown = Settings.Cooldown
+					pair.I2 = 0
+
+					-- Choose the attack
 					local attackCount = 2
 					if entity.Position:Distance(target.Position) <= 280 then
 						attackCount = 3
@@ -150,15 +158,13 @@ function mod:LokiiUpdate(entity)
 						pairSprite:Play("LaserAttack", true)
 					end
 
-					entity.I2 = 0
-					pair.I2 = 0
-
 				else
 					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 				end
 
 
-			-- Teleport Attack
+
+			--[[ Teleport Attack ]]--
 			-- Teleport up
 			elseif entity.State == NpcState.STATE_JUMP then
 				if sprite:IsEventTriggered("Jump") then
@@ -169,11 +175,11 @@ function mod:LokiiUpdate(entity)
 					local room = Game():GetRoom()
 
 					local sideMulti = mod:GetSign(entity.I1 - 1) * -90
-					entity.V1 = target.Position + Vector.FromAngle(target.Velocity:GetAngleDegrees() + sideMulti):Resized(Settings.TPdistance)
+					entity.V1 = target.Position + Vector.FromAngle(target.Velocity:GetAngleDegrees() + sideMulti):Resized(Settings.TeleportDistance)
 					entity.V1 = room:FindFreePickupSpawnPosition(entity.V1, 40, true, false)
 
 					if entity.V1:Distance(Game():GetNearestPlayer(entity.Position).Position) < 160 then
-						entity.V1 = target.Position + (room:GetCenterPos() - target.Position):Resized(Settings.TPdistance)
+						entity.V1 = target.Position + (room:GetCenterPos() - target.Position):Resized(Settings.TeleportDistance)
 						entity.V1 = room:FindFreePickupSpawnPosition(entity.V1, 40, true, false)
 					end
 
@@ -182,13 +188,14 @@ function mod:LokiiUpdate(entity)
 					sprite:Play("TeleportAttack", true)
 				end
 
+
 			-- Teleport down
 			elseif entity.State == NpcState.STATE_STOMP then
 				if sprite:IsEventTriggered("Land") then
 					entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 
 				elseif sprite:IsEventTriggered("Shoot") then
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(Settings.ShotSpeed - entity.I2), 3 + entity.I2, ProjectileParams())
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(11 - entity.I2), 3 + entity.I2, ProjectileParams())
 					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
 				end
 
@@ -197,30 +204,19 @@ function mod:LokiiUpdate(entity)
 						entity.State = NpcState.STATE_JUMP
 						sprite:Play("TeleportUp", true)
 						entity.I2 = entity.I2 + 1
-
 					else
 						entity.State = NpcState.STATE_IDLE
-						entity.ProjectileCooldown = Settings.Cooldown
-						pair.ProjectileCooldown = Settings.Cooldown
 					end
 				end
 
 
-			-- Hopping attack
+
+			--[[ Hopping attack ]]--
 			elseif entity.State == NpcState.STATE_ATTACK then
 				if sprite:IsEventTriggered("Jump") then
-					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
 					entity.StateFrame = 2
-
-					-- Get direction
-					entity.V2 = (target.Position - entity.Position):Normalized()
-					-- Confused
-					if mod:IsConfused(entity) then
-						entity.V2 = mod:RandomVector()
-					-- Feared
-					elseif mod:IsFeared(entity) then
-						entity.V2 = (entity.Position - target.Position):Normalized()
-					end
+					entity.V2 = mod:GetTargetVector(entity, target)
+					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
 
 				elseif sprite:IsEventTriggered("Shoot") then
 					if entity.I1 == 1 then
@@ -233,17 +229,17 @@ function mod:LokiiUpdate(entity)
 
 					-- + / X shots
 					if entity.I2 == 0 then
-						entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 4), 5 + entity.I1, ProjectileParams())
+						entity:FireProjectiles(entity.Position, Vector(11, 4), 5 + entity.I1, ProjectileParams())
 
 					-- X / + shots
 					elseif entity.I2 == 1 then
-						entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 4), 8 - entity.I1, ProjectileParams())
+						entity:FireProjectiles(entity.Position, Vector(11, 4), 8 - entity.I1, ProjectileParams())
 
 					-- 6 shots
 					elseif entity.I2 == 2 then
 						local params = ProjectileParams()
 						params.CircleAngle = (entity.I1 - 1) * mod:DegreesToRadians(30)
-						entity:FireProjectiles(entity.Position, Vector(Settings.ShotSpeed, 6), 9, params)
+						entity:FireProjectiles(entity.Position, Vector(11, 6), 9, params)
 					end
 
 					entity.I2 = entity.I2 + 1
@@ -251,12 +247,11 @@ function mod:LokiiUpdate(entity)
 
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
-					entity.ProjectileCooldown = Settings.Cooldown
-					pair.ProjectileCooldown = Settings.Cooldown
 				end
 
 
-			-- Laser Attack
+
+			--[[ Laser Attack ]]--
 			elseif entity.State == NpcState.STATE_ATTACK2 then
 				if sprite:IsEventTriggered("Jump") then
 					mod:PlaySound(nil, SoundEffect.SOUND_ANIMAL_SQUISH, 1.25)
@@ -267,8 +262,7 @@ function mod:LokiiUpdate(entity)
 					entity.StateFrame = 1
 
 				elseif sprite:IsEventTriggered("Shoot") then
-					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position, (entity.I1 - 1) * 180, 16, Vector(mod:GetSign(entity.I1 - 1) * -12, -18), entity), entity}
-					data.brim = laser_ent_pair.laser
+					data.brim = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position, (entity.I1 - 1) * 180, 16, Vector(mod:GetSign(entity.I1 - 1) * -12, -18), entity)
 					data.brim.DepthOffset = entity.DepthOffset - 10
 
 					-- Laser burst
@@ -314,12 +308,11 @@ function mod:LokiiUpdate(entity)
 
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
-					entity.ProjectileCooldown = Settings.Cooldown
-					pair.ProjectileCooldown = Settings.Cooldown
 				end
 
 
-			-- Fly volleyball
+
+			--[[ Fly volleyball ]]--
 			-- Summon fly
 			elseif entity.State == NpcState.STATE_SUMMON then
 				entity.StateFrame = 1
@@ -339,6 +332,7 @@ function mod:LokiiUpdate(entity)
 						pair.StateFrame = 0
 					end
 				end
+
 
 			-- Throw fly
 			elseif entity.State == NpcState.STATE_SUMMON2 then
@@ -369,11 +363,13 @@ function mod:LokiiUpdate(entity)
 					entity.State = NpcState.STATE_IDLE
 				end
 
+
 			-- Wait for fly
 			elseif entity.State == NpcState.STATE_SUMMON3 then
 				if sprite:IsFinished() then
 					sprite:Play("FlyWaitLoop", true)
 				end
+
 
 			-- Catch fly
 			elseif entity.State == NpcState.STATE_SPECIAL then
@@ -394,10 +390,13 @@ function mod:LokiiUpdate(entity)
 			end
 
 
-		-- One pair only --
+
+		--[[ One pair only ]]--
 		else
-			-- Do angry animation
+			-- Do the enrage animation
 			if entity.State == NpcState.STATE_APPEAR_CUSTOM then
+				entity.Velocity = mod:StopLerp(entity.Velocity)
+
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
 				end
@@ -408,6 +407,7 @@ function mod:LokiiUpdate(entity)
 			elseif entity.State == NpcState.STATE_ATTACK2 or entity.State == NpcState.STATE_ATTACK3 then
 				entity.State = entity.State + 2
 
+
 			-- Custom attacks
 			elseif entity.State == NpcState.STATE_ATTACK4 or entity.State == NpcState.STATE_ATTACK5 then
 				entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -417,12 +417,13 @@ function mod:LokiiUpdate(entity)
 					mod:PlaySound(nil, SoundEffect.SOUND_ANIMAL_SQUISH, 1.1)
 					mod:ShootEffect(entity, 3, Vector(0, -12), Color.Default, 1, true)
 
-					-- Ground slam
+
+					--[[ Ground slam ]]--
 					if entity.State == NpcState.STATE_ATTACK4 then
 						local params = ProjectileParams()
 						params.TargetPosition = entity.Position
 						params.FallingSpeedModifier = 1
-						params.FallingAccelModifier = -0.075
+						params.FallingAccelModifier = -0.08
 
 						if mod:Random(1) == 1 then
 							params.BulletFlags = ProjectileFlags.ORBIT_CW
@@ -432,23 +433,23 @@ function mod:LokiiUpdate(entity)
 						entity:FireProjectiles(entity.Position, Vector(11, 8), 8, params)
 
 
-					-- Triple attack
+					--[[ Triple attack ]]--
 					elseif entity.State == NpcState.STATE_ATTACK5 then
 						-- + shots
 						if entity.I2 == 0 then
-							entity:FireProjectiles(entity.Position, Vector(Settings.AngryShotSpeed, 4), 6, ProjectileParams())
+							entity:FireProjectiles(entity.Position, Vector(12, 4), 6, ProjectileParams())
 							entity.I2 = entity.I2 + 1
 
 						-- 6 shots
 						elseif entity.I2 == 1 then
 							local params = ProjectileParams()
-							params.CircleAngle = 0
-							entity:FireProjectiles(entity.Position, Vector(Settings.AngryShotSpeed, 6), 9, params)
+							params.CircleAngle = mod:Random(1) * mod:DegreesToRadians(30)
+							entity:FireProjectiles(entity.Position, Vector(12, 6), 9, params)
 							entity.I2 = entity.I2 + 1
 
 						-- 8 shots
 						elseif entity.I2 == 2 then
-							entity:FireProjectiles(entity.Position, Vector(Settings.AngryShotSpeed, 8), 8, ProjectileParams())
+							entity:FireProjectiles(entity.Position, Vector(12, 8), 8, ProjectileParams())
 							entity.I2 = 0
 						end
 					end

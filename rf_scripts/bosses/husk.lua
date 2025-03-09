@@ -34,9 +34,8 @@ function mod:HuskInit(entity)
 		if entity.SubType == 1 then
 			newHP = Settings.BlackHealth
 		end
+		mod:ChangeMaxHealth(entity, newHP)
 
-		entity.MaxHitPoints = newHP
-		entity.HitPoints = entity.MaxHitPoints
 		entity.ProjectileCooldown = Settings.Cooldown / 3
 		entity.Mass = 40
 

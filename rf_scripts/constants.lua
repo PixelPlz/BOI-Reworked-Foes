@@ -11,13 +11,14 @@ end
 
 
 
---[[ Entity enums ]]--
-mod.Entities = {
+--[[ New entity enums ]]--
+ReworkedFoes.Entities = {
 	-- Projectiles
 	FeatherProjectile = Isaac.GetEntityVariantByName("Angelic Feather Projectile"),
 	SuckerProjectile  = Isaac.GetEntityVariantByName("Sucker Projectile (RF)"),
 	EggSackProjectile = Isaac.GetEntityVariantByName("Egg Sack Projectile"),
 	ClotProjectile    = Isaac.GetEntityVariantByName("Clot Projectile"),
+	SandProjectile    = Isaac.GetEntityVariantByName("Sand Projectile"),
 
 
 	-- NPCs
@@ -32,6 +33,8 @@ mod.Entities = {
 	Coffer 		= Isaac.GetEntityVariantByName("Coffer"),
 	BoneOrbital = Isaac.GetEntityVariantByName("Enemy Bone Orbital"),
 	Mullicocoon = Isaac.GetEntityVariantByName("Mullicocoon"),
+	Nest 		= Isaac.GetEntityVariantByName("Nest (Reworked Foes)"),
+	BoneKnight 	= Isaac.GetEntityVariantByName("Bone Knight (Reworked Foes)"),
 	RagPlasma 	= Isaac.GetEntityVariantByName("Rag Mega Plasma"),
 	SkyLaser 	= Isaac.GetEntityVariantByName("Sister Vis Laser"),
 
@@ -64,9 +67,14 @@ mod.Entities = {
 
 
 --[[ Colors ]]--
--- Extended color constructor
-function mod:ColorEx(rgb, colorize, tint)
+-- Extended color constructor.
+---@param rgb table
+---@param colorize table?
+---@param tint table?
+---@return Color color
+function ReworkedFoes:ColorEx(rgb, colorize, tint)
 	local color = Color(rgb[1],rgb[2],rgb[3], rgb[4], rgb[5],rgb[6],rgb[7])
+
 	if colorize then
 		color:SetColorize(colorize[1],colorize[2],colorize[3], colorize[4])
 	end
@@ -76,7 +84,7 @@ function mod:ColorEx(rgb, colorize, tint)
 	return color
 end
 
-mod.Colors = {
+ReworkedFoes.Colors = {
 	BrimShot   = Color(1,0.25,0.25, 1, 0.25,0,0),
 	WhiteShot  = mod:ColorEx({1,1,1, 1, 0.5,0.5,0.5},   {1,1,1, 1}),
 	SunBeam    = Color(1,1,1, 1, 0.3,0.3,0),
@@ -98,16 +106,17 @@ mod.Colors = {
 	BlueFireShot = mod:ColorEx({1,1,1, 1, 0,0.6,1.2},   {1,1,1, 1}),
 	PurpleFade   = mod:ColorEx({0,0,0, 1.1, 0.5,0,0.5},   {0,0,0, 0},   {0,0,0, 1.1}),
 
-	Ipecac 			 = mod:ColorEx({1,1,1, 1},   {0.4,2,0.5, 1}),
-	GreenCreep 		 = Color(0,0,0, 1, 0,0.5,0),
-	GreenBlood 		 = Color(0.4,0.8,0.4, 1, 0,0.4,0),
-	CorpseGreen 	 = mod:ColorEx({1,1,1, 1},   {1.5,2,1, 1}),
-	CorpseGreenTrail = Color(0,0,0, 1, 0.15,0.25,0.07),
-	CorpseYellow 	 = mod:ColorEx({1,1,1, 1},   {3.5,2.5,1, 1}),
+	Ipecac 			  = mod:ColorEx({1,1,1, 1},   {0.4,2,0.5, 1}),
+	GreenCreep 		  = Color(0,0,0, 1, 0,0.5,0),
+	GreenBlood 		  = Color(0.4,0.8,0.4, 1, 0,0.4,0),
+	CorpseGreen 	  = mod:ColorEx({1,1,1, 1},   {1.5,2,1, 1}),
+	CorpseGreenTrail  = Color(0,0,0, 1, 0.15,0.25,0.07),
+	CorpseYellow 	  = mod:ColorEx({1,1,1, 1},   {3.5,2.5,1, 1}),
+	CorpseYellowTrail = Color(0,0,0, 1, 0.35,0.25,0.07),
 
 	PortalShot 		= Color(0.6,0.5,0.8, 1, 0.1,0,0.2),
 	PortalShotTrail = Color(0,0,0, 1, 0.45,0.3,0.6),
-	PortalSpawn 	= Color(0.2,0.2,0.3, 0, 1.5,0.75,3),
+	PortalSpawn 	= Color(0,0,0, 1, 0.64,0.38,0.94),
 
 	ForgottenBone = Color(0.34,0.34,0.34, 1),
 	SoulShot 	  = Color(0.8,0.8,0.8, 0.7, 0.1,0.2,0.4),
@@ -137,14 +146,14 @@ mod.Colors = {
 	TearTrail  = Color(0,0,0, 1, 0.54,0.64,0.78),
 
 	Heal 		= Color(1,1,1, 1, 0.64,0,0),
-	DamageFlash = Color(0.5,0.5,0.5, 1, 0.8,0,0),
+	DamageFlash = Color(0.5,0.5,0.5, 1, 0.78,0,0),
 	ArmorFlash  = Color(1,1,1, 1, 0.4,0.4,0.4),
 }
 
 
 
---[[ Sound enums ]]--
-mod.Sounds = {
+--[[ New sound enums ]]--
+ReworkedFoes.Sounds = {
 	-- C.H.A.D.
 	ChadAttackSwim = Isaac.GetSoundIdByName("C.H.A.D. Attack Swim"),
 	ChadAttackJump = Isaac.GetSoundIdByName("C.H.A.D. Attack Jump"),

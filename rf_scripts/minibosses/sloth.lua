@@ -3,14 +3,14 @@ local mod = ReworkedFoes
 
 
 function mod:SlothInit(entity)
-	if mod:CheckValidMiniboss(entity) and mod:IsRFChampion(entity, "Sloth") then
+	if mod:CheckValidMiniboss() and mod:IsRFChampion(entity, "Sloth") then
 		entity.SplatColor = mod.Colors.Tar
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.SlothInit, EntityType.ENTITY_SLOTH)
 
 function mod:SlothUpdate(entity)
-	if mod:CheckValidMiniboss(entity) then
+	if mod:CheckValidMiniboss() then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
 
@@ -68,7 +68,7 @@ function mod:SlothUpdate(entity)
 
 				local projectiles = entity:FireBossProjectilesEx(10, target.Position, 8, params)
 				for i, projectile in pairs(projectiles) do
-					projectile:GetData().DankSlothCreepShot = true
+					projectile:GetData().RFLeaveCreep = { Type = EffectVariant.CREEP_BLACK, Timeout = 240, }
 				end
 
 				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_4)
@@ -94,25 +94,6 @@ function mod:SlothCollision(entity, target, bool)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.SlothCollision, EntityType.ENTITY_SLOTH)
-
--- Don't take damage from non-player explosions
-function mod:SlothDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if mod:CheckValidMiniboss(entity) and damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_EXPLOSION > 0)
-	and Isaac.GetChallenge() ~= Challenge.CHALLENGE_HOT_POTATO then -- HOT POTATO EXPLOSIONS DOESN'T COUNT AS PLAYER EXPLOSIONS FUCK THIS GAME
-		return false
-	end
-end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.SlothDMG, EntityType.ENTITY_SLOTH)
-
-
-
--- Champion Sloth creep projectile
-function mod:ChampionSlothCreepProjectile(projectile)
-	if projectile:GetData().DankSlothCreepShot and projectile:IsDead() then
-		mod:QuickCreep(EffectVariant.CREEP_BLACK, projectile.SpawnerEntity, projectile.Position, 1.25, 240)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.ChampionSlothCreepProjectile, ProjectileVariant.PROJECTILE_NORMAL)
 
 
 

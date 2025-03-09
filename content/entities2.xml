@@ -12,6 +12,9 @@
 	<entity name="Clot Projectile"   id="9" variant="403"   anm2path="clot projectile.anm2" shadowSize="28"
 	friction="1" collisionRadius="13" collisionMass="10" numGridCollisionPoints="12" />
 
+	<entity name="Sand Projectile"   id="9" variant="404"   anm2path="sand projectile.anm2" shadowSize="10"
+	friction="1" collisionRadius="7" collisionMass="8" numGridCollisionPoints="8" />
+
 
 
 	<!-- Enemies / Bosses -->
@@ -88,8 +91,8 @@
 
 	<!-- Conquest Horse -->
 	<entity name="Conquest Horse"   id="65" variant="20"   anm2path="065.020_conquest horse.anm2" shadowSize="19" portrait="20"
-	baseHP="150" boss="1" bossID="38" tags="nodelirium"
-	friction="1" collisionRadius="25" collisionMass="1" collisionDamage="2" >
+	baseHP="120" boss="1" bossID="38" tags="nodelirium"
+	friction="1" collisionRadius="25" collisionMass="30" collisionDamage="2" >
 		<gibs amount="6"   blood="1" bone="1" />
 	</entity>
 
@@ -178,7 +181,7 @@
 		<devolve id="11.0.0" weight="1" />
 	</entity>
 	<!-- Nest -->
-	<entity name="#NEST"   id="22" variant="40"   anm2path="205.000_nest.anm2" shadowSize="14" portrait="11"
+	<entity name="Nest (Reworked Foes)"   id="22" variant="40"   anm2path="205.000_nest.anm2" shadowSize="14" portrait="11"
 	baseHP="20" champion="1"
 	friction="1" collisionRadius="13" collisionMass="7" numGridCollisionPoints="12" >
 		<gibs amount="6"   blood="1" bone="1" eye="1" gut="1" />
@@ -188,7 +191,7 @@
 
 
 	<!-- Bone Knight -->
-	<entity name="#BONE_KNIGHT"   id="41" variant="40"   anm2path="283.000_BoneKnight.anm2" shadowSize="14" portrait="12"
+	<entity name="Bone Knight (Reworked Foes)"   id="41" variant="40"   anm2path="283.000_BoneKnight.anm2" shadowSize="14" portrait="12"
 	baseHP="20" champion="1"
 	friction="1" collisionRadius="13" collisionMass="10" collisionDamage="1" numGridCollisionPoints="12" >
 		<gibs amount="6"   bone="1" gut="1" worm="1" />

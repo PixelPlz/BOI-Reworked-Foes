@@ -53,11 +53,8 @@ function mod:RaglingUpdate(entity)
 				params.BulletFlags = params.BulletFlags + ProjectileFlags.SMART
 			end
 
-			params.FallingAccelModifier = 0.035
-			params.CircleAngle = 0
-
-			entity:FireProjectiles(entity.Position, Vector(9, 3 - entity.Variant), 9, params)
-			mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
+			entity:FireProjectiles(entity.Position, Vector(10 - entity.Variant, 3 - entity.Variant), 9, params)
+			mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT, 0.9)
 		end
 
 		if sprite:IsFinished() then

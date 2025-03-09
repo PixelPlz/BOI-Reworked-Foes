@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="Pixel" CreatedOn="2023. 05. 16. 23:17:40" Version="130" Fps="30"/>
+	<Info CreatedBy="Pixel" CreatedOn="2024. 12. 31. 19:42:57" Version="131" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="monsters\better\monster_048_flaminghopper.png" Id="0"/>
@@ -15,6 +15,7 @@
 		<Events>
 			<Event Name="Jump" Id="0"/>
 			<Event Name="Land" Id="1"/>
+			<Event Name="Stop" Id="2"/>
 		</Events>
 	</Content>
 	<Animations DefaultAnimation="Idle">
@@ -202,7 +203,8 @@
 			</NullAnimations>
 			<Triggers>
 				<Trigger EventId="0" AtFrame="12"/>
-				<Trigger EventId="1" AtFrame="27"/>
+				<Trigger EventId="2" AtFrame="23"/>
+				<Trigger EventId="1" AtFrame="28"/>
 			</Triggers>
 		</Animation>
 	</Animations>

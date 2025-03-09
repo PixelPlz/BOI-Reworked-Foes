@@ -9,9 +9,7 @@ function mod:Monstro2Init(entity)
 	if entity.SubType == 1 then
 		newHealth = 460
 	end
-
-	entity.MaxHitPoints = newHealth
-	entity.HitPoints = entity.MaxHitPoints
+	mod:ChangeMaxHealth(entity, newHealth)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.Monstro2Init, EntityType.ENTITY_MONSTRO2)
 
@@ -34,59 +32,21 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.Monstro2Render, EntityType.
 
 
 
---[[ Increase Pestilence's HP ]]--
-function mod:PestilenceInit(entity)
-	entity.MaxHitPoints = 360
-	entity.HitPoints = entity.MaxHitPoints
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PestilenceInit, EntityType.ENTITY_PESTILENCE)
-
-
-
---[[ Death ]]--
--- Better Scythes
-function mod:ScytheInit(entity)
-	if entity.Variant == 10 then
-		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-		entity.Mass = 1
-		mod:PlaySound(nil, SoundEffect.SOUND_TOOTH_AND_NAIL, 0.9)
-
-		-- Get the parent's subtype
-		if entity.SubType == 0 and entity.SpawnerEntity and entity.SpawnerEntity.SubType > 0 then
-			entity.SubType = entity.SpawnerEntity.SubType
-		end
-
-		-- Black champion's scythes are bigger
-		if entity.SubType == 1 then
-			entity.Scale = 1.1
-		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ScytheInit, EntityType.ENTITY_DEATH)
-
--- Hourglass sound
-function mod:DeathUpdate(entity)
-	if entity.Variant == 0 and entity.State == NpcState.STATE_ATTACK and entity:GetSprite():GetFrame() == 21 then
-		mod:PlaySound(nil, SoundEffect.SOUND_MENU_FLIP_DARK, 2)
-	end
-end
-mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DeathUpdate, EntityType.ENTITY_DEATH)
-
-
-
 --[[ Peep and Bloat ]]--
 -- Decrease Peep's and increase The Bloat's HP
 function mod:PeepInit(entity)
 	if entity.Variant <= 1 then
-		local newHealth = 390
+		local newHealth = 400
+
+		-- Bloat
 		if entity.Variant == 1 then
 			newHealth = 500
+		-- Champion Peep
 		elseif entity.SubType ~= 0 then
 			newHealth = 350
 		end
 
-		entity.MaxHitPoints = newHealth
-		entity.HitPoints = entity.MaxHitPoints
+		mod:ChangeMaxHealth(entity, newHealth)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PeepInit, EntityType.ENTITY_PEEP)
@@ -103,8 +63,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.PeepEyeCollision, EntityT
 
 --[[ Increase Loki and Lokii's HP ]]--
 function mod:LokiInit(entity)
-	entity.MaxHitPoints = 420
-	entity.HitPoints = entity.MaxHitPoints
+	mod:ChangeMaxHealth(entity, 420)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.LokiInit, EntityType.ENTITY_LOKI)
 
@@ -139,8 +98,7 @@ function mod:GurdyJrInit(entity)
 		newHealth = 400
 	end
 
-	entity.MaxHitPoints = newHealth
-	entity.HitPoints = entity.MaxHitPoints
+	mod:ChangeMaxHealth(entity, newHealth)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GurdyJrInit, EntityType.ENTITY_GURDY_JR)
 
@@ -159,7 +117,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GurdyJrUpdate, EntityType.ENTITY
 --[[ Gurglings ]]--
 -- Different sprites for boss Gurglings
 function mod:GurglingInit(entity)
-	if entity.Variant == 1 then
+	if entity.Variant == 1 and entity.SubType == 0 then
 		local sprite = entity:GetSprite()
 		sprite:Load("gfx/237.000_gurgling_boss.anm2", true)
 		sprite:Play("Appear", true)
@@ -242,8 +200,7 @@ function mod:CageInit(entity)
 		newHealth = 360
 	end
 
-	entity.MaxHitPoints = newHealth
-	entity.HitPoints = entity.MaxHitPoints
+	mod:ChangeMaxHealth(entity, newHealth)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.CageInit, EntityType.ENTITY_CAGE)
 
@@ -283,14 +240,13 @@ function mod:PolycephalusInit(entity)
 		newHealth = 140
 	end
 
-	entity.MaxHitPoints = newHealth
-	entity.HitPoints = entity.MaxHitPoints
+	mod:ChangeMaxHealth(entity, newHealth)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PolycephalusInit, EntityType.ENTITY_POLYCEPHALUS)
 
 -- Burrowing indicator
 function mod:PolycephalusDirt(entity)
-	if mod.Config.NoHiddenPoly == true and (entity.Type == EntityType.ENTITY_STAIN or entity.Variant == 0) -- If it's not The Pile
+	if mod.Config.NoHiddenPoly and (entity.Type == EntityType.ENTITY_STAIN or entity.Variant == 0) -- If it's not The Pile
 	and entity.State == NpcState.STATE_MOVE and entity.I1 == 2 -- When fully underground
 	and entity:IsFrame(6, 0) then
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DIRT_PILE, 0, entity.Position, Vector.Zero, entity).SpriteScale = Vector(1.2, 1.2)
@@ -303,9 +259,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.PolycephalusDirt, EntityType.ENT
 
 --[[ Delirium helper ]]--
 function mod:DeliriumHelper(entity)
-	if not entity:GetData().wasDelirium then
-		entity:GetData().wasDelirium = true
-	end
+	entity:GetData().wasDelirium = true
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DeliriumHelper, EntityType.ENTITY_DELIRIUM)
 
@@ -314,8 +268,7 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DeliriumHelper, EntityType.ENTIT
 --[[ Reap Creep ]]--
 -- Decrease his HP
 function mod:ReapCreepInit(entity)
-	entity.MaxHitPoints = 600
-	entity.HitPoints = entity.MaxHitPoints
+	mod:ChangeMaxHealth(entity, 600)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ReapCreepInit, EntityType.ENTITY_REAP_CREEP)
 
@@ -338,8 +291,7 @@ function mod:ClogInit(entity)
 		newHealth = 432
 	end
 
-	entity.MaxHitPoints = newHealth
-	entity.HitPoints = entity.MaxHitPoints
+	mod:ChangeMaxHealth(entity, newHealth)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ClogInit, EntityType.ENTITY_CLOG)
 

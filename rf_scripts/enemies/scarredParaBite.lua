@@ -13,7 +13,7 @@ function mod:ScarredParaBiteUpdate(entity)
 	if entity.Variant == 1 then
 		local sprite = entity:GetSprite()
 
-		-- Prevent regular shots
+		-- Stop the default shots
 		entity.ProjectileCooldown = 100
 
 
@@ -29,13 +29,13 @@ function mod:ScarredParaBiteUpdate(entity)
 				entity.I1 = entity.I1 - 1
 			end
 
-		-- Attack
+		-- Attacking
 		elseif entity.State == NpcState.STATE_ATTACK and sprite:IsEventTriggered("Shoot") then
 			entity:FireBossProjectiles(1, Vector.Zero, 4, ProjectileParams())
 			entity.I2 = entity.I2 + 1
 
 			if entity.I2 % 2 == 0 then
-				mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT)
+				mod:PlaySound(nil, SoundEffect.SOUND_BLOODSHOOT, 0.9)
 				mod:ShootEffect(entity, 2, Vector(0, -18))
 			end
 		end

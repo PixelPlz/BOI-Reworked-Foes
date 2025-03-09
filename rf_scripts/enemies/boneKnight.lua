@@ -10,7 +10,7 @@ local Settings = {
 
 
 function mod:BoneKnightInit(entity)
-	entity:Morph(EntityType.ENTITY_KNIGHT, 40, 0, entity:GetChampionColorIdx())
+	entity:Morph(EntityType.ENTITY_KNIGHT, mod.Entities.BoneKnight, 0, entity:GetChampionColorIdx())
 
 	-- Bestiary fix
 	local sprite = entity:GetSprite()
@@ -20,7 +20,7 @@ end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.BoneKnightInit, EntityType.ENTITY_BONE_KNIGHT)
 
 function mod:BoneKnightUpdate(entity)
-	if entity.Variant == 40 then
+	if entity.Variant == mod.Entities.BoneKnight then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
 

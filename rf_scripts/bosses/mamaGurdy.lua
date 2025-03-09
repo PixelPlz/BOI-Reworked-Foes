@@ -3,7 +3,7 @@ local mod = ReworkedFoes
 local Settings = {
 	Cooldown = 50,
 	SpikeCount = 14,
-	WormCount = 5
+	WormCount = 4,
 }
 
 
@@ -158,14 +158,15 @@ function mod:MamaGurdyUpdate(entity)
 
 			-- Stay hidden if there are worms alive
 			if entity.I1 > 1 then
-				if Isaac.CountEntities(entity, EntityType.ENTITY_PARA_BITE, -1, -1) > 0 then
+				if Isaac.CountEntities(entity, EntityType.ENTITY_PARA_BITE) > 0 then
 					entity.I1 = 4 -- Doesn't do anything
 					sprite:SetFrame(0)
 
 					-- Spawn spikes in random places
 					if entity.ProjectileDelay <= 0 then
-						for i = 0, 2 do
-							Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, 0, room:FindFreePickupSpawnPosition(Isaac:GetRandomPosition(), 0, true, false), Vector.Zero, entity)
+						for i = 1, 3 do
+							local pos = room:FindFreePickupSpawnPosition(Isaac:GetRandomPosition(), 0, true, false)
+							Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, 0, pos, Vector.Zero, entity)
 						end
 						entity.ProjectileDelay = Settings.Cooldown
 
@@ -216,13 +217,13 @@ function mod:MamaGurdySpawns(effect)
 		effect.Visible = false
 		effect:Remove()
 
-
 		local spawner = effect.SpawnerEntity:ToNPC()
+
 
 		-- Giant spikes
 		if spawner.State == NpcState.STATE_ATTACK2 then
 			-- Only spawn a set amount of big spikes
-			local spikeCount = Isaac.CountEntities(spawner, mod.Entities.Type, mod.Entities.GiantSpike, -1)
+			local spikeCount = Isaac.CountEntities(spawner, mod.Entities.Type, mod.Entities.GiantSpike)
 
 			if spikeCount < Settings.SpikeCount then
 				local room = Game():GetRoom()
@@ -240,10 +241,12 @@ function mod:MamaGurdySpawns(effect)
 
 		-- Para-Bites
 		elseif spawner.State == NpcState.STATE_ATTACK3 then
-			-- Only spawn a set amount of worms
-			local wormCount = Isaac.CountEntities(spawner, EntityType.ENTITY_PARA_BITE, -1, -1)
+			local nearestPlayer = Game():GetNearestPlayer(effect.Position)
 
-			if wormCount < Settings.WormCount and effect.Position:Distance(Game():GetNearestPlayer(effect.Position).Position) >= 100 then
+			-- Only spawn a set amount of worms
+			local wormCount = Isaac.CountEntities(spawner, EntityType.ENTITY_PARA_BITE)
+
+			if wormCount < Settings.WormCount and effect.Position:Distance(nearestPlayer.Position) >= 100 then
 				-- Have a chance to spawn Scarred Para-Bites in the Scarred Womb
 				local variant = 0
 				if Game():GetLevel():GetStageType() == StageType.STAGETYPE_AFTERBIRTH and mod:Random(2) == 1 then
@@ -253,6 +256,7 @@ function mod:MamaGurdySpawns(effect)
 				local pos = Game():GetRoom():FindFreePickupSpawnPosition(effect.Position, 0, true, false)
 				local worm = Isaac.Spawn(EntityType.ENTITY_PARA_BITE, variant, 0, pos, Vector.Zero, spawner):ToNPC()
 				worm:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+				worm:AddEntityFlags(EntityFlag.FLAG_AMBUSH)
 				worm.State = NpcState.STATE_SPECIAL
 				worm:GetSprite():Play("DigOut", true)
 			end

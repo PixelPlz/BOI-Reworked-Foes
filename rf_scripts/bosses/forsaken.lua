@@ -7,7 +7,7 @@ local Settings = {
 	MinTPDistance = 50,
 
 	HideSpeed = 1.5,
-	WanderSpeed = 2.25,
+	WanderSpeed = 2.5,
 
 	SpitBaseTime = 30,
 	MoveSpeed = 5,
@@ -18,20 +18,21 @@ local Settings = {
 
 
 function mod:ForsakenInit(entity)
-	entity.MaxHitPoints = Settings.NewHealth
-	entity.HitPoints = entity.MaxHitPoints
-
-	entity.ProjectileCooldown = Settings.Cooldown / 2
+	mod:ChangeMaxHealth(entity, Settings.NewHealth)
 	entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 	entity.CollisionDamage = 0
 
+	entity.ProjectileCooldown = Settings.Cooldown / 2
+
+	-- Champion
 	if entity.SubType == 1 then
 		entity.V2 = Vector(2, 140)
 	end
 
+	-- Clone
 	if entity.Variant == 10 then
+		entity:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP)
 		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
-		entity:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ForsakenInit, EntityType.ENTITY_FORSAKEN)
@@ -101,15 +102,8 @@ function mod:ForsakenUpdate(entity)
 	end
 
 
-	-- Particles
-	local color = Color.Default
-	if entity.SubType == 0 then
-		color = mod.Colors.GhostTrail
-	end
-	mod:SmokeParticles(entity, Vector(0, -40), 25, Vector(100, 120), color)
 
-
-	-- Bony phase
+	--[[ Bony phase ]]--
 	if entity.State == NpcState.STATE_SUMMON then
 		-- Appear
 		if entity.StateFrame == 0 then
@@ -119,6 +113,7 @@ function mod:ForsakenUpdate(entity)
 				entity.StateFrame = 1
 				sprite:Play("Summon", true)
 			end
+
 
 		-- Summon Bonies
 		elseif entity.StateFrame == 1 then
@@ -141,6 +136,7 @@ function mod:ForsakenUpdate(entity)
 			if sprite:IsFinished() then
 				entity.StateFrame = 2
 			end
+
 
 		-- Stay invincible while the Bonies are alive
 		elseif entity.StateFrame == 2 then
@@ -168,6 +164,7 @@ function mod:ForsakenUpdate(entity)
 				sprite.Color = Color.Default
 			end
 
+
 		-- Go to idle state
 		elseif entity.StateFrame == 3 then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -182,7 +179,8 @@ function mod:ForsakenUpdate(entity)
 		end
 
 
-	-- Idle
+
+	--[[ Idle ]]--
 	elseif entity.State == NpcState.STATE_IDLE then
 		mod:WanderAround(entity, Settings.WanderSpeed)
 		mod:LoopingAnim(sprite, "Idle")
@@ -196,7 +194,8 @@ function mod:ForsakenUpdate(entity)
 		end
 
 
-	-- Fade away, choose an attack
+
+	--[[ Fade away, choose an attack ]]--
 	elseif entity.State == NpcState.STATE_MOVE then
 		entity.Velocity = mod:StopLerp(entity.Velocity)
 
@@ -325,7 +324,8 @@ function mod:ForsakenUpdate(entity)
 		end
 
 
-	-- Rotating brimstone attack
+
+	--[[ Rotating brimstone attack ]]--
 	elseif entity.State == NpcState.STATE_ATTACK then
 		entity.Velocity = mod:StopLerp(entity.Velocity)
 		mod:IgnoreKnockoutDrops(entity)
@@ -337,6 +337,7 @@ function mod:ForsakenUpdate(entity)
 				sprite:Play("BlastStart", true)
 				mod:PlaySound(entity, SoundEffect.SOUND_LOW_INHALE, 1.25)
 			end
+
 
 		-- Charge up lasers
 		elseif entity.StateFrame == 1 then
@@ -358,12 +359,12 @@ function mod:ForsakenUpdate(entity)
 				if entity.SubType == 0 then
 					for i = 0, 2 do
 						local angle = (target.Position - (entity.Position - Vector(0, 40))):GetAngleDegrees() + (i * 120) - 60
-						local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 40), angle, -1, Vector.Zero, entity), entity}
-						data.brim = laser_ent_pair.laser
+						data.brim = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 40), angle, -1, Vector.Zero, entity)
 						data.brim:SetActiveRotation(20, entity.I2 * 180, entity.I2 * Settings.BrimRotationSpeed, 10)
 					end
 				end
 			end
+
 
 		-- Shooting lasers
 		elseif entity.StateFrame == 2 then
@@ -400,8 +401,6 @@ function mod:ForsakenUpdate(entity)
 					params.BulletFlags = ProjectileFlags.FIRE
 					params.CircleAngle = entity.I1 * (entity.I2 * 35)
 					entity:FireProjectiles(entity.Position, Vector(8, 4), 9, params)
-
-					entity.I1 = entity.I1 + 1
 					entity.ProjectileDelay = 4
 
 				-- Regular
@@ -409,12 +408,14 @@ function mod:ForsakenUpdate(entity)
 					params.Variant = ProjectileVariant.PROJECTILE_HUSH
 					params.Color = mod.Colors.BrimShot
 					params.Scale = 1.25
-					mod:FireProjectiles(entity, entity.Position, Vector(8, 8), 8, params, Color.Default)
+					params.CircleAngle = entity.I1 * mod:DegreesToRadians(30)
+					mod:FireProjectiles(entity, entity.Position, Vector(8, 6), 9, params, Color.Default)
 
 					mod:PlaySound(entity, SoundEffect.SOUND_FIRE_RUSH, 0.8)
 					entity.ProjectileDelay = Settings.BrimShotDelay
 				end
 
+				entity.I1 = entity.I1 + 1
 			else
 				entity.ProjectileDelay = entity.ProjectileDelay - 1
 			end
@@ -429,6 +430,7 @@ function mod:ForsakenUpdate(entity)
 				end
 			end
 
+
 		-- Finish attack
 		elseif entity.StateFrame == 3 then
 			if sprite:IsFinished() then
@@ -437,7 +439,8 @@ function mod:ForsakenUpdate(entity)
 		end
 
 
-	-- Clone spit attack
+
+	--[[ Clone spit attack ]]--
 	elseif entity.State == NpcState.STATE_ATTACK2 then
 		if entity.SubType == 1 and entity.StateFrame < 3 then
 			-- Orbit parent
@@ -452,11 +455,13 @@ function mod:ForsakenUpdate(entity)
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 		end
 
+
 		-- Appear
 		if entity.StateFrame == 0 then
 			if sprite:IsFinished() then
 				entity.StateFrame = 1
 			end
+
 
 		-- Wait for its turn
 		elseif entity.StateFrame == 1 then
@@ -474,6 +479,7 @@ function mod:ForsakenUpdate(entity)
 			else
 				entity.I2 = entity.I2 - 1
 			end
+
 
 		-- Shoot
 		elseif entity.StateFrame == 2 then
@@ -516,6 +522,7 @@ function mod:ForsakenUpdate(entity)
 				end
 			end
 
+
 		-- Black champion teleport
 		elseif entity.StateFrame == 3 then
 			if sprite:IsFinished() then
@@ -524,10 +531,12 @@ function mod:ForsakenUpdate(entity)
 		end
 
 
-	-- Clone brimstone attack
+
+	--[[ Clone brimstone attack ]]--
 	elseif entity.State == NpcState.STATE_ATTACK3 then
 		-- Movement
-		if entity.StateFrame == 1 and (not sprite:WasEventTriggered("Shoot") or entity.SubType == 1) or (entity.SubType == 1 and entity.StateFrame == 2) then
+		if entity.StateFrame == 1 and (not sprite:WasEventTriggered("Shoot") or entity.SubType == 1)
+		or (entity.SubType == 1 and entity.StateFrame == 2) then
 			-- Get target position
 			local moveto = target.Position
 			if entity.Variant == 10 then
@@ -537,17 +546,15 @@ function mod:ForsakenUpdate(entity)
 			end
 
 			-- Move slower while firing
-			local speed = Settings.MoveSpeed
+			local baseSpeed = Settings.MoveSpeed
 			if sprite:WasEventTriggered("Shoot") or entity.StateFrame == 2 then
-				speed = Settings.MoveSpeed / 2
+				baseSpeed = Settings.MoveSpeed / 2
 			end
 
 			-- Move to position
-			if entity.Position:Distance(moveto) > 10 then
-				entity.Velocity = mod:Lerp(entity.Velocity, (moveto - entity.Position):Resized(speed), 0.25)
-			else
-				entity.Velocity = mod:StopLerp(entity.Velocity)
-			end
+			local distance = entity.Position:Distance(moveto)
+			local speed = math.min(distance, baseSpeed)
+			entity.Velocity = mod:Lerp(entity.Velocity, (moveto - entity.Position):Resized(speed), 0.25)
 
 		else
 			entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -570,6 +577,7 @@ function mod:ForsakenUpdate(entity)
 				end
 			end
 
+
 		-- Move towards target, charge laser
 		elseif entity.StateFrame == 1 then
 			if sprite:IsEventTriggered("Shoot") then
@@ -587,8 +595,7 @@ function mod:ForsakenUpdate(entity)
 				if entity.SubType == 0 then
 					entity.Velocity = Vector.Zero
 					local angle = entity.I2 * 90
-					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 50) + Vector.FromAngle(angle):Resized(10), angle, 20, Vector.Zero, entity), entity}
-					data.brim = laser_ent_pair.laser
+					data.brim = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 50) + Vector.FromAngle(angle):Resized(10), angle, 20, Vector.Zero, entity)
 
 					if data.facing == "Down" then
 						data.brim.DepthOffset = entity.DepthOffset + 60
@@ -596,6 +603,7 @@ function mod:ForsakenUpdate(entity)
 				end
 				mod:PlaySound(entity, SoundEffect.SOUND_GHOST_ROAR, 1.75)
 			end
+
 
 		-- Shooting laser
 		elseif entity.StateFrame == 2 then
@@ -605,6 +613,7 @@ function mod:ForsakenUpdate(entity)
 				mod:LoopingAnim(sprite, "Blasting" .. data.facing)
 			end
 
+			-- Black champion shoots a stream of fires
 			if entity.SubType == 1 then
 				if entity.ProjectileDelay <= 0 then
 					local params = ProjectileParams()
@@ -635,6 +644,7 @@ function mod:ForsakenUpdate(entity)
 				end
 			end
 
+
 		-- Finish attack
 		elseif entity.StateFrame == 3 then
 			if sprite:IsEventTriggered("Shoot") then
@@ -654,6 +664,7 @@ function mod:ForsakenUpdate(entity)
 				end
 			end
 
+
 		-- Teleport to the center of the room
 		elseif entity.StateFrame == 4 then
 			if sprite:IsFinished() then
@@ -662,7 +673,8 @@ function mod:ForsakenUpdate(entity)
 		end
 
 
-	-- Clone fade away
+
+	--[[ Clone fade away ]]--
 	elseif entity.State == NpcState.STATE_SUICIDE then
 		entity.Velocity = mod:StopLerp(entity.Velocity)
 
@@ -676,7 +688,6 @@ function mod:ForsakenUpdate(entity)
 		entity.State = NpcState.STATE_MOVE
 		sprite:Play("FadeOut", true)
 	end
-
 
 	if entity.FrameCount > 1 then
 		return true

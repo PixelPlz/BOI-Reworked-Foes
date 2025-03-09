@@ -22,7 +22,7 @@ function mod:BlastocystBigUpdate(entity)
 	enemyScore = enemyScore + Isaac.CountEntities(nil, EntityType.ENTITY_BLASTOCYST_MEDIUM, -1, -1) * 4
 
 
-	-- Spawn a small Blastocyst
+	--[[ Spawn a small Blastocyst ]]--
 	if entity.State == NpcState.STATE_JUMP and sprite:GetFrame() == 0 and enemyScore <= Settings.MaxEnemyScore and entity.HitPoints > Settings.SpawnHP and mod:Random(1) == 1 then
 		entity.State = NpcState.STATE_SUMMON
 		sprite:Play("Summon", true)
@@ -35,8 +35,7 @@ function mod:BlastocystBigUpdate(entity)
 
 			-- Lobbed small Blastocyst
 			local small = Isaac.Spawn(EntityType.ENTITY_BLASTOCYST_SMALL, 0, entity.SubType, entity.Position + vector * 20, vector * 4, entity):ToNPC()
-			small.MaxHitPoints = Settings.SpawnHP
-			small.HitPoints = small.MaxHitPoints
+			mod:ChangeMaxHealth(small, Settings.SpawnHP)
 
 			small.State = NpcState.STATE_APPEAR_CUSTOM
 			small.PositionOffset = Vector(0, Settings.LandHeight - 10)
@@ -61,7 +60,8 @@ function mod:BlastocystBigUpdate(entity)
 		end
 
 
-	-- Leap
+
+	--[[ Leap ]]--
 	elseif entity.State == NpcState.STATE_STOMP and (sprite:IsEventTriggered("Land") or sprite:IsEventTriggered("Shoot")) then
 		-- Remove default projectiles
 		if sprite:IsEventTriggered("Land") then
@@ -83,7 +83,8 @@ function mod:BlastocystBigUpdate(entity)
 		entity.I1 = entity.I1 + 1
 
 
-	-- Triple hop
+
+	--[[ Triple hop ]]--
 	elseif entity.State == NpcState.STATE_ATTACK then
 		-- How does this not get triggered when I set the StateFrame to 1 later on?
 		if entity.StateFrame == 1 then
@@ -150,7 +151,7 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.BlastocystSmallUpdate, EntityType.ENTITY_BLASTOCYST_SMALL)
 
 function mod:BlastocystSmallCollision(entity, target, bool)
-	if target.Type == EntityType.ENTITY_BLASTOCYST_BIG then
+	if entity:ToNPC().State == NpcState.STATE_APPEAR_CUSTOM and target.Type == EntityType.ENTITY_BLASTOCYST_BIG then
 		return true -- Ignore collision
 	end
 end

@@ -1,20 +1,20 @@
 local mod = ReworkedFoes
 
 mod.BreakableHosts = {
-	{Type = EntityType.ENTITY_HOST, 		 Variant = 0,   SubType = 0,   '   -->   ', BrokenType = nil, 								  BrokenVariant = 1,   BrokenSubType = nil}, -- Host
-	{Type = EntityType.ENTITY_HOST, 		 Variant = 0,   SubType = 250, '   -->   ', BrokenType = nil, 								  BrokenVariant = 1,   BrokenSubType = 251}, -- Fiend Folio Hostlet
-	{Type = EntityType.ENTITY_HOST, 		 Variant = 3,   SubType = 0,   '   -->   ', BrokenType = nil, 								  BrokenVariant = nil, BrokenSubType = 40},  -- Hard Host
-	{Type = EntityType.ENTITY_MOBILE_HOST,   Variant = nil, SubType = nil, '   -->   ', BrokenType = EntityType.ENTITY_FLESH_MOBILE_HOST, BrokenVariant = nil, BrokenSubType = nil}, -- Mobile Host
-	{Type = EntityType.ENTITY_FLOATING_HOST, Variant = 0,   SubType = nil, '   -->   ', BrokenType = nil, 								  BrokenVariant = 1,   BrokenSubType = nil}, -- Floast
+	{ Type = EntityType.ENTITY_HOST, Variant = 0, SubType = 0,   BrokenVariant = 1, }, -- Host
+	{ Type = EntityType.ENTITY_HOST, Variant = 0, SubType = 250,   BrokenVariant = 1, BrokenSubType = 251, }, -- Fiend Folio Hostlet
+	{ Type = EntityType.ENTITY_HOST, Variant = 3, SubType = 0,   BrokenSubType = 40, },  -- Hard Host
+	{ Type = EntityType.ENTITY_MOBILE_HOST, BrokenType = EntityType.ENTITY_FLESH_MOBILE_HOST, }, -- Mobile Host
+	{ Type = EntityType.ENTITY_FLOATING_HOST, Variant = 0,   BrokenVariant = 1, }, -- Floast
 }
 
 
 
--- Putting nil as the Variant or SubType will make it work on any of that type's variants or subtypes
--- Putting nil as any of the broken values will make them not change it when they get broken
+-- Leaving out the Variant or SubType will make it work on any of that type's variants or subtypes
+-- Leaving out any of the broken values will make them not change it when they get broken
 -- 'BreakCheckScript' should be a function that returns true if some custom condition is met for them breaking. (something that isn't their animation or overlay being "Bombed")
 	-- The first argument should be the entity.
-	-- Can be set to nil to use default conditions.
+	-- Can be left out to use default conditions.
 -- 'BrokenScript' gets triggered when they break. If your Host doesn't use StateFrame for the timer or use "Bombed" as their animation like vanilla Hosts then you should set up that stuff here.
 	-- The first argument should be the entity.
 	-- Can be left out.
@@ -40,9 +40,15 @@ end
 function mod:IsBreakableHost(entity)
 	for i, entry in pairs(mod.BreakableHosts) do
 		if entity.Type == entry.Type
-		and (entry.Variant == nil or entity.Variant == entry.Variant)
-		and (entry.SubType == nil or entity.SubType == entry.SubType) then
-			return {Type = entry.BrokenType, Variant = entry.BrokenVariant, SubType = entry.BrokenSubType, Condition = entry.BreakCheckScript, Script = entry.BrokenScript}
+		and (not entry.Variant or entity.Variant == entry.Variant)
+		and (not entry.SubType or entity.SubType == entry.SubType) then
+			return {
+				Type = entry.BrokenType,
+				Variant = entry.BrokenVariant,
+				SubType = entry.BrokenSubType,
+				Condition = entry.BreakCheckScript,
+				Script = entry.BrokenScript
+			}
 		end
 	end
 	return false
@@ -86,17 +92,26 @@ function mod:BreakHost(entity, brokenData)
 
 
 	-- Effects
-	for i = 0, 5 do
-		local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, BackdropType.DEPTHS, entity.Position, mod:RandomVector(3), entity):ToEffect()
-		rocks:GetSprite():Play("rubble", true)
-		rocks.State = 2
-	end
 	mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE)
+
+	-- Gibs
+	for i = 1, 5 do
+		local vector = mod:RandomVector(math.random(2, 4))
+		local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, BackdropType.DEPTHS, entity.Position, vector, entity):ToEffect()
+		rocks:Update()
+		rocks:GetSprite():SetAnimation("rubble_alt", false)
+	end
+
+	-- Smoke
+	for i = 1, 2 do
+		local smoke = mod:SmokeParticles(entity, Vector(0, -12), 0, Vector(120, 140), Color(0,0,0, 1, 0.4,0.4,0.4), 100)
+		smoke.Velocity = smoke.Velocity:Resized(math.random(2, 4))
+	end
 end
 
 -- Check if this entity is a Host that should be broken
 function mod:hostBreakCheck(entity)
-	if mod.Config.BreakableHosts == true then
+	if mod.Config.BreakableHosts then
 		local brokenData = mod:IsBreakableHost(entity)
 
 		if brokenData ~= false -- Is a Host that can be broken

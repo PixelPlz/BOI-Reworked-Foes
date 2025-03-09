@@ -10,9 +10,10 @@ local Settings = {
 
 function mod:MrFredInit(entity)
 	if entity.Variant == 0 and entity.SubType == 0 then
-		entity.MaxHitPoints = Settings.NewHP
-		entity.HitPoints = entity.MaxHitPoints
+		mod:ChangeMaxHealth(entity, Settings.NewHP)
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+		entity:SetSize(33, Vector.One, 16)
+
 		entity.ProjectileCooldown = Settings.Cooldown / 2
 	end
 end
@@ -22,16 +23,15 @@ function mod:MrFredUpdate(entity)
 	if entity.Variant == 0 and entity.SubType == 0 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
+		local data = entity:GetData()
 		local room = Game():GetRoom()
 
 
 		-- Jumping to target position
 		if entity.StateFrame == 1 then
-			if entity.Position:Distance(entity.V1) < 20 then
-				entity.Velocity = mod:StopLerp(entity.Velocity)
-			else
-				entity.Velocity = mod:Lerp(entity.Velocity, (entity.V1 - entity.Position):Resized(14), 0.25)
-			end
+			local distance = entity.Position:Distance(entity.V1)
+			local speed = math.min(distance, 14)
+			entity.Velocity = mod:Lerp(entity.Velocity, (entity.V1 - entity.Position):Resized(speed), 0.25)
 
 		-- Stationary
 		else
@@ -39,7 +39,8 @@ function mod:MrFredUpdate(entity)
 		end
 
 
-		-- Idle
+
+		--[[ Idle ]]--
 		if entity.State == NpcState.STATE_IDLE then
 			mod:LoopingAnim(sprite, "Idle")
 
@@ -47,7 +48,13 @@ function mod:MrFredUpdate(entity)
 				entity.ProjectileCooldown = Settings.Cooldown
 
 				-- Decide attack
-				local attack = mod:Random(1, 5)
+				local attacks = {1, 2, 3, 4, 5,}
+				if data.lastAttack then
+					table.remove(attacks, data.lastAttack)
+				end
+
+				local attack = mod:RandomIndex(attacks)
+				data.lastAttack = attack
 
 				-- Jump
 				if attack == 1 then
@@ -74,9 +81,12 @@ function mod:MrFredUpdate(entity)
 				-- Summon / release Homunculus
 				elseif attack == 5 then
 					local homoCount = Isaac.CountEntities(nil, EntityType.ENTITY_HOMUNCULUS, 0, 0)
+
+					-- Release
 					if (homoCount > 0 and mod:Random(1) == 1) or homoCount >= Settings.MaxHomonculi then
 						entity.State = NpcState.STATE_ATTACK4
 						sprite:Play("Cord", true)
+					-- Summon
 					else
 						entity.State = NpcState.STATE_SUMMON
 						sprite:Play("SummonLeft", true)
@@ -88,25 +98,25 @@ function mod:MrFredUpdate(entity)
 			end
 
 
-		-- Leap to a different position
+
+		--[[ Leap to a different position ]]--
 		elseif entity.State == NpcState.STATE_JUMP then
 			-- Get position
 			if sprite:GetFrame() == 6 then
 				local pos = target.Position
+				local vector = mod:GetTargetVector(entity, target)
 
-				-- Confused
-				if mod:IsConfused(entity) then
-					pos = entity.Position + mod:RandomVector(mod:Random(120, 200))
-				-- Feared
-				elseif mod:IsFeared(entity) then
-					pos = entity.Position + (entity.Position - target.Position):Resized(mod:Random(120, 200))
+				-- Confused / feared
+				if mod:IsConfused(entity) or mod:IsFeared(entity) then
+					pos = entity.Position + vector:Resized(mod:Random(100, 200))
 
 				-- Limit jump distance
 				elseif target.Position:Distance(entity.Position) > 200 then
-					pos = entity.Position + (target.Position - entity.Position):Resized(200)
+					pos = entity.Position + vector:Resized(200)
 				end
 
 				entity.V1 = room:FindFreePickupSpawnPosition(pos, 0, false, false)
+
 				if (entity.V1 - entity.Position):GetAngleDegrees() < 0 then
 					sprite:SetAnimation("LeapUp", false)
 				end
@@ -147,7 +157,8 @@ function mod:MrFredUpdate(entity)
 				entity.Position = room:FindFreePickupSpawnPosition(entity.Position, 0, false, false)
 			end
 
-		-- Popup
+
+		--[[ Popup ]]--
 		elseif entity.State == NpcState.STATE_APPEAR_CUSTOM then
 			if sprite:IsEventTriggered("Burrow") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
@@ -169,14 +180,15 @@ function mod:MrFredUpdate(entity)
 			end
 
 
-		-- Harlequin baby attack
+
+		--[[ Harlequin baby attack ]]--
 		elseif entity.State == NpcState.STATE_ATTACK then
 			if sprite:IsEventTriggered("Shoot") then
 				local params = ProjectileParams()
 				params.Scale = 2.5
 				params.FallingAccelModifier = -0.175
 				for i = -1, 1, 2 do
-					local angle = (target.Position - entity.Position):GetAngleDegrees() + i * 30
+					local angle = (target.Position - entity.Position):GetAngleDegrees() + (i * 25)
 					mod:FireProjectiles(entity, entity.Position, Vector.FromAngle(angle):Resized(13), 0, params):GetData().mrFredTrail = true
 				end
 
@@ -191,7 +203,8 @@ function mod:MrFredUpdate(entity)
 			end
 
 
-		-- Barf attack
+
+		--[[ Barf attack ]]--
 		elseif entity.State == NpcState.STATE_ATTACK2 then
 			if sprite:IsEventTriggered("Sound") then
 				mod:PlaySound(entity, SoundEffect.SOUND_ANGRY_GURGLE, 1.25, 0.95)
@@ -207,7 +220,7 @@ function mod:MrFredUpdate(entity)
 				local params = ProjectileParams()
 				params.BulletFlags = ProjectileFlags.EXPLODE
 				params.GridCollision = false
-				params.Scale = 1.75
+				params.Scale = 2
 				params.FallingAccelModifier = 1.5
 				params.FallingSpeedModifier = -40
 				mod:FireProjectiles(entity, entity.Position, (entity.TargetPosition - entity.Position):Resized(entity.Position:Distance(entity.TargetPosition) / 32), 0, params, Color.Default)
@@ -228,7 +241,8 @@ function mod:MrFredUpdate(entity)
 			end
 
 
-		-- Squirt attack
+
+		--[[ Squirt attack ]]--
 		elseif entity.State == NpcState.STATE_ATTACK3 then
 			-- Effects
 			if sprite:IsEventTriggered("Sound") then
@@ -262,7 +276,8 @@ function mod:MrFredUpdate(entity)
 			end
 
 
-		-- Summon
+
+		--[[ Summon ]]--
 		elseif entity.State == NpcState.STATE_SUMMON then
 			-- Get position
 			if sprite:GetFrame() == 6 then
@@ -284,7 +299,8 @@ function mod:MrFredUpdate(entity)
 				entity.State = NpcState.STATE_IDLE
 			end
 
-		-- Release a Homunculus
+
+		--[[ Release a Homunculus ]]--
 		elseif entity.State == NpcState.STATE_ATTACK4 then
 			if sprite:IsEventTriggered("Sound") then
 				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_ROAR_0)
@@ -307,6 +323,7 @@ function mod:MrFredUpdate(entity)
 			end
 
 
+
 		-- Delirium fix
 		elseif entity:GetData().wasDelirium then
 			entity.State = NpcState.STATE_IDLE
@@ -316,8 +333,8 @@ function mod:MrFredUpdate(entity)
 		if entity.FrameCount > 1 then
 			return true
 
+		-- Remove Freds from the arena
 		else
-			-- Remove Freds from the arena
 			for i, stuff in pairs(Isaac.FindByType(EntityType.ENTITY_FRED, -1, -1, false, false)) do
 				stuff:Remove()
 			end
@@ -351,19 +368,16 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.MrFredRender, EntityType.EN
 
 --[[ Trailing projectile ]]--
 function mod:TrailingProjectileUpdate(projectile)
-	if projectile.SpawnerType == EntityType.ENTITY_MR_FRED and projectile:GetData().mrFredTrail and projectile.SpawnerEntity and projectile.FrameCount % 3 == 0 then
+	if projectile.SpawnerType == EntityType.ENTITY_MR_FRED and projectile:GetData().mrFredTrail and projectile.SpawnerEntity
+	and projectile:IsFrame(4, 0) then
 		local params = ProjectileParams()
-		params.BulletFlags = (ProjectileFlags.DECELERATE | ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT)
-		params.ChangeFlags = ProjectileFlags.ANTI_GRAVITY
-		params.ChangeTimeout = 150
-
+		params.BulletFlags = ProjectileFlags.DECELERATE
 		params.Acceleration = 1.1
-		params.FallingSpeedModifier = 1
-		params.FallingAccelModifier = -0.2
-		params.Scale = 1 + (mod:Random(25, 40) * 0.01)
+		params.Scale = 1 + (mod:Random(20, 40) / 100)
 
-		projectile.SpawnerEntity:ToNPC():FireProjectiles(projectile.Position - projectile.Velocity:Normalized(), Vector.FromAngle(projectile.Velocity:GetAngleDegrees() + mod:Random(-10, 10)):Resized(3), 0, params)
-		mod:QuickCreep(EffectVariant.CREEP_RED, projectile.SpawnerEntity, projectile.Position, 1.25, 120)
+		local spawner = projectile.SpawnerEntity:ToNPC()
+		local angle = projectile.Velocity:GetAngleDegrees() + mod:Random(-10, 10)
+		mod:FireProjectiles(spawner, projectile.Position, Vector.FromAngle(angle):Resized(3), 0, params):GetData().RFLingering = 180
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.TrailingProjectileUpdate, ProjectileVariant.PROJECTILE_NORMAL)

@@ -51,9 +51,7 @@ mod.ItLivesSpawns = {
 function mod:ItLivesInit(entity)
 	-- Fetus
 	if entity.Variant == 1 then
-		entity.MaxHitPoints = Settings.NewHealth
-		entity.HitPoints = entity.MaxHitPoints
-
+		mod:ChangeMaxHealth(entity, Settings.NewHealth)
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 		entity.TargetPosition = entity.Position
@@ -904,7 +902,7 @@ function mod:ItLivesUpdate(entity)
 			--[[ Summon ]]--
 			elseif entity.State == NpcState.STATE_SUMMON then
 				if sprite:IsEventTriggered("Spawn") then
-					local spawnGroup = mod.ItLivesSpawns.Fetus[data.phase]
+					local spawnGroup = mod.ItLivesSpawns.Fetus[ math.min(data.phase, 3) ]
 
 					local selectedSpawn = mod:RandomIndex(spawnGroup)
 					local type    = selectedSpawn[1]
@@ -1031,7 +1029,7 @@ function mod:ItLivesUpdate(entity)
 
 							-- Bursting cell
 							if entity.I1 % 3 == 0 and i == burstChoice then
-								shot:GetData().splitTimer = mod:Random(20, 60)
+								shot:GetData().splitTimer = mod:Random(30, 60)
 								shot:GetSprite():Play("IdleBurst", true)
 
 							-- Regular cell
@@ -1153,7 +1151,7 @@ function mod:ItLivesUpdate(entity)
 				--[[ Summon ]]--
 				elseif entity.State == NpcState.STATE_SUMMON then
 					if sprite:IsEventTriggered("Shoot") then
-						local spawnGroup = mod.ItLivesSpawns.Guts[fetus:GetData().phase]
+						local spawnGroup = mod.ItLivesSpawns.Guts[ math.min(fetus:GetData().phase, 3)]
 						local selectedSpawn = mod:RandomIndex(spawnGroup)
 
 						for i = -1, 1, 2 do

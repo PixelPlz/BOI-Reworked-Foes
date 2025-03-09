@@ -1,7 +1,7 @@
 local mod = ReworkedFoes
 
 -- For backwards compatibility
-BetterMonsters = mod
+BetterMonsters = true
 
 
 
@@ -168,76 +168,6 @@ function mod:LoadCompatibility()
 		HPBars.BossIgnoreList["904.0"] = function(entity)
 			return entity:ToNPC().I2 == 100
 		end
-	end
-
-
-
-	--[[ Enemy Bullet Trails ]]--
-	if BulletTrails then
-		local c = mod.Colors.Sketch
-		local sketch = Color(c.RO,c.GO,c.BO, 1)
-
-		-- Trail colors from the mod
-		local red = Color(0.9,0.05,0.05, 1)
-		local green = Color(0.05,0.9,0.05, 1)
-
-
-		-- C.H.A.D. Sucker projectile
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_CHUB, 1, red)
-
-		-- Ultra Pride
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_SLOTH, 2, green)
-
-		-- Ultra Pride Sketches
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_CLOTTY, mod.Entities.ClottySketch, sketch) -- Clotty Sketch
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_MAW, mod.Entities.MawSketch, sketch) -- Maw Sketch
-
-		-- Champion Husk Sucker projectile
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_DUKE, 1, red)
-
-		-- Champion Bloat
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_PEEP, 1,
-			function(entity)
-				if entity and entity.SubType == 1 then
-					return green
-				end
-			end
-		)
-
-		-- Triachnid egg sack projectile
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_DADDYLONGLEGS, 1, mod.Colors.WhiteShot)
-
-		-- Hush baby fly attack
-		BulletTrails:BlacklistEntity(true, EntityType.ENTITY_HUSH_FLY, 0)
-
-		-- Non-champion Mega Maw fires
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_MEGA_MAW, 0,
-			function(entity)
-				if entity and entity.SubType == 0 then
-					return mod.Colors.RagManPurple
-				end
-			end
-		)
-
-		-- Cage
-		BulletTrails:AddEntityTrailColor(EntityType.ENTITY_CAGE, 0,
-			function(entity)
-				if entity then
-					-- Green champion
-					if entity.SubType == 1 then
-						return mod.Colors.CageGreenShot
-
-					-- Pink champion
-					elseif entity.SubType == 2 then
-						return mod.Colors.CagePinkShot
-
-					-- Non-champion
-					else
-						return Color(0.3,0.7,0.6, 1)
-					end
-				end
-			end
-		)
 	end
 
 

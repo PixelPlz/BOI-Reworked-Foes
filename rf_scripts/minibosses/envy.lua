@@ -18,7 +18,7 @@ local Settings = {
 
 
 function mod:EnvyUpdate(entity)
-	if mod:CheckValidMiniboss(entity) and mod.Config.EnvyRework == true then
+	if mod:CheckValidMiniboss() and mod.Config.EnvyRework then
 		if entity.Variant >= 10 and entity.FrameCount == 0 then
 			entity.I2 = 1
 			entity.ProjectileCooldown = Settings.InitialTimer
@@ -36,7 +36,7 @@ function mod:EnvyUpdate(entity)
 			entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 		end
 
-		-- Disable AI when bouncing
+		-- Disable the default AI when bouncing
 		if not entity:HasMortalDamage() and entity.FrameCount ~= 0 and entity.I2 == 1 then
 			return true
 		end
@@ -45,7 +45,8 @@ end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.EnvyUpdate, EntityType.ENTITY_ENVY)
 
 function mod:EnvyCollision(entity, target, bool)
-	if mod:CheckValidMiniboss(entity) and mod.Config.EnvyRework == true and target.Type == EntityType.ENTITY_ENVY and (entity.I1 == 1 or entity.Variant <= 1) then
+	if mod:CheckValidMiniboss() and mod.Config.EnvyRework
+	and target.Type == EntityType.ENTITY_ENVY and (entity.I1 == 1 or entity.Variant <= 1) then
 		-- Get bounce strength
 		local eSize = math.floor(entity.Variant / 10)
 		local tSize = math.floor(target.Variant / 10)
@@ -86,8 +87,8 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.EnvyCollision, EntityType
 
 -- Pink champion projectiles
 function mod:EnvyDeath(entity)
-	if mod:CheckValidMiniboss(entity) and mod:IsRFChampion(entity, "Envy")
-	and (entity.Variant == 0 or (mod.Config.EnvyRework == false and (entity.Variant == 10 or entity.Variant == 20))) then
+	if mod:CheckValidMiniboss() and mod:IsRFChampion(entity, "Envy")
+	and (entity.Variant == 0 or (not mod.Config.EnvyRework and (entity.Variant == 10 or entity.Variant == 20))) then
 		local amount = 8 - (entity.Variant / 10) * 2
 
 		local params = ProjectileParams()

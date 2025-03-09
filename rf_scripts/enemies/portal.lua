@@ -3,7 +3,8 @@ local mod = ReworkedFoes
 local Settings = {
 	Cooldown = 90,
 	MaxSpawns = 3,
-	ShotSpeed = 10
+	SpawnHPMulti = 2,
+	ShotSpeed = 11,
 }
 
 -- Example on how to add custom spawns: (variant and subtype can be left out to default it to 0)
@@ -71,7 +72,7 @@ mod.PortalSpawns = { -- Corresponds to the IDs in stages.xml
 		{EntityType.ENTITY_ROUND_WORM, 1},
 	},
 
-	{ -- Depth
+	{ -- Depths
 		{EntityType.ENTITY_BOIL},
 		{EntityType.ENTITY_BRAIN},
 		{EntityType.ENTITY_LEAPER},
@@ -91,7 +92,7 @@ mod.PortalSpawns = { -- Corresponds to the IDs in stages.xml
 		{EntityType.ENTITY_SWARMER},
 		{EntityType.ENTITY_MASK},
 	},
-	{ -- Dank Depth
+	{ -- Dank Depths
 		{EntityType.ENTITY_CHARGER, 2},
 		{EntityType.ENTITY_GLOBIN, 2},
 		{EntityType.ENTITY_LEAPER, 1},
@@ -265,8 +266,10 @@ mod.PortalSpawns = { -- Corresponds to the IDs in stages.xml
 function mod:PortalInit(entity)
 	if entity.Variant == 0 or entity.Variant == 40 then
 		entity.Variant = 40
-		entity.ProjectileCooldown = Settings.Cooldown / 2
+		entity.PositionOffset = Vector(0, -16)
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+
+		entity.ProjectileCooldown = Settings.Cooldown / 2
 
 		-- Bestiary fix
 		entity:GetSprite():ReplaceSpritesheet(6, "")
@@ -278,9 +281,10 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PortalInit, EntityType.ENTITY
 function mod:PortalUpdate(entity)
 	if entity.Variant == 40 then
 		local sprite = entity:GetSprite()
+		mod:LoopingAnim(sprite, "Idle")
 
 		entity.Velocity = Vector.Zero
-		mod:LoopingAnim(sprite, "Idle")
+		mod:IgnoreKnockoutDrops(entity)
 
 
 		-- Particles
@@ -288,7 +292,7 @@ function mod:PortalUpdate(entity)
 			for i = 1, math.random(1, 2) do
 				local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, entity.Position, Vector.Zero, nil):ToEffect()
 				trail.DepthOffset = entity.DepthOffset - 10
-				trail.SpriteOffset = Vector(0, -13)
+				trail.PositionOffset = Vector(0, -16)
 
 				-- Scale
 				local scaler = math.random(40, 50) / 100
@@ -324,7 +328,7 @@ function mod:PortalUpdate(entity)
 
 		-- Spawn / Shoot
 		elseif entity.State == NpcState.STATE_SUMMON then
-			if sprite:GetOverlayFrame() == 10 then
+			if sprite:GetOverlayFrame() == 8 then
 				mod:PlaySound(nil, SoundEffect.SOUND_PORTAL_SPAWN, 1.1)
 				local stage = Game():GetRoom():GetRoomConfigStage()
 
@@ -333,11 +337,11 @@ function mod:PortalUpdate(entity)
 				and ((stage > 0 and stage < 18) or (stage > 26 and stage < 35)) then -- Valid stage type
 					local selectedSpawn = mod:RandomIndex(mod.PortalSpawns[stage])
 
-					local ent = Isaac.Spawn(selectedSpawn[1], selectedSpawn[2] or 0, selectedSpawn[3] or 0, entity.Position + Vector(0, 10), Vector.Zero, entity)
-					ent:SetColor(mod.Colors.PortalSpawn, 15, 1, true, false)
-					ent.MaxHitPoints = ent.MaxHitPoints * 2
-					ent.HitPoints = ent.MaxHitPoints
-					ent:Update()
+					local vector = Vector.FromAngle(mod:Random(60, 120)):Resized(3)
+					local spawn = Isaac.Spawn(selectedSpawn[1], selectedSpawn[2] or 0, selectedSpawn[3] or 0, entity.Position + Vector(0, entity.Size), vector, entity)
+					mod:ChangeMaxHealth(spawn, spawn.MaxHitPoints * Settings.SpawnHPMulti)
+					spawn:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+					spawn:SetColor(mod.Colors.PortalSpawn, 15, 1, true, false)
 
 				-- Shoot
 				else
@@ -355,7 +359,7 @@ function mod:PortalUpdate(entity)
 					end
 					params.TargetPosition = entity.Position
 
-					mod:FireProjectiles(entity, entity.Position, Vector(Settings.ShotSpeed, 0), 7, params, mod.Colors.PortalShotTrail)
+					mod:FireProjectiles(entity, entity.Position, Vector(Settings.ShotSpeed, 4), 9, params, mod.Colors.PortalShotTrail)
 				end
 
 			elseif sprite:IsOverlayFinished("FaceSpawn") then

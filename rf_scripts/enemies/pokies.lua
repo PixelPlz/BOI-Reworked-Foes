@@ -21,18 +21,16 @@ function mod:PokyInit(entity)
 
 		local gridIndex = Game():GetRoom():GetGridIndex(entity.Position)
 		entity.TargetPosition = Game():GetRoom():GetGridPosition(gridIndex)
-
 		entity.ProjectileCooldown = 20
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PokyInit, EntityType.ENTITY_POKY)
 
+-- Deactivated
 function mod:PokyUpdate(entity)
-	-- Deactivated
 	if entity.State == NpcState.STATE_SPECIAL then
 		if entity.StateFrame >= 30 then
 			entity:Kill()
-
 		else
 			entity.StateFrame = entity.StateFrame + 1
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
@@ -192,8 +190,8 @@ function mod:WallHuggerInit(entity)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.WallHuggerInit, EntityType.ENTITY_WALL_HUGGER)
 
+-- Deactivated
 function mod:WallHuggerUpdate(entity)
-	-- Deactivated
 	if entity:GetSprite():GetAnimation() == "No-Spikes" and entity.FrameCount > 30 then
 		if entity.StateFrame >= 30 then
 			entity:Kill()
@@ -215,8 +213,8 @@ function mod:GrudgeInit(entity)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GrudgeInit, EntityType.ENTITY_GRUDGE)
 
+-- Deactivated
 function mod:GrudgeUpdate(entity)
-	-- Deactivated
 	if entity.Variant == 0 and entity.State == NpcState.STATE_SPECIAL then
 		if entity.StateFrame >= 30 then
 			entity:Kill()

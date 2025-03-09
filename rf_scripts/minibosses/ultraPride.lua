@@ -8,9 +8,11 @@ local Settings = {
 	MaxSpawns = 2, -- +1 without Florian
 
 	-- Florian
-	FlorianHealthMulti = 2,
+	FlorianBaseHP = 30,
+	FlorianStageHP = 12,
+
 	FlorianMaxDistance = 80,
-	FlorianSpeed = 4, -- x0.5 while following Ed
+	FlorianSpeed = 4, -- x0.5 if Ed is dead
 	MinSketchLifeTime = 90,
 	TeleportCooldown = {60, 240},
 }
@@ -38,7 +40,7 @@ function mod:EdmundUpdate(entity)
 		local target = entity:GetPlayerTarget()
 
 
-		-- Chillin'
+		--[[ Chillin' ]]--
 		if entity.State == NpcState.STATE_MOVE then
 			mod:MoveRandomGridAligned(entity, Settings.EdmundSpeed)
 			entity:AnimWalkFrame("WalkHori", "WalkVert", 0.1)
@@ -78,7 +80,8 @@ function mod:EdmundUpdate(entity)
 			end
 
 
-		-- Shoot
+
+		--[[ Shoot ]]--
 		elseif entity.State == NpcState.STATE_ATTACK then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
@@ -140,7 +143,8 @@ function mod:EdmundUpdate(entity)
 			end
 
 
-		-- Summon
+
+		--[[ Summon ]]--
 		elseif entity.State == NpcState.STATE_SUMMON then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
@@ -191,8 +195,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.EdmundCollision, EntityTy
 --[[ Florian ]]--
 function mod:FlorianInit(entity)
 	if entity.Variant == 2 then
-		entity.MaxHitPoints = entity.MaxHitPoints * Settings.FlorianHealthMulti
-		entity.HitPoints = entity.MaxHitPoints
+		mod:ChangeMaxHealth(entity, Settings.FlorianBaseHP, Settings.FlorianStageHP)
 		entity.ProjectileCooldown = mod:Random(Settings.Cooldown[1], Settings.Cooldown[2])
 	end
 end
@@ -222,7 +225,8 @@ function mod:FlorianUpdate(entity)
 		end
 
 
-		-- Chillin'
+
+		--[[ Chillin' ]]--
 		if entity.State == NpcState.STATE_MOVE then
 			-- Follow Ed if he's alive
 			if entity.Parent then
@@ -282,7 +286,8 @@ function mod:FlorianUpdate(entity)
 			end
 
 
-		-- Shoot
+
+		--[[ Shoot ]]--
 		elseif entity.State == NpcState.STATE_ATTACK then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
@@ -313,7 +318,8 @@ function mod:FlorianUpdate(entity)
 			end
 
 
-		-- Transform a sketch
+
+		--[[ Transform a sketch ]]--
 		elseif entity.State == NpcState.STATE_SUMMON then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
@@ -346,11 +352,7 @@ function mod:FlorianUpdate(entity)
 				elseif sprite:IsEventTriggered("Shoot") then
 					local pos = data.chosenSketch.Position
 
-					-- Create laser
-					local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.THIN_RED, entity.Position, (pos - entity.Position):GetAngleDegrees(), 3, Vector(0, entity.SpriteScale.Y * -30), entity), entity}
-					local laser = laser_ent_pair.laser
-
-					-- Set up the parameters
+					local laser = EntityLaser.ShootAngle(LaserVariant.THIN_RED, entity.Position, (pos - entity.Position):GetAngleDegrees(), 3, Vector(0, entity.SpriteScale.Y * -30), entity)
 					laser:SetMaxDistance(entity.Position:Distance(pos))
 					laser.Mass = 0
 					laser.DepthOffset = entity.DepthOffset - 10
@@ -368,6 +370,8 @@ function mod:FlorianUpdate(entity)
 			end
 
 
+
+		--[[ Teleporting ]]--
 		-- Teleport away
 		elseif entity.State == NpcState.STATE_JUMP then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -383,20 +387,22 @@ function mod:FlorianUpdate(entity)
 				entity.State = NpcState.STATE_IDLE
 			end
 
+
 		-- Find a good spot to teleport to
 		elseif entity.State == NpcState.STATE_IDLE then
-			entity.TargetPosition = target.Position + mod:RandomVector(mod:Random(160, 280))
+			local distance = mod:Random(160, 280)
+			entity.TargetPosition = target.Position + mod:RandomVector(distance)
 			entity.TargetPosition = Game():GetRoom():GetClampedPosition(entity.TargetPosition, 20)
 
-			-- Check if this spot far enough away from any players
+			-- Check if this spot is far enough away from any players
 			local nearestPlayerPos = Game():GetNearestPlayer(entity.TargetPosition).Position
 			local minDistance = 160
 
-			local shape = Game():GetRoom():GetRoomShape()
-			if shape == RoomShape.ROOMSHAPE_IH or shape == RoomShape.ROOMSHAPE_IV then
+			if mod:GetRoomShapeFlags() & mod.RoomShapeFlags.Tiny > 0 then
 				minDistance = 100
 			end
 
+			-- Teleport back if it is far enough
 			if entity.TargetPosition:Distance(nearestPlayerPos) >= minDistance then
 				entity.Position = entity.TargetPosition
 				entity.State = NpcState.STATE_STOMP
@@ -404,13 +410,14 @@ function mod:FlorianUpdate(entity)
 				entity.Visible = true
 				teleportEffect()
 
-				-- Gain an eternal fly if he doesn't have one
-				if entity.Child == nil then
+				-- Gain an Eternal Fly if he doesn't have one
+				if not entity.Child then
 					local fly = Isaac.Spawn(EntityType.ENTITY_ETERNALFLY, 0, 0, entity.Position, Vector.Zero, entity)
 					fly.Parent = entity
 					entity.Child = fly
 				end
 			end
+
 
 		-- Teleport back
 		elseif entity.State == NpcState.STATE_STOMP then
@@ -433,7 +440,7 @@ function mod:FlorianUpdate(entity)
 		-- Find Eddy boy
 		elseif entity.Parent == nil then
 			for i, ed in pairs(Isaac.FindByType(EntityType.ENTITY_SLOTH, 2, -1, false, true)) do
-				if ed.Child == nil then
+				if not ed.Child then
 					entity.Parent = ed
 					ed.Child = entity
 					break
@@ -456,14 +463,14 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.FlorianCollision, EntityT
 -- Transform sketches
 function mod:FlorianLaser(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.Type == EntityType.ENTITY_BABY and damageSource.Variant == 2 and damageFlags & DamageFlag.DAMAGE_LASER > 0 then
-		if entity.Index == damageSource.Entity:GetData().chosenSketch.Index then
+		if damageSource.Entity and damageSource.Entity:GetData().chosenSketch
+		and entity.Index == damageSource.Entity:GetData().chosenSketch.Index then -- Only transform the one chosen by Florian
 			local hp = entity.MaxHitPoints
 			entity:Remove()
 
 			-- Change entity
 			local new = Isaac.Spawn(entity.Type, 0, entity.SubType, entity.Position, Vector.Zero, entity.SpawnerEntity)
-			new.MaxHitPoints = hp
-			new.HitPoints = new.MaxHitPoints
+			mod:ChangeMaxHealth(new, hp)
 			new:SetColor(mod.Colors.PortalSpawn, 15, 1, true, false)
 
 			-- Effects

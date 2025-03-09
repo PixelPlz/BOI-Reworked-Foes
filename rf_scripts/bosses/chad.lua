@@ -25,7 +25,6 @@ function mod:ChadInit(entity)
 	if entity.Variant == 1 then
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 		entity.ProjectileCooldown = Settings.Cooldown / 2
-
 		mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, entity.Scale + 2, Settings.CreepTime)
 	end
 end

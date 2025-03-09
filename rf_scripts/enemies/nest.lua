@@ -2,22 +2,35 @@ local mod = ReworkedFoes
 
 
 
-function mod:NestInit(entity)
-	if entity.Variant == 0 and entity.SubType == 0
-	and entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) == false then -- Not friendly
-		local stage = Game():GetRoom():GetRoomConfigStage()
+-- Replace Mulligan flies with spiders
+function mod:SpiderMulliganSpawns(entity)
+	mod:PlaySound(nil, SoundEffect.SOUND_BOIL_HATCH, 0.75)
 
-		-- Only replace Nests on chaper 1 floors and if they are not friendly
-		if mod.Config.NoChapter1Nests == true
-		and ((stage > 0 and stage < 4) or (stage > 26 and stage < 29)) then -- Chapter 1
-			entity:Remove()
-			Isaac.Spawn(EntityType.ENTITY_MULLIGAN, mod.Entities.Mullicocoon, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
-		else
-			entity:Morph(EntityType.ENTITY_HIVE, 40, 0, entity:GetChampionColorIdx())
+	-- Replace flies with spiders
+	for i = 1, 3 do
+		-- Flies to Swarm Spiders
+		local checkType = EntityType.ENTITY_FLY
+		local spawnType = EntityType.ENTITY_SWARM_SPIDER
+
+		-- Attack Flies to Spiders
+		if i == 2 then
+			checkType = EntityType.ENTITY_ATTACKFLY
+			spawnType = EntityType.ENTITY_SPIDER
+
+		-- Pooters to Big Spiders
+		elseif i == 3 then
+			checkType = EntityType.ENTITY_POOTER
+			spawnType = EntityType.ENTITY_BIGSPIDER
+		end
+
+		for j, spawn in pairs(Isaac.FindByType(checkType, -1, -1, false, false)) do
+			if spawn.SpawnerType == entity.Type and spawn.SpawnerVariant == entity.Variant then
+				spawn:Remove()
+				Isaac.Spawn(spawnType, 0, 0, entity.Position, Vector.Zero, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+			end
 		end
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.NestInit, EntityType.ENTITY_NEST)
 
 
 
@@ -26,9 +39,13 @@ function mod:MullicocoonInit(entity)
 	if entity.Variant == mod.Entities.Mullicocoon then
 		local offset = mod:Random(359)
 
-		-- Spawn follower spiders
+		-- Spawn the follower spiders
 		for i = 1, 3 do
-			local spider = Isaac.Spawn(EntityType.ENTITY_SPIDER, 0, 0, entity.Position + Vector.FromAngle(offset + (i * 120)):Resized(mod:Random(10, 30)), Vector.Zero, entity)
+			local angle = offset + (i * 120)
+			local distance = mod:Random(10, 30)
+			local pos = entity.Position + Vector.FromAngle(angle):Resized(distance)
+
+			local spider = Isaac.Spawn(EntityType.ENTITY_SPIDER, 0, 0, pos, Vector.Zero, entity)
 			spider:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 			spider.Target = entity
 		end
@@ -52,32 +69,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.MullicocoonCollision, Ent
 
 function mod:MullicocoonDeath(entity)
 	if entity.Variant == mod.Entities.Mullicocoon then
-		mod:PlaySound(nil, SoundEffect.SOUND_BOIL_HATCH, 0.8)
-
-		-- Replace flies with spiders
-		for i = 1, 3 do
-			-- Flies to Swarm Spiders
-			local checkType = EntityType.ENTITY_FLY
-			local spawnType = EntityType.ENTITY_SWARM_SPIDER
-
-			-- Attack Flies to Spiders
-			if i == 2 then
-				checkType = EntityType.ENTITY_ATTACKFLY
-				spawnType = EntityType.ENTITY_SPIDER
-
-			-- Pooters to Big Spiders
-			elseif i == 3 then
-				checkType = EntityType.ENTITY_POOTER
-				spawnType = EntityType.ENTITY_BIGSPIDER
-			end
-
-			for j, spawn in pairs(Isaac.FindByType(checkType, -1, -1, false, false)) do
-				if spawn.SpawnerType == EntityType.ENTITY_MULLIGAN and spawn.SpawnerVariant == mod.Entities.Mullicocoon then
-					spawn:Remove()
-					Isaac.Spawn(spawnType, 0, 0, entity.Position, Vector.Zero, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
-				end
-			end
-		end
+		mod:SpiderMulliganSpawns(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.MullicocoonDeath, EntityType.ENTITY_MULLIGAN)
@@ -85,8 +77,27 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.MullicocoonDeath, EntityType
 
 
 --[[ Nest ]]--
+function mod:NestInit(entity)
+	if mod.Config.NoChapter1Nests
+	and entity.Variant == 0 and entity.SubType == 0 and not entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+		local stage = Game():GetRoom():GetRoomConfigStage()
+
+		-- Replace Nests in chapter 1 with Mullicocoons
+		if (stage >= 1 and stage <= 3) -- Basement / Cellar / Burning Basement
+		or stage == 27 or stage == 28 then -- Downpour / Dross
+			entity:Remove()
+			Isaac.Spawn(EntityType.ENTITY_MULLIGAN, mod.Entities.Mullicocoon, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
+
+		-- Replace them with the reworked version in other chapters
+		else
+			entity:Morph(EntityType.ENTITY_HIVE, mod.Entities.Nest, 0, entity:GetChampionColorIdx())
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.NestInit, EntityType.ENTITY_NEST)
+
 function mod:NestUpdate(entity)
-	if entity.Variant == 40 and entity.State == NpcState.STATE_ATTACK then
+	if entity.Variant == mod.Entities.Nest and entity.State == NpcState.STATE_ATTACK then
 		local sprite = entity:GetSprite()
 
 		if sprite:GetOverlayFrame() == 4 or sprite:GetOverlayFrame() == 5 then
@@ -96,6 +107,7 @@ function mod:NestUpdate(entity)
 					fly:Remove()
 				end
 			end
+
 			-- Spawn a spider
 			if sprite:GetOverlayFrame() == 5 then
 				local pos = entity.Position + (entity:GetPlayerTarget().Position - entity.Position):Resized(mod:Random(40, 80))
@@ -107,33 +119,8 @@ end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.NestUpdate, EntityType.ENTITY_HIVE)
 
 function mod:NestDeath(entity)
-	if entity.Variant == 40 then
-		mod:PlaySound(nil, SoundEffect.SOUND_BOIL_HATCH, 0.8)
-
-		-- Replace flies with spiders
-		for i = 1, 3 do
-			-- Flies to Swarm Spiders
-			local checkType = EntityType.ENTITY_FLY
-			local spawnType = EntityType.ENTITY_SWARM_SPIDER
-
-			-- Attack Flies to Spiders
-			if i == 2 then
-				checkType = EntityType.ENTITY_ATTACKFLY
-				spawnType = EntityType.ENTITY_SPIDER
-
-			-- Pooters to Big Spiders
-			elseif i == 3 then
-				checkType = EntityType.ENTITY_POOTER
-				spawnType = EntityType.ENTITY_BIGSPIDER
-			end
-
-			for j, spawn in pairs(Isaac.FindByType(checkType, -1, -1, false, false)) do
-				if spawn.SpawnerType == EntityType.ENTITY_HIVE and spawn.SpawnerVariant == 40 then
-					spawn:Remove()
-					Isaac.Spawn(spawnType, 0, 0, entity.Position, Vector.Zero, entity):ClearEntityFlags(EntityFlag.FLAG_APPEAR)
-				end
-			end
-		end
+	if entity.Variant == mod.Entities.Nest then
+		mod:SpiderMulliganSpawns(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.NestDeath, EntityType.ENTITY_HIVE)

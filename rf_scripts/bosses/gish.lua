@@ -1,18 +1,19 @@
 local mod = ReworkedFoes
 
 local Settings = {
-	MoveSpeed = 5,
+	MoveSpeed = 5.25,
 	Cooldown = 60,
+	WallCooldown = 30,
 	MaxClots = 3,
 
 	-- Charge
-	ChargeSpeed = 15,
-	CreepTime = 60,
-	ChargeCooldown = 15,
+	ChargeSpeed = 20,
+	CreepTime = 90,
+	ChargeCooldown = 20,
 
 	-- Ceiling attack
-	CeilingSpeed = 6,
-	ShotDelay = 20,
+	CeilingSpeed = 6.5,
+	ShotDelay = 15,
 
 	-- Jumping on/off of walls
 	Gravity = 1,
@@ -212,20 +213,8 @@ function mod:GishUpdate(entity)
 				if room:CheckLine(entity.Position, target.Position, 1, 0, false, false) or entity.Pathfinder:HasPathToPos(target.Position) == false
 				or mod:IsConfused(entity) or mod:IsFeared(entity) then
 					entity.StateFrame = 2
+					entity.TargetPosition = mod:GetTargetVector(entity, target)
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-
-					-- Get direction
-					-- Random if confused
-					if mod:IsConfused(entity) then
-						entity.TargetPosition = mod:RandomVector()
-
-					-- Away from target if feared
-					elseif mod:IsFeared(entity) then
-						entity.TargetPosition = (entity.Position - Game():GetNearestPlayer(entity.Position).Position):Normalized()
-
-					else
-						entity.TargetPosition = (target.Position - entity.Position):Normalized()
-					end
 				end
 
 
@@ -267,7 +256,7 @@ function mod:GishUpdate(entity)
 
 					-- Gish scattered projectiles
 					else
-						params.Scale = 1.25
+						params.Scale = 1.5
 						entity:FireBossProjectiles(8, Vector.Zero, 2, params)
 						entity:FireProjectiles(entity.Position, Vector(9, 10), 9, params)
 					end
@@ -342,7 +331,7 @@ function mod:GishUpdate(entity)
 
 				if sprite:IsFinished() then
 					entity.StateFrame = 1
-					entity.I2 = Settings.ShotDelay / 2
+					entity.I2 = Settings.ShotDelay
 					data.bubblies = {}
 				end
 
@@ -689,6 +678,7 @@ function mod:GishUpdate(entity)
 
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_MOVE
+					entity.ProjectileCooldown = Settings.WallCooldown / 2
 				end
 			end
 
@@ -724,28 +714,19 @@ function mod:GishUpdate(entity)
 			-- Attack
 			if entity.ProjectileCooldown <= 0 then
 				entity.StateFrame = 0
-				entity.ProjectileCooldown = Settings.Cooldown
+				entity.ProjectileCooldown = Settings.WallCooldown
 
 				-- Jump off the wall after 3 attacks
 				if entity.I1 >= 3 then
 					entity.State = NpcState.STATE_STOMP
 					sprite:Play("JumpFromWall", true)
 
-				-- Jump to the other side
-				elseif ( Vector(entity.Position.X, 0):Distance(Vector(target.Position.X, 0)) < 30 and mod:Random(2) == 0 ) -- Target is close horizontally
-				or Vector(0, entity.Position.Y):Distance(Vector(0, target.Position.Y)) > 170 -- Target is on the other side of the room
-				or (sprite.FlipY == false and target.Position.Y > entity.Position.Y) or (sprite.FlipY == true and target.Position.Y < entity.Position.Y) then -- For L rooms
+				else
 					entity.State = NpcState.STATE_ATTACK3
 					sprite:Play("JumpAcrossStart", true)
-
-				-- Shoot
-				else
-					entity.State = NpcState.STATE_ATTACK4
-					sprite:Play("WallShoot", true)
 				end
 
 				entity.I1 = entity.I1 + 1
-
 			else
 				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 			end
@@ -768,7 +749,7 @@ function mod:GishUpdate(entity)
 					-- Get direction
 					local bool = entity.Position.Y <= room:GetCenterPos().Y
 					entity.TargetPosition = Vector(0, mod:GetSign(bool))
-					entity.Velocity = entity.TargetPosition:Resized(Settings.JumpSpeed / 3)
+					entity.Velocity = entity.TargetPosition:Resized(Settings.JumpSpeed)
 
 					-- Effects
 					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS)
@@ -824,9 +805,8 @@ function mod:GishUpdate(entity)
 					if not mod:IsRFChampion(entity, "Gish") then
 						local params = ProjectileParams()
 						params.Color = data.effectColor
-						params.Scale = 1.25
-						params.CircleAngle = 0
-						entity:FireProjectiles(entity.V1, Vector(10, 12), 9, params)
+						params.Scale = 1.5
+						entity:FireProjectiles(entity.V1, Vector(12, 12), 9, params)
 					end
 
 					-- Effects
@@ -850,40 +830,6 @@ function mod:GishUpdate(entity)
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_MOVE
 				end
-			end
-
-
-
-		--[[ Shoot on the wall ]]--
-		elseif entity.State == NpcState.STATE_ATTACK4 then
-			keepOnWall()
-			entity.Velocity = mod:StopLerp(entity.Velocity)
-			mod:FlipTowardsTarget(entity, sprite)
-
-			if sprite:IsEventTriggered("Shoot") then
-				local params = ProjectileParams()
-				params.Color = data.effectColor
-
-				-- Hera
-				if mod:IsRFChampion(entity, "Gish") then
-					params.Spread = 1.2
-					params.Scale = 1.5
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(7.5), 5, params)
-
-				-- Gish
-				else
-					params.Scale = 1.25
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(9), 4, params)
-					params.Scale = 1.5
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(6), 2, params)
-				end
-
-				mod:ShootEffect(entity, 5, Vector(0, mod:GetSign(sprite.FlipY) * 20), data.effectColor, 1.5)
-				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8)
-			end
-
-			if sprite:IsFinished() then
-				entity.State = NpcState.STATE_MOVE
 			end
 
 
@@ -959,6 +905,7 @@ function mod:GishUpdate(entity)
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_IDLE
 					entity.StateFrame = 0
+					entity.ProjectileCooldown = Settings.Cooldown
 				end
 			end
 

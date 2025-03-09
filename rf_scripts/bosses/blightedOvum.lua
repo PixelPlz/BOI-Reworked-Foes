@@ -22,10 +22,11 @@ function mod:BlightedOvumInit(entity)
 	if entity.Variant == 2 or entity.Variant == 12 then
 		entity.ProjectileCooldown = mod:Random(Settings.Cooldown / 2, Settings.Cooldown * 2)
 
+		-- Contusion
 		if entity.Variant == 2 then
-			entity.MaxHitPoints = Settings.NewHP
-			entity.HitPoints = entity.MaxHitPoints
+			mod:ChangeMaxHealth(entity, Settings.NewHP)
 
+		-- Suture
 		elseif entity.Variant == 12 then
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
@@ -53,7 +54,7 @@ function mod:BlightedOvumUpdate(entity)
 				if entity.I1 == 1 then
 					speed = Settings.AngrySpeed
 
-					-- Effect
+					-- Effects
 					if entity:IsFrame(2, 0) then
 						for i = 1, 3 do
 							local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, entity.Position, Vector.Zero, entity):ToEffect()
@@ -66,7 +67,8 @@ function mod:BlightedOvumUpdate(entity)
 						end
 					end
 
-					-- Attack
+
+					-- Spit attack
 					if entity.State == NpcState.STATE_ATTACK2 then
 						anim = "Shoot"
 
@@ -85,9 +87,12 @@ function mod:BlightedOvumUpdate(entity)
 							end
 						end
 
+
 					-- Chase
 					else
 						anim = "HeadPossessed"
+
+						-- Ghostly chase
 						if entity.State == NpcState.STATE_ATTACK3 then
 							speed = Settings.ChaseSpeed
 							entity:SetColor(Color(1,1,1, 0.5, 0.25,0.25,0.25), 10, 1, true, false)
@@ -114,8 +119,9 @@ function mod:BlightedOvumUpdate(entity)
 				mod:LoopingOverlay(sprite, anim)
 
 
-				-- Cooldown
+				-- Timers
 				if entity.ProjectileCooldown <= 0 then
+					-- Attack cooldown
 					if entity.State == NpcState.STATE_MOVE then
 						-- 2nd phase
 						if entity.I1 == 1 then
@@ -135,8 +141,9 @@ function mod:BlightedOvumUpdate(entity)
 							mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_YELL_B, 0.8)
 						end
 
-					-- Chase
-					elseif entity.State == NpcState.STATE_ATTACK or (entity.State == NpcState.STATE_ATTACK3 and room:GetGridCollisionAtPos(entity.Position) == GridCollisionClass.COLLISION_NONE) then
+					-- Chase timer
+					elseif entity.State == NpcState.STATE_ATTACK
+					or (entity.State == NpcState.STATE_ATTACK3 and room:GetGridCollisionAtPos(entity.Position) == GridCollisionClass.COLLISION_NONE) then
 						if entity.State == NpcState.STATE_ATTACK3 then
 							entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 							mod:PlaySound(entity, SoundEffect.SOUND_BEAST_GHOST_DASH, 0.75, 0.9)
@@ -151,7 +158,7 @@ function mod:BlightedOvumUpdate(entity)
 				end
 
 
-				-- Transition to 2nd phase
+				-- Transition to the 2nd phase
 				if entity.I1 == 0 and entity.HitPoints <= (entity.MaxHitPoints / 2) then
 					if entity:GetData().wasDelirium then
 						entity.I1 = 1
@@ -168,7 +175,7 @@ function mod:BlightedOvumUpdate(entity)
 				end
 
 
-			-- Transition
+			-- Transitioning
 			elseif entity.State == NpcState.STATE_SPECIAL then
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 				entity:AnimWalkFrame("WalkHori", "WalkVert", 0.1)
@@ -212,7 +219,7 @@ function mod:BlightedOvumUpdate(entity)
 
 
 			if entity.State == NpcState.STATE_MOVE or entity.State == NpcState.STATE_ATTACK then
-				-- Haunt parent
+				-- Haunt Contusion when entering the 2nd phase
 				if entity.Parent:ToNPC().State == NpcState.STATE_IDLE then
 					entity.State = NpcState.STATE_SPECIAL
 					sprite:Play("Haunt", true)
@@ -222,10 +229,11 @@ function mod:BlightedOvumUpdate(entity)
 				-- Orbit parent
 				mod:OrbitParent(entity, entity.Parent, 3.5, 30)
 
-				-- Face towards the player
+				-- Face towards the target
 				mod:FlipTowardsTarget(entity, sprite)
 
 
+				-- Idle
 				if entity.State == NpcState.STATE_MOVE then
 					mod:LoopingAnim(sprite, "Walk01")
 
@@ -239,7 +247,8 @@ function mod:BlightedOvumUpdate(entity)
 						entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 					end
 
-				-- Attack
+
+				-- Shoot
 				elseif entity.State == NpcState.STATE_ATTACK then
 					if sprite:IsEventTriggered("Shoot") then
 						local params = ProjectileParams()

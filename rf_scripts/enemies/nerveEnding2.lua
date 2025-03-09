@@ -4,7 +4,7 @@ local Settings = {
 	SideRange = 25,
 	FrontRange = 100,
 	Cooldown = 10,
-	WhipStrength = 5
+	WhipStrength = 9,
 }
 
 
@@ -56,11 +56,15 @@ function mod:NerveEnding2Update(entity)
 			elseif sprite:IsEventTriggered("Hit") then
 				local hurtCheck = mod:CheckCardinalAlignment(entity, Settings.SideRange, Settings.FrontRange, 3, 1, entity.V1.X)
 
-				-- On succesful hit
+				-- In range
 				if hurtCheck ~= false then
-					target:TakeDamage(2, 0, EntityRef(entity), 0)
-					target.Velocity = target.Velocity + Vector.FromAngle(hurtCheck):Resized(Settings.WhipStrength)
-					mod:PlaySound(nil, SoundEffect.SOUND_WHIP_HIT, 1, 1, 5)
+					local didDamage = target:TakeDamage(2, DamageFlag.DAMAGE_COUNTDOWN, EntityRef(entity), 10)
+
+					-- On successful hit
+					if didDamage == true then
+						target:AddVelocity(Vector.FromAngle(hurtCheck):Resized(Settings.WhipStrength))
+						mod:PlaySound(nil, SoundEffect.SOUND_WHIP_HIT, 1, 1, 5)
+					end
 				end
 			end
 

@@ -19,12 +19,20 @@ function mod:TeratomaBigUpdate(entity)
 
 		for i = 1, 3 do
 			local chunk = Isaac.Spawn(EntityType.ENTITY_FISTULA_MEDIUM, 1, 0, entity.Position, Vector.Zero, entity):ToNPC()
-			data.chunks[i] = chunk
 			chunk.Parent = center
 			chunk:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
-			chunk.V1 = Vector(70, 0)
+			table.insert(data.chunks, chunk)
 
-			mod:QuickCord(center, chunk, "teratomar")
+			-- Create the cord
+			local cord = Isaac.Spawn(EntityType.ENTITY_EVIS, 10, 0, center.Position, Vector.Zero, center):ToNPC()
+			cord:GetSprite():Load("gfx/teratomar.anm2", true)
+			cord:GetData().DepthOffset = chunk.DepthOffset - 150
+			cord:GetData().SplatColor = center.SplatColor
+
+			-- Set the connections
+			cord.Parent = center
+			cord.Target = chunk
+			chunk.Child = cord
 		end
 
 		-- FF fuzzy champion cobwebs
@@ -53,7 +61,7 @@ function mod:TeratomaMediumUpdate(entity)
 			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 
 		else
-			mod:OrbitParent(entity, entity.Parent, 2, entity.V1.X)
+			mod:OrbitParent(entity, entity.Parent, 2, 90)
 
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 			entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
@@ -129,24 +137,14 @@ function mod:TeratomarUpdate(entity)
 		end
 
 
+		-- Remove chunks from the list if they don't exist
 		if data.chunks then
-			-- Remove chunks from the list if they don't exist
-			for i = 1, #data.chunks do
-				local chunk = data.chunks[i]
-				if chunk and (not chunk:Exists() or chunk:IsDead()) then
+			for i, chunk in pairs(data.chunks) do
+				if not chunk or not chunk:Exists() or chunk:IsDead() then
 					if chunk.Child then
-						chunk.Child:Remove()
+						chunk.Child:Kill()
 					end
-
 					table.remove(data.chunks, i)
-				end
-			end
-
-
-			-- Gradually increase orbit distance
-			if #data.chunks > 0 then
-				for i = 1, #data.chunks do
-					data.chunks[i]:ToNPC().V1 = Vector(70 + (entity.MaxHitPoints - entity.HitPoints) / 2, 0)
 				end
 			end
 		end

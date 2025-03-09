@@ -52,8 +52,6 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.RedMawUpdate, EntityType.ENTITY_
 -- Detonation shots
 function mod:RedMawDeath(entity)
 	if entity.Variant == 1 and entity.I2 >= 1 then
-		--mod:PlaySound(entity, SoundEffect.SOUND_SHAKEY_KID_ROAR)
-
 		-- Circle of shots
 		entity:FireProjectiles(entity.Position, Vector(8, 4), 7, ProjectileParams())
 

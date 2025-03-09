@@ -5,11 +5,12 @@ local Settings = {
 	SpawnDmgReduction = 60,
 	TransitionDmgReduction = 90,
 
+	PlayerDistance = 100,
 	MoveSpeed = 4.75,
 	SoulSpeed = 3.75,
 
-	Cooldown = 50,
-	TearCooldown = 22,
+	Cooldown = 60,
+	TearCooldown = 20,
 	FlyDelay = 60,
 
 	PooterCount = 4,
@@ -17,6 +18,7 @@ local Settings = {
 
 	ChainLength = 9,
 	BodyMaxDistance = 160,
+	SwipeSpeed = 35,
 }
 
 
@@ -25,8 +27,7 @@ function mod:BlueBabyInit(entity)
 	if entity.Variant == 1 then
 		local data = entity:GetData()
 
-		entity.MaxHitPoints = Settings.NewHP
-		entity.HitPoints = entity.MaxHitPoints
+		mod:ChangeMaxHealth(entity, Settings.NewHP)
 		entity.I1 = 1
 
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
@@ -35,7 +36,6 @@ function mod:BlueBabyInit(entity)
 
 		entity.ProjectileCooldown = Settings.Cooldown
 		data.tearCooldown = Settings.TearCooldown
-		data.shotCount = 1
 		data.spawnTimer = Settings.FlyDelay
 		data.isSoul = false
 		data.damageReduction = Settings.SpawnDmgReduction
@@ -117,6 +117,7 @@ function mod:BlueBabyUpdate(entity)
 			end
 
 			entity.Position = entity.Child.Position
+			entity.Velocity = Vector.Zero
 			entity.Child:Remove()
 			data.isSoul = false
 
@@ -191,7 +192,8 @@ function mod:BlueBabyUpdate(entity)
 			-- 2nd phase bone orbitals
 			elseif entity.I1 == 2 and data.isSoul ~= true then
 				-- Spawn one for every 10% HP lost in this phase
-				if entity.HitPoints > entity.MaxHitPoints - ((entity.MaxHitPoints / 3) * 2) and entity.HitPoints <= entity.MaxHitPoints - (thirdHp + (thirdHp / 10) * (data.spawnTimer + 1)) then
+				if entity.HitPoints > entity.MaxHitPoints - (thirdHp * 2) -- The first phase's hp region
+				and entity.HitPoints <= entity.MaxHitPoints - (thirdHp + (thirdHp / 10) * (data.spawnTimer + 1)) then
 					Isaac.Spawn(mod.Entities.Type, mod.Entities.BoneOrbital, 1, entity.Position, Vector.Zero, entity).Parent = entity
 					mod:PlaySound(nil, SoundEffect.SOUND_BONE_SNAP, 0.5)
 					data.spawnTimer = data.spawnTimer + 1
@@ -210,13 +212,9 @@ function mod:BlueBabyUpdate(entity)
 		--[[ Idle phase ]]--
 		if entity.State == NpcState.STATE_IDLE then
 			-- Movement
-			-- Confused
-			if mod:IsConfused(entity) then
-				mod:WanderAround(entity, Settings.MoveSpeed)
-
-			-- Feared
-			elseif mod:IsFeared(entity) then
-				entity.Velocity = mod:Lerp(entity.Velocity, (entity.Position - target.Position):Resized(Settings.MoveSpeed), 0.25)
+			-- Confused / feared
+			if mod:IsConfused(entity) or mod:IsFeared(entity) then
+				mod:ChasePlayer(entity, Settings.MoveSpeed)
 
 			-- Normal
 			else
@@ -224,7 +222,7 @@ function mod:BlueBabyUpdate(entity)
 				if not data.angle or entity:IsFrame(60, 0) then
 					data.angle = mod:Random(7) * 45
 				end
-				local pos = target.Position + Vector.FromAngle(data.angle):Resized(100)
+				local pos = target.Position + Vector.FromAngle(data.angle):Resized(Settings.PlayerDistance)
 
 				if entity.Position:Distance(pos) < 20 then
 					entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -248,61 +246,35 @@ function mod:BlueBabyUpdate(entity)
 
 			-- Shoot at the player
 			if data.tearCooldown <= 0 then
-				-- Forgotten (skeleton form)
+				-- Forgotten bones
 				if entity.I1 == 2 and data.isSoul ~= true then
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_BONE
 					params.Color = mod.Colors.ForgottenBone
-
-					local mode = 0
-					if data.shotCount % 3 == 0 then
-						mode = 2
-					end
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(10 - mode), mode, params)
+					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(10), 0, params)
 					mod:PlaySound(nil, SoundEffect.SOUND_SCAMPER)
 
+				-- Pairs of tear shots
 				else
 					local params = ProjectileParams()
+					params.Variant = ProjectileVariant.PROJECTILE_TEAR
 
-					-- Every 3rd attack is homing in 1st phase
-					local isHoming = 0
-					if entity.I1 == 1 and data.shotCount % 3 == 0 then
-						isHoming = 1
-					end
-					-- Is attack homing or not
-					if isHoming == 1 then
-						params.Scale = 1.35
-						params.BulletFlags = ProjectileFlags.SMART
-					else
-						params.Variant = ProjectileVariant.PROJECTILE_TEAR
-						if entity.I1 == 2 then
-							params.Color = mod.Colors.SoulShot
-						elseif entity.I1 == 3 then
-							params.Color = mod.Colors.LostShot
-						end
-					end
-
-					-- Every 3th attack in 3rd phase is burst one
-					if entity.I1 == 3 and data.shotCount % 3 == 0 then
-						params.FallingSpeedModifier = 1
-						params.FallingAccelModifier = -0.1
-						params.BulletFlags = ProjectileFlags.BURST
-						params.Scale = 1.9
+					-- Get the color
+					if entity.I1 == 2 then
 						params.Color = mod.Colors.SoulShot
-						for i = 0, 2 do
-							local angle = (target.Position - entity.Position):GetAngleDegrees() + (i * 120)
-							mod:FireProjectiles(entity, entity.Position, Vector.FromAngle(angle):Resized(8), 0, params, mod.Colors.TearEffect)
-						end
-					else
-						for i = -1, 1, 2 do
-							entity:FireProjectiles(entity.Position + (target.Position - entity.Position):Resized(8):Rotated(i * 90), (target.Position - entity.Position):Resized(10 - isHoming), 0, params)
-						end
+					elseif entity.I1 == 3 then
+						params.Color = mod.Colors.LostShot
 					end
-				end
 
+					local targetVector = (target.Position - entity.Position)
+					for i = -1, 1, 2 do
+						local offset = targetVector:Resized(8):Rotated(i * 90)
+						entity:FireProjectiles(entity.Position + offset, targetVector:Resized(10), 0, params)
+					end
+
+					mod:PlaySound(nil, SoundEffect.SOUND_TEARS_FIRE)
+				end
 				data.tearCooldown = Settings.TearCooldown
-				data.shotCount = data.shotCount + 1
-				mod:PlaySound(nil, SoundEffect.SOUND_TEARS_FIRE)
 
 			else
 				data.tearCooldown = data.tearCooldown - 1
@@ -326,15 +298,18 @@ function mod:BlueBabyUpdate(entity)
 				entity.I2 = 0
 				entity.StateFrame = 0
 
+				-- Attack 1
 				if attack == 1 then
 					entity.State = NpcState.STATE_ATTACK
 					sprite:Play(entity.I1 .. "_Attack1", true)
 
+				-- Attack 2
 				elseif attack == 2 then
 					entity.State = NpcState.STATE_ATTACK2
 					sprite:Play(entity.I1 .. "_Attack2", true)
 					entity.V1 = Vector(mod:Random(10, 100) * 0.01, 0)
 
+				-- Attack 3
 				elseif attack == 3 then
 					entity.State = NpcState.STATE_ATTACK3
 					sprite:Play(entity.I1 .. "_Attack3", true)
@@ -428,7 +403,6 @@ function mod:BlueBabyUpdate(entity)
 			if sprite:IsFinished() then
 				entity.I1 = entity.I1 + 1
 				data.spawnTimer = 0
-				data.shotCount = 1
 				data.lastAttack = nil
 				backToIdle()
 				entity.ProjectileCooldown = Settings.Cooldown / 2
@@ -472,12 +446,12 @@ function mod:BlueBabyUpdate(entity)
 
 						params.Scale = 1.35
 						params.BulletFlags = ProjectileFlags.CURVE_RIGHT
-						entity:FireProjectiles(entity.Position, Vector(10, 12), 9, params)
+						entity:FireProjectiles(entity.Position, Vector(10, 10), 9, params)
 
 						params.Scale = 1.65
 						params.BulletFlags = ProjectileFlags.CURVE_LEFT
 						params.Color = mod.Colors.SoulShot
-						entity:FireProjectiles(entity.Position, Vector(5, 12), 9, params)
+						entity:FireProjectiles(entity.Position, Vector(5, 10), 9, params)
 						mod:PlaySound(nil, SoundEffect.SOUND_THUMBS_DOWN, 0.6)
 					end
 				end
@@ -593,21 +567,22 @@ function mod:BlueBabyUpdate(entity)
 
 		--[[ Attack 2 ]]--
 		elseif entity.State == NpcState.STATE_ATTACK2 then
-			entity.Velocity = mod:StopLerp(entity.Velocity)
+			if data.soulMoving then
+				entity.Velocity = (entity.Position - target.Position):Resized(Settings.MoveSpeed * 1.5)
+			else
+				entity.Velocity = mod:StopLerp(entity.Velocity)
+			end
+
 
 			-- Start
 			if entity.I2 == 0 then
-				-- In 2nd phase go to soul form and move away from body
+				-- In 2nd phase go into the soul form and move away from the body
 				if entity.I1 == 2 then
 					if sprite:IsEventTriggered("BloodStart") and data.isSoul ~= true then
 						soulGetOut()
 						data.soulMoving = true
 					elseif sprite:IsEventTriggered("BloodStop") and data.soulMoving then
 						data.soulMoving = nil
-					end
-
-					if data.soulMoving and data.soulMoving == true then
-						entity.Velocity = (entity.Position - target.Position):Resized(Settings.MoveSpeed * 2)
 					end
 				end
 
@@ -616,6 +591,11 @@ function mod:BlueBabyUpdate(entity)
 					entity.StateFrame = 0
 					entity.ProjectileDelay = 0
 					mod:PlaySound(nil, SoundEffect.SOUND_POWERUP2, 0.9)
+
+					-- 3rd phase boomerang shot tracker
+					if entity.I1 == 3 then
+						data.boomerangShots = {}
+					end
 				end
 
 
@@ -631,6 +611,15 @@ function mod:BlueBabyUpdate(entity)
 					end
 				end
 
+				-- Remove non-existent boomerang tears from the tracker in the 3rd phase
+				if entity.I1 == 3 then
+					for i, projectile in pairs(data.boomerangShots) do
+						if not projectile:Exists() then
+							table.remove(data.boomerangShots, i)
+						end
+					end
+				end
+
 				-- Advance the pattern 6 times
 				if entity.StateFrame < 6 then
 					if entity.ProjectileDelay <= 0 then
@@ -640,7 +629,7 @@ function mod:BlueBabyUpdate(entity)
 
 						-- 1st phase spiral shots
 						if entity.I1 == 1 then
-							params.CircleAngle = entity.V1.X + entity.StateFrame * 0.2
+							params.CircleAngle = entity.V1.X + entity.StateFrame * 0.3
 							params.FallingSpeedModifier = -1
 							entity:FireProjectiles(entity.Position, Vector(10, 6), 9, params)
 
@@ -651,35 +640,32 @@ function mod:BlueBabyUpdate(entity)
 							if entity.StateFrame < 3 then
 								params.Color = mod.Colors.SoulShot
 								params.CircleAngle = mod:DegreesToRadians(45) + entity.StateFrame * 0.3
-								entity:FireProjectiles(entity.Position, Vector(11, 4), 9, params)
+								entity:FireProjectiles(entity.Position, Vector(10, 4), 9, params)
 
 							else
 								params.Variant = ProjectileVariant.PROJECTILE_NORMAL
 								params.BulletFlags = ProjectileFlags.SMART
 								params.CircleAngle = 0 - entity.StateFrame * 0.3
-								entity:FireProjectiles(entity.Position, Vector(11, 4), 9, params)
+								entity:FireProjectiles(entity.Position, Vector(10, 4), 9, params)
 							end
 
 						-- 3rd phase boomerang shots
 						elseif entity.I1 == 3 then
 							params.Color = mod.Colors.LostShot
-							params.CircleAngle = entity.V1.X + entity.StateFrame * 0.4
+							params.CircleAngle = entity.V1.X + entity.StateFrame * 0.6
 							params.FallingSpeedModifier = 1
 							params.FallingAccelModifier = -0.1
+							params.BulletFlags = (ProjectileFlags.BOOMERANG | ProjectileFlags.CURVE_RIGHT | ProjectileFlags.NO_WALL_COLLIDE)
+							local projectiles = mod:FireProjectiles(entity, entity.Position, Vector(10, 6), 9, params)
 
-							params.BulletFlags = (ProjectileFlags.CHANGE_FLAGS_AFTER_TIMEOUT | ProjectileFlags.BOOMERANG | ProjectileFlags.CURVE_RIGHT | ProjectileFlags.NO_WALL_COLLIDE)
-							params.ChangeFlags = ProjectileFlags.FADEOUT
-							params.ChangeTimeout = 108
-
-							entity:FireProjectiles(entity.Position, Vector(11, 6), 9, params)
+							for i, projectile in pairs(projectiles) do
+								projectile.Parent = entity
+								projectile:GetData().blueBabyBoomerangShot = 10
+								table.insert(data.boomerangShots, projectile)
+							end
 						end
 
-						-- 3rd phase has more time between shots
-						if entity.I1 == 3 then
-							entity.ProjectileDelay = 3
-						else
-							entity.ProjectileDelay = 2 + (entity.StateFrame % 2)
-						end
+						entity.ProjectileDelay = entity.I1 == 3 and 4 or 3 -- 3rd phase has more time between shots
 						entity.StateFrame = entity.StateFrame + 1
 						mod:PlaySound(nil, SoundEffect.SOUND_THUMBS_DOWN, 0.6)
 
@@ -689,9 +675,10 @@ function mod:BlueBabyUpdate(entity)
 
 				else
 					-- 3rd phase only finishes if all shots have disappeared
-					if entity.I1 <= 2 or (entity.I1 == 3 and Isaac.CountEntities(entity, EntityType.ENTITY_PROJECTILE, ProjectileVariant.PROJECTILE_TEAR, -1) <= 0) then
+					if entity.I1 <= 2 or (entity.I1 == 3 and #data.boomerangShots <= 0) then
 						entity.I2 = 2
 						sprite:Play(entity.I1 .. "_Attack2_End", true)
+						data.boomerangShots = nil
 					end
 				end
 
@@ -707,13 +694,13 @@ function mod:BlueBabyUpdate(entity)
 					-- 1st phase
 					if entity.I1 == 1 then
 						params.Scale = 1.65
-						params.CircleAngle = entity.V1.X + 0.4
-						entity:FireProjectiles(entity.Position, Vector(12, 6), 9, params)
+						params.CircleAngle = entity.V1.X + 0.8
+						entity:FireProjectiles(entity.Position, Vector(11, 6), 9, params)
 
 					-- 3rd phase
 					elseif entity.I1 == 3 then
 						params.Scale = 1.65
-						entity:FireProjectiles(entity.Position, Vector(12, 8), 8, params)
+						entity:FireProjectiles(entity.Position, Vector(11, 8), 8, params)
 					end
 
 					mod:PlaySound(nil, SoundEffect.SOUND_THUMBS_DOWN, 0.6)
@@ -755,22 +742,12 @@ function mod:BlueBabyUpdate(entity)
 					params.Color = mod.Colors.ForgottenBone
 					params.FallingSpeedModifier = 1
 					params.FallingAccelModifier = -0.1
+
 					entity:FireProjectiles(entity.Position, Vector(10, 6), 9, params)
 					mod:PlaySound(nil, SoundEffect.SOUND_SHELLGAME, 1.1)
+					entity.Velocity = mod:GetTargetVector(entity, target):Resized(Settings.SwipeSpeed)
 
-					-- Get direction
-					local vector = (target.Position - entity.Position):Resized(35)
-					-- Confused
-					if mod:IsConfused(entity) then
-						vector = mod:RandomVector(mod:Random(30, 35))
-					-- Feared
-					elseif mod:IsFeared(entity) then
-						vector = (entity.Position - target.Position):Resized(mod:Random(30, 35))
-					end
-
-					entity.Velocity = vector
-
-				-- Throw bone at player
+				-- Throw the bone club at the player
 				elseif sprite:IsEventTriggered("Shoot") then
 					local club = Isaac.Spawn(EntityType.ENTITY_VIS, 22, 2, entity.Position, (target.Position - entity.Position):Resized(25), entity)
 					club:GetSprite():Load("gfx/039.022_forgotten bone projectile.anm2", true)
@@ -832,8 +809,8 @@ function mod:BlueBabyUpdate(entity)
 									-- Shoot lasers if the tracers are gone
 									else
 										doAttack = true
-										local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.LIGHT_BEAM, tracer.Position, tracer.TargetPosition:GetAngleDegrees(), 10, Vector.Zero, entity), entity}
-										laser_ent_pair.laser.Mass = 0
+										local laser = EntityLaser.ShootAngle(LaserVariant.LIGHT_BEAM, tracer.Position, tracer.TargetPosition:GetAngleDegrees(), 10, Vector.Zero, entity)
+										laser.Mass = 0
 									end
 								end
 
@@ -907,8 +884,8 @@ function mod:BlueBabyDMG(entity, damageAmount, damageFlags, damageSource, damage
 		if (entity:ToNPC().State == NpcState.STATE_SPECIAL or (damageSource.SpawnerType == entity.Type and damageSource.SpawnerVariant == entity.Variant)) then
 			return false
 
-		-- Damage reduction after transitioning
-		elseif entity:GetData().damageReduction > 0 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+		-- Damage reduction after transitioning (disabled in REP+ because of his armor)
+		elseif not REPENTANCE_PLUS and entity:GetData().damageReduction > 0 and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
 			local onePercent = damageAmount / 100
 			entity:TakeDamage(damageAmount - entity:GetData().damageReduction * onePercent, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
 			entity:SetColor(mod.Colors.ArmorFlash, 2, 0, false, false)
@@ -955,6 +932,7 @@ function mod:BlueBabyExtrasInit(entity)
 			entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYEROBJECTS
 			entity:GetSprite():Play("Appear", true)
 			entity:AddEntityFlags(EntityFlag.FLAG_DONT_COUNT_BOSS_HP | EntityFlag.FLAG_HIDE_HP_BAR)
+			entity.ProjectileCooldown = Settings.TearCooldown
 
 		-- Chain
 		elseif entity.SubType == mod.Entities.ForgottenChain then
@@ -977,7 +955,7 @@ function mod:BlueBabyExtrasUpdate(entity)
 
 
 		if entity.Parent and (entity.SubType ~= mod.Entities.ForgottenChain or entity.Child) then
-			-- Body
+			--[[ Body ]]--
 			if entity.SubType == mod.Entities.ForgottenBody then
 				if sprite:IsFinished("Appear") then
 					mod:LoopingAnim(sprite, "Idle")
@@ -985,18 +963,27 @@ function mod:BlueBabyExtrasUpdate(entity)
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				-- Shoot at the parent's target
-				if sprite:IsEventTriggered("Flap") then
-					mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_WING, 0.6)
+				if entity.ProjectileCooldown <= 0 then
+					entity.ProjectileCooldown = Settings.TearCooldown
 
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_BONE
 					params.Color = mod.Colors.ForgottenBone
 					entity:FireProjectiles(entity.Position, (entity.Parent:ToNPC():GetPlayerTarget().Position - entity.Position):Resized(9), 0, params)
 					mod:PlaySound(nil, SoundEffect.SOUND_SCAMPER)
+
+				else
+					entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+				end
+
+				-- Flap sounds
+				if sprite:IsEventTriggered("Flap") then
+					mod:PlaySound(nil, SoundEffect.SOUND_ANGEL_WING, 0.6)
 				end
 
 
-			-- Chain
+
+			--[[ Chain ]]--
 			elseif entity.SubType == mod.Entities.ForgottenChain then
 				local vector = entity.Child.Position - entity.Parent.Position
 				local length = vector:Length()
@@ -1009,9 +996,10 @@ function mod:BlueBabyExtrasUpdate(entity)
 				entity.SpriteOffset = Vector(0, -15 + slack)
 
 
-			-- Holy orb
+
+			--[[ Holy orb ]]--
 			elseif entity.SubType == mod.Entities.LostHolyOrb then
-				-- Go towards target
+				-- Go towards the target
 				if entity.State == NpcState.STATE_IDLE then
 					entity.Velocity = mod:Lerp(entity.Velocity, (entity:GetPlayerTarget().Position - entity.Position):Resized(1.5), 0.25)
 
@@ -1048,6 +1036,7 @@ function mod:BlueBabyExtrasUpdate(entity)
 						entity.I1 = entity.I1 + 1
 					end
 
+
 				-- Shoot lasers, disappear
 				elseif entity.State == NpcState.STATE_ATTACK then
 					entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -1055,8 +1044,7 @@ function mod:BlueBabyExtrasUpdate(entity)
 					if sprite:IsEventTriggered("Shoot") then
 						-- Lasers
 						for i = 0, 3 do
-							local laser_ent_pair = {laser = EntityLaser.ShootAngle(LaserVariant.LIGHT_BEAM, entity.Position, i * 90, 15, Vector(0, -35), entity), entity}
-							local laser = laser_ent_pair.laser
+							local laser = EntityLaser.ShootAngle(LaserVariant.LIGHT_BEAM, entity.Position, i * 90, 15, Vector(0, -35), entity)
 							laser.DepthOffset = entity.DepthOffset - 10
 							laser.Mass = 0
 						end
@@ -1067,6 +1055,7 @@ function mod:BlueBabyExtrasUpdate(entity)
 					end
 				end
 			end
+
 
 
 		-- Die if they don't have a parent or if the chain has no child
@@ -1112,3 +1101,26 @@ function mod:HolyTracerUpdate(effect)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.HolyTracerUpdate, mod.Entities.HolyTracer)
+
+
+
+--[[ Lost boomerang shots ]]--
+function mod:BlueBabyBoomerangShotUpdate(projectile)
+	local data = projectile:GetData()
+
+	if data.blueBabyBoomerangShot then
+		-- Die without a parent
+		if not projectile.Parent or not projectile.Parent:Exists() or projectile.Parent:IsDead() then
+			projectile:Die()
+
+		-- Delay before checking for returning back
+		elseif data.blueBabyBoomerangShot > 0 then
+			data.blueBabyBoomerangShot = data.blueBabyBoomerangShot - 1
+
+		-- Get removed when it returns to the parent
+		elseif projectile.Position:Distance(projectile.Parent.Position) <= projectile.Parent.Size / 2 then
+			projectile:Remove()
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.BlueBabyBoomerangShotUpdate, ProjectileVariant.PROJECTILE_TEAR)
