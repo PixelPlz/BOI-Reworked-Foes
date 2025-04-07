@@ -181,16 +181,14 @@ function mod:MaskInfamyUpdate(entity)
 
 		if sprite:IsEventTriggered("Sound") then
 			entity.I1 = 1
-
-			-- Effects
-			for i = 0, 5 do
-				local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, entity.Position, mod:RandomVector(3), entity):ToEffect()
-				rocks:GetSprite():Play("rubble", true)
-				rocks.State = 2
-			end
-
 			mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.9, 1.02)
 			mod:PlaySound(entity, SoundEffect.SOUND_MOUTH_FULL)
+
+			-- Rock particles
+			for i = 1, 4 do
+				local velocity = mod:RandomVector(math.random(2, 4))
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 65537, entity.Position, velocity, entity):ToEffect()
+			end
 		end
 
 		if sprite:IsFinished() then

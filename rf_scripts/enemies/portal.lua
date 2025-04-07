@@ -1,263 +1,243 @@
 local mod = ReworkedFoes
 
 local Settings = {
-	Cooldown = 90,
+	Cooldown = 60,
 	MaxSpawns = 3,
-	SpawnHPMulti = 2,
+	SummonSpeed = 3,
 	ShotSpeed = 11,
 }
 
--- Example on how to add custom spawns: (variant and subtype can be left out to default it to 0)
--- table.insert( ReworkedFoes.PortalSpawns[10], {200, 21, 69} )
-mod.PortalSpawns = { -- Corresponds to the IDs in stages.xml
-	{ -- Basement
-		{EntityType.ENTITY_GAPER, 1},
-		{EntityType.ENTITY_HORF},
-		{EntityType.ENTITY_POOTER},
-		{EntityType.ENTITY_CLOTTY},
-		{EntityType.ENTITY_MULLIGAN},
-		{EntityType.ENTITY_HOPPER},
-		{EntityType.ENTITY_FATTY},
-		{EntityType.ENTITY_SKINNY},
+
+
+-- Spawn table
+-- Corresponds to the STB type
+mod.PortalSpawns = {
+	HPMulti = 2,
+
+	-- Chapter 1
+	-- Basement
+	[1] = {
+		{ Type = EntityType.ENTITY_GAPER, },
+		{ Type = EntityType.ENTITY_HORF, },
+		{ Type = EntityType.ENTITY_POOTER, },
+		{ Type = EntityType.ENTITY_CLOTTY, },
+		{ Type = EntityType.ENTITY_MULLIGAN, },
+		{ Type = EntityType.ENTITY_HOPPER, },
 	},
-	{ -- Cellar
-		{EntityType.ENTITY_GAPER, 1},
-		{EntityType.ENTITY_HORF},
-		{EntityType.ENTITY_POOTER, 1},
-		{EntityType.ENTITY_CLOTTY, 1},
-		{EntityType.ENTITY_HOPPER, 1},
-		{EntityType.ENTITY_WALKINGBOIL, 2},
-		{EntityType.ENTITY_NEST},
-		{EntityType.ENTITY_SKINNY},
+	-- Cellar
+	[2] = {
+		{ Type = EntityType.ENTITY_GAPER, Variant = 1, },
+		{ Type = EntityType.ENTITY_HORF, },
+		{ Type = EntityType.ENTITY_POOTER, Variant = 1, },
+		{ Type = EntityType.ENTITY_CLOTTY, Variant = 1, },
+		{ Type = EntityType.ENTITY_MULLIGAN, Variant = 2, },
+		{ Type = EntityType.ENTITY_HOPPER, Variant = 1, },
 	},
-	{ -- Burning Basement
-		{EntityType.ENTITY_GAPER, 2},
-		{EntityType.ENTITY_HORF},
-		{EntityType.ENTITY_POOTER},
-		{EntityType.ENTITY_CLOTTY, 3},
-		{EntityType.ENTITY_MULLIGAN, 1},
-		{EntityType.ENTITY_FLAMINGHOPPER},
-		{EntityType.ENTITY_FATTY, 2},
-		{EntityType.ENTITY_SKINNY, 2},
+	-- Burning Basement
+	[3] = {
+		{ Type = EntityType.ENTITY_GAPER, Variant = 2, },
+		{ Type = EntityType.ENTITY_HORF, },
+		{ Type = EntityType.ENTITY_POOTER, },
+		{ Type = EntityType.ENTITY_CLOTTY, Variant = 3, },
+		{ Type = EntityType.ENTITY_MULLIGAN, Variant = 1, },
+		{ Type = EntityType.ENTITY_FLAMINGHOPPER, },
+	},
+	-- Downpour
+	[27] = {
+		{ Type = EntityType.ENTITY_BUBBLES, },
+		{ Type = EntityType.ENTITY_WRAITH, },
+		{ Type = EntityType.ENTITY_SUB_HORF, },
+		{ Type = EntityType.ENTITY_BLURB, },
+		{ Type = EntityType.ENTITY_PREY, },
+		{ Type = EntityType.ENTITY_WILLO_L2, },
+	},
+	-- Dross
+	[28] = {
+		{ Type = EntityType.ENTITY_BUBBLES, },
+		{ Type = EntityType.ENTITY_SUB_HORF, },
+		{ Type = EntityType.ENTITY_BLURB, },
+		{ Type = EntityType.ENTITY_PREY, },
+		{ Type = EntityType.ENTITY_CLOGGY, },
+		{ Type = EntityType.ENTITY_DUMP, },
 	},
 
-	{ -- Caves
-		{EntityType.ENTITY_HIVE},
-		{EntityType.ENTITY_CHARGER},
-		{EntityType.ENTITY_GLOBIN},
-		{EntityType.ENTITY_BOOMFLY},
-		{EntityType.ENTITY_MAW},
-		{EntityType.ENTITY_HOST},
-		{EntityType.ENTITY_BONY},
-		{EntityType.ENTITY_ONE_TOOTH},
+	-- Chapter 2
+	-- Caves
+	[4] = {
+		{ Type = EntityType.ENTITY_HIVE, },
+		{ Type = EntityType.ENTITY_CHARGER, },
+		{ Type = EntityType.ENTITY_GLOBIN, },
+		{ Type = EntityType.ENTITY_BOOMFLY, },
+		{ Type = EntityType.ENTITY_MAW, },
+		{ Type = EntityType.ENTITY_HOST, },
 	},
-	{ -- Catacombs
-		{EntityType.ENTITY_VIS, 2},
-		{EntityType.ENTITY_KEEPER},
-		{EntityType.ENTITY_GURGLE},
-		{EntityType.ENTITY_WALKINGBOIL},
-		{EntityType.ENTITY_WALKINGBOIL, 1},
-		{EntityType.ENTITY_WALKINGBOIL, 2},
-		{EntityType.ENTITY_BUTTLICKER},
-		{EntityType.ENTITY_BONY},
+	-- Catacombs
+	[5] = {
+		{ Type = EntityType.ENTITY_VIS, Variant = 2, },
+		{ Type = EntityType.ENTITY_KEEPER, },
+		{ Type = EntityType.ENTITY_GURGLE, },
+		{ Type = EntityType.ENTITY_WALKINGBOIL, },
+		{ Type = EntityType.ENTITY_WALKINGBOIL, Variant = 1, },
+		{ Type = EntityType.ENTITY_WALKINGBOIL, Variant = 2, },
 	},
-	{ -- Flooded Caves
-		{EntityType.ENTITY_HIVE, 1},
-		{EntityType.ENTITY_CHARGER, 1},
-		{EntityType.ENTITY_GLOBIN},
-		{EntityType.ENTITY_BOOMFLY, 2},
-		{EntityType.ENTITY_MAW, 1},
-		{EntityType.ENTITY_BONY},
-		{EntityType.ENTITY_ONE_TOOTH},
-		{EntityType.ENTITY_ROUND_WORM, 1},
+	-- Flooded Caves
+	[6] = {
+		{ Type = EntityType.ENTITY_HIVE, Variant = 1, },
+		{ Type = EntityType.ENTITY_CHARGER, Variant = 1, },
+		{ Type = EntityType.ENTITY_GLOBIN, },
+		{ Type = EntityType.ENTITY_BOOMFLY, Variant = 2, },
+		{ Type = EntityType.ENTITY_MAW, Variant = 1, },
+		{ Type = EntityType.ENTITY_HOST, Variant = 1, },
 	},
-
-	{ -- Depths
-		{EntityType.ENTITY_BOIL},
-		{EntityType.ENTITY_BRAIN},
-		{EntityType.ENTITY_LEAPER},
-		{EntityType.ENTITY_MRMAW},
-		{EntityType.ENTITY_BABY},
-		{EntityType.ENTITY_VIS},
-		{EntityType.ENTITY_GUTS},
-		{EntityType.ENTITY_KNIGHT},
+	-- Mines
+	[29] = {
+		{ Type = EntityType.ENTITY_BOOMFLY, Variant = 3, },
+		{ Type = EntityType.ENTITY_HOST, Variant = 3, },
+		{ Type = EntityType.ENTITY_BOUNCER, },
+		{ Type = EntityType.ENTITY_QUAKEY, },
+		{ Type = EntityType.ENTITY_GYRO, },
+		{ Type = EntityType.ENTITY_FACELESS, },
 	},
-	{ -- Necropolis
-		{EntityType.ENTITY_VIS, 1},
-		{EntityType.ENTITY_KEEPER},
-		{EntityType.ENTITY_GURGLE},
-		{EntityType.ENTITY_WALKINGBOIL, 2},
-		{EntityType.ENTITY_BUTTLICKER},
-		{EntityType.ENTITY_HANGER},
-		{EntityType.ENTITY_SWARMER},
-		{EntityType.ENTITY_MASK},
-	},
-	{ -- Dank Depths
-		{EntityType.ENTITY_CHARGER, 2},
-		{EntityType.ENTITY_GLOBIN, 2},
-		{EntityType.ENTITY_LEAPER, 1},
-		{EntityType.ENTITY_GUTS, 2},
-		{EntityType.ENTITY_DEATHS_HEAD, 1},
-		{EntityType.ENTITY_SQUIRT, 1},
-		{EntityType.ENTITY_TARBOY},
-		{EntityType.ENTITY_BUTT_SLICKER},
+	-- Ashpit
+	[30] = {
+		{ Type = EntityType.ENTITY_BOOMFLY, Variant = 4, },
+		{ Type = EntityType.ENTITY_GURGLE, Variant = 1, },
+		{ Type = EntityType.ENTITY_NECRO, },
+		{ Type = EntityType.ENTITY_BIG_BONY, },
+		{ Type = EntityType.ENTITY_FLESH_MAIDEN, },
+		{ Type = EntityType.ENTITY_DUST, },
 	},
 
-	{ -- Womb
-		{EntityType.ENTITY_BABY},
-		{EntityType.ENTITY_LEECH},
-		{EntityType.ENTITY_LUMP},
-		{EntityType.ENTITY_PARA_BITE},
-		{EntityType.ENTITY_FRED},
-		{EntityType.ENTITY_EYE},
-		{EntityType.ENTITY_SWINGER},
-		{EntityType.ENTITY_TUMOR},
+	-- Chapter 3
+	-- Depths
+	[7] = {
+		{ Type = EntityType.ENTITY_BOIL, },
+		{ Type = EntityType.ENTITY_BRAIN, },
+		{ Type = EntityType.ENTITY_LEAPER, },
+		{ Type = EntityType.ENTITY_BABY, },
+		{ Type = EntityType.ENTITY_VIS, },
+		{ Type = EntityType.ENTITY_KNIGHT, },
 	},
-	{ -- Utero
-		{EntityType.ENTITY_BABY, 3},
-		{EntityType.ENTITY_VIS, 1},
-		{EntityType.ENTITY_EYE, 1},
-		{EntityType.ENTITY_MASK},
-		{EntityType.ENTITY_MEATBALL, 1},
-		{EntityType.ENTITY_TUMOR, 1},
-		{EntityType.ENTITY_PEEPER_FATTY},
-		{EntityType.ENTITY_FLOATING_HOST},
+	-- Necropolis
+	[8] = {
+		{ Type = EntityType.ENTITY_VIS, Variant = 1, },
+		{ Type = EntityType.ENTITY_VIS, Variant = 2, },
+		{ Type = EntityType.ENTITY_KEEPER, },
+		{ Type = EntityType.ENTITY_GURGLE, },
+		{ Type = EntityType.ENTITY_HANGER, },
+		{ Type = EntityType.ENTITY_MASK, },
 	},
-	{ -- Scarred Womb
-		{EntityType.ENTITY_VIS, 3},
-		{EntityType.ENTITY_GUTS, 1},
-		{EntityType.ENTITY_PARA_BITE, 1},
-		{EntityType.ENTITY_MASK, 1},
-		{EntityType.ENTITY_FLESH_DEATHS_HEAD},
-		{EntityType.ENTITY_FISTULOID},
-		{EntityType.ENTITY_LEPER},
-		{EntityType.ENTITY_FACELESS},
+	-- Dank Depths
+	[9] = {
+		{ Type = EntityType.ENTITY_CHARGER, Variant = 2, },
+		{ Type = EntityType.ENTITY_GLOBIN, Variant = 2, },
+		{ Type = EntityType.ENTITY_LEAPER, Variant = 1, },
+		{ Type = EntityType.ENTITY_GUTS, Variant = 2, },
+		{ Type = EntityType.ENTITY_DEATHS_HEAD, Variant = 1, },
+		{ Type = EntityType.ENTITY_TARBOY, },
 	},
-
-	{ -- Blue Womb
-		{EntityType.ENTITY_CONJOINED_FATTY, 1},
-		{EntityType.ENTITY_HUSH_FLY},
-		{EntityType.ENTITY_HUSH_GAPER},
-		{EntityType.ENTITY_HUSH_BOIL},
+	-- Mausoleum
+	[31] = {
+		{ Type = EntityType.ENTITY_KNIGHT, Variant = 2, },
+		{ Type = EntityType.ENTITY_CANDLER, },
+		{ Type = EntityType.ENTITY_WHIPPER, },
+		{ Type = EntityType.ENTITY_WHIPPER, Variant = 1, },
+		{ Type = EntityType.ENTITY_REVENANT, },
+		{ Type = EntityType.ENTITY_CULTIST, },
 	},
-
-	{ -- Sheol
-		{EntityType.ENTITY_BABY, 3},
-		{EntityType.ENTITY_KNIGHT, 1},
-		{EntityType.ENTITY_LEECH, 1},
-		{EntityType.ENTITY_CAMILLO_JR},
-		{EntityType.ENTITY_NULLS},
-		{EntityType.ENTITY_IMP},
-		{EntityType.ENTITY_THE_HAUNT, 10},
-		{EntityType.ENTITY_BLACK_GLOBIN},
-	},
-	{ -- Cathedral
-		{EntityType.ENTITY_CLOTTY, 2},
-		{EntityType.ENTITY_HIVE, 2},
-		{EntityType.ENTITY_MAW, 2},
-		{EntityType.ENTITY_BABY, 1},
-		{EntityType.ENTITY_LEECH, 2},
-		{EntityType.ENTITY_EYE, 2},
-		{EntityType.ENTITY_BONY, 1},
-		{EntityType.ENTITY_CANDLER},
+	-- Gehenna
+	[32] = {
+		{ Type = EntityType.ENTITY_KNIGHT, Variant = 4, },
+		{ Type = EntityType.ENTITY_WHIPPER, },
+		{ Type = EntityType.ENTITY_WHIPPER, Variant = 1, },
+		{ Type = EntityType.ENTITY_REVENANT, },
+		{ Type = EntityType.ENTITY_CULTIST, Variant = 1, },
+		{ Type = EntityType.ENTITY_GOAT, },
 	},
 
-	{ -- Dark Room
-		{EntityType.ENTITY_SLOTH},
-		{EntityType.ENTITY_LUST},
-		{EntityType.ENTITY_WRATH},
-		{EntityType.ENTITY_GLUTTONY},
-		{EntityType.ENTITY_GREED},
-		{EntityType.ENTITY_ENVY},
-		{EntityType.ENTITY_PRIDE},
-		{EntityType.ENTITY_SHADY},
+	-- Chapter 4
+	-- Womb
+	[10] = {
+		{ Type = EntityType.ENTITY_BABY, },
+		{ Type = EntityType.ENTITY_LEECH, },
+		{ Type = EntityType.ENTITY_LUMP, },
+		{ Type = EntityType.ENTITY_PARA_BITE, },
+		{ Type = EntityType.ENTITY_FRED, },
+		{ Type = EntityType.ENTITY_EYE, },
 	},
-	{ -- Chest
-		{EntityType.ENTITY_SLOTH},
-		{EntityType.ENTITY_LUST},
-		{EntityType.ENTITY_WRATH},
-		{EntityType.ENTITY_GLUTTONY},
-		{EntityType.ENTITY_GREED},
-		{EntityType.ENTITY_ENVY},
-		{EntityType.ENTITY_PRIDE},
-		{EntityType.ENTITY_CONJOINED_FATTY, 1},
+	-- Utero
+	[11] = {
+		{ Type = EntityType.ENTITY_BABY, Variant = 3, },
+		{ Type = EntityType.ENTITY_VIS, Variant = 1, },
+		{ Type = EntityType.ENTITY_LEECH, },
+		{ Type = EntityType.ENTITY_EYE, Variant = 1, },
+		{ Type = EntityType.ENTITY_MASK, },
+		{ Type = EntityType.ENTITY_MEMBRAIN, Variant = 1, },
 	},
-
-	-- Unused IDs
-	{}, {}, {}, {}, {}, {}, {}, {}, {},
-
-	{ -- Downpour
-		{EntityType.ENTITY_GAPER, 1},
-		{EntityType.ENTITY_BUBBLES},
-		{EntityType.ENTITY_WRAITH},
-		{EntityType.ENTITY_SUB_HORF},
-		{EntityType.ENTITY_BLURB},
-		{EntityType.ENTITY_PREY},
-		{EntityType.ENTITY_WILLO_L2},
-		{EntityType.ENTITY_BLOATY},
+	-- Scarred Womb
+	[12] = {
+		{ Type = EntityType.ENTITY_VIS, Variant = 3, },
+		{ Type = EntityType.ENTITY_PARA_BITE, Variant = 1, },
+		{ Type = EntityType.ENTITY_MASK, Variant = 1, },
+		{ Type = EntityType.ENTITY_FISTULOID, },
+		{ Type = EntityType.ENTITY_LEPER, },
+		{ Type = EntityType.ENTITY_FACELESS, },
 	},
-	{ -- Dross
-		{EntityType.ENTITY_GAPER, 1},
-		{EntityType.ENTITY_BUBBLES},
-		{EntityType.ENTITY_SUB_HORF},
-		{EntityType.ENTITY_BLURB},
-		{EntityType.ENTITY_PREY},
-		{EntityType.ENTITY_CLOGGY},
-		{EntityType.ENTITY_FLY_TRAP},
-		{EntityType.ENTITY_DUMP},
+	-- Corpse
+	[33] = {
+		{ Type = EntityType.ENTITY_SUCKER, Variant = 4, },
+		{ Type = EntityType.ENTITY_GAPER_L2, },
+		{ Type = EntityType.ENTITY_TWITCHY, },
+		{ Type = EntityType.ENTITY_CHARGER_L2, },
+		{ Type = EntityType.ENTITY_UNBORN, },
+		{ Type = EntityType.ENTITY_CYST, },
 	},
 
-	{ -- Mines
-		{EntityType.ENTITY_BOOMFLY, 3},
-		{EntityType.ENTITY_HOST, 3},
-		{EntityType.ENTITY_DANNY},
-		{EntityType.ENTITY_BLASTER},
-		{EntityType.ENTITY_BOUNCER},
-		{EntityType.ENTITY_QUAKEY},
-		{EntityType.ENTITY_GYRO},
-		{EntityType.ENTITY_MOLE},
+	-- Chapter 5
+	-- Sheol
+	[14] = {
+		{ Type = EntityType.ENTITY_KNIGHT, Variant = 1, },
+		{ Type = EntityType.ENTITY_LEECH, Variant = 1, },
+		{ Type = EntityType.ENTITY_EYE, Variant = 1, },
+		{ Type = EntityType.ENTITY_NULLS, },
+		{ Type = EntityType.ENTITY_IMP, },
+		{ Type = EntityType.ENTITY_BLACK_GLOBIN, },
 	},
-	{ -- Ashpit
-		{EntityType.ENTITY_CHARGER, 3},
-		{EntityType.ENTITY_BOOMFLY, 3},
-		{EntityType.ENTITY_BOOMFLY, 4},
-		{EntityType.ENTITY_GURGLE, 1},
-		{EntityType.ENTITY_DANNY, 1},
-		{EntityType.ENTITY_NECRO},
-		{EntityType.ENTITY_BIG_BONY},
-		{EntityType.ENTITY_FLESH_MAIDEN},
+	-- Cathedral
+	[15] = {
+		{ Type = EntityType.ENTITY_CLOTTY, Variant = 2, },
+		{ Type = EntityType.ENTITY_HIVE, Variant = 2, },
+		{ Type = EntityType.ENTITY_BABY, Variant = 1, },
+		{ Type = EntityType.ENTITY_LEECH, Variant = 2, },
+		{ Type = EntityType.ENTITY_EYE, Variant = 2, },
+		{ Type = EntityType.ENTITY_BONY, Variant = 1, },
 	},
-
-	{ -- Mausoleum
-		{EntityType.ENTITY_GLOBIN, 3},
-		{EntityType.ENTITY_KNIGHT, 2},
-		{EntityType.ENTITY_CANDLER},
-		{EntityType.ENTITY_WHIPPER},
-		{EntityType.ENTITY_WHIPPER, 1},
-		{EntityType.ENTITY_VIS_VERSA},
-		{EntityType.ENTITY_REVENANT},
-		{EntityType.ENTITY_BABY_BEGOTTEN},
-	},
-	{ -- Gehenna
-		{EntityType.ENTITY_GLOBIN, 3},
-		{EntityType.ENTITY_KNIGHT, 4},
-		{EntityType.ENTITY_WHIPPER},
-		{EntityType.ENTITY_WHIPPER, 1},
-		{EntityType.ENTITY_REVENANT},
-		{EntityType.ENTITY_MORNINGSTAR},
-		{EntityType.ENTITY_CULTIST, 1},
-		{EntityType.ENTITY_GOAT},
+	-- Blue Womb
+	[13] = {
+		{ Type = EntityType.ENTITY_CONJOINED_FATTY, Variant = 1, },
+		{ Type = EntityType.ENTITY_HUSH_FLY, },
+		{ Type = EntityType.ENTITY_HUSH_GAPER, },
+		{ Type = EntityType.ENTITY_HUSH_BOIL, },
 	},
 
-	{ -- Corpse
-		{EntityType.ENTITY_GAPER, 3},
-		{EntityType.ENTITY_BOOMFLY, 5},
-		{EntityType.ENTITY_SUCKER, 4},
-		{EntityType.ENTITY_TWITCHY},
-		{EntityType.ENTITY_CHARGER_L2},
-		{EntityType.ENTITY_UNBORN},
-		{EntityType.ENTITY_CYST},
-		{EntityType.ENTITY_EVIS},
+	-- Chapter 6
+	-- Dark Room
+	[16] = {
+		{ Type = EntityType.ENTITY_SLOTH, },
+		{ Type = EntityType.ENTITY_LUST, },
+		{ Type = EntityType.ENTITY_WRATH, },
+		{ Type = EntityType.ENTITY_GLUTTONY, },
+		{ Type = EntityType.ENTITY_GREED, },
+		{ Type = EntityType.ENTITY_PRIDE, },
+	},
+	-- Chest
+	[17] = {
+		{ Type = EntityType.ENTITY_SLOTH, },
+		{ Type = EntityType.ENTITY_LUST, },
+		{ Type = EntityType.ENTITY_WRATH, },
+		{ Type = EntityType.ENTITY_GLUTTONY, },
+		{ Type = EntityType.ENTITY_GREED, },
+		{ Type = EntityType.ENTITY_PRIDE, },
 	},
 }
 
@@ -313,7 +293,8 @@ function mod:PortalUpdate(entity)
 		end
 
 
-		-- Idle
+
+		--[[ Idle ]]--
 		if entity.State == NpcState.STATE_IDLE then
 			mod:LoopingOverlay(sprite, "FaceIdle")
 
@@ -326,41 +307,58 @@ function mod:PortalUpdate(entity)
 			end
 
 
-		-- Spawn / Shoot
+
+		--[[ Spawn / Shoot ]]--
 		elseif entity.State == NpcState.STATE_SUMMON then
 			if sprite:GetOverlayFrame() == 8 then
-				mod:PlaySound(nil, SoundEffect.SOUND_PORTAL_SPAWN, 1.1)
-				local stage = Game():GetRoom():GetRoomConfigStage()
+				-- Get the spawn table for the room
+				local stbType = Game():GetRoom():GetRoomConfigStage()
+				local spawnTable = mod.PortalSpawns[stbType]
 
-				-- Spawn
-				if Isaac.CountEntities(entity, EntityType.ENTITY_NULL, -1, -1) < Settings.MaxSpawns -- Not at max spawns
-				and ((stage > 0 and stage < 18) or (stage > 26 and stage < 35)) then -- Valid stage type
-					local selectedSpawn = mod:RandomIndex(mod.PortalSpawns[stage])
+				-- Custom stages
+				if StageAPI and StageAPI.CurrentStage and mod.PortalSpawns[StageAPI.CurrentStage.Alias] then
+					spawnTable = mod.PortalSpawns[StageAPI.CurrentStage.Alias]
+				end
 
-					local vector = Vector.FromAngle(mod:Random(60, 120)):Resized(3)
-					local spawn = Isaac.Spawn(selectedSpawn[1], selectedSpawn[2] or 0, selectedSpawn[3] or 0, entity.Position + Vector(0, entity.Size), vector, entity)
-					mod:ChangeMaxHealth(spawn, spawn.MaxHitPoints * Settings.SpawnHPMulti)
+
+				-- Spawn if there are valid spawns for this STB type and there aren't too many spawns alive
+				if spawnTable and Isaac.CountEntities(entity) < Settings.MaxSpawns then
+					local spawnData = mod:RandomIndex(spawnTable)
+					local variant = spawnData.Variant or 0
+					local subtype = spawnData.SubType or 0
+					local pos = entity.Position + Vector(0, entity.Size)
+					local vector = Vector.FromAngle(mod:Random(60, 120)):Resized(Settings.SummonSpeed)
+
+					local spawn = Isaac.Spawn(spawnData.Type, variant, subtype, pos, vector, entity):ToNPC()
+					mod:ChangeMaxHealth(spawn, spawn.MaxHitPoints * mod.PortalSpawns.HPMulti)
 					spawn:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
-					spawn:SetColor(mod.Colors.PortalSpawn, 15, 1, true, false)
+					spawn:SetColor(mod.Colors.PortalSpawn, 15, 255, true, true)
+
 
 				-- Shoot
 				else
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_HUSH
 					params.Color = mod.Colors.PortalShot
+					params.TargetPosition = entity.Position
 
-					-- Rotation direction
+					-- Get the orbit direction
 					if entity.StateFrame == 0 then
 						params.BulletFlags = ProjectileFlags.ORBIT_CW
 						entity.StateFrame = 1
+
 					elseif entity.StateFrame == 1 then
 						params.BulletFlags = ProjectileFlags.ORBIT_CCW
 						entity.StateFrame = 0
 					end
-					params.TargetPosition = entity.Position
 
 					mod:FireProjectiles(entity, entity.Position, Vector(Settings.ShotSpeed, 4), 9, params, mod.Colors.PortalShotTrail)
 				end
+
+
+				-- Effects
+				Game():MakeShockwave(entity.Position, 0.015, 0.015, 5)
+				mod:PlaySound(nil, SoundEffect.SOUND_PORTAL_SPAWN, 1, math.random(97, 103) / 100)
 
 			elseif sprite:IsOverlayFinished("FaceSpawn") then
 				entity.State = NpcState.STATE_IDLE

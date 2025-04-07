@@ -1,43 +1,50 @@
 ================================================
-    Version 3.x.x
+    Version 3.2.0
 ================================================
 
 -- Reworks / Additions --
 - Famine's 1st phase has recieved several tweaks and his 2nd phase recieved a new attack
 - Pestilence's 2nd phase ipecac attack has been replaced with a new attack
-- War's 2nd phase has been reworked
-- Conquest's 2nd phase now better matches the other horsemen's 2nd phases
+- War's 2nd phase has been reworked and his 1st phase projectile attack now has a longer wind-up
+- Conquest has recieved several tweaks and his 2nd phase now better matches the other horsemen's 2nd phases
 - Death's 1st and 2nd phase has recieved several tweaks and his 2nd phase recieved a new attack
-- Oobs and Black Maws have been reworked
-- Rag Mega has recieved new sprites
+- The Adversary recieved several tweaks, including his iconic homing laser being reworked
+- Rag Mega has recieved new sprites and his wrapped-up attack has been reworked
 
 
 -- Balance changes --
-- The Adversary's laser now works similar to Vis Versa lasers, starting out straight and curving towards players
 - Multiple Adversaries can no longer perform the laser attack at the same time
 - Pestilence now only has a creep trail in his 2nd phase
-- War's projectile ring attack now has a longer wind-up
-- Conquest's Horse now has 120 health instead of 150
 - Death's health has been increased from 450 to 540
-- Rag Mega no longer shoots while wrapped-up, instead his plasma balls orbit faster and from further away during it
 - Rag Mega's revive attack now shoots homing shots in cardinal directions
-- ???'s spiral shots are now slower and have more space between them
+- ???'s spiral and rotating shots are now slower and have more space between them
+- ???'s bone swing now shoots projectiles in one of 2 fixed patterns
 - ???'s custom damage reduction is no longer active when playing on Repentance+ because of his added boss armor
 - Increased Carrion Queen's cooldown between charges
 - The Forsaken now only shoots rings of 6 shots instead of 8 during his brimstone attack
 - Gish's movement speed and several of his attacks have been sped up
 - Gish can no longer shoot when attached to walls and will always jump across instead
 - Mr. Fred's harlequin shots no longer leave behind creep but its lingering projectiles last longer
-- Fallen Gabriel can now move sooner after spawning his brimstone swirls
 - Fallen Gabriel's x brimstone attack now shoots brimstone lasers twice in an x pattern followed by a + pattern instead
+- Greedy enemies now have a smaller range for collecting coins and gain less health from them
 - Flaming Hoppers' fire rings are now smaller
-- Fat Bats now have a more appropriate hitbox size
-- Flesh Death's Heads had their Repentance+ health change reverted since the old amount fits their new behaviour better
+- Flesh Death's Heads had their Repentance+ health change reverted
 - Psy Tumor projectiles no longer linger in the air
 - Membrains now send their projectiles outwards instead of at the player
 - Mega Clotties now only stomp once and will randomly shoot in one of three patterns
 - Bomb coins spawned by champion Greed now have 50% less health and a smaller hitbox
 - Black champion Mega Maw's spit projectile now only splits into 2 smaller projectiles
+- Updated the list of Portal spawns
+- Updated the list of spawns for blue champion and Mausoleum / Gehenna Mom
+
+
+-- Other changes --
+- Added submenus to the DSS menu for easier navigation
+- Ultra Greed's coins now have a bounce animation after landing that gives extra time for players to move away from them
+- Ultra Greed coins Fat Bats, Death's Horse and Conquest's Horse now have more appropriate hitbox sizes
+- Delirium will no longer immediately transform out of his Gish form
+- Triachnid is now blacklisted for Delirium if REPENTOGON is enabled
+- Added Portal spawns for custom stages in the Void when using Custom Void Generation
 
 
 -- Fixes --
@@ -46,6 +53,7 @@
 - Fixed Dart Flies being unaffected by fear and confusion
 - Fixed Blue Gapers not being spawned properly by Hush
 - Fixed Friend Finder Nests being replaced with hostile versions
+- Fixed Black Bony variants not being seeded
 - Fixed Fiend Folio waiting Lumps not having collision until they change positions
 - Fixed mismatched effect colors for some enemies in Mortis (Last Judgement)
 

@@ -177,43 +177,34 @@ local directory = {
 		title = 'reworked foes',
 		buttons = {
 			{ str = 'resume game', action = 'resume' },
-			{ str = 'settings',    dest   = 'settings' },
+			{ str = 'general', dest = 'general' },
+			{ str = 'hidden enemies', dest = 'hiddenEnemies' },
+			{ str = 'spawn indicators', dest = 'spawnIndicators' },
+			{ str = 'credits', dest = 'credits' },
 			dssmod.changelogsButton,
-			{ str = 'credits',     dest   = 'credits' },
 		},
 		tooltip = dssmod.menuOpenToolTip
 	},
 
-	settings = {
-		title = 'settings',
+	-- General settings
+	general = {
+		title = 'general settings',
 		buttons = {
-			{ str = 'general', fsize = 3, nosel = true },
+			mod:CreateDSSToggle("BreakableHosts",      "breakable hosts",        { 'host armor', 'can be broken', 'by a bomb or', 'high damage' }),
 			{ str = '', fsize = 1, nosel = true },
-
-			mod:CreateDSSToggle("BreakableHosts",      "breakable hosts",        { 'host armor', 'can be broken', 'by a bomb', 'or high damage' }),
 			mod:CreateDSSToggle("CoinStealing",        "coin stealing enemies",  { 'greed themed', 'enemies', 'will steal', 'nearby coins' }),
+			{ str = '', fsize = 1, nosel = true },
 			mod:CreateDSSToggle("ChampionChanges",     "enemy champion changes", { 'some enemy', 'champions', 'will have', 'different', 'drops or', 'behaviour' }),
+			{ str = '', fsize = 1, nosel = true },
 			mod:CreateDSSToggle("ClassicEternalFlies", "classic eternal flies",  { 'eternal flies', 'will keep', 'their', 'appearance', 'when chasing', 'the player' }),
+			{ str = '', fsize = 1, nosel = true },
 			mod:CreateDSSToggle("NoChapter1Nests",     "no chapter 1 nests",     { 'replace nests', 'in chapter 1', 'with easier', 'mullicocoons' }),
+			{ str = '', fsize = 1, nosel = true },
 			mod:CreateDSSToggle("EnvyRework",          "envy rework",            { 'envy heads', 'will bounce', 'off of each', 'other' }),
+			{ str = '', fsize = 1, nosel = true },
 			mod:CreateDSSToggle("BlackBonyBombs",      "black bony effects", 	 { 'black bonies', 'will spawn', 'with random', 'bomb effects' }),
+			{ str = '', fsize = 1, nosel = true },
 			mod:CreateDSSToggle("BurningGushers",      "burning gushers",        { 'gushers', 'spawned by', 'flaming gapers', 'will have', 'new behaviour' }),
-
-			{ str = '', fsize = 3, nosel = true },
-			{ str = 'enemy indicators', fsize = 3, nosel = true },
-			{ str = '', fsize = 1, nosel = true },
-
-			mod:CreateDSSToggle("NoHiddenPins", "pin",          { 'show indicator', 'when pin and', 'similar bosses', 'are hidden' }),
-			mod:CreateDSSToggle("NoHiddenPoly", "polycephalus", { 'show', 'indicator when', 'polycephalus', 'and similar', 'bosses are', 'hidden' }),
-			mod:CreateDSSToggle("NoHiddenDust", "dust",         { 'show indicator', 'when dust and', 'similar enemies',  'are hidden' }),
-
-			{ str = '', fsize = 3, nosel = true },
-			{ str = 'spawn indicators', fsize = 3, nosel = true },
-			{ str = '', fsize = 1, nosel = true },
-
-			mod:CreateDSSToggle("AppearPins",      "pin",       { 'play animation', 'when pin and', 'similar bosses', 'spawn' }),
-			mod:CreateDSSToggle("AppearNeedles",   "needles",   { 'play animation', 'when needles', 'and similar' , 'enemies spawn' }),
-			mod:CreateDSSToggle("AppearMomsHands", "moms hand", { 'play', 'animation when', 'moms hand', 'and similar' , 'enemies spawn' }),
 
 			{ str = '', fsize = 3, nosel = true },
 			dssmod.gamepadToggleButton,
@@ -221,9 +212,34 @@ local directory = {
 			dssmod.paletteButton,
 			dssmod.menuHintButton,
 			dssmod.menuBuzzerButton,
-		}
+		},
 	},
 
+	-- Hidden enemy settings
+	hiddenEnemies = {
+		title = 'hidden enemies',
+		buttons = {
+			mod:CreateDSSToggle("NoHiddenPins", "pin",          { 'show an', 'indicator when', 'pin and', 'similar bosses', 'are hidden' }),
+			{ str = '', fsize = 1, nosel = true },
+			mod:CreateDSSToggle("NoHiddenPoly", "polycephalus", { 'show an', 'indicator when', 'polycephalus', 'and similar', 'bosses are', 'hidden' }),
+			{ str = '', fsize = 1, nosel = true },
+			mod:CreateDSSToggle("NoHiddenDust", "dust",         { 'show an', 'indicator when', 'dust and', 'similar enemies',  'are hidden' }),
+		},
+	},
+
+	-- Spawn indicator settings
+	spawnIndicators = {
+		title = 'spawn indicators',
+		buttons = {
+			mod:CreateDSSToggle("AppearPins",      "pin",       { 'play an', 'animation when', 'pin and', 'similar bosses', 'spawn' }),
+			{ str = '', fsize = 1, nosel = true },
+			mod:CreateDSSToggle("AppearNeedles",   "needles",   { 'play an', 'animation when', 'needles', 'and similar' , 'enemies spawn' }),
+			{ str = '', fsize = 1, nosel = true },
+			mod:CreateDSSToggle("AppearMomsHands", "moms hand", { 'play an', 'animation when', 'moms hand', 'and similar' , 'enemies spawn' }),
+		},
+	},
+
+	-- Credits
 	credits = {
 		title = 'credits',
 		buttons = {

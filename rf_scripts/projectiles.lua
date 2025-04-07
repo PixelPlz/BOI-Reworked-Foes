@@ -393,6 +393,10 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditTearProjectiles,
 
 --[[ Custom projectiles ]]--
 -- Template for custom projectile behaviour
+---@param variant integer
+---@param initScript function The script to run when the projectile initializes.
+---@param updateScript function The script to run when the projectile update.
+---@param popScript function The script to run when the projectile lands or hits an entity / obstacle.
 function mod:AddCustomProjectile(variant, initScript, updateScript, popScript)
 	local function init(projectile)
 		if initScript then
@@ -400,13 +404,6 @@ function mod:AddCustomProjectile(variant, initScript, updateScript, popScript)
 		end
 		projectile:GetData().customProjectileInitialized = true
 		projectile:GetData().spawnerSubType = projectile.SpawnerEntity and projectile.SpawnerEntity.SubType or -1
-	end
-
-	local function pop(projectile)
-		if popScript then
-			popScript(_, projectile)
-		end
-		projectile:Remove()
 	end
 
 
@@ -421,26 +418,36 @@ function mod:AddCustomProjectile(variant, initScript, updateScript, popScript)
 		-- Late init
 		if projectile.FrameCount <= 2 and not projectile:GetData().customProjectileInitialized then
 			init(projectile)
-
-		-- Landed
-		elseif projectile:IsDead() then
-			pop(projectile)
+		end
 
 		-- Midair
-		elseif updateScript then
+		if updateScript then
 			updateScript(_, projectile)
+		end
+
+		-- Landed
+		if projectile:IsDead() and not REPENTOGON then
+			popScript(_, projectile)
 		end
 	end
 	mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, customProjectileUpdate, variant)
 
-	-- Hit an entity
-	local function customProjectileCollision(_, projectile, collider, bool)
-		if collider.Type == EntityType.ENTITY_PLAYER
-		or (collider:ToNPC() and collider.EntityCollisionClass == EntityCollisionClass.ENTCOLL_ALL) then
-			pop(projectile)
+
+	-- Landed / hit an entity or obstacle
+	if REPENTOGON then
+		mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_DEATH, popScript, variant)
+
+	else
+		-- Hit an entity
+		local function customProjectileCollision(_, projectile, collider, bool)
+			if collider.Type == EntityType.ENTITY_PLAYER
+			or (collider:ToNPC() and collider.EntityCollisionClass == EntityCollisionClass.ENTCOLL_ALL) then
+				popScript(_, projectile)
+				projectile:Remove()
+			end
 		end
+		mod:AddCallback(ModCallbacks.MC_PRE_PROJECTILE_COLLISION, customProjectileCollision, variant)
 	end
-	mod:AddCallback(ModCallbacks.MC_PRE_PROJECTILE_COLLISION, customProjectileCollision, variant)
 end
 
 

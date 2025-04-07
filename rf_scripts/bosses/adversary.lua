@@ -22,17 +22,24 @@ function mod:AdversaryUpdate(entity)
 			else
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 			end
-		end
 
-		-- Stop him from sliding around after landing
-		if sprite:IsEventTriggered("Land") then
-			entity.Velocity = Vector.Zero
+		else
+			-- Stop him from sliding around after landing
+			if sprite:IsEventTriggered("Land") then
+				entity.Velocity = Vector.Zero
+				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
 
-			-- Extra effects
-			mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 0.9)
+				-- Extra effects
+				mod:PlaySound(nil, SoundEffect.SOUND_HELLBOSS_GROUNDPOUND, 0.9)
 
-			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity)
-			effect:GetSprite().Color = mod.Colors.DustPoof
+				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity)
+				effect:GetSprite().Color = mod.Colors.DustPoof
+			end
+
+			-- Disable ground collision again
+			if sprite:GetFrame() >= 26 then
+				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
+			end
 		end
 
 

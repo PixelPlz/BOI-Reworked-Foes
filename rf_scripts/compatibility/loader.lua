@@ -200,5 +200,58 @@ function mod:LoadCompatibility()
 			BaptismalPreloader.AddAntibaptismalData(entry[1], {BaptismalPreloader.GenerateTransformationDataset(entry[2])})
 		end
 	end
+
+
+
+	--[[ Portal spawns ]]--
+	-- Fall from Grace
+	if FFGRACE then
+		mod.PortalSpawns["Boiler"] = {
+			{ Type = FFGRACE.ENT.STEAMED_HAM.id, Variant = FFGRACE.ENT.STEAMED_HAM.variant, },
+			{ Type = FFGRACE.ENT.MULLIBOIL.id, Variant = FFGRACE.ENT.MULLIBOIL.variant, },
+			{ Type = FFGRACE.ENT.STEAMLING.id, Variant = FFGRACE.ENT.STEAMLING.variant, },
+			{ Type = FFGRACE.ENT.HOTSHOT.id, Variant = FFGRACE.ENT.HOTSHOT.variant, },
+			{ Type = FFGRACE.ENT.GUZZLE.id, Variant = FFGRACE.ENT.GUZZLE.variant, },
+			{ Type = FFGRACE.ENT.VALVE_GUY.id, Variant = FFGRACE.ENT.VALVE_GUY.variant, },
+		}
+
+		mod.PortalSpawns["Grotto"] = {
+			{ Type = FFGRACE.ENT.GLUEY.id, Variant = FFGRACE.ENT.GLUEY.variant, },
+			{ Type = FFGRACE.ENT.TOAST.id, Variant = FFGRACE.ENT.TOAST.variant, },
+			{ Type = FFGRACE.ENT.MUDPIE.id, Variant = FFGRACE.ENT.MUDPIE.variant, },
+			{ Type = FFGRACE.ENT.BRAAPINFLY.id, Variant = FFGRACE.ENT.BRAAPINFLY.variant, },
+			{ Type = FFGRACE.ENT.SKEETER.id, Variant = FFGRACE.ENT.SKEETER.variant, },
+			{ Type = FFGRACE.ENT.FUNGORI.id, Variant = FFGRACE.ENT.FUNGORI.variant, },
+		}
+	end
+
+	-- Last Judgement
+	if LastJudgement then
+		mod.PortalSpawns["Mortis"] = {
+			{ Type = LastJudgement.ENT.Vax.ID, Variant = LastJudgement.ENT.Vax.Var, SubType = LastJudgement.ENT.Vax.Sub, },
+			{ Type = LastJudgement.ENT.StressBall.ID, Variant = LastJudgement.ENT.StressBall.Var, },
+			{ Type = LastJudgement.ENT.StrainBaby.ID, Variant = LastJudgement.ENT.StrainBaby.Var, },
+			{ Type = LastJudgement.ENT.Gash.ID, Variant = LastJudgement.ENT.Gash.Var, },
+			{ Type = LastJudgement.ENT.Cyabin.ID, Variant = LastJudgement.ENT.Cyabin.Var, },
+			{ Type = LastJudgement.ENT.Carnis.ID, Variant = LastJudgement.ENT.Carnis.Var, },
+		}
+	end
+
+	-- The Future
+	if TheFuture then
+		mod.PortalSpawns["The Future"] = {
+			{ Type = TheFuture.Monsters.SBlob.ID, Variant = TheFuture.Monsters.SBlob.Var, },
+			{ Type = TheFuture.Monsters.Fecalection.ID, Variant = TheFuture.Monsters.Fecalection.Var, },
+			{ Type = TheFuture.Monsters.FamilyBaby.ID, Variant = TheFuture.Monsters.FamilyBaby.Var, },
+			{ Type = TheFuture.Monsters.Betus.ID, Variant = TheFuture.Monsters.Betus.Var, },
+			{ Type = TheFuture.Monsters.Monger.ID, Variant = TheFuture.Monsters.Monger.Var, },
+			{ Type = TheFuture.Monsters.Stevis.ID, Variant = TheFuture.Monsters.Stevis.Var, },
+		}
+	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.LoadCompatibility)
+if REPENTOGON then
+	mod:AddCallback(ModCallbacks.MC_POST_MODS_LOADED, mod.LoadCompatibility)
+else
+	mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.LoadCompatibility)
+end
+mod:LoadCompatibility()

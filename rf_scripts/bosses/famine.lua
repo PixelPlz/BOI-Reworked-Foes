@@ -113,9 +113,11 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.FamineUpdate, EntityType.ENT
 
 
 -- Have a chance to spawn a Super Pooter instead
-function mod:PooterInit(entity)
-	if entity.SpawnerType == EntityType.ENTITY_FAMINE and mod:Random(1) == 1 then
-		entity:Morph(entity.Type, 1, entity.SubType, -1)
+function mod:ReplaceFaminePooter(type, variant, subtype, position, velocity, spawner, seed)
+	if type == EntityType.ENTITY_POOTER and variant == 0
+	and spawner and spawner.Type == EntityType.ENTITY_FAMINE
+	and mod:Random(1, 10) <= 4  then -- 40% chance
+		return { type, 1, subtype, seed, }
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.PooterInit, EntityType.ENTITY_POOTER)
+mod:AddCallback(ModCallbacks.MC_PRE_ENTITY_SPAWN, mod.ReplaceFaminePooter)

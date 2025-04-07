@@ -75,7 +75,7 @@ function mod:StainUpdate(entity)
 				if entity.ProjectileCooldown <= 0 then
 					local directions = {0, 90, 180, 270}
 
-					for i = 0, 1 do
+					for i = 1, 2 do
 						local choice = math.random(1, #directions)
 						local direction = directions[choice]
 						table.remove(directions, choice)
@@ -84,10 +84,14 @@ function mod:StainUpdate(entity)
 						local tentacle = Isaac.Spawn(EntityType.ENTITY_STAIN, 10, entity.SubType, pos, Vector.Zero, entity)
 						tentacle.Parent = entity
 
-						for i = 0, 5 do
-							local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 6, tentacle.Position, mod:RandomVector(3), entity):ToEffect()
-							rocks:GetSprite():Play("rubble", true)
-							rocks.State = 2
+						-- Rock particles
+						local rockSubType = Game():GetRoom():GetBackdropType()
+
+						for j = 1, 4 do
+							local velocity = mod:RandomVector(math.random(2, 4))
+							local rock = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, rockSubType, tentacle.Position, velocity, entity):ToEffect()
+							rock:Update()
+							rock.State = 2
 						end
 					end
 					mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE)

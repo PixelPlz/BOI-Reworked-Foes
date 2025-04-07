@@ -1,86 +1,74 @@
 local mod = ReworkedFoes
 
-local Settings = {
-	CoinHealPercentage = 3,
-	CoinCollectRange = 20,
-	CoinMagnetRange = 40,
-	CoinMagnetSpeed = 15,
-}
-
 
 
 --[[ Make greedy enemies collect coins ]]--
 function mod:CollectCoins(entity)
 	if mod.Config.CoinStealing and not Game():IsGreedMode() -- Don't pick up coins in Greed Mode
-	and entity.FrameCount > 20 and not entity:IsDead() -- Don't try to pick up coins during the appear animation / post-mortem
-	and not entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then -- Friendly enemies shouldn't pick up coins
+	and entity.FrameCount >= 20 and not entity:IsDead() -- Don't try to pick up coins during the appear animation / post-mortem
+	and not entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then -- Don't pick up coins if friendly
+		local coins = Isaac.FindByType(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COIN)
 
-		for i, pickup in pairs(Isaac.FindInRadius(entity.Position, Settings.CoinMagnetRange, EntityPartition.PICKUP)) do
-			if pickup.Variant == PickupVariant.PICKUP_COIN and pickup.SubType ~= CoinSubType.COIN_STICKYNICKEL -- Don't try to pick up sticky nickels
-			and pickup:ToPickup():CanReroll() == true -- Don't try to pick up coins that haven't finished spawning
-			and not pickup:GetData().greedRobber then
+		for i, pickup in pairs(coins) do
+			local radius = entity.Size + pickup.Size + 15
+			local data = pickup:GetData()
 
-				-- In collecting range
-				if pickup.Position:Distance(entity.Position) <= Settings.CoinCollectRange then
-					pickup:GetData().greedRobber = entity
-					pickup.Velocity = Vector.Zero
-					pickup.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+			if pickup.Position:Distance(entity.Position) <= radius -- In range
+			and pickup.SubType ~= CoinSubType.COIN_STICKYNICKEL -- Not a Sticky Nickel
+			and not data.greedPickedUp then -- Not already picked up
+				data.greedPickedUp = entity
 
-				-- Not behind obstacles
-				elseif Game():GetRoom():CheckLine(entity.Position, pickup.Position, 0, 0, false, false) then
-					pickup.Velocity = mod:Lerp(pickup.Velocity, (entity.Position - pickup.Position):Resized(Settings.CoinMagnetSpeed), 0.25)
+				-- Remove the coin
+				pickup.Velocity = Vector.Zero
+				pickup.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+				pickup:GetSprite():Play("Collect", true)
+				pickup:ToPickup():PlayPickupSound()
+
+
+				-- Heal based on the coin value
+				local value = 1
+
+				-- Nickels
+				if entity.SubType == CoinSubType.COIN_NICKEL or entity.SubType == CoinSubType.COIN_STICKYNICKEL then
+					value = 5
+				-- Dime / Golden
+				elseif entity.SubType == CoinSubType.COIN_DIME or entity.SubType == CoinSubType.COIN_GOLDEN then
+					value = 10
+				-- Double
+				elseif entity.SubType == CoinSubType.COIN_DOUBLEPACK then
+					value = 2
 				end
 
+				local onePercent = entity.MaxHitPoints / 100
+				entity:AddHealth(onePercent * 2 * value)
+				entity:SetColor(Color(1,1,1, 1, 0.5,0.5,0), 5, 255, true)
+
+
+				-- Add to Coffer coin projectiles
+				if entity.Type == EntityType.ENTITY_KEEPER and entity.Variant == mod.Entities.Coffer then
+					entity.I1 = entity.I1 + value
+				end
 			end
 		end
 	end
 end
 
-function mod:CollectedCoin(entity)
-	local data = entity:GetData()
-	local sprite = entity:GetSprite()
+-- Collected coin
+function mod:CollectedCoin(pickup)
+	local sprite = pickup:GetSprite()
 
-
-	-- Collect the coin
-	if data.greedRobber then
-		if not sprite:IsPlaying("Collect") then
-			sprite:Play("Collect", true)
-			data.greedCollected = true
-			data.greedRobber:SetColor(Color(1,1,1, 1, 0.5,0.5,0), 5, 1, true, false)
-
-			-- Proper coin values
-			local multiplier = 1
-			if entity.SubType == CoinSubType.COIN_NICKEL or entity.SubType == CoinSubType.COIN_STICKYNICKEL then
-				multiplier = 5
-			elseif entity.SubType == CoinSubType.COIN_DIME or entity.SubType == CoinSubType.COIN_GOLDEN then
-				multiplier = 10
-			elseif entity.SubType == CoinSubType.COIN_DOUBLEPACK or entity.SubType == CoinSubType.COIN_LUCKYPENNY then
-				multiplier = 2
-			end
-
-			-- Heal based on the coin value
-			data.greedRobber:AddHealth((data.greedRobber.MaxHitPoints / 100) * Settings.CoinHealPercentage * multiplier)
-
-			-- Add to Coffer coin projectiles
-			if data.greedRobber.Type == EntityType.ENTITY_KEEPER and data.greedRobber.Variant == mod.Entities.Coffer then
-				data.greedRobber.I1 = data.greedRobber.I1 + multiplier
-			end
-		end
-
-		data.greedRobber = nil
-	end
-
-	-- Remove the coin
-	if data.greedCollected and sprite:IsPlaying("Collect") and sprite:GetFrame() >= 4 then
-		entity:PlayPickupSound()
-		entity:Remove()
+	if pickup:GetData().greedPickedUp
+	and sprite:IsPlaying("Collect") and sprite:GetFrame() > 5 then
+		pickup:Remove()
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, mod.CollectedCoin, PickupVariant.PICKUP_COIN)
 
 
 
---[[ Coffer / Keeper ]]--
+
+
+-- Coffer / Keeper
 function mod:KeeperUpdate(entity)
 	local sprite = entity:GetSprite()
 
@@ -98,10 +86,12 @@ function mod:KeeperUpdate(entity)
 		-- Target coins on the ground
 		if mod.Config.CoinStealing and not Game():IsGreedMode()
 		and not entity:IsDead() and not entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
-			for _, pickup in pairs(Isaac.FindInRadius(entity.Position, Settings.CoinMagnetRange * 3, EntityPartition.PICKUP)) do
-				if pickup.Variant == PickupVariant.PICKUP_COIN and pickup.SubType ~= CoinSubType.COIN_STICKYNICKEL -- Don't try to pick up sticky nickels
-				and pickup:ToPickup():CanReroll() == true -- Don't try to pick up coins that haven't finished spawning
-				and not pickup:GetData().greedRobber then
+			local radius = 120
+
+			for _, pickup in pairs( Isaac.FindInRadius(entity.Position, radius, EntityPartition.PICKUP) ) do
+				if pickup.Variant == PickupVariant.PICKUP_COIN
+				and pickup.SubType ~= CoinSubType.COIN_STICKYNICKEL -- Not a Sticky Nickel
+				and not pickup:GetData().greedPickedUp then -- Not already picked up
 					entity.Target = pickup
 					break
 				end

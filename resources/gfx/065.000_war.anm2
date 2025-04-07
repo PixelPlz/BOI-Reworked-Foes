@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2024. 12. 13. 18:40:04" Version="128" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2025. 04. 02. 19:43:48" Version="129" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="Bosses/Classic/Boss_052_War.png" Id="0"/>
@@ -16,6 +16,7 @@
 		</Nulls>
 		<Events>
 			<Event Name="Explosion" Id="0"/>
+			<Event Name="Shoot" Id="1"/>
 		</Events>
 	</Content>
 	<Animations DefaultAnimation="Walk">
@@ -180,7 +181,9 @@
 					<Frame XPosition="0" YPosition="-55" XScale="100" YScale="100" Delay="1" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="false"/>
 				</NullAnimation>
 			</NullAnimations>
-			<Triggers/>
+			<Triggers>
+				<Trigger EventId="1" AtFrame="9"/>
+			</Triggers>
 		</Animation>
 		<Animation Name="Attack2" FrameNum="28" Loop="false">
 			<RootAnimation>
@@ -266,7 +269,9 @@
 					<Frame XPosition="0" YPosition="-55" XScale="100" YScale="100" Delay="1" Visible="false" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="false"/>
 				</NullAnimation>
 			</NullAnimations>
-			<Triggers/>
+			<Triggers>
+				<Trigger EventId="1" AtFrame="4"/>
+			</Triggers>
 		</Animation>
 		<Animation Name="DashStart" FrameNum="25" Loop="false">
 			<RootAnimation>
@@ -314,7 +319,9 @@
 					<Frame XPosition="0" YPosition="-55" XScale="100" YScale="100" Delay="1" Visible="true" RedTint="255" GreenTint="255" BlueTint="255" AlphaTint="255" RedOffset="0" GreenOffset="0" BlueOffset="0" Rotation="0" Interpolated="false"/>
 				</NullAnimation>
 			</NullAnimations>
-			<Triggers/>
+			<Triggers>
+				<Trigger EventId="1" AtFrame="4"/>
+			</Triggers>
 		</Animation>
 		<Animation Name="Dash" FrameNum="2" Loop="true">
 			<RootAnimation>

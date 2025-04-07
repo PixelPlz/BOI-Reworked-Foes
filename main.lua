@@ -1,6 +1,6 @@
 ReworkedFoes = RegisterMod("Improved & Reworked Foes", 1)
 local mod = ReworkedFoes
-mod.Version = "3.x.x"
+mod.Version = "3.2.0"
 
 
 
@@ -33,7 +33,6 @@ local enemyScripts = {
 	"hostBreaking",
 	"hoppers",
 	"redMaw",
-	"angelicBaby",
 	"selflessKnight",
 	"pokies",
 	"sketches",
@@ -49,7 +48,6 @@ local enemyScripts = {
 	"dankDeathsHead",
 	"momsHand",
 	"codWorm",
-	"oob",
 	"skinny",
 	"homunculusBegotten",
 	"tumors",
@@ -63,6 +61,7 @@ local enemyScripts = {
 	"boneKnight",
 	"fleshDeathHead",
 	"ulcer",
+	"ultraGreedCoins",
 	"blister",
 	"portal",
 	"adultLeech",

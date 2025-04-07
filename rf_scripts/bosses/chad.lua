@@ -25,7 +25,6 @@ function mod:ChadInit(entity)
 	if entity.Variant == 1 then
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
 		entity.ProjectileCooldown = Settings.Cooldown / 2
-		mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, entity.Scale + 2, Settings.CreepTime)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.ChadInit, EntityType.ENTITY_CHUB)
@@ -780,6 +779,16 @@ function mod:ChadUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.ChadUpdate, EntityType.ENTITY_CHUB)
+
+-- Appear animation creep
+function mod:ChadRender(entity, offset)
+	if entity.Variant == 1 and mod:ShouldDoRenderEffects() and entity.FrameCount == 1
+	and not entity:GetData().SpawnCreep then
+		mod:QuickCreep(EffectVariant.CREEP_RED, entity, entity.Position, entity.Scale + 1.5, Settings.CreepTime)
+		entity:GetData().SpawnCreep = true
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.ChadRender, EntityType.ENTITY_CHUB)
 
 function mod:ChadDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if entity.Variant == 1 and not (damageFlags & DamageFlag.DAMAGE_COUNTDOWN > 0) then

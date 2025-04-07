@@ -205,7 +205,7 @@ function mod:FallenGabrielUpdate(entity)
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.FallenGabrielUpdate, EntityType.ENTITY_GABRIEL)
 
-function mod:GabrielCollision(entity, target, cock)
+function mod:GabrielCollision(entity, target, bool)
 	if target.SpawnerType == entity.Type then
 		return true -- Ignore collision
 	end
@@ -214,7 +214,25 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.GabrielCollision, EntityT
 
 
 
---[[ Single Laser Brimstone Swirl ]]--
+-- Replace Gabriel's angels
+function mod:ReplaceAngelicBaby(type, variant, subtype, position, velocity, spawner, seed)
+	if type == EntityType.ENTITY_BABY and variant == 1
+	and spawner and spawner.Type == EntityType.ENTITY_GABRIEL then
+		-- Fallen Gabriel's Imp
+		if spawner.Variant == 1 then
+			return { EntityType.ENTITY_IMP, 0, 0, seed, }
+
+		-- Regular Gabriel's baby angels
+		else
+			return { type, variant, 1, seed, }
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_PRE_ENTITY_SPAWN, mod.ReplaceAngelicBaby)
+
+
+
+-- Single Laser Brimstone Swirl
 function mod:SingleBrimstoneSwirlUpdate(effect)
 	local sprite = effect:GetSprite()
 	local target = effect.Parent and effect.Parent:ToNPC():GetPlayerTarget() or Isaac.GetPlayer(0)
@@ -225,7 +243,7 @@ function mod:SingleBrimstoneSwirlUpdate(effect)
 	-- Get starting position + tracer
 	if sprite:GetFrame() == 28 then
 		effect.TargetPosition = (target.Position - effect.Position):Normalized()
-		mod:QuickTracer(effect, effect.TargetPosition:GetAngleDegrees(), Vector.Zero, 15, 1, 2)
+		mod:QuickTracer(effect, effect.TargetPosition:GetAngleDegrees(), Vector.Zero, 8, 3)
 	end
 
 	-- Shoot the laser

@@ -1,48 +1,5 @@
 local mod = ReworkedFoes
 
--- Example on how to add custom spawns: (variant and subtype can be left out to default it to 0)
--- table.insert( ReworkedFoes.MomSpawns.Mausoleum, {200, 21, 69} )
-mod.MomSpawns = {
-	Blue = {
-		{EntityType.ENTITY_POOTER, 1},
-		{EntityType.ENTITY_CLOTTY, 1},
-		{EntityType.ENTITY_HOPPER, 1},
-		{EntityType.ENTITY_VIS, 2},
-		{EntityType.ENTITY_SPIDER},
-		{EntityType.ENTITY_KEEPER},
-		{EntityType.ENTITY_GURGLE},
-		{EntityType.ENTITY_WALKINGBOIL},
-		{EntityType.ENTITY_BUTTLICKER},
-		{EntityType.ENTITY_BIGSPIDER},
-	},
-
-	Mausoleum = {
-		{EntityType.ENTITY_MAW, 2},
-		{EntityType.ENTITY_KNIGHT, 2},
-		{EntityType.ENTITY_SUCKER},
-		{EntityType.ENTITY_BONY},
-		{EntityType.ENTITY_RAGLING, 1},
-		{EntityType.ENTITY_PSY_HORF},
-		{EntityType.ENTITY_CANDLER},
-		{EntityType.ENTITY_WHIPPER},
-		{EntityType.ENTITY_PON},
-		{EntityType.ENTITY_VIS_FATTY, 1},
-	},
-
-	Gehenna = {
-		{EntityType.ENTITY_KNIGHT, 4},
-		{EntityType.ENTITY_SUCKER},
-		{EntityType.ENTITY_BIGSPIDER},
-		{EntityType.ENTITY_BONY},
-		{EntityType.ENTITY_BEGOTTEN},
-		{EntityType.ENTITY_WHIPPER},
-		{EntityType.ENTITY_WHIPPER, 1},
-		{EntityType.ENTITY_VIS_FATTY, 1},
-		{EntityType.ENTITY_MAZE_ROAMER},
-		{EntityType.ENTITY_GOAT},
-	},
-}
-
 
 
 function mod:MomInit(entity)
@@ -88,29 +45,35 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MomUpdate, EntityType.ENTITY_MOM
 
 
 
---[[ New spawns ]]--
-function mod:MomReplaceSpawns(entity)
-	if entity.SpawnerType == EntityType.ENTITY_MOM and entity.SpawnerEntity
-	and (entity.SpawnerEntity.SubType == 1 or entity.SpawnerEntity.SubType == 3)
-	and not entity:GetData().newMomSpawn then
-		entity:Remove()
+-- Alt-path spawn replacements
+mod.MomSpawnReplacements = {
+	-- Mausoleum
+	[ StageType.STAGETYPE_REPENTANCE ] = {
+		[ EntityType.ENTITY_ATTACKFLY .. 0 ] = { Type = EntityType.ENTITY_BONY, },
+		[ EntityType.ENTITY_GLOBIN .. 3 ] 	 = { Type = EntityType.ENTITY_KNIGHT, Variant = 2, },
+		[ EntityType.ENTITY_PSY_HORF .. 0 ]  = { Type = EntityType.ENTITY_WHIPPER, },
+	},
+	-- Gehenna
+	[ StageType.STAGETYPE_REPENTANCE_B ] = {
+		[ EntityType.ENTITY_ATTACKFLY .. 0 ] = { Type = EntityType.ENTITY_BONY, },
+		[ EntityType.ENTITY_GLOBIN .. 3 ] 	 = { Type = EntityType.ENTITY_KNIGHT, Variant = 4, },
+		[ EntityType.ENTITY_RAGLING .. 1 ] 	 = { Type = EntityType.ENTITY_GOAT, },
+		[ EntityType.ENTITY_PSY_HORF .. 0 ]  = { Type = EntityType.ENTITY_WHIPPER, },
+	},
+}
 
-		-- Get spawn group
-		local spawnGroup = mod.MomSpawns.Blue
+-- Replace the specified spawns
+function mod:ReplaceMomSpawn(type, variant, subtype, position, velocity, spawner, seed)
+	if type >= 10 and type < 1000 and type ~= EntityType.ENTITY_MOM
+	and spawner and spawner.Type == EntityType.ENTITY_MOM and spawner.Variant == 0 and spawner.SubType == 3 then
+		local spawnGroup = Game():GetLevel():GetStageType()
+		local spawnData = mod.MomSpawnReplacements[spawnGroup][type .. variant]
 
-		if entity.SpawnerEntity.SubType == 3 then
-			-- Gehenna champion
-			if Game():GetLevel():GetStageType() == StageType.STAGETYPE_REPENTANCE_B then
-				spawnGroup = mod.MomSpawns.Gehenna
-
-			-- Mausoleum champion
-			else
-				spawnGroup = mod.MomSpawns.Mausoleum
-			end
+		if spawnData then
+			local newVariant = spawnData.Variant or 0
+			local newSubType = spawnData.SubType or 0
+			return { spawnData.Type, newVariant, newSubType, seed, }
 		end
-
-		local selectedSpawn = mod:RandomIndex(spawnGroup)
-		Isaac.Spawn(selectedSpawn[1], selectedSpawn[2] or 0, selectedSpawn[3] or 0, entity.Position, Vector.Zero, entity):GetData().newMomSpawn = true
 	end
 end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.MomReplaceSpawns)
+mod:AddCallback(ModCallbacks.MC_PRE_ENTITY_SPAWN, mod.ReplaceMomSpawn)

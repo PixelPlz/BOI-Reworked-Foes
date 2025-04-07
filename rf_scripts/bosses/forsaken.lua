@@ -584,7 +584,7 @@ function mod:ForsakenUpdate(entity)
 				if entity.SubType == 1 then
 					mod:PlaySound(nil, SoundEffect.SOUND_FLAMETHROWER_START, 1.1)
 				else
-					mod:QuickTracer(entity, entity.I2 * 90, Vector(0, -50), 15, 1, 2)
+					mod:QuickTracer(entity, entity.I2 * 90, Vector(0, -50), 6, 3)
 				end
 			end
 

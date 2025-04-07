@@ -1,6 +1,10 @@
+local mod = ReworkedFoes
+
+
+
 --[[ General functions ]]--
 
--- Linear interpolate from one number / vector to another by `percent` decimal.
+-- Linear interpolate from one number / vector to another by `percent` decimal
 ---@param first number | Vector
 ---@param second number | Vector
 ---@param percent number
@@ -9,17 +13,18 @@ function ReworkedFoes:Lerp(first, second, percent)
 	return (first + (second - first) * percent)
 end
 
--- Lerp to `Vector.Zero`.
+-- Lerp to `Vector.Zero`
 ---@param vector Vector
 ---@param percent number? Defaults to `0.25`.
 ---@return Vector
 function ReworkedFoes:StopLerp(vector, percent)
 	---@type Vector
-	return ReworkedFoes:Lerp(vector, Vector.Zero, percent or 0.25)
+	return mod:Lerp(vector, Vector.Zero, percent or 0.25)
 end
 
 
--- Get sign from a number / boolean.
+
+-- Get sign from a number / boolean
 ---@param value number | boolean
 ---@return integer sign 1 or -1
 function ReworkedFoes:GetSign(value)
@@ -32,7 +37,8 @@ function ReworkedFoes:GetSign(value)
 end
 
 
--- Round a number up or down based on its decimals.
+
+-- Round a number up or down based on its decimals
 ---@param number number
 ---@return integer
 function ReworkedFoes:RoundNumber(number)
@@ -44,7 +50,8 @@ function ReworkedFoes:RoundNumber(number)
 end
 
 
--- Clamp a number.
+
+-- Clamp a number
 ---@param number number
 ---@param min number
 ---@param max number
@@ -53,19 +60,20 @@ function ReworkedFoes:ClampNumber(number, min, max)
 	return math.min( math.max(number, min), max)
 end
 
--- Clamp a vector.
+-- Clamp a vector
 ---@param vector Vector
 ---@param clampDegrees number
 ---@return Vector
 function ReworkedFoes:ClampVector(vector, clampDegrees)
 	local length = vector:Length()
 	local timesClampDegree = vector:GetAngleDegrees() / clampDegrees
-	timesClampDegree = ReworkedFoes:RoundNumber(timesClampDegree)
+	timesClampDegree = mod:RoundNumber(timesClampDegree)
 	return Vector.FromAngle(clampDegrees * timesClampDegree):Resized(length)
 end
 
 
--- Convert degrees to radians. Equivalent to `math.rad()`.
+
+-- Convert degrees to radians. Equivalent to `math.rad()`
 ---@param degrees number
 ---@return number
 function ReworkedFoes:DegreesToRadians(degrees)
@@ -73,7 +81,7 @@ function ReworkedFoes:DegreesToRadians(degrees)
 end
 
 
--- Align a position to the grid.
+-- Align a position to the grid
 ---@param position Vector
 ---@return Vector
 function ReworkedFoes:GridAlignedPosition(position)
@@ -82,82 +90,83 @@ function ReworkedFoes:GridAlignedPosition(position)
 end
 
 
--- Get angle degrees (improved).
----@param input Vector|number
+-- Get angle degrees (improved)
+---@param input Vector | number
 ---@return number
 function ReworkedFoes:GetPositiveAngleDegrees(input)
 	local angle
+
 	if type(input) == "number" then
 		angle = input
 	else
 		angle = input:GetAngleDegrees()
 	end
 
-	if angle < 0 then
-		return angle + 360
-	end
-	return angle
+	return angle % 360
 end
 
 
--- Get angle difference (but good).
----@param first Vector|number
----@param second Vector|number
+
+-- Get angle difference (but good)
+---@param first Vector | number
+---@param second Vector | number
 ---@return number
 function ReworkedFoes:GetAngleDifference(first, second)
-	first  = ReworkedFoes:GetPositiveAngleDegrees(first)
-	second = ReworkedFoes:GetPositiveAngleDegrees(second)
+	first  = mod:GetPositiveAngleDegrees(first)
+	second = mod:GetPositiveAngleDegrees(second)
 	local sub = first - second
-	return (sub + 180) % 360 - 180
+	return math.abs((sub + 180) % 360 - 180)
 end
 
 
--- NPC shoot function but it returns the projectile(s). Also allows for editing the custom trail color.
+
+-- NPC shoot function but it returns the projectile(s)
 ---@param entity EntityNPC
 ---@param from Vector
 ---@param velocity Vector
 ---@param shootType integer
 ---@param params ProjectileParams?
----@param trailColor Color?
----@return EntityProjectile|table
+---@param trailColor Color? Gives the projectiles a Haemolacria-like trail.
+---@return EntityProjectile | table
 function ReworkedFoes:FireProjectiles(entity, from, velocity, shootType, params, trailColor)
 	if REPENTOGON then
 		ReworkedFoes.RecordedProjectiles = entity:FireProjectilesEx(from, velocity, shootType, params or ProjectileParams())
 
 	else
 		-- Start recording projectiles
-		ReworkedFoes.RecordedProjectiles = {}
-		ReworkedFoes.RecordProjectiles = true
+		mod.RecordedProjectiles = {}
+		mod.RecordProjectiles = true
 
 		-- Shoot projectiles
 		entity:FireProjectiles(from, velocity, shootType, params or ProjectileParams())
 
 		-- Stop recording
-		ReworkedFoes.RecordProjectiles = false
+		mod.RecordProjectiles = false
 	end
 
 
 	-- Return the projectiles (seriously, why doesn't the vanilla one do it?)
-	if #ReworkedFoes.RecordedProjectiles > 1 then
+	if #mod.RecordedProjectiles > 1 then
 		-- Apply trail
 		if trailColor then
-			for i, projectile in pairs(ReworkedFoes.RecordedProjectiles) do
+			for i, projectile in pairs(mod.RecordedProjectiles) do
 				projectile:GetData().trailColor = trailColor
 			end
 		end
-		return ReworkedFoes.RecordedProjectiles
+		return mod.RecordedProjectiles
 
 	else
 		-- Apply trail
 		if trailColor then
-			ReworkedFoes.RecordedProjectiles[1]:GetData().trailColor = trailColor
+			mod.RecordedProjectiles[1]:GetData().trailColor = trailColor
 		end
-		return ReworkedFoes.RecordedProjectiles[1]
+		return mod.RecordedProjectiles[1]
 	end
 end
 
 
--- Better sound function.
+
+-- Better sound function
 ---@param entity EntityNPC? Optionally provide `nil` to play sound from SFXManager.
 ---@param id integer
 ---@param volume number? Default is `1`.
@@ -179,6 +188,7 @@ function ReworkedFoes:PlaySound(entity, id, volume, pitch, cooldown, loop, pan)
 end
 
 
+
 -- Room shape flags
 ---@enum RoomShapeFlags
 ReworkedFoes.RoomShapeFlags = {
@@ -190,7 +200,7 @@ ReworkedFoes.RoomShapeFlags = {
 	Thin  = 1 << 5,
 }
 
--- Gets the bitset of the room's shape flags for easily checking groups of room shapes.
+-- Gets the bitset of the room's shape flags for easily checking groups of room shapes
 -- Eg. `mod:GetRoomShapeFlags() & mod.RoomShapeFlags.Tall > 0` will return `true` in 1x2, 2x2 and all L shaped rooms.
 ---@return integer
 function ReworkedFoes:GetRoomShapeFlags()
@@ -200,38 +210,39 @@ function ReworkedFoes:GetRoomShapeFlags()
 	-- Closet rooms
 	if shape == RoomShape.ROOMSHAPE_IH  or shape == RoomShape.ROOMSHAPE_IV
 	or shape == RoomShape.ROOMSHAPE_IIV or shape == RoomShape.ROOMSHAPE_IIH then
-		flags = flags + ReworkedFoes.RoomShapeFlags.Tiny
+		flags = flags + mod.RoomShapeFlags.Tiny
 
 		-- Short (horizontal) closet rooms
 		if shape == RoomShape.ROOMSHAPE_IH or shape == RoomShape.ROOMSHAPE_IIH then
-			flags = flags + ReworkedFoes.RoomShapeFlags.Short
+			flags = flags + mod.RoomShapeFlags.Short
 		-- Thin (vertical) closet rooms
 		else
-			flags = flags + ReworkedFoes.RoomShapeFlags.Thin
+			flags = flags + mod.RoomShapeFlags.Thin
 		end
 	end
 
 	-- Tall rooms
 	if shape == RoomShape.ROOMSHAPE_1x2 or shape == RoomShape.ROOMSHAPE_IIV
 	or shape >= RoomShape.ROOMSHAPE_2x2 then
-		flags = flags + ReworkedFoes.RoomShapeFlags.Tall
+		flags = flags + mod.RoomShapeFlags.Tall
 	end
 
 	-- Long rooms
 	if shape >= RoomShape.ROOMSHAPE_2x1 then
-		flags = flags + ReworkedFoes.RoomShapeFlags.Long
+		flags = flags + mod.RoomShapeFlags.Long
 	end
 
 	-- L shaped rooms
 	if shape >= RoomShape.ROOMSHAPE_LTL then
-		flags = flags + ReworkedFoes.RoomShapeFlags.L
+		flags = flags + mod.RoomShapeFlags.L
 	end
 
 	return flags
 end
 
 
--- Check if the game is in hard mode.
+
+-- Check if the game is in hard mode
 ---@return boolean
 function ReworkedFoes:IsHardMode()
 	return Game().Difficulty % 2 == 1
@@ -243,12 +254,12 @@ end
 
 --[[ RNG functions ]]--
 
--- General RNG function.
+-- General RNG function
 ---@param min number? You may only omit this if you're also omitting `max`, which will make it use `RandomFloat()`.
 ---@param max number? Omit when providing a `min` for `rng:RandomInt(min + 1)`.
 ---@param rng RNG? Omit to use a generic RNG object.
 function ReworkedFoes:Random(min, max, rng)
-	rng = rng or ReworkedFoes.RNG
+	rng = rng or mod.RNG
 
 	-- Float
 	if not min and not max then
@@ -275,10 +286,11 @@ function ReworkedFoes:Random(min, max, rng)
 end
 
 
--- Get a vector with a random angle.
+
+-- Get a vector with a random angle
 ---@param length number? Omit to get a unit vector.
 function ReworkedFoes:RandomVector(length)
-	local vector = Vector.FromAngle(ReworkedFoes:Random(359))
+	local vector = Vector.FromAngle(mod:Random(359))
 	if length then
 		vector = vector:Resized(length)
 	end
@@ -286,21 +298,24 @@ function ReworkedFoes:RandomVector(length)
 end
 
 
--- Get a random sign.
+
+-- Get a random sign
 ---@return integer -1 or 1.
 function ReworkedFoes:RandomSign()
-	if ReworkedFoes:Random(1) == 0 then
+	if mod:Random(1) == 0 then
 		return -1
 	end
 	return 1
 end
 
 
+
 -- Get a random index from a table.
 ---@param fromTable table An array.
+---@param rng RNG? Omit to use a generic RNG object.
 ---@return any
-function ReworkedFoes:RandomIndex(fromTable)
-	return fromTable[ReworkedFoes:Random(1, #fromTable)]
+function ReworkedFoes:RandomIndex(fromTable, rng)
+	return fromTable[mod:Random(1, #fromTable, rng)]
 end
 
 
@@ -309,15 +324,15 @@ end
 
 --[[ Sprite functions ]]--
 
--- Looping animation.
+-- Looping animation
 ---@param sprite Sprite
 ---@param anim string? Default is `Idle`.
 ---@param dontReset boolean? Default is `false`.
 function ReworkedFoes:LoopingAnim(sprite, anim, dontReset)
-	local anim = anim or "Idle"
+	anim = anim or "Idle"
 
 	if not sprite:IsPlaying(anim) then
-		if dontReset == true then
+		if dontReset then
 			sprite:SetAnimation(anim, false)
 		else
 			sprite:Play(anim, true)
@@ -325,7 +340,7 @@ function ReworkedFoes:LoopingAnim(sprite, anim, dontReset)
 	end
 end
 
--- Looping overlay.
+-- Looping overlay
 ---@param sprite Sprite
 ---@param anim string
 ---@param priority boolean? Default is `false`.
@@ -339,7 +354,8 @@ function ReworkedFoes:LoopingOverlay(sprite, anim, priority)
 end
 
 
--- Flip towards the entity's movement.
+
+-- Flip towards the entity's movement
 ---@param entity Entity
 ---@param sprite Sprite
 ---@param otherWay boolean? Usually, if moving towards the left, the entity will get `FlipX` set to true. Set this to `true` for the opposite of that. Defaults to `false`.
@@ -352,7 +368,7 @@ function ReworkedFoes:FlipTowardsMovement(entity, sprite, otherWay)
 	end
 end
 
--- Flip towards the entity's target.
+-- Flip towards the entity's target
 ---@param entity Entity
 ---@param sprite Sprite
 ---@param otherWay boolean? Usually, if moving towards the left, the entity will get `FlipX` set to true. Set this to `true` for the opposite of that. Defaults to `false`.
@@ -368,7 +384,8 @@ function ReworkedFoes:FlipTowardsTarget(entity, sprite, otherWay)
 end
 
 
--- Get direction string from angle degrees.
+
+-- Get direction string from angle degrees
 ---@param angleDegrees number
 ---@param noSeparateHorizontal boolean? If `true`, returns "Hori" if moving horizontally. Defaults to `false`.
 ---@param useSide boolean? If `true`, returns "Side" instead of "Hori" if moving horizontally. Defaults to `false`.
@@ -403,7 +420,7 @@ function ReworkedFoes:GetDirectionString(angleDegrees, noSeparateHorizontal, use
 	end
 end
 
--- Gets cardinal and orthogonal directional strings (e.g. "Right" and "DownRight"). This sucks.
+-- Gets cardinal and orthogonal directional strings (e.g. "Right" and "DownRight")
 ---@param angleDegrees number
 ---@return string
 function ReworkedFoes:GetDirectionStringEX(angleDegrees)
@@ -432,7 +449,7 @@ end
 
 --[[ Entity functions ]]--
 
--- Check if the entity is feared.
+-- Check if the entity is feared
 ---@param entity Entity
 ---@return boolean
 function ReworkedFoes:IsFeared(entity)
@@ -443,14 +460,14 @@ function ReworkedFoes:IsFeared(entity)
 	return false
 end
 
--- Check if the entity is confused.
+-- Check if the entity is confused
 ---@param entity Entity
 ---@return boolean
 function ReworkedFoes:IsConfused(entity)
 	return entity:HasEntityFlags(EntityFlag.FLAG_CONFUSION)
 end
 
--- Check if the entity is charmed or friendly.
+-- Check if the entity is charmed or friendly
 ---@param entity Entity
 ---@return boolean
 function ReworkedFoes:IsCharmed(entity)
@@ -461,7 +478,7 @@ function ReworkedFoes:IsCharmed(entity)
 	return false
 end
 
--- Check if the entity is slowed.
+-- Check if the entity is slowed
 ---@param entity Entity
 ---@return boolean
 function ReworkedFoes:IsSlowed(entity)
@@ -472,7 +489,7 @@ function ReworkedFoes:IsSlowed(entity)
 	return false
 end
 
--- Check if the entity is frozen / petrified.
+-- Check if the entity is frozen / petrified
 ---@param entity Entity
 ---@return boolean
 function ReworkedFoes:IsFrozen(entity)
@@ -485,7 +502,7 @@ function ReworkedFoes:IsFrozen(entity)
 	return false
 end
 
--- Check if the entity can be knocked back / pushed around.
+-- Check if the entity can be knocked back / pushed around
 ---@param entity Entity
 ---@return boolean
 function ReworkedFoes:CanTakeKnockback(entity)
@@ -498,7 +515,8 @@ function ReworkedFoes:CanTakeKnockback(entity)
 end
 
 
--- Get target vector that's affected by status effects.
+
+-- Get target vector that's affected by status effects
 ---@param entity EntityNPC
 ---@param target? Entity
 ---@return Vector
@@ -507,10 +525,10 @@ function ReworkedFoes:GetTargetVector(entity, target)
 	local vector = target.Position - entity.Position
 
 	-- Confused
-	if ReworkedFoes:IsConfused(entity) then
-		vector = ReworkedFoes:RandomVector()
+	if mod:IsConfused(entity) then
+		vector = mod:RandomVector()
 	-- Feared
-	elseif ReworkedFoes:IsFeared(entity) then
+	elseif mod:IsFeared(entity) then
 		vector = entity.Position - target.Position
 	end
 
@@ -518,68 +536,70 @@ function ReworkedFoes:GetTargetVector(entity, target)
 end
 
 
--- Chase player.
+
+-- Chase player
 ---@param entity EntityNPC
 ---@param speed number
----@param canFly boolean? Defaults to `false`.
-function ReworkedFoes:ChasePlayer(entity, speed, canFly)
+function ReworkedFoes:ChasePlayer(entity, speed)
 	local target = entity:GetPlayerTarget()
 
 	-- Move randomly if confused
-	if ReworkedFoes:IsConfused(entity) then
-		ReworkedFoes:WanderAround(entity, speed)
+	if mod:IsConfused(entity) then
+		mod:WanderAround(entity, speed)
 
 	else
 		-- Reverse movement if feared
-		if ReworkedFoes:IsFeared(entity) then
+		if mod:IsFeared(entity) then
 			speed = -speed
 		end
 
 		-- If there is a path to the player
-		if entity.Pathfinder:HasPathToPos(target.Position) or canFly == true then
+		if entity.Pathfinder:HasPathToPos(target.Position) or entity:IsFlying() then
 			-- If there is a direct line to the player
-			if Game():GetRoom():CheckLine(entity.Position, target.Position, 1) or canFly == true then
-				entity.Velocity = ReworkedFoes:Lerp(entity.Velocity, (target.Position - entity.Position):Resized(speed), 0.25)
+			if Game():GetRoom():CheckLine(entity.Position, target.Position, LineCheckMode.RAYCAST) or entity:IsFlying() then
+				entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Resized(speed), 0.25)
 			else
 				entity.Pathfinder:FindGridPath(target.Position, speed / 6, 500, false)
 			end
 
 		-- Otherwise stay still
 		else
-			entity.Velocity = ReworkedFoes:StopLerp(entity.Velocity)
+			entity.Velocity = mod:StopLerp(entity.Velocity)
 		end
 	end
 end
 
 
--- Wander around randomly.
+
+-- Wander around randomly
 ---@param entity EntityNPC
 ---@param speed number
 function ReworkedFoes:WanderAround(entity, speed)
 	-- Chase if charmed of friendly / Run away if feared
-	if (ReworkedFoes:IsFeared(entity) or ReworkedFoes:IsCharmed(entity)) and not ReworkedFoes:IsConfused(entity) then
-		ReworkedFoes:ChasePlayer(entity, speed)
+	if (mod:IsFeared(entity) or mod:IsCharmed(entity)) and not mod:IsConfused(entity) then
+		mod:ChasePlayer(entity, speed)
 
 	else
 		local data = entity:GetData()
 
 		-- Get the direction to move in and the time to move for in it
 		if not data.WanderData or data.WanderData.Timer <= 0 then
-			data.WanderData = { Vector = ReworkedFoes:RandomVector(), Timer = ReworkedFoes:Random(15, 45), }
+			data.WanderData = { Vector = mod:RandomVector(), Timer = mod:Random(15, 45), }
 		end
 
 		-- Turn around when colliding with an obstacle
 		if entity:CollidesWithGrid() then
 			data.WanderData.Vector = entity.Velocity:Normalized()
 		end
-		entity.Velocity = ReworkedFoes:Lerp(entity.Velocity, data.WanderData.Vector:Resized(speed), 0.25)
+		entity.Velocity = mod:Lerp(entity.Velocity, data.WanderData.Vector:Resized(speed), 0.25)
 
 		data.WanderData.Timer = data.WanderData.Timer - 1
 	end
 end
 
 
--- Grid aligned random movement.
+
+-- Grid aligned random movement
 ---@param entity EntityNPC
 ---@param speed number
 ---@param canFly boolean? Defaults to `false`.
@@ -589,7 +609,7 @@ function ReworkedFoes:MoveRandomGridAligned(entity, speed, canFly, dontDoubleBac
 	local room = Game():GetRoom()
 
 	-- Align my position to the grid
-	local gridAlignedPos = ReworkedFoes:GridAlignedPosition(entity.Position)
+	local gridAlignedPos = mod:GridAlignedPosition(entity.Position)
 
 	-- Get which grids I can't go over
 	local maxValidGridCol = GridCollisionClass.COLLISION_NONE
@@ -614,7 +634,7 @@ function ReworkedFoes:MoveRandomGridAligned(entity, speed, canFly, dontDoubleBac
 	end
 
 	-- Check for either fear or charm
-	local fearedOrCharmed = ReworkedFoes:IsFeared(entity) or ReworkedFoes:IsCharmed(entity)
+	local fearedOrCharmed = mod:IsFeared(entity) or mod:IsCharmed(entity)
 
 
 	-- Get valid directions
@@ -643,7 +663,7 @@ function ReworkedFoes:MoveRandomGridAligned(entity, speed, canFly, dontDoubleBac
 
 		-- Choose a valid direction
 		else
-			local chosenDirection = ReworkedFoes:RandomIndex(validDirections)
+			local chosenDirection = mod:RandomIndex(validDirections)
 
 			if fearedOrCharmed then
 				for i, direction in pairs(validDirections) do
@@ -651,8 +671,8 @@ function ReworkedFoes:MoveRandomGridAligned(entity, speed, canFly, dontDoubleBac
 					local checkPos = gridAlignedPos + (Vector.FromAngle(direction * 90) * 40)
 					local nearestPlayer = Game():GetNearestPlayer(entity.Position).Position
 
-					if (ReworkedFoes:IsFeared(entity)  and checkPos:Distance(nearestPlayer) > currentChosenPosition:Distance(nearestPlayer))
-					or (ReworkedFoes:IsCharmed(entity) and checkPos:Distance(nearestPlayer) < currentChosenPosition:Distance(nearestPlayer)) then
+					if (mod:IsFeared(entity)  and checkPos:Distance(nearestPlayer) > currentChosenPosition:Distance(nearestPlayer))
+					or (mod:IsCharmed(entity) and checkPos:Distance(nearestPlayer) < currentChosenPosition:Distance(nearestPlayer)) then
 						chosenDirection = direction
 					end
 				end
@@ -661,14 +681,14 @@ function ReworkedFoes:MoveRandomGridAligned(entity, speed, canFly, dontDoubleBac
 			data.movementDirection = chosenDirection
 		end
 
-		data.moveTimer = ReworkedFoes:Random(1, 4)
+		data.moveTimer = mod:Random(1, 4)
 		data.currentIndex = room:GetGridIndex(entity.Position)
 	end
 
 
 	-- Move in the selected direction
 	local targetPos = (gridAlignedPos + Vector.FromAngle(data.movementDirection * 90) * 40)
-	entity.Velocity = ReworkedFoes:Lerp(entity.Velocity, (targetPos - entity.Position):Resized(speed), 0.35)
+	entity.Velocity = mod:Lerp(entity.Velocity, (targetPos - entity.Position):Resized(speed), 0.35)
 
 	if room:GetGridIndex(entity.Position) ~= data.currentIndex then
 		-- Feared and charmed enemies always try to change directions as soon as they can
@@ -682,20 +702,21 @@ function ReworkedFoes:MoveRandomGridAligned(entity, speed, canFly, dontDoubleBac
 end
 
 
--- Bounce around diagonally.
+
+-- Bounce around diagonally
 ---@param entity EntityNPC
 ---@param speed number
----@param lerpStep number? This function uses `ReworkedFoes:Lerp(start, finish, percentage)` for changing `entity.Velocity`. How much does it lerp by? Defaults to `0.1`.
+---@param lerpStep number? This function uses `mod:Lerp(start, finish, percentage)` for changing `entity.Velocity`. How much does it lerp by? Defaults to `0.1`.
 function ReworkedFoes:MoveDiagonally(entity, speed, lerpStep)
 	-- Move randomly if confused
-	if ReworkedFoes:IsConfused(entity) then
-		ReworkedFoes:WanderAround(entity, speed)
+	if mod:IsConfused(entity) then
+		mod:WanderAround(entity, speed)
 
 
 	-- Run away if feared
-	elseif ReworkedFoes:IsFeared(entity) then
+	elseif mod:IsFeared(entity) then
 		local nearest = Game():GetNearestPlayer(entity.Position)
-		entity.Velocity = ReworkedFoes:Lerp(entity.Velocity, (entity.Position - nearest.Position):Resized(speed * 2), 0.25)
+		entity.Velocity = mod:Lerp(entity.Velocity, (entity.Position - nearest.Position):Resized(speed * 2), 0.25)
 
 
 	-- Regular behaviour
@@ -710,12 +731,13 @@ function ReworkedFoes:MoveDiagonally(entity, speed, lerpStep)
 			yV = yV * -1
 		end
 
-		entity.Velocity = ReworkedFoes:Lerp(entity.Velocity, Vector(xV, yV), lerpStep or 0.1)
+		entity.Velocity = mod:Lerp(entity.Velocity, Vector(xV, yV), lerpStep or 0.1)
 	end
 end
 
 
--- Mulligan-type movement.
+
+-- Mulligan-type movement
 ---@param entity EntityNPC
 ---@param radius number The distance the entity will start avoiding the player.
 ---@param wanderSpeed number When no player is nearby.
@@ -727,12 +749,12 @@ function ReworkedFoes:AvoidPlayer(entity, radius, wanderSpeed, runSpeed, canFly)
 
 
 	-- Chase if charmed of friendly
-	if ReworkedFoes:IsCharmed(entity) then
-		ReworkedFoes:ChasePlayer(entity, wanderSpeed + (runSpeed - wanderSpeed) / 2)
+	if mod:IsCharmed(entity) then
+		mod:ChasePlayer(entity, wanderSpeed + (runSpeed - wanderSpeed) / 2)
 
 
 	-- Run away if there are players in radius
-	elseif nearest.Position:Distance(entity.Position) <= radius and not ReworkedFoes:IsConfused(entity) then
+	elseif nearest.Position:Distance(entity.Position) <= radius and not mod:IsConfused(entity) then
 		-- Get target position
 		local room = Game():GetRoom()
 		local vector = (entity.Position - nearest.Position):Normalized()
@@ -742,7 +764,7 @@ function ReworkedFoes:AvoidPlayer(entity, radius, wanderSpeed, runSpeed, canFly)
 		-- Go around obstacles
 		if entity.Pathfinder:HasPathToPos(targetPos) or (canFly == true and room:IsPositionInRoom(targetPos, 0)) then
 			if room:CheckLine(entity.Position, targetPos, 0) or canFly == true then
-				entity.Velocity = ReworkedFoes:Lerp(entity.Velocity, (targetPos - entity.Position):Resized(runSpeed), 0.25)
+				entity.Velocity = mod:Lerp(entity.Velocity, (targetPos - entity.Position):Resized(runSpeed), 0.25)
 			else
 				entity.Pathfinder:FindGridPath(targetPos, runSpeed / 6, 500, false)
 			end
@@ -759,12 +781,12 @@ function ReworkedFoes:AvoidPlayer(entity, radius, wanderSpeed, runSpeed, canFly)
 				data.wandering = false
 
 			elseif data.wanderTimer <= 0 then
-				data.wanderDirection = (nearest.Position - entity.Position):Rotated(ReworkedFoes:RandomSign() * ReworkedFoes:Random(20, 60)):Resized(runSpeed)
+				data.wanderDirection = (nearest.Position - entity.Position):Rotated(mod:RandomSign() * mod:Random(20, 60)):Resized(runSpeed)
 
 				if data.wandering == false then
-					data.wanderTimer = ReworkedFoes:Random(10, 30)
+					data.wanderTimer = mod:Random(10, 30)
 				else
-					data.wanderTimer = ReworkedFoes:Random(30, 90)
+					data.wanderTimer = mod:Random(30, 90)
 				end
 				data.wandering = not data.wandering
 
@@ -774,21 +796,22 @@ function ReworkedFoes:AvoidPlayer(entity, radius, wanderSpeed, runSpeed, canFly)
 
 			-- Move direction
 			if data.wandering == true then
-				entity.Velocity = ReworkedFoes:Lerp(entity.Velocity, data.wanderDirection, 0.25)
+				entity.Velocity = mod:Lerp(entity.Velocity, data.wanderDirection, 0.25)
 			else
-				entity.Velocity = ReworkedFoes:Lerp(entity.Velocity, vector:Resized(runSpeed), 0.25)
+				entity.Velocity = mod:Lerp(entity.Velocity, vector:Resized(runSpeed), 0.25)
 			end
 		end
 
 
 	-- Otherwise wander around randomly
 	else
-		ReworkedFoes:WanderAround(entity, wanderSpeed)
+		mod:WanderAround(entity, wanderSpeed)
 	end
 end
 
 
--- Orbit parent.
+
+-- Orbit parent
 ---@param entity EntityNPC
 ---@param parent Entity? Returns `false` and does nothing if this is omitted or the provided entity doesn't exist.
 ---@param speed number
@@ -866,7 +889,7 @@ function ReworkedFoes:OrbitParent(entity, parent, speed, distance, group)
 			end
 
 			if not data.orbitDirection then
-				data.orbitDirection = ReworkedFoes:RandomSign()
+				data.orbitDirection = mod:RandomSign()
 			end
 
 			data.orbitRotation = data.orbitRotation + data.orbitDirection * speed
@@ -892,7 +915,7 @@ function ReworkedFoes:OrbitParent(entity, parent, speed, distance, group)
 		-- Orbit parent
 		local orbitVector = Vector.FromAngle(data.orbitRotation + data.orbitOffset)
 		local orbitDistance = parent.Size * parent:ToNPC().Scale + distance
-		entity.Position = ReworkedFoes:Lerp(entity.Position, parent.Position + orbitVector:Resized(orbitDistance), 0.1)
+		entity.Position = mod:Lerp(entity.Position, parent.Position + orbitVector:Resized(orbitDistance), 0.1)
 
 		entity.Velocity = parent.Velocity
 
@@ -904,6 +927,7 @@ function ReworkedFoes:OrbitParent(entity, parent, speed, distance, group)
 end
 
 
+
 ---@enum DirectionCheckMode
 ReworkedFoes.DirectionCheckMode = {
 	AllowAllDirections = 0,
@@ -911,11 +935,11 @@ ReworkedFoes.DirectionCheckMode = {
 	AllowFacingAndSide = 2,
 }
 
--- Check if the target is aligned cardinally.
+-- Check if the target is aligned cardinally
 ---@param entity EntityNPC
 ---@param sideRange number
 ---@param forwardRange number
----@param lineCheckMode integer The Room:CheckLine mode to use.
+---@param lineCheckMode LineCheckMode The Room:CheckLine mode to use.
 ---@param directionCheckMode DirectionCheckMode How alignment should be checked.
 ---@param facingAngle number? Defaults to the entity's velocity angle.
 ---@return boolean | number targetAngle The angle to the target if aligned, otherwise false.
@@ -933,8 +957,8 @@ function ReworkedFoes:CheckCardinalAlignment(entity, sideRange, forwardRange, li
 
 			-- Check if the distances are within range
 			if (target.Position - lineEnd):Length() <= sideRange and (entity.Position - lineEnd):Length() <= forwardRange then
-				local targetAngle = ReworkedFoes:GetPositiveAngleDegrees(lineEnd - entity.Position)
-				local angleDifference = ReworkedFoes:GetAngleDifference(facingAngle or entity.Velocity, targetAngle)
+				local targetAngle = mod:GetPositiveAngleDegrees(lineEnd - entity.Position)
+				local angleDifference = mod:GetAngleDifference(facingAngle or entity.Velocity, targetAngle)
 				angleDifference = math.abs(angleDifference)
 
 				if not directionCheckMode or directionCheckMode == 0 -- Allow all directions
@@ -950,14 +974,16 @@ function ReworkedFoes:CheckCardinalAlignment(entity, sideRange, forwardRange, li
 end
 
 
--- Check if non-render related code should be ran in render callbacks.
+
+-- Check if non-render related code should be ran in render callbacks
 ---@return boolean
 function ReworkedFoes:ShouldDoRenderEffects()
 	return not (Game():IsPaused() or Game():GetRoom():GetRenderMode() == RenderMode.RENDER_WATER_REFLECT)
 end
 
 
--- Ignore Knockout Drops knockback.
+
+-- Ignore Knockout Drops knockback
 ---@param entity EntityNPC
 function ReworkedFoes:IgnoreKnockoutDrops(entity)
 	if entity:HasEntityFlags(EntityFlag.FLAG_KNOCKED_BACK) then
@@ -966,17 +992,25 @@ function ReworkedFoes:IgnoreKnockoutDrops(entity)
 end
 
 
--- Change an entities max health.
+
+-- Change an entities max health
 ---@param entity Entity
 ---@param baseHP number
 ---@param stageHP? number
 function ReworkedFoes:ChangeMaxHealth(entity, baseHP, stageHP)
 	local finalHP = baseHP
 
+	-- Get the stage HP
 	if stageHP then
 		local stage = Game():GetLevel():GetStage()
+
+		-- Custom stages
+		if StageAPI and StageAPI.CurrentStage then
+			stage = StageAPI.CurrentStage.StageHPNumber
+		end
+
 		local preStageFive = math.min(4, stage)
-		local postStageFive = ReworkedFoes:ClampNumber(stage - 5, 0, 5)
+		local postStageFive = mod:ClampNumber(stage - 5, 0, 5)
 		finalHP = baseHP + ( preStageFive + 0.8 * postStageFive ) * stageHP
 	end
 
@@ -985,7 +1019,8 @@ function ReworkedFoes:ChangeMaxHealth(entity, baseHP, stageHP)
 end
 
 
--- Revelations compatibility check for minibosses.
+
+-- Revelations compatibility check for minibosses
 ---@return boolean
 function ReworkedFoes:CheckValidMiniboss()
 	if REVEL and REVEL.IsRevelStage(true) then
@@ -995,24 +1030,25 @@ function ReworkedFoes:CheckValidMiniboss()
 end
 
 
--- Check if the given boss is a RF champion.
+
+-- Check if the given boss is a RF champion
 ---@param entity Entity
 ---@param variable string The name of the boss to check for.
 ---@return boolean
 function ReworkedFoes:IsRFChampion(entity, variable)
-	if ReworkedFoesChampions and ReworkedFoes.Champions and ReworkedFoes.Champions[variable] then
-		return entity.SubType == ReworkedFoes.Champions[variable]
+	if ReworkedFoesChampions and mod.Champions and mod.Champions[variable] then
+		return entity.SubType == mod.Champions[variable]
 	end
 	return false
 end
 
--- Check for Champion sin drop replacement.
+-- Check for Champion sin drop replacement
 ---@param pickup EntityPickup
 ---@param entityType EntityType
 ---@param miniboss string The name of the miniboss to check for.
 function ReworkedFoes:CheckMinibossDropReplacement(pickup, entityType, miniboss)
 	if pickup.SpawnerType == entityType and pickup.SpawnerEntity
-	and ReworkedFoes:IsRFChampion(pickup.SpawnerEntity, miniboss) and ReworkedFoes:CheckValidMiniboss() then
+	and mod:IsRFChampion(pickup.SpawnerEntity, miniboss) and mod:CheckValidMiniboss() then
 		return true
 	end
 	return false
@@ -1020,9 +1056,11 @@ end
 
 
 
+
+
 --[[ Spawning helper functions ]]--
 
--- Spawn creep easily.
+-- Spawn creep easily
 ---@param type number Creep variant.
 ---@param spawner Entity | nil Creep spawner.
 ---@param position Vector Spawn position.
@@ -1033,7 +1071,7 @@ function ReworkedFoes:QuickCreep(type, spawner, position, scale, timeout)
 	---@type EntityEffect
 	---@diagnostic disable-next-line: assign-type-mismatch
 	local creep = Isaac.Spawn(EntityType.ENTITY_EFFECT, type, 0, position, Vector.Zero, spawner):ToEffect()
-	creep.SpriteScale = Vector(scale or 1, scale or 1)
+	creep.SpriteScale = Vector.One * (scale or 1)
 
 	if timeout then
 		creep:SetTimeout(timeout)
@@ -1044,7 +1082,8 @@ function ReworkedFoes:QuickCreep(type, spawner, position, scale, timeout)
 end
 
 
--- Shooting effect.
+
+-- Shooting effect
 ---@param entity Entity The shooter that the effect will follow. If the shooter is an NPC the effect will scale with it.
 ---@param subtype integer Shoot effect subtype.
 ---@param offset Vector? An offset or `Vector.Zero`
@@ -1063,7 +1102,7 @@ function ReworkedFoes:ShootEffect(entity, subtype, offset, color, scale, behind)
 	effect:FollowParent(entity)
 	sprite.Offset = offset
 	sprite.Color = color or Color.Default
-	effect.SpriteScale = Vector(scale, scale)
+	effect.SpriteScale = Vector.One * scale
 
 	if behind == true then
 		effect.DepthOffset = entity.DepthOffset - 10
@@ -1080,34 +1119,35 @@ function ReworkedFoes:ShootEffect(entity, subtype, offset, color, scale, behind)
 end
 
 
--- Tracer effect.
+
+-- Tracer effect
 ---@param spawner Entity
 ---@param angle number
 ---@param offset Vector Parent offset.
----@param fadeIn number? Defaults to `1`.
----@param fadeOut number? Defaults to `1`.
+---@param duration integer? The time it takes for the tracer to fade IN. Doesn't affect the fading out. Defaults to `15`.
 ---@param width number? Defaults to `1`.
----@param color Color? Defaults to `Color(1, 0, 0, 0.25)`
----@return EntityEffect
-function ReworkedFoes:QuickTracer(spawner, angle, offset, fadeIn, fadeOut, width, color)
+---@param color Color? Defaults to `Color(1,0,0, 0.5)`
+---@return EntityEffect tracer The tracer is considered dead when it starts fading out.
+function ReworkedFoes:QuickTracer(spawner, angle, offset, duration, width, color)
 	local tracer = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.GENERIC_TRACER, 0, spawner.Position, Vector.Zero, spawner):ToEffect()
 	tracer.TargetPosition = Vector.FromAngle(angle)
-
 	tracer:FollowParent(spawner)
 	tracer.ParentOffset = offset
 
-	tracer.LifeSpan = fadeIn or 1
-	tracer.Timeout = fadeOut or 1
+	duration = duration or 15
+	tracer.LifeSpan = duration
+	tracer.Timeout = duration
 
 	tracer.SpriteScale = Vector(width or 1, 0)
-	tracer:GetSprite().Color = color or Color(1,0,0, 0.25)
+	tracer:GetSprite().Color = color or Color(1,0,0, 0.5)
 
 	tracer:Update()
 	return tracer
 end
 
 
--- Sprite trail. Does not spawn if the parent already has a trail, or if the `Enemy Bullet Trails` mod is enabled and the parent is a projectile.
+
+-- Sprite trail (Does not spawn if the parent already has a trail, or if the `Enemy Bullet Trails` mod is enabled and the parent is a projectile)
 ---@param parent Entity
 ---@param length number? Defaults to `0.1`.
 ---@param color Color? Defaults to `Color.Default`.
@@ -1116,7 +1156,8 @@ end
 function ReworkedFoes:QuickTrail(parent, length, color, width)
 	if not parent:GetData().spriteTrail
 	and (parent.Type ~= EntityType.ENTITY_PROJECTILE or not BulletTrails) then -- Don't spawn one for projectiles if Enemy Bullet Trails is enabled
-		local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SPRITE_TRAIL, 0, parent.Position, Vector(0, parent.Height or parent.PositionOffset.Y), parent):ToEffect()
+		local vector = Vector(0, parent.Height or parent.PositionOffset.Y)
+		local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SPRITE_TRAIL, 0, parent.Position, vector, parent):ToEffect()
 		trail.Parent = parent
 
 		trail.MinRadius = length or 0.1
@@ -1133,7 +1174,8 @@ function ReworkedFoes:QuickTrail(parent, length, color, width)
 end
 
 
--- Ember particles, on random frames between 5 and 10.
+
+-- Ember particles, on random frames between 5 and 10
 ---@param entity Entity
 ---@param offset Vector PositionOffset, multiplied by `entity.Scale`.
 ---@param radiusModifier number? Include for the radius of spawning on the x-axis to be between `-radiusModifier` and `radiusModifier`.
@@ -1157,7 +1199,8 @@ function ReworkedFoes:EmberParticles(entity, offset, radiusModifier, color)
 end
 
 
--- Fire ring attack.
+
+-- Fire ring attack
 ---@param entity Entity
 ---@param subtype integer Subtype of the fire jets.
 ---@param rings integer Amount of rings
@@ -1181,14 +1224,14 @@ function ReworkedFoes:CreateFireRing(entity, subtype, rings, delay, distance, st
 	return timer
 end
 
-function ReworkedFoes:FireRingHelperInit(timer)
+function mod:FireRingHelperInit(timer)
 	timer.Visible = false
 	timer.Timeout = 0
 	timer:GetData().Timer = 0
 end
-ReworkedFoes:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, ReworkedFoes.FireRingHelperInit, ReworkedFoes.Entities.FireRingHelper)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_INIT, mod.FireRingHelperInit, mod.Entities.FireRingHelper)
 
-function ReworkedFoes:FireRingHelperUpdate(timer)
+function mod:FireRingHelperUpdate(timer)
 	local data = timer:GetData()
 
 	if data.Timer <= 0 then
@@ -1222,10 +1265,11 @@ function ReworkedFoes:FireRingHelperUpdate(timer)
 		data.Timer = data.Timer - 1
 	end
 end
-ReworkedFoes:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, ReworkedFoes.FireRingHelperUpdate, ReworkedFoes.Entities.FireRingHelper)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.FireRingHelperUpdate, mod.Entities.FireRingHelper)
 
 
--- Smoke particles.
+
+-- Smoke particles
 ---@param entity Entity
 ---@param offset Vector? Offsets the base spawn position from the spawner entity.
 ---@param radius number? The length of the radius to spawn in around the spawn position. Default is `0`.
@@ -1235,7 +1279,7 @@ ReworkedFoes:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, ReworkedFoes.FireRi
 ---@param newSprite string? The path to the new spritesheet. `gfx/` and `.png` are not needed!
 ---@return EntityEffect smoke
 function ReworkedFoes:SmokeParticles(entity, offset, radius, scale, color, depthOffset, newSprite)
-	local smoke = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DARK_BALL_SMOKE_PARTICLE, 0, entity.Position, ReworkedFoes:RandomVector(), entity):ToEffect()
+	local smoke = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.DARK_BALL_SMOKE_PARTICLE, 0, entity.Position, mod:RandomVector(), entity):ToEffect()
 	smoke.DepthOffset = entity.DepthOffset + (depthOffset or -100)
 
 	-- Set the offset
@@ -1264,13 +1308,14 @@ function ReworkedFoes:SmokeParticles(entity, offset, radius, scale, color, depth
 end
 
 
--- Throw a Dip, similar to ThrowSpider.
+
+-- Throw a Dip, similar to ThrowSpider
 ---@param position Vector
 ---@param spawner Entity
 ---@param targetPosition Vector The position to throw to.
 ---@param variant integer The variant of the Dip.
 ---@param yOffset number The height to throw the Dip from.
----@return EntityFamiliar|EntityNPC
+---@return EntityFamiliar | EntityNPC
 function ReworkedFoes:ThrowDip(position, spawner, targetPosition, variant, yOffset)
 	-- If spawner is friendly
 	if spawner:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) and spawner.SpawnerEntity and spawner.SpawnerEntity:ToPlayer() then
@@ -1288,7 +1333,7 @@ function ReworkedFoes:ThrowDip(position, spawner, targetPosition, variant, yOffs
 	else
 		local spider = EntityNPC.ThrowSpider(position, spawner, targetPosition, false, yOffset)
 		spider:GetData().thrownDip = variant
-		spider:SetSize(9, Vector(1, 1), 12)
+		spider:SetSize(9, Vector.One, 12)
 
 		-- Get the proper animatiom file
 		local anm2 = "216.000_dip"
@@ -1309,15 +1354,15 @@ function ReworkedFoes:ThrowDip(position, spawner, targetPosition, variant, yOffs
 	end
 end
 
-function ReworkedFoes:ThrownDipUpdate(entity)
+function mod:ThrownDipUpdate(entity)
 	local data = entity:GetData()
 
 	if data.thrownDip then
-		ReworkedFoes:FlipTowardsMovement(entity, entity:GetSprite())
+		mod:FlipTowardsMovement(entity, entity:GetSprite())
 
 		if entity.State ~= NpcState.STATE_JUMP or entity:IsDead() then
 			entity:Morph(EntityType.ENTITY_DIP, data.thrownDip, 0, -1)
-			ReworkedFoes:PlaySound(entity, SoundEffect.SOUND_BABY_HURT)
+			mod:PlaySound(entity, SoundEffect.SOUND_BABY_HURT)
 			data.thrownDip = nil
 
 			entity.State = NpcState.STATE_INIT
@@ -1331,10 +1376,11 @@ function ReworkedFoes:ThrownDipUpdate(entity)
 		end
 	end
 end
-ReworkedFoes:AddCallback(ModCallbacks.MC_NPC_UPDATE, ReworkedFoes.ThrownDipUpdate, EntityType.ENTITY_SPIDER)
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.ThrownDipUpdate, EntityType.ENTITY_SPIDER)
 
 
--- Turn red poops in the room into regular ones.
+
+-- Turn red poops in the room into regular ones
 function ReworkedFoes:RemoveRedPoops()
 	local room = Game():GetRoom()
 
@@ -1356,10 +1402,11 @@ function ReworkedFoes:RemoveRedPoops()
 end
 
 
--- One-time effect.
-function ReworkedFoes:OneTimeEffectUpdate(effect)
+
+-- One-time effect
+function mod:OneTimeEffectUpdate(effect)
 	if effect:GetSprite():IsFinished() then
 		effect:Remove()
 	end
 end
-ReworkedFoes:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, ReworkedFoes.OneTimeEffectUpdate, ReworkedFoes.Entities.OneTimeEffect)
+mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, mod.OneTimeEffectUpdate, mod.Entities.OneTimeEffect)

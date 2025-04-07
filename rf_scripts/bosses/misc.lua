@@ -22,9 +22,10 @@ function mod:Monstro2Render(entity, offset)
         if sprite:IsPlaying("Death") and sprite:IsEventTriggered("Explosion")
 		and not data.DeathEffects then
 			data.DeathEffects = true
-
-			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.LARGE_BLOOD_EXPLOSION, 0, entity.Position, Vector.Zero, entity):GetSprite().Color = entity.SplatColor
 			mod:PlaySound(nil, SoundEffect.SOUND_ROCKET_BLAST_DEATH)
+
+			local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.LARGE_BLOOD_EXPLOSION, 0, entity.Position, Vector.Zero, entity)
+			effect:GetSprite().Color = entity.SplatColor
 		end
 	end
 end
@@ -257,11 +258,41 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.PolycephalusDirt, EntityType.ENT
 
 
 
---[[ Delirium helper ]]--
+--[[ Delirium ]]--
+-- Helper
 function mod:DeliriumHelper(entity)
 	entity:GetData().wasDelirium = true
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.DeliriumHelper, EntityType.ENTITY_DELIRIUM)
+
+-- Extra death effects
+function mod:DeliriumDeath(entity)
+	Game():ShakeScreen(12)
+	Game():MakeShockwave(entity.Position, 0.04, 0.03, 30)
+
+	-- Big splat
+	local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.LARGE_BLOOD_EXPLOSION, 0, entity.Position, Vector.Zero, entity):GetSprite()
+	effect.Color = entity.SplatColor
+	effect.Scale = Vector.One * 1.25
+
+	-- Make his gibs bigger
+	for i, gib in pairs(Isaac.FindByType(EntityType.ENTITY_EFFECT, EffectVariant.BLOOD_PARTICLE)) do
+		if gib.SpawnerEntity.Index == entity.Index then
+			gib:GetSprite().Scale = Vector.One * 1.25
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.DeliriumDeath, EntityType.ENTITY_DELIRIUM)
+
+-- Blacklist Triachnid for Delirium
+if REPENTOGON then
+	function mod:DeliriumTransform(entity, type, variant, force)
+		if type == EntityType.ENTITY_DADDYLONGLEGS and variant == 1 then
+			return false
+		end
+	end
+	mod:AddCallback(DeliriumCallbacks.TRANSFORMATION, mod.DeliriumTransform)
+end
 
 
 

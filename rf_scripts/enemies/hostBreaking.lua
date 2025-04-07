@@ -1,11 +1,11 @@
 local mod = ReworkedFoes
 
 mod.BreakableHosts = {
-	{ Type = EntityType.ENTITY_HOST, Variant = 0, SubType = 0,   BrokenVariant = 1, }, -- Host
-	{ Type = EntityType.ENTITY_HOST, Variant = 0, SubType = 250,   BrokenVariant = 1, BrokenSubType = 251, }, -- Fiend Folio Hostlet
-	{ Type = EntityType.ENTITY_HOST, Variant = 3, SubType = 0,   BrokenSubType = 40, },  -- Hard Host
-	{ Type = EntityType.ENTITY_MOBILE_HOST, BrokenType = EntityType.ENTITY_FLESH_MOBILE_HOST, }, -- Mobile Host
-	{ Type = EntityType.ENTITY_FLOATING_HOST, Variant = 0,   BrokenVariant = 1, }, -- Floast
+	{ Type = EntityType.ENTITY_HOST, Variant = 0, SubType = 0, 	 BrokenVariant = 1, }, -- Host
+	{ Type = EntityType.ENTITY_HOST, Variant = 0, SubType = 250, BrokenVariant = 1, BrokenSubType = 251, }, -- Fiend Folio Hostlet
+	{ Type = EntityType.ENTITY_HOST, Variant = 3, SubType = 0, 	 BrokenSubType = 40, },  -- Hard Host
+	{ Type = EntityType.ENTITY_MOBILE_HOST, 					 BrokenType = EntityType.ENTITY_FLESH_MOBILE_HOST, }, -- Mobile Host
+	{ Type = EntityType.ENTITY_FLOATING_HOST, Variant = 0, 		 BrokenVariant = 1, }, -- Floast
 }
 
 
@@ -94,12 +94,10 @@ function mod:BreakHost(entity, brokenData)
 	-- Effects
 	mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE)
 
-	-- Gibs
-	for i = 1, 5 do
-		local vector = mod:RandomVector(math.random(2, 4))
-		local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, BackdropType.DEPTHS, entity.Position, vector, entity):ToEffect()
-		rocks:Update()
-		rocks:GetSprite():SetAnimation("rubble_alt", false)
+	-- Rock particles
+	for i = 1, 4 do
+		local velocity = mod:RandomVector(math.random(2, 4))
+		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 65537, entity.Position, velocity, entity):ToEffect()
 	end
 
 	-- Smoke

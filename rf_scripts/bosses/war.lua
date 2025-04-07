@@ -3,10 +3,45 @@ local mod = ReworkedFoes
 
 
 function mod:WarUpdate(entity)
-	--[[ 1st phase projectile attack nerf ]]--
-	if (entity.Variant == 0 or entity.Variant == 1)
-	and entity.State == NpcState.STATE_ATTACK and entity:GetSprite():GetFrame() <= 1 then
-		entity.StateFrame = entity.StateFrame - 3
+	--[[ Replace the 1st phase projectile attack ]]--
+	if entity.Variant == 0
+	or (entity.Variant == 1 and not entity:GetData().Phase2) then
+		local sprite = entity:GetSprite()
+
+		if entity.State == NpcState.STATE_ATTACK then
+			entity.State = NpcState.STATE_ATTACK5
+
+
+		-- Custom version
+		elseif entity.State == NpcState.STATE_ATTACK5 then
+			if sprite:IsEventTriggered("Shoot") then
+				local projectileMode = 8
+				local params = ProjectileParams()
+				params.FallingSpeedModifier = 5
+				params.HeightModifier = -45
+
+				if entity.Variant == 1 then
+					-- Champion Conquest
+					if mod:IsRFChampion(entity, "Conquest") then
+						projectileMode = 9
+						params.CircleAngle = mod:Random(1) * mod:DegreesToRadians(30)
+
+					-- Regular Conquest
+					else
+						projectileMode = 6
+						params.Scale = 1.5
+						params.BulletFlags = ProjectileFlags.SMART
+					end
+				end
+
+				entity:FireProjectiles(entity.Position, Vector(12, 6), projectileMode, params)
+				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_4)
+			end
+
+			if sprite:IsFinished() then
+				entity.State = NpcState.STATE_MOVE
+			end
+		end
 
 
 
@@ -14,6 +49,14 @@ function mod:WarUpdate(entity)
 	elseif entity.Variant == 10 then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
+		local data = entity:GetData()
+
+		-- Load the champion troll bomb sprite
+		if entity.SubType == 1 and not data.trollBombSprite then
+			sprite:ReplaceSpritesheet(4, "gfx/items/pick ups/bomb_sad_troll.png")
+			sprite:LoadGraphics()
+			data.trollBombSprite = true
+		end
 
 
 		-- Handle the walking animation stuff
@@ -60,6 +103,8 @@ function mod:WarUpdate(entity)
 				entity.ProjectileCooldown = mod:Random(45, 90)
 				entity.StateFrame = 0
 				sprite.PlaybackSpeed = 1
+				data.hasBomb = true
+
 			else
 				entity.ProjectileCooldown = entity.ProjectileCooldown - 1
 			end
@@ -94,7 +139,7 @@ function mod:WarUpdate(entity)
 					sprite.PlaybackSpeed = 1
 
 					-- Kamikaze
-					if mod:Random(1) == 1 then
+					if entity.SubType == 1 or mod:Random(1) == 1 then
 						entity.State = NpcState.STATE_ATTACK3
 						sprite:Play("Idiot", true)
 					-- Throw
@@ -123,15 +168,20 @@ function mod:WarUpdate(entity)
 				local pos = target.Position + (target.Velocity * 40)
 				local vector = pos - entity.Position
 				local speed = math.min(18, vector:Length() / 15)
-
 				local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_TROLL, 0, entity.Position, vector:Resized(speed), entity):ToBomb()
+				local bombSprite = bomb:GetSprite()
+
 				bomb.PositionOffset = Vector(0, -50)
 				bomb.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
-				bomb:GetSprite():Play("Pulse", true)
+				bombSprite:Play("Pulse", true)
 				bomb:SetExplosionCountdown(mod:Random(20, 30))
+				data.hasBomb = nil
+
+				-- Face towards the throw direction
+				sprite.FlipX = vector.X < 0
+				bombSprite.FlipX = sprite.FlipX
 
 				-- Effects
-				sprite.FlipX = vector.X < 0
 				mod:PlaySound(nil, SoundEffect.SOUND_FETUS_JUMP, 1.1, 0.9)
 				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR)
 			end
@@ -166,6 +216,7 @@ function mod:WarUpdate(entity)
 					entity.TargetPosition = Vector(28, 0)
 					entity.Velocity = entity.V2:Resized(entity.TargetPosition.X)
 					entity.PositionOffset = Vector(0, -12)
+					data.hasBomb = nil
 
 					Game():BombExplosionEffects(entity.Position, 40, TearFlags.TEAR_NORMAL, Color.Default, entity, 1, true, true, DamageFlag.DAMAGE_EXPLOSION)
 					entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
@@ -184,8 +235,10 @@ function mod:WarUpdate(entity)
 				mod:LoopingAnim(sprite, "Fly")
 				mod:FlipTowardsMovement(entity, sprite, true)
 
+				-- Smoke effects
 				for i = 1, 2 do
-					mod:SmokeParticles(entity, entity.PositionOffset + Vector(0, -15), 0, Vector(100, 120), Color(1,1,1, 1, 0.1,0.1,0.1))
+					local offset = entity.PositionOffset + Vector(0, -15)
+					mod:SmokeParticles(entity, offset, 0, Vector(100, 120), Color(1,1,1, 1, 0.1,0.1,0.1))
 				end
 
 
@@ -218,6 +271,23 @@ function mod:WarUpdate(entity)
 					local newX = math.max(0, entity.TargetPosition.X - 6)
 					entity.TargetPosition = Vector(newX, entity.TargetPosition.Y)
 					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_IMPACTS, 0.75, math.random(95, 105) / 100, 6)
+
+					-- Champion extra bombs
+					if entity.SubType == 1 and entity.I1 <= 0 then
+						local vector = entity.Velocity:Rotated(mod:Random(-45, 45))
+						local speed = mod:Random(4, 6)
+						local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_TROLL, 0, entity.Position, vector:Resized(speed), entity):ToBomb()
+
+						bomb.PositionOffset = Vector(0, -50)
+						bomb.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
+						bomb:GetSprite():Play("Pulse", true)
+						bomb:SetExplosionCountdown(mod:Random(30, 45))
+						entity.I1 = 5
+					end
+				end
+
+				if entity.I1 > 0 then
+					entity.I1 = entity.I1 - 1
 				end
 
 
@@ -228,7 +298,6 @@ function mod:WarUpdate(entity)
 				if sprite:IsEventTriggered("Sound") then
 					mod:PlaySound(nil, SoundEffect.SOUND_FETUS_JUMP)
 				end
-
 				if sprite:IsFinished() then
 					entity.State = NpcState.STATE_MOVE
 				end
@@ -249,6 +318,18 @@ function mod:WarDMG(entity, damageAmount, damageFlags, damageSource, damageCount
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.WarDMG, EntityType.ENTITY_WAR)
 
+-- Drop his carried bomb on death
+function mod:WarDeath(entity)
+	if entity.Variant == 10 and entity:GetData().hasBomb then
+		local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_TROLL, 0, entity.Position, entity.Velocity, entity):ToBomb()
+		bomb.PositionOffset = Vector(0, -50)
+		bomb.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
+		bomb:GetSprite():Play("Pulse", true)
+		bomb:SetExplosionCountdown(mod:Random(30, 40))
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_ENTITY_KILL, mod.WarDeath, EntityType.ENTITY_WAR)
+
 
 
 -- Champion Sad Troll Bombs
@@ -256,13 +337,34 @@ function mod:WarBombInit(bomb)
 	if bomb.SpawnerType == EntityType.ENTITY_WAR and (bomb.SpawnerVariant == 0 or bomb.SpawnerVariant == 10)
 	and bomb.SpawnerEntity and bomb.SpawnerEntity.SubType == 1 then
 		bomb:GetData().warSadBomb = true
+
+		-- Load the new sprite
+		local sprite = bomb:GetSprite()
+		sprite:ReplaceSpritesheet(0, "gfx/items/pick ups/bomb_sad_troll.png")
+		sprite:LoadGraphics()
+
+		-- 1st phase version
+		if bomb.SpawnerVariant == 0 then
+			bomb.Position = bomb.SpawnerEntity.Position
+
+			-- Get thrown instead
+			local vector = bomb.SpawnerEntity:ToNPC():GetPlayerTarget().Position - bomb.Position
+			local speed = math.min(12, vector:Length() / 15)
+			bomb.Velocity = vector:Resized(speed)
+			mod:PlaySound(nil, SoundEffect.SOUND_FETUS_JUMP, 1.1, 0.9)
+
+			bomb.PositionOffset = Vector(0, -50)
+			bomb.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
+			bomb:GetSprite():Play("Pulse", true)
+			bomb:SetExplosionCountdown(mod:Random(30, 45))
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_BOMB_INIT, mod.WarBombInit, BombVariant.BOMB_TROLL)
 
 function mod:WarBombExplosion(bomb)
 	if bomb:IsDead() and bomb:GetData().warSadBomb then
-		local offset = mod:Random(359)
+		local offset = mod:Random(1) * 30
 
 		for i = 1, 6 do
 			local angle = offset + i * (360 / 6)

@@ -7,6 +7,7 @@ function mod:GiantSpikeInit(entity)
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
 
+		entity.TargetPosition = entity.Position
 		entity.State = NpcState.STATE_IDLE
 		entity:GetSprite():Play("Appear", true)
 
@@ -27,41 +28,35 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.GiantSpikeInit, mod.Entities.
 function mod:GiantSpikeUpdate(entity)
 	if entity.Variant == mod.Entities.GiantSpike then
 		local sprite = entity:GetSprite()
-		local target = nil
 		local room = Game():GetRoom()
 
-
-		-- Follow target if it's set
-		if entity.Parent then
-			target = entity.Parent
-
-			entity.Position = target.Position
-			entity.Velocity = target.Velocity
-			entity.DepthOffset = target.DepthOffset + 10
-
-		else
-			entity.Velocity = Vector.Zero
-		end
+		entity.Position = entity.TargetPosition
+		entity.Velocity = Vector.Zero
 		mod:IgnoreKnockoutDrops(entity)
 
 
-		-- Retracted
+		--[[ Retracted ]]--
 		if entity.State == NpcState.STATE_IDLE then
 			-- Appear
 			if entity.StateFrame == 0 then
 				if sprite:IsEventTriggered("Sound") then
-					-- Effects
-					for i = 1, 2 do
-						local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, room:GetBackdropType(), entity.Position, mod:RandomVector(2), entity):ToEffect()
-						rocks:GetSprite():Play("rubble", true)
-						rocks.State = 2
-					end
 					mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.4)
+
+					-- Rock particles
+					local rockSubType = room:GetBackdropType()
+
+					for i = 1, 2 do
+						local velocity = mod:RandomVector(math.random(2, 4))
+						local rock = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, rockSubType, entity.Position, velocity, entity):ToEffect()
+						rock:Update()
+						rock.State = 2
+					end
 				end
 
 				if sprite:IsFinished() then
 					entity.StateFrame = 1
 				end
+
 
 			-- Waiting
 			elseif entity.StateFrame == 1 then
@@ -78,29 +73,28 @@ function mod:GiantSpikeUpdate(entity)
 			end
 
 
-		-- Extended
+
+		--[[ Extended ]]--
 		elseif entity.State == NpcState.STATE_ATTACK then
 			-- Make enemies go around them
 			local gridIndex = room:GetGridIndex(entity.Position)
 			room:SetGridPath(gridIndex, 900)
 
+
 			-- Extend
 			if entity.StateFrame == 0 then
 				if sprite:IsEventTriggered("Extend") then
 					entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
-
-					-- Effects
-					for i = 1, 6 do
-						local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, room:GetBackdropType(), entity.Position, mod:RandomVector(3), entity):ToEffect()
-						rocks:GetSprite():Play("rubble", true)
-						rocks.State = 2
-					end
 					mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_BURST_OUT, 0.6)
 
-					-- Kill target
-					if target then
-						target:AddEntityFlags(EntityFlag.FLAG_EXTRA_GORE)
-						target:TakeDamage(target.MaxHitPoints * 2, (DamageFlag.DAMAGE_CRUSH | DamageFlag.DAMAGE_IGNORE_ARMOR), EntityRef(entity), 0)
+					-- Rock particles
+					local rockSubType = room:GetBackdropType()
+
+					for i = 1, 4 do
+						local velocity = mod:RandomVector(math.random(2, 4))
+						local rock = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, rockSubType, entity.Position, velocity, entity):ToEffect()
+						rock:Update()
+						rock.State = 2
 					end
 				end
 
@@ -108,6 +102,7 @@ function mod:GiantSpikeUpdate(entity)
 					entity.StateFrame = 1
 					entity.CollisionDamage = 0
 				end
+
 
 			-- Waiting
 			elseif entity.StateFrame == 1 then
@@ -124,7 +119,8 @@ function mod:GiantSpikeUpdate(entity)
 			end
 
 
-		-- Disappear
+
+		--[[ Disappear ]]--
 		elseif entity.State == NpcState.STATE_SUICIDE then
 			if sprite:IsEventTriggered("Retract") then
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
@@ -138,10 +134,3 @@ function mod:GiantSpikeUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.GiantSpikeUpdate, mod.Entities.Type)
-
-function mod:GiantSpikeCollision(entity, target, bool)
-	if entity.Variant == mod.Entities.GiantSpike and entity.Parent and target.Index == entity.Parent.Index then
-		return true -- Ignore collision
-	end
-end
-mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.GiantSpikeCollision, mod.Entities.Type)

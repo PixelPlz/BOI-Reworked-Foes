@@ -101,6 +101,7 @@ function mod:ItLivesUpdate(entity)
 
 			-- Get the guts
 			local guts = nil
+
 			if entity.Child then
 				guts = entity.Child:ToNPC()
 			end
@@ -185,7 +186,7 @@ function mod:ItLivesUpdate(entity)
 
 						-- Tracers
 						for i = 0, 3 do
-							mod:QuickTracer(entity, 45 + i * 90, Vector.Zero, 15, 1, 2)
+							mod:QuickTracer(entity, 45 + i * 90, Vector.Zero, 8, 3)
 						end
 
 					-- Slam
@@ -400,16 +401,8 @@ function mod:ItLivesUpdate(entity)
 					entity.State = NpcState.STATE_SPECIAL
 					sprite:Play("Angry", true)
 					data.enraged = true
-
 					resetVariables()
 					data.attackCounter = 1
-
-					-- Summon spikes to kill all enemies
-					for i, enemy in pairs(Isaac.GetRoomEntities()) do
-						if enemy:GetData().itLivesSpawn and not enemy:IsDead() then
-							Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, 0, enemy.Position, Vector.Zero, entity).Parent = enemy
-						end
-					end
 
 					-- Bursting bubble fix
 					if data.burstProjectiles then

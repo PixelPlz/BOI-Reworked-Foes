@@ -58,42 +58,18 @@ function mod:ConquestUpdate(entity)
 
 
 	if entity.Variant == 1 then
-		--[[ 1st phase ]]--
+		--[[ Go to the 2nd phase when below half health ]]--
 		if not data.Phase2 then
-			--[[ Champion ]]--
-			if mod:IsRFChampion(entity, "Conquest") then
-				-- Replace the default projectile attack
-				if entity.State == NpcState.STATE_ATTACK then
-					entity.State = NpcState.STATE_ATTACK3
-
-				-- Custom projectile attack
-				elseif entity.State == NpcState.STATE_ATTACK3 then
-					if sprite:GetFrame() == 8 then
-						local params = ProjectileParams()
-						params.CircleAngle = mod:Random(1) * mod:DegreesToRadians(30)
-						entity:FireProjectiles(entity.Position, Vector(12, 6), 9, params)
-						mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_4)
-					end
-
-					if sprite:IsFinished() then
-						entity.State = NpcState.STATE_MOVE
-					end
-				end
-			end
-
-
-
-			--[[ Go to the 2nd phase when below half health ]]--
 			-- Transitioning
 			if entity.State == NpcState.STATE_SPECIAL then
 				if sprite:IsFinished() then
 					data.Phase2 = true
-					sprite:Load("gfx/065.011_conquest without horse.anm2", true)
-					entity:SetSize(20, Vector.One, 12)
-
 					entity.State = NpcState.STATE_APPEAR_CUSTOM
-					sprite:Play("Appear", true)
 					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_YELL_A)
+
+					sprite:Load("gfx/065.011_conquest without horse.anm2", true)
+					sprite:Play("Appear", true)
+					entity:SetSize(20, Vector.One, 12)
 
 					-- Load the proper champion spritesheets
 					if mod:IsRFChampion(entity, "Conquest") then
@@ -109,12 +85,15 @@ function mod:ConquestUpdate(entity)
 				end
 
 
-			-- Don't transition when off-screen
+			-- Don't transition if it's a clone or Delirium
 			elseif entity.HitPoints <= entity.MaxHitPoints / 2
-			and entity.State ~= NpcState.STATE_JUMP and room:IsPositionInRoom(entity.Position, entity.Size)
 			and not entity.SpawnerEntity and not entity:GetData().wasDelirium then
 				entity.State = NpcState.STATE_SPECIAL
 				sprite:Play("GetOff", true)
+
+				-- Re-enable collision if he was off-screen
+				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
+				entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 			end
 
 
@@ -183,8 +162,8 @@ function mod:ConquestUpdate(entity)
 						params.BulletFlags = ProjectileFlags.SMART
 						params.FallingSpeedModifier = 5
 						params.HeightModifier = -30
-						params.CircleAngle = 0
-						entity:FireProjectiles(entity.Position, Vector(11, 6), 9, params)
+						params.CircleAngle = mod:Random(1) * mod:DegreesToRadians(30)
+						entity:FireProjectiles(entity.Position, Vector(12, 6), 9, params)
 					end
 
 					mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_4, 0.9)

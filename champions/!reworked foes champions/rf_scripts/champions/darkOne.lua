@@ -12,7 +12,9 @@ function mod:DarkestOneUpdate(entity)
 
 		-- Particles
 		if entity.I2 == 0 then
-			mod:SmokeParticles(entity, Vector(0, -30), 15, Vector(100, 120), Color.Default, "effects/effect_088_darksmoke_black")
+			for i = 1, math.random(2, 3) do
+				mod:SmokeParticles(entity, Vector(0, -28), 12, Vector(100, 120), nil, nil, "effects/effect_088_darksmoke_black")
+			end
 		end
 
 

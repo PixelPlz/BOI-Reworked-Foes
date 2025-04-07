@@ -159,17 +159,16 @@ function mod:ScolexUpdate(entity)
 					-- Shell phases
 					if entity.I2 < 2 and entity.V1.X <= Settings.ArmorHealth - (Settings.ArmorHealth / 2) * (entity.I2 + 1) then
 						entity.I2 = entity.I2 + 1
-
-						-- Effects
-						for i = 0, 5 do
-							local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, BackdropType.WOMB, entity.Position, mod:RandomVector(3), entity):ToEffect()
-							rocks:GetSprite():Play("rubble", true)
-							rocks.State = 2
-							rocks.m_Height = entity.PositionOffset.Y
-							rocks:Update()
-						end
-
 						mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.9)
+
+						-- Rock particles
+						for i = 1, 4 do
+							local velocity = mod:RandomVector(math.random(2, 4))
+							local rock = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, BackdropType.WOMB, entity.Position, velocity, entity):ToEffect()
+							rock.m_Height = entity.PositionOffset.Y
+							rock:Update()
+							rock.State = 2
+						end
 					end
 				end
 			end

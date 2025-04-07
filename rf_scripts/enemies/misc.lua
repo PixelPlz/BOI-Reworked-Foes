@@ -109,6 +109,34 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.LaunchedBoomFlyUpdate, Entit
 
 
 
+--[[ Angelic Baby ]]--
+function mod:BabyUpdate(entity)
+	local sprite = entity:GetSprite()
+
+	-- Stop them from moving while teleporting
+	if sprite:IsPlaying("Vanish2") then
+		entity.Velocity = Vector.Zero
+	end
+
+
+	-- Angelic Babies create a lightbeam at their teleport destination
+	if entity.Variant == 1 and entity.SubType == 0 then
+		if sprite:IsPlaying("Vanish") and sprite:IsEventTriggered("Jump") then
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACK_THE_SKY, 2, entity.TargetPosition, Vector.Zero, entity).DepthOffset = entity.DepthOffset - 10
+
+		-- Projectiles
+		elseif sprite:IsPlaying("Vanish2") and sprite:GetFrame() == 2 then
+			local params = ProjectileParams()
+			params.Variant = ProjectileVariant.PROJECTILE_HUSH
+			params.Color = Color(1,1,1, 1, 0.25,0.25,0.25)
+			entity:FireProjectiles(entity.Position, Vector(10, 4), 6, params)
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BabyUpdate, EntityType.ENTITY_BABY)
+
+
+
 --[[ Chubber ]]--
 function mod:ChubberWormInit(entity)
 	if entity.Variant == 22 then
@@ -153,32 +181,38 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.ScarredGutsDeath, EntityType
 
 
 --[[ Holy Leech ]]--
-function mod:HolyLeechRender(entity, offset)
-	if entity.Variant == 2 and mod:ShouldDoRenderEffects() then
+-- Death effects
+function mod:HolyLeechUpdate(entity)
+	if entity.Variant == 2 and entity.State == NpcState.STATE_SPECIAL then
 		local sprite = entity:GetSprite()
-		local data = entity:GetData()
+		entity.Velocity = Vector.Zero
 
-
-		-- Start the death animation
-		if entity:IsDead() and entity.State ~= NpcState.STATE_UNIQUE_DEATH then
-			sprite:Play("Death", true)
-			entity:KillUnique()
-			entity.Visible = true
-
-
-		-- Light beam
-		elseif sprite:IsEventTriggered("Spawn") and not data.DeathBeam then
-			data.DeathBeam = true
-
-			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACK_THE_SKY, 2, entity:GetPlayerTarget().Position, Vector.Zero, entity)
+		-- Shoot the light beam
+		if sprite:IsEventTriggered("Spawn") then
+			local target = entity:GetPlayerTarget()
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACK_THE_SKY, 2, target.Position, Vector.Zero, entity)
 			mod:PlaySound(nil, SoundEffect.SOUND_LASERRING_WEAK, 0.8, 0.8)
-
-
-		-- Death gibs
-		elseif sprite:IsFinished("Death") and not data.DeathGibs then
-			data.DeathGibs = true
-			entity:BloodExplode()
 		end
+
+		if sprite:IsFinished() then
+			entity:Kill()
+			return true
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.HolyLeechUpdate, EntityType.ENTITY_LEECH)
+
+-- Start the death animation
+function mod:HolyLeechRender(entity, offset)
+	if entity.Variant == 2 and mod:ShouldDoRenderEffects()
+	and entity:HasMortalDamage() and entity.State ~= NpcState.STATE_SPECIAL then
+		entity.State = NpcState.STATE_SPECIAL
+		entity:GetSprite():Play("Death", true)
+
+		entity.HitPoints = 1000
+		entity.MaxHitPoints = 0
+		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
+		entity.Visible = true
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.HolyLeechRender, EntityType.ENTITY_LEECH)
@@ -301,7 +335,7 @@ function mod:RedGhostUpdate(entity)
 			angle = 270
 		end
 
-		mod:QuickTracer(entity, angle, Vector(0, entity.SpriteScale.Y * -25), 15, 1, 2)
+		mod:QuickTracer(entity, angle, Vector(0, entity.SpriteScale.Y * -25), 6, 3)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.RedGhostUpdate, EntityType.ENTITY_RED_GHOST)

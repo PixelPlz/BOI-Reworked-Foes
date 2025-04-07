@@ -114,7 +114,7 @@ function mod:GreedHopperReplace(entity)
 			local coin = Isaac.Spawn(EntityType.ENTITY_ULTRA_COIN, 2, 0, entity.Position, Vector.Zero, entity.SpawnerEntity):ToNPC()
 			mod:ChangeMaxHealth(coin, coin.MaxHitPoints / 2)
 			coin.Scale = 0.75
-			coin.SizeMulti = 0.75
+			coin.SizeMulti = Vector.One * 0.75
 			coin:Update()
 
 		-- Regular Greed Coffers
@@ -133,21 +133,22 @@ function mod:GreedHit(entity, damageAmount, damageFlags, damageSource, damageCou
 	or (damageSource.Type == EntityType.ENTITY_GREED and damageSource.Variant == 1) then
 		local player = entity:ToPlayer()
 
-		-- Remove bombs
-		local bombAmount = math.min(player:GetNumBombs(), mod:Random(1, 2))
+		-- Steal bombs
+		local bombAmount = math.min(player:GetNumCoins(), mod:Random(1, 2))
 		player:AddBombs(-bombAmount)
 
 		if bombAmount > 1 then
-			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_BOMB, BombSubType.BOMB_NORMAL, player.Position, mod:RandomVector(mod:Random(4, 6)), nil)
+			local velocity = mod:RandomVector(mod:Random(4, 6))
+			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_BOMB, BombSubType.BOMB_NORMAL, player.Position, velocity, player)
 		end
 
-
-		-- Remove keys
-		local keyAmount = math.min(player:GetNumKeys(), mod:Random(1, 2))
+		-- Steal keys
+		local keyAmount = math.min(player:GetNumCoins(), mod:Random(1, 2))
 		player:AddKeys(-keyAmount)
 
 		if keyAmount > 1 then
-			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_KEY, KeySubType.KEY_NORMAL, player.Position, mod:RandomVector(mod:Random(4, 6)), nil)
+			local velocity = mod:RandomVector(mod:Random(4, 6))
+			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_KEY, KeySubType.KEY_NORMAL, player.Position, velocity, player)
 		end
 	end
 end

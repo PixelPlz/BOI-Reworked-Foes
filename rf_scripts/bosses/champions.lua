@@ -12,19 +12,20 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BlueLarryJrUpdate, EntityType.EN
 
 
 
---[[ Golden Hollow hitting a player ]]--
+--[[ Golden Hollow ]]--
 function mod:GoldenHollowHit(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
 	if damageSource.Type == EntityType.ENTITY_LARRYJR and damageSource.Variant == 1 and damageSource.Entity.SubType == 3 then
 		local player = entity:ToPlayer()
-
-		-- Remove coins
 		local amount = math.min(player:GetNumCoins(), mod:Random(2, 4))
 		player:AddCoins(-amount)
 
 		if amount > 1 then
 			local dropAmount = mod:Random(amount - 2)
-			for i = 0, dropAmount do
-				Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COIN, CoinSubType.COIN_PENNY, player.Position, mod:RandomVector(mod:Random(4, 6)), nil)
+
+			-- Drop some of them on the ground
+			for i = 1, dropAmount do
+				local velocity = mod:RandomVector(mod:Random(4, 6))
+				Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COIN, CoinSubType.COIN_PENNY, player.Position, velocity, player)
 			end
 		end
 	end

@@ -67,7 +67,7 @@ ReworkedFoes.Entities = {
 
 
 --[[ Colors ]]--
--- Extended color constructor.
+-- Extended color constructor
 ---@param rgb table
 ---@param colorize table?
 ---@param tint table?

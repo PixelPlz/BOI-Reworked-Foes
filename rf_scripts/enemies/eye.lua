@@ -36,12 +36,12 @@ function mod:EyeUpdate(entity)
 
 			if entity.Variant == 1 then
 				pitch = 1
-				xScale = 2
+				xScale = 3
 				offset = 10
 			end
 
 			mod:PlaySound(nil, SoundEffect.SOUND_LASERRING_WEAK, 1, pitch)
-			mod:QuickTracer(entity, entity.V1.X, Vector.FromAngle(entity.V1.X):Resized(offset) + Vector(0, entity.Variant * -18), 15, 1, xScale)
+			mod:QuickTracer(entity, entity.V1.X, Vector.FromAngle(entity.V1.X):Resized(offset) + Vector(0, entity.Variant * -18), 6, xScale)
 		end
 
 

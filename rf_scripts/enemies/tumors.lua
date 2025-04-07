@@ -83,7 +83,7 @@ function mod:CamilloJrUpdate(entity)
 		if sprite:IsEventTriggered("GetPos") then
 			local angle = (target.Position - entity.Position):GetAngleDegrees()
 			entity.TargetPosition = Vector(angle, 0)
-			mod:QuickTracer(entity, angle, Vector(0, -30), 15, 1)
+			mod:QuickTracer(entity, angle, Vector(0, -30), 8)
 			mod:PlaySound(nil, SoundEffect.SOUND_LASERRING_WEAK, 0.9, 1.1)
 
 		-- Shoot

@@ -5,9 +5,8 @@ local Settings = {
 	SpawnDmgReduction = 60,
 	TransitionDmgReduction = 90,
 
-	PlayerDistance = 100,
-	MoveSpeed = 4.75,
-	SoulSpeed = 3.75,
+	PlayerDistance = 120,
+	MoveSpeed = 5.5,
 
 	Cooldown = 60,
 	TearCooldown = 20,
@@ -18,7 +17,7 @@ local Settings = {
 
 	ChainLength = 9,
 	BodyMaxDistance = 160,
-	SwipeSpeed = 35,
+	SwipeSpeed = 36,
 }
 
 
@@ -105,7 +104,8 @@ function mod:BlueBabyUpdate(entity)
 
 		-- Change from soul form
 		local function soulGetIn()
-			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 10, entity.Position, (entity.Child.Position - entity.Position):Resized(7), entity).SpriteOffset = Vector(0, -10)
+			local vector = (entity.Child.Position - entity.Position):Resized(7)
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 10, entity.Position, vector, entity).SpriteOffset = Vector(0, -10)
 			entity:SetColor(Color(1,1,1, 1, 1,1,1), 10, 1, true, false)
 			mod:PlaySound(nil, SoundEffect.SOUND_RECALL)
 
@@ -122,7 +122,7 @@ function mod:BlueBabyUpdate(entity)
 			data.isSoul = false
 
 			for i, chain in pairs(data.chain) do
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FORGOTTEN_CHAIN, 0, chain.Position - Vector(0, 30), (entity.Child.Position - entity.Position):Resized(7), entity)
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.FORGOTTEN_CHAIN, 0, chain.Position - Vector(0, 30), vector, entity)
 				chain:Remove()
 			end
 			data.chain = nil
@@ -218,11 +218,8 @@ function mod:BlueBabyUpdate(entity)
 
 			-- Normal
 			else
-				-- Stay at a point around the player, change this point every 60 frames
-				if not data.angle or entity:IsFrame(60, 0) then
-					data.angle = mod:Random(7) * 45
-				end
-				local pos = target.Position + Vector.FromAngle(data.angle):Resized(Settings.PlayerDistance)
+				local vector = mod:ClampVector(entity.Position - target.Position, 90):Resized(Settings.PlayerDistance)
+				local pos = target.Position + vector
 
 				if entity.Position:Distance(pos) < 20 then
 					entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -439,20 +436,23 @@ function mod:BlueBabyUpdate(entity)
 
 					-- 2nd phase curving shots
 					elseif entity.I1 == 2 then
+						mod:PlaySound(nil, SoundEffect.SOUND_THUMBS_DOWN, 0.6)
+
 						local params = ProjectileParams()
 						params.Variant = ProjectileVariant.PROJECTILE_TEAR
 						params.FallingSpeedModifier = 1
 						params.FallingAccelModifier = -0.09
 
+						-- Fast ring
 						params.Scale = 1.35
 						params.BulletFlags = ProjectileFlags.CURVE_RIGHT
-						entity:FireProjectiles(entity.Position, Vector(10, 10), 9, params)
+						entity:FireProjectiles(entity.Position, Vector(9, 8), 9, params)
 
+						-- Slow ring
 						params.Scale = 1.65
 						params.BulletFlags = ProjectileFlags.CURVE_LEFT
 						params.Color = mod.Colors.SoulShot
-						entity:FireProjectiles(entity.Position, Vector(5, 10), 9, params)
-						mod:PlaySound(nil, SoundEffect.SOUND_THUMBS_DOWN, 0.6)
+						entity:FireProjectiles(entity.Position, Vector(5, 8), 9, params)
 					end
 				end
 
@@ -742,10 +742,11 @@ function mod:BlueBabyUpdate(entity)
 					params.Color = mod.Colors.ForgottenBone
 					params.FallingSpeedModifier = 1
 					params.FallingAccelModifier = -0.1
+					params.CircleAngle = mod:Random(1) * mod:DegreesToRadians(30)
 
-					entity:FireProjectiles(entity.Position, Vector(10, 6), 9, params)
-					mod:PlaySound(nil, SoundEffect.SOUND_SHELLGAME, 1.1)
+					entity:FireProjectiles(entity.Position, Vector(11, 6), 9, params)
 					entity.Velocity = mod:GetTargetVector(entity, target):Resized(Settings.SwipeSpeed)
+					mod:PlaySound(nil, SoundEffect.SOUND_SHELLGAME, 1.1)
 
 				-- Throw the bone club at the player
 				elseif sprite:IsEventTriggered("Shoot") then
@@ -1029,7 +1030,7 @@ function mod:BlueBabyExtrasUpdate(entity)
 
 						-- Tracers
 						for i = 0, 3 do
-							mod:QuickTracer(entity, i * 90, Vector(0, -35), 15, 15, 3, Color(1,1,0.5, 0.5))
+							mod:QuickTracer(entity, i * 90, Vector(0, -35), 10, 3, Color(1,1,0.5, 0.5))
 						end
 
 					else

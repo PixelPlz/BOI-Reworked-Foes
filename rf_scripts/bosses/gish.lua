@@ -113,7 +113,8 @@ function mod:GishUpdate(entity)
 				else
 					local attackCount = 3
 					-- Only have up to 3 Clots
-					if mod:IsRFChampion(entity, "Gish") or Isaac.CountEntities(nil, EntityType.ENTITY_CLOTTY, 1, -1) >= Settings.MaxClots then
+					if mod:IsRFChampion(entity, "Gish")
+					or Isaac.CountEntities(nil, EntityType.ENTITY_CLOTTY, 1, -1) >= Settings.MaxClots then
 						attackCount = 2
 					end
 					local attack = mod:Random(1, attackCount)
@@ -910,12 +911,11 @@ function mod:GishUpdate(entity)
 			end
 
 
-
-		-- Force Delirium out of this form because for some reason he just deletes the data that holds the references to the legs
+		-- Delirium fix
 		elseif data.wasDelirium then
-			entity.StateFrame = 0
-			entity.State = NpcState.STATE_ATTACK2
+			entity.State = NpcState.STATE_IDLE
 		end
+
 
 
 		if entity.FrameCount > 1 then

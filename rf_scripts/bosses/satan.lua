@@ -108,15 +108,11 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.SatanUpdate, EntityType.ENTITY_S
 
 
 
--- Replace Kamikaze Leeches
+-- Remove Kamikaze Leeches from the 2nd phase
 function mod:KamikazeLeechReplace(entity)
-	if entity.Variant == 1 and entity.SpawnerType == EntityType.ENTITY_SATAN then
+	if entity.Variant == 1
+	and entity.SpawnerType == EntityType.ENTITY_SATAN and entity.SpawnerVariant == 10 then
 		entity:Remove()
-
-		-- Fallen phase Nulls
-		if entity.SpawnerVariant == 0 then
-			Isaac.Spawn(EntityType.ENTITY_NULLS, 0, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
-		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.KamikazeLeechReplace, EntityType.ENTITY_LEECH)

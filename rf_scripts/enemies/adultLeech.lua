@@ -49,11 +49,12 @@ function mod:AdultLeechUpdate(entity)
 		mod:PlaySound(nil, SoundEffect.SOUND_MAGGOT_BURST_OUT, 0.9)
 		mod:PlaySound(nil, SoundEffect.SOUND_MEATY_DEATHS, 0.9)
 
-		-- Rocks
-		for i = 1, 5 do
-			local vector = entity.TargetPosition:Rotated(math.random(-30, 30)):Resized(math.random(4, 6))
-			local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, room:GetBackdropType(), entity.Position, vector, entity):ToEffect()
-			rocks:GetSprite():Play("rubble", true)
+		-- Rock particles
+		local rockSubType = room:GetBackdropType()
+
+		for i = 1, 4 do
+			local velocity = entity.TargetPosition:Rotated(math.random(-30, 30)):Resized(math.random(4, 6))
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, rockSubType, entity.Position, velocity, entity):ToEffect()
 		end
 	end
 end

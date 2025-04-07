@@ -1,11 +1,15 @@
 local mod = ReworkedFoes
 
 local Settings = {
-	-- On horse
+	-- 1st phase
 	NewHealth = {540, 675},
 	Cooldown = {40, 80},
 	WanderSpeed = 2.5,
 	MaxSpawns = 1,
+
+	-- 2nd phase
+	SwingSpeed = 50,
+	SwingDamage = 20,
 
 	-- Scythes
 	ScytheHealth = {20, 60},
@@ -16,21 +20,24 @@ local Settings = {
 
 
 
-function mod:DeathInit(entity, dontChangeHealth)
-	if (entity.Variant == 0 or entity.Variant == 30) then
-		-- Buff his health
-		if not dontChangeHealth then
-			local newHealth = Settings.NewHealth[entity.SubType + 1]
-			mod:ChangeMaxHealth(entity, newHealth)
-		end
+function mod:DeathInit(entity)
+	-- Horse collision size
+	if entity.Variant == 20 then
+		entity:SetSize(13, Vector(2, 1), 0)
 
+	-- Death 1st and 2nd phase
+	elseif (entity.Variant == 0 or entity.Variant == 30) then
 		entity.ProjectileCooldown = mod:Random(Settings.Cooldown[1], Settings.Cooldown[2])
-	end
 
-	-- Stupid grid collision size fix
-	local oldSize = entity.Size
-	entity:SetSize(entity.Size + 1, entity.SizeMulti, 12)
-	entity:SetSize(oldSize, entity.SizeMulti, 12)
+		-- Buff his health
+		local newHealth = Settings.NewHealth[entity.SubType + 1]
+		mod:ChangeMaxHealth(entity, newHealth)
+
+		-- Stupid grid collision size fix
+		local oldSize = entity.Size
+		entity:SetSize(entity.Size + 1, entity.SizeMulti, 12)
+		entity:SetSize(oldSize, entity.SizeMulti, 12)
+	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.DeathInit, EntityType.ENTITY_DEATH)
 
@@ -110,7 +117,8 @@ function mod:DeathUpdate(entity)
 
 				for i = -1, 1, 2 do
 					local pos = entity.Position + Vector(i * 40, 15)
-					local spawn = Isaac.Spawn(spawnType, spawnVariant, entity.SubType, pos, Vector.Zero, entity):ToNPC()
+					pos = Game():GetRoom():FindFreeTilePosition(pos, 0)
+					local spawn = Isaac.Spawn(spawnType, spawnVariant, entity.SubType, pos, Vector.Zero, entity)
 					spawn.Parent = entity
 				end
 
@@ -151,11 +159,13 @@ function mod:DeathUpdate(entity)
 				end
 
 
-				-- Cardinally aligned with him
+				-- At each door
 				if pattern == 1 then
+					local centerPos = room:GetCenterPos()
+
 					for i = 1, 4 do
 						local offset = Vector.FromAngle(i * 90):Resized(room:GetGridWidth() * 40)
-						local pos = room:GetClampedPosition(entity.Position + offset, entity.Size)
+						local pos = room:GetClampedPosition(centerPos + offset, entity.Size)
 						addPosition(pos)
 					end
 
@@ -257,7 +267,7 @@ function mod:DeathUpdate(entity)
 
 				local effectSprite = effect:GetSprite()
 				effectSprite.Color = Color(0,0,0, 0.666, 0.7,0.6,0.4)
-				effectSprite.Offset = Vector(-mod:GetSign(sprite.FlipX) * 18, -26)
+				effectSprite.Offset = Vector(-mod:GetSign(sprite.FlipX) * 24, -33)
 				effectSprite.Scale = Vector.One * 0.666
 			end
 
@@ -294,11 +304,16 @@ function mod:DeathUpdate(entity)
 				local maxHP = entity.MaxHitPoints
 				entity:Morph(entity.Type, 30, entity.SubType, -1)
 				entity.MaxHitPoints = maxHP
-				mod:DeathInit(entity, true)
 
 				entity.State = NpcState.STATE_STOMP
+				entity.ProjectileCooldown = mod:Random(Settings.Cooldown[1], Settings.Cooldown[2])
 				sprite:Play("Appear", true)
 				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_YELL_A, 1.25)
+
+				-- Stupid grid collision size fix
+				local oldSize = entity.Size
+				entity:SetSize(entity.Size + 1, entity.SizeMulti, 12)
+				entity:SetSize(oldSize, entity.SizeMulti, 12)
 
 				-- Spawn the horse
 				local horse = Isaac.Spawn(entity.Type, 20, entity.SubType, entity.Position, Vector.Zero, entity)
@@ -317,8 +332,10 @@ function mod:DeathUpdate(entity)
 
 
 	--[[ Death (without horse) ]]--
-	elseif entity.Variant == 300 then
+	elseif entity.Variant == 30 then
 		local sprite = entity:GetSprite()
+		local data = entity:GetData()
+
 
 		--[[ Getting off the horse ]]--
 		if entity.State == NpcState.STATE_STOMP then
@@ -339,28 +356,20 @@ function mod:DeathUpdate(entity)
 			if entity.ProjectileCooldown <= 0 then
 				entity.ProjectileCooldown = mod:Random(Settings.Cooldown[1], Settings.Cooldown[2])
 
-				local spawnCount = 0
-				local spawnType = EntityType.ENTITY_KNIGHT
-				local spawnVariant = 0
-
-				-- Black champion Red Maws
-				if entity.SubType == 1 then
-					spawnType = EntityType.ENTITY_MAW
-					spawnVariant = 1
-				end
-
-				spawnCount = Isaac.CountEntities(nil, spawnType, spawnVariant)
+				-- Get the spawn count
+				local spawnType = entity.SubType == 1 and EntityType.ENTITY_DEATHS_HEAD or EntityType.ENTITY_KNIGHT
+				local spawnCount = Isaac.CountEntities(nil, spawnType)
 
 				-- Summon
-				if spawnCount <= Settings.MaxSpawns and mod:Random(1) == 1 then
+				if spawnCount <= Settings.MaxSpawns + entity.SubType
+				and ((entity.SubType == 1 and spawnCount <= 0) or mod:Random(1) == 1) then
 					entity.State = NpcState.STATE_SUMMON
 					sprite:Play("Attack", true)
 
 				-- Scythe attack
 				else
 					entity.State = NpcState.STATE_ATTACK
-					sprite:Play("Attack", true)
-					entity.TargetPosition = mod:GetTargetVector(entity)
+					sprite:Play("Slash", true)
 				end
 
 			else
@@ -374,19 +383,20 @@ function mod:DeathUpdate(entity)
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
 			if sprite:IsEventTriggered("Shoot") then
-				local spawnType = EntityType.ENTITY_KNIGHT
-				local spawnVariant = 0
-
-				-- Black champion Red Maws
-				if entity.SubType == 1 then
-					spawnType = EntityType.ENTITY_MAW
-					spawnVariant = 1
-				end
+				local spawnType = entity.SubType == 1 and EntityType.ENTITY_DEATHS_HEAD or EntityType.ENTITY_KNIGHT
 
 				for i = -1, 1, 2 do
 					local pos = entity.Position + Vector(i * 40, 15)
-					local spawn = Isaac.Spawn(spawnType, spawnVariant, entity.SubType, pos, Vector.Zero, entity):ToNPC()
+					pos = Game():GetRoom():FindFreeTilePosition(pos, 0)
+					local spawn = Isaac.Spawn(spawnType, 0, 0, pos, Vector.Zero, entity)
 					spawn.Parent = entity
+
+					-- Load the custom Death's Head sprites
+					if entity.SubType == 1 then
+						local spawnSprite = spawn:GetSprite()
+						spawnSprite:ReplaceSpritesheet(0, "gfx/monsters/rebirth/monster_211_deathshead_black.png")
+						spawnSprite:LoadGraphics()
+					end
 				end
 
 				-- Effects
@@ -404,22 +414,132 @@ function mod:DeathUpdate(entity)
 		elseif entity.State == NpcState.STATE_ATTACK then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
-			if not sprite:WasEventTriggered("Shoot") then
-				sprite.FlipX = entity.TargetPosition.X < 0
+			if entity.SubType ~= 1 then
+				-- Face the target
+				if not sprite:WasEventTriggered("GetPos") then
+					mod:FlipTowardsTarget(entity, sprite)
+				end
+
+				-- Damage everything caught in the swing
+				if sprite:IsEventTriggered("Shoot")
+				or (sprite:WasEventTriggered("Shoot") and not sprite:WasEventTriggered("Stop")) then
+					-- Get the position to check from
+					local pos = entity.Position
+
+					if not sprite:IsEventTriggered("Shoot") then
+						pos = pos + entity.Velocity:Resized(entity.Size * 2)
+					end
+
+					-- Deal damage
+					local colliders = Isaac.FindInRadius(pos, 60, EntityPartition.ENEMY)
+
+					for i, collider in pairs(colliders) do
+						if collider.Type ~= entity.Type then
+							collider:TakeDamage(Settings.SwingDamage, DamageFlag.DAMAGE_IGNORE_ARMOR, EntityRef(entity), 0)
+
+							-- Shoot on death
+							if collider:HasMortalDamage() and not collider:IsDead() then
+								local params = ProjectileParams()
+								params.Variant = mod.Entities.SandProjectile
+								entity:FireProjectiles(collider.Position, Vector(11, 8), 8, params)
+							end
+						end
+					end
+				end
 			end
 
-			if sprite:IsEventTriggered("Shoot") then
-				entity.Velocity = entity.TargetPosition:Resized(50)
-				mod:PlaySound(nil, SoundEffect.SOUND_TOOTH_AND_NAIL, 1, 0.95)
-				entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-				entity.V1 = Vector(entity.Mass, 0)
-				entity.Mass = 1
+
+			-- Prepare
+			if sprite:IsEventTriggered("Sound") then
+				mod:PlaySound(nil, SoundEffect.SOUND_SIREN_SING_STAB, 0.8)
+
+				-- Get the victims
+				if entity.SubType == 1 then
+					data.Victims = {}
+					data.Beams = {}
+
+					for i, knight in pairs( Isaac.FindByType(EntityType.ENTITY_DEATHS_HEAD) ) do
+						local beam = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.KINETI_BEAM, 0, entity.Position, Vector.Zero, entity):ToEffect()
+						beam.Parent = entity
+						beam:FollowParent(beam.Parent)
+						beam.Color = mod:ColorEx({1,1,1, 1, 0,0,0}, {1,0,0, 1})
+						beam.Target = knight
+						beam.DepthOffset = knight.DepthOffset - 10
+
+						beam:Update()
+						table.insert(data.Victims, knight)
+						table.insert(data.Beams, beam)
+					end
+				end
+
+
+			elseif sprite:IsEventTriggered("GetPos") then
+				-- Slash effects
+				if entity.SubType == 1 then
+					for i, victim in pairs(data.Victims) do
+						if victim:Exists() then
+							local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CLEAVER_SLASH, 0, victim.Position, Vector.Zero, entity):ToEffect()
+							effect:FollowParent(victim)
+							effect.Color = mod:ColorEx({1,1,1, 1, 0,0,0}, {0.75,0,0, 1})
+							effect.DepthOffset = victim.DepthOffset + 10
+						end
+					end
+
+				-- Get the slash direction
+				else
+					entity.TargetPosition = mod:GetTargetVector(entity)
+					sprite.FlipX = entity.TargetPosition.X < 0
+				end
+
+
+			-- Swoosh
+			elseif sprite:IsEventTriggered("Shoot") then
+				if entity.SubType == 1 then
+					-- Kill the victims
+					for i, victim in pairs(data.Victims) do
+						if victim:Exists() then
+							victim:Kill()
+
+							-- Shoot out bones
+							local params = ProjectileParams()
+							params.Variant = ProjectileVariant.PROJECTILE_BONE
+							params.Color = mod.Colors.BlackBony
+							params.CircleAngle = mod:Random(1) * mod:DegreesToRadians(30)
+							entity:FireProjectiles(victim.Position, Vector(11, 6), 9, params)
+						end
+					end
+
+					-- Remove the beams
+					for i, beam in pairs(data.Beams) do
+						if beam:Exists() then
+							beam:Remove()
+						end
+					end
+
+					data.Victims = nil
+					data.Beams = nil
+
+				-- Propel himself forward
+				else
+					entity.Velocity = entity.TargetPosition:Resized(Settings.SwingSpeed)
+					entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+					entity.V1 = Vector(entity.Mass, 0)
+					entity.Mass = 1
+				end
+
+				-- Effects
+				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_YELL_A, 1.25)
+				mod:PlaySound(nil, SoundEffect.SOUND_TOOTH_AND_NAIL, 0.8, 0.95)
+
+
+			-- Stop swooshing
+			elseif sprite:IsEventTriggered("Stop") and entity.SubType ~= 1 then
+				entity:ClearEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+				entity.Mass = entity.V1.X
 			end
 
 			if sprite:IsFinished() then
 				entity.State = NpcState.STATE_MOVE
-				entity:ClearEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
-				entity.Mass = entity.V1.X
 			end
 		end
 
@@ -432,11 +552,6 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.DeathUpdate, EntityType.ENTI
 
 function mod:DeathCollision(entity, target, bool)
 	if entity.Variant ~= 10 and target.SpawnerType == entity.Type then
-		if target.Type ~= entity.Type and entity.Variant == 30
-		and entity.State == NpcState.STATE_ATTACK and entity:GetSprite():WasEventTriggered("Shoot") then
-			target:Kill()
-		end
-
 		return true -- Ignore collision
 	end
 end
@@ -491,12 +606,10 @@ function mod:ScytheDeath(entity)
 	if entity.Variant == 10 then
 		mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE)
 
-		-- Gibs
+		-- Rock particles
 		for i = 1, 4 do
-			local vector = mod:RandomVector(math.random(2, 4))
-			local rocks = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, BackdropType.BASEMENT, entity.Position, vector, entity):ToEffect()
-			rocks:Update()
-			rocks:GetSprite():SetAnimation("rubble_alt", false)
+			local velocity = mod:RandomVector(math.random(2, 4))
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 65537, entity.Position, velocity, entity):ToEffect()
 		end
 
 		-- Smoke
