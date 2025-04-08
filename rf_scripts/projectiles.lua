@@ -400,7 +400,7 @@ mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, mod.EditTearProjectiles,
 function mod:AddCustomProjectile(variant, initScript, updateScript, popScript)
 	local function init(projectile)
 		if initScript then
-			initScript(_, projectile)
+			initScript(nil, projectile)
 		end
 		projectile:GetData().customProjectileInitialized = true
 		projectile:GetData().spawnerSubType = projectile.SpawnerEntity and projectile.SpawnerEntity.SubType or -1
@@ -619,9 +619,13 @@ function mod:SandProjectileHit(entity, damageAmount, damageFlags, damageSource, 
 		local effectColor = Color(1,1,1.3, 1, 0.16,0.16,0.16)
 
 		-- Add the slowness
-		local duration = 6 * 30
-		player:AddSlowing(damageSource, duration, 0.88, effectColor)
-		player:SetSlowingCountdown(duration)
+		local duration = 5 * 30
+		local strength = 0.88
+		player:AddSlowing(damageSource, duration, strength, effectColor)
+
+		if REPENTOGON then
+			player:SetSlowingCountdown(duration)
+		end
 
 		-- Effects
 		mod:PlaySound(nil, SoundEffect.SOUND_BLACK_POOF)

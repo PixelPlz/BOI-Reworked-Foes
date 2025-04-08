@@ -373,7 +373,7 @@ end
 ---@param sprite Sprite
 ---@param otherWay boolean? Usually, if moving towards the left, the entity will get `FlipX` set to true. Set this to `true` for the opposite of that. Defaults to `false`.
 function ReworkedFoes:FlipTowardsTarget(entity, sprite, otherWay)
-	local target = entity:ToNPC() and entity:GetPlayerTarget() or entity.Target
+	local target = entity:ToNPC() and entity:ToNPC():GetPlayerTarget() or entity.Target
 
 	if (otherWay ~= true and target.Position.X < entity.Position.X)
 	or (otherWay == true and target.Position.X > entity.Position.X) then
@@ -556,7 +556,7 @@ function ReworkedFoes:ChasePlayer(entity, speed)
 		-- If there is a path to the player
 		if entity.Pathfinder:HasPathToPos(target.Position) or entity:IsFlying() then
 			-- If there is a direct line to the player
-			if Game():GetRoom():CheckLine(entity.Position, target.Position, LineCheckMode.RAYCAST) or entity:IsFlying() then
+			if Game():GetRoom():CheckLine(entity.Position, target.Position, 1) or entity:IsFlying() then
 				entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Resized(speed), 0.25)
 			else
 				entity.Pathfinder:FindGridPath(target.Position, speed / 6, 500, false)
@@ -939,9 +939,9 @@ ReworkedFoes.DirectionCheckMode = {
 ---@param entity EntityNPC
 ---@param sideRange number
 ---@param forwardRange number
----@param lineCheckMode LineCheckMode The Room:CheckLine mode to use.
----@param directionCheckMode DirectionCheckMode How alignment should be checked.
----@param facingAngle number? Defaults to the entity's velocity angle.
+---@param lineCheckMode integer The Room:CheckLine mode to use.
+---@param directionCheckMode? DirectionCheckMode How alignment should be checked.
+---@param facingAngle? number Defaults to the entity's velocity angle.
 ---@return boolean | number targetAngle The angle to the target if aligned, otherwise false.
 function ReworkedFoes:CheckCardinalAlignment(entity, sideRange, forwardRange, lineCheckMode, directionCheckMode, facingAngle)
 	local target = entity:ToNPC() and entity:GetPlayerTarget() or entity.Target

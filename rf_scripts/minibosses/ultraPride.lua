@@ -238,7 +238,7 @@ function mod:FlorianUpdate(entity)
 
 			-- Go after the player otherwise
 			else
-				mod:ChasePlayer(entity, Settings.FlorianSpeed / 2, true)
+				mod:ChasePlayer(entity, Settings.FlorianSpeed / 2)
 			end
 
 			mod:LoopingAnim(sprite, "Move")

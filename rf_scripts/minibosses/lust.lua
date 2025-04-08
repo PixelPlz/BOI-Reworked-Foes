@@ -225,7 +225,7 @@ function mod:LustUpdate(entity)
 
 				-- On-use effect
 				if array.Activate then
-					array.Activate(_, entity)
+					array.Activate(nil, entity)
 				end
 
 
@@ -279,7 +279,7 @@ function mod:LustUpdate(entity)
 
 		-- Run passive effect code
 		if data.passiveEffect then
-			data.passiveEffect(_, entity)
+			data.passiveEffect(nil, entity)
 		end
 
 		-- Disable default AI (has to be disabled from frame 0 otherwise FindGridPath doesn't work for her)

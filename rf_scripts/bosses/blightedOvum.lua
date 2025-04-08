@@ -112,7 +112,7 @@ function mod:BlightedOvumUpdate(entity)
 
 
 				-- Movement
-				mod:ChasePlayer(entity, speed, entity.State == NpcState.STATE_ATTACK3)
+				mod:ChasePlayer(entity, speed)
 
 				-- Animations
 				entity:AnimWalkFrame("WalkHori", "WalkVert", 0.1)

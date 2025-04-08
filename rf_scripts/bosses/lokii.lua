@@ -73,7 +73,7 @@ function mod:LokiiUpdate(entity)
 
 				-- Confused / feared
 				if mod:IsConfused(entity) or mod:IsFeared(entity) then
-					mod:ChasePlayer(entity, Settings.MoveSpeed, true)
+					mod:ChasePlayer(entity, Settings.MoveSpeed)
 
 				-- Normal
 				elseif entity.Position:Distance(entity.TargetPosition) > 8 then

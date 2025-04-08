@@ -366,7 +366,7 @@ function mod:StevenUpdate(entity)
 		elseif entity.Variant == 11 then
 			-- Spawned by himself
 			if entity.I1 == 1 then
-				mod:ChasePlayer(entity, Settings.MoveSpeed, true)
+				mod:ChasePlayer(entity, Settings.MoveSpeed)
 				mod:FlipTowardsMovement(entity, sprite)
 
 

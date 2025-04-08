@@ -6,7 +6,7 @@ local Settings = {
 	CreepTime = 45,
 	Cooldown = 15,
 	MaxPlayerDistance = 220,
-	ShotSpeed = 10,
+	ShotSpeed = 11,
 	SoundTimer = {90, 150}
 }
 
@@ -37,10 +37,12 @@ function mod:SkinnyUpdate(entity)
 
 			-- Rotty attacking
 			if entity.State == NpcState.STATE_ATTACK2 then
-				if sprite:GetOverlayFrame() == 8 then
+				if sprite:GetOverlayFrame() == 4 then
 					local params = ProjectileParams()
 					params.Variant = ProjectileVariant.PROJECTILE_BONE
-					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(Settings.ShotSpeed), 0, params)
+
+					local vector = (target.Position - entity.Position):Resized(Settings.ShotSpeed)
+					mod:FireProjectiles(entity, entity.Position, vector, 0, params).Color = Color.Default
 					mod:PlaySound(nil, SoundEffect.SOUND_SCAMPER)
 				end
 
@@ -123,10 +125,6 @@ function mod:SkinnyUpdate(entity)
 
 		if entity.FrameCount > 1 then
 			return true
-
-		-- For some reason they spawn at 50% hp when they're champions?
-		elseif entity:IsChampion() then
-			entity.HitPoints = entity.MaxHitPoints
 		end
 	end
 end

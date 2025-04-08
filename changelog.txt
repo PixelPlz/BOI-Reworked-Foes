@@ -1,4 +1,14 @@
 ================================================
+    Version 3.2.1
+================================================
+
+- Updated the sprites for Skinnies and Rotties
+- Fixed several things not working properly if REPENTOGON isn't enabled
+
+
+
+
+================================================
     Version 3.2.0
 ================================================
 

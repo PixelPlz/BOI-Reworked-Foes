@@ -108,7 +108,7 @@ function mod:BlackBonyUpdate(entity)
 
 				-- Custom effect
 				if type(effect) == "function" then
-					effect(_, entity)
+					effect(nil, entity)
 
 				-- Bomb effect
 				else

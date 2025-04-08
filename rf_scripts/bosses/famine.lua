@@ -66,7 +66,7 @@ function mod:FamineUpdate(entity)
 	--[[ Alternate 2nd phase attack ]]--
 	elseif entity.State == NpcState.STATE_ATTACK3 then
 		if not sprite:WasEventTriggered("Shoot") then
-			mod:ChasePlayer(entity, 1.5, true)
+			mod:ChasePlayer(entity, 1.5)
 		else
 			entity.Velocity = mod:StopLerp(entity.Velocity, 0.15)
 		end

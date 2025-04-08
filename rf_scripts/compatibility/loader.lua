@@ -254,4 +254,3 @@ if REPENTOGON then
 else
 	mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, mod.LoadCompatibility)
 end
-mod:LoadCompatibility()

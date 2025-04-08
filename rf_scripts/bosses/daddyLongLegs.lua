@@ -45,7 +45,7 @@ function mod:DaddyLongLegsUpdate(entity)
 
 		-- Move to target
 		elseif entity.State == NpcState.STATE_ATTACK5 then
-			mod:ChasePlayer(entity, Settings.HeadSmashSpeed, true)
+			mod:ChasePlayer(entity, Settings.HeadSmashSpeed)
 
 			if data.down <= 0 then
 				entity.State = NpcState.STATE_APPEAR_CUSTOM

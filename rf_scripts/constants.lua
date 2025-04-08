@@ -3,11 +3,9 @@ local mod = ReworkedFoes
 mod.RNG = RNG()
 
 -- Randomize the seed, since RNG is always initialized at 2853650767
-if REPENTOGON then
-	mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function ()
-		mod.RNG:SetSeed(Game():GetSeeds():GetStartSeed())
-	end)
-end
+mod:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function ()
+	mod.RNG:SetSeed(Game():GetSeeds():GetStartSeed(), 35)
+end)
 
 
 
