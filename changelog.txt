@@ -1,4 +1,15 @@
 ================================================
+    Version 3.2.2
+================================================
+
+- Updated the sprites for Sad Bomb Black Bonies
+- Black Bonies and Holy Leeches will no longer softlock if another mod overwrites their animations
+- Fixed dark red champion Black Bonies and Holy Leeches becoming invulnerable
+
+
+
+
+================================================
     Version 3.2.1
 ================================================
 

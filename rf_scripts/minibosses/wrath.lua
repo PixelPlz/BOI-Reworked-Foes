@@ -35,7 +35,7 @@ function mod:WrathUpdate(entity)
 
 				-- Champion
 				if mod:IsRFChampion(entity, "Wrath") then
-					local rocket = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_ROCKET, 0, entity.Position + vector:Resized(20), vector:Resized(2), entity):ToBomb()
+					local rocket = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_ROCKET, 0, entity.Position, Vector.Zero, entity):ToBomb()
 					rocket.RadiusMultiplier = 0.75
 					rocket:SetRocketAngle(vector:GetAngleDegrees())
 					rocket:SetRocketSpeed(-5)
@@ -127,6 +127,10 @@ function mod:WrathBombInit(bomb)
 			bomb:Remove()
 			local newBomb = Isaac.Spawn(EntityType.ENTITY_BOMB, BombVariant.BOMB_MR_MEGA, 40, bomb.Position, Vector.Zero, bomb.SpawnerEntity):ToBomb()
 			newBomb.RadiusMultiplier = 1.4
+
+			if REPENTOGON then -- Why isn't this in the vanilla API !!!!!!
+				newBomb:SetScale(1.4)
+			end
 		end
 
 		mod:PlaySound(nil, SoundEffect.SOUND_FETUS_LAND)

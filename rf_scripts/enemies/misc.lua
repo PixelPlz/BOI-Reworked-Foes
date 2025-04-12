@@ -185,17 +185,23 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.ScarredGutsDeath, EntityType
 function mod:HolyLeechUpdate(entity)
 	if entity.Variant == 2 and entity.State == NpcState.STATE_SPECIAL then
 		local sprite = entity:GetSprite()
+		local data = entity:GetData()
+
 		entity.Velocity = Vector.Zero
 
 		-- Shoot the light beam
-		if sprite:IsEventTriggered("Spawn") then
+		if not data.DeathEffect
+		and (sprite:IsEventTriggered("Spawn") or not sprite:IsPlaying("Death")) then
+			data.DeathEffect = true
+
 			local target = entity:GetPlayerTarget()
 			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACK_THE_SKY, 2, target.Position, Vector.Zero, entity)
 			mod:PlaySound(nil, SoundEffect.SOUND_LASERRING_WEAK, 0.8, 0.8)
 		end
 
-		if sprite:IsFinished() then
+		if sprite:IsFinished() or not sprite:IsPlaying("Death") then
 			entity:Kill()
+			data.DeathEffect = nil
 			return true
 		end
 	end
@@ -205,14 +211,25 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.HolyLeechUpdate, EntityType.
 -- Start the death animation
 function mod:HolyLeechRender(entity, offset)
 	if entity.Variant == 2 and mod:ShouldDoRenderEffects()
-	and entity:HasMortalDamage() and entity.State ~= NpcState.STATE_SPECIAL then
+	and (entity:HasMortalDamage() or entity:IsDead() or entity.HitPoints <= 0) -- This game makes me want to kill myself
+	and entity.State ~= NpcState.STATE_SPECIAL then
 		entity.State = NpcState.STATE_SPECIAL
 		entity:GetSprite():Play("Death", true)
+
+		-- Dark red champion fix
+		if entity:GetChampionColorIdx() == ChampionColor.DARK_RED then
+			entity:GetData().RedChampOriginalHealth = entity.MaxHitPoints
+		end
 
 		entity.HitPoints = 1000
 		entity.MaxHitPoints = 0
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity.Visible = true
+
+		-- Chaos Card fix
+		if REPENTOGON then
+			entity:SetDead(false)
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.HolyLeechRender, EntityType.ENTITY_LEECH)

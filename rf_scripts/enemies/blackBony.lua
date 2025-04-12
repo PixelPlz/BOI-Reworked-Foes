@@ -101,7 +101,7 @@ function mod:BlackBonyUpdate(entity)
 	if entity.State == NpcState.STATE_SPECIAL then
 		entity.Velocity = Vector.Zero
 
-		if sprite:IsFinished() then
+		if sprite:IsFinished() or not sprite:IsPlaying("Death") then
 			-- Special variants
 			if entry then
 				local effect = entry.Effect
@@ -135,14 +135,25 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.BlackBonyUpdate, EntityType.
 -- Start the death animation
 function mod:BlackBonyRender(entity, offset)
 	if mod:ShouldDoRenderEffects()
-	and entity:HasMortalDamage() and entity.State ~= NpcState.STATE_SPECIAL then
+	and (entity:HasMortalDamage() or entity:IsDead() or entity.HitPoints <= 0) -- This game makes me want to kill myself
+	and entity.State ~= NpcState.STATE_SPECIAL then
 		entity.State = NpcState.STATE_SPECIAL
 		entity:GetSprite():Play("Death", true)
+
+		-- Dark red champion fix
+		if entity:GetChampionColorIdx() == ChampionColor.DARK_RED then
+			entity:GetData().RedChampOriginalHealth = entity.MaxHitPoints
+		end
 
 		entity.HitPoints = 1000
 		entity.MaxHitPoints = 0
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity.Visible = true
+
+		-- Chaos Card fix
+		if REPENTOGON then
+			entity:SetDead(false)
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.BlackBonyRender, EntityType.ENTITY_BLACK_BONY)

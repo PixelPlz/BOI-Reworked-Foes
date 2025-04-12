@@ -10,13 +10,15 @@ end
 
 
 
--- Dark red champion unique goo sprites
+-- Dark red champion
 function mod:DarkRedChampionRender(entity)
 	if entity:GetChampionColorIdx() == ChampionColor.DARK_RED then
 		local sprite = entity:GetSprite()
+		local data = entity:GetData()
 
 		if sprite:GetAnimation() == "ReGenChamp" then
-			if not entity:GetData().ReplacedGooSprite then
+			-- Unique goo sprites
+			if not data.ReplacedGooSprite then
 				local gooSize = 1
 
 				-- Get the goo size (13 is the size of Globins so I'm basing the other sizes off of it)
@@ -29,11 +31,17 @@ function mod:DarkRedChampionRender(entity)
 				-- Set the sprite
 				sprite:ReplaceSpritesheet(1, "gfx/monsters/better/champion_regen_" .. tostring(gooSize) .. ".png")
 				sprite:LoadGraphics()
-				entity:GetData().ReplacedGooSprite = true
+				data.ReplacedGooSprite = true
 			end
 
-		elseif entity:GetData().ReplacedGooSprite then
-			entity:GetData().ReplacedGooSprite = nil
+			-- Fix for Black Bonies and Holy Leeches
+			if data.RedChampOriginalHealth then
+				entity.MaxHitPoints = data.RedChampOriginalHealth
+				data.RedChampOriginalHealth = nil
+			end
+
+		elseif data.ReplacedGooSprite then
+			data.ReplacedGooSprite = nil
 		end
 	end
 end
