@@ -251,6 +251,7 @@ local directory = {
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- ferpe -', fsize = 3 },
+			{ str = 'designer', fsize = 2, nosel = true },
 			{ str = 'spriter', fsize = 2, nosel = true },
 			{ str = 'animator', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
@@ -265,21 +266,25 @@ local directory = {
 			{ str = 'classic eternal flies', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
-			{ str = '- ratratrat -', fsize = 3 },
-			{ str = 'dss menu implementation', fsize = 2, nosel = true },
-			{ str = 'save system', fsize = 2, nosel = true },
-			{ str = '', fsize = 3, nosel = true },
-
-			{ str = '- sinbiscuit -', fsize = 3 },
-			{ str = 'compatibility help', fsize = 2, nosel = true },
-			{ str = '', fsize = 3, nosel = true },
-
 			{ str = '- nevernamed -', fsize = 3 },
 			{ str = 'thumbnail artist', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- deadinfinity -', fsize = 3 },
 			{ str = 'beast tweaks', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
+
+			{ str = '- sinbiscuit -', fsize = 3 },
+			{ str = 'compatibility help', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
+
+			{ str = '- catinsurance -', fsize = 3 },
+			{ str = 'mama gurdy flat file', fsize = 2, nosel = true },
+			{ str = 'interaction', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
+
+			{ str = '- ratratrat -', fsize = 3 },
+			{ str = 'save system', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- hgrfff -', fsize = 3 },

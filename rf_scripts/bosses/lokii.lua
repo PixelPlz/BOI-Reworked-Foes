@@ -167,10 +167,6 @@ function mod:LokiiUpdate(entity)
 			--[[ Teleport Attack ]]--
 			-- Teleport up
 			elseif entity.State == NpcState.STATE_JUMP then
-				if sprite:IsEventTriggered("Jump") then
-					entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-				end
-
 				if sprite:IsFinished() then
 					local room = Game():GetRoom()
 
@@ -191,10 +187,7 @@ function mod:LokiiUpdate(entity)
 
 			-- Teleport down
 			elseif entity.State == NpcState.STATE_STOMP then
-				if sprite:IsEventTriggered("Land") then
-					entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
-
-				elseif sprite:IsEventTriggered("Shoot") then
+				if sprite:IsEventTriggered("Shoot") then
 					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(11 - entity.I2), 3 + entity.I2, ProjectileParams())
 					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
 				end

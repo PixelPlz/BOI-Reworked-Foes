@@ -6,6 +6,16 @@ local Settings = {
 	WormCount = 4,
 }
 
+-- Neuter Giant Spikes if any player has Flat File
+local function getGiantSpikeSubType()
+	for i = 0, Game():GetNumPlayers() - 1 do
+		if Isaac.GetPlayer(i):HasTrinket(TrinketType.TRINKET_FLAT_FILE) then
+			return mod.Entities.GiantSpikeStump
+		end
+	end
+	return 0
+end
+
 
 
 function mod:MamaGurdyUpdate(entity)
@@ -82,12 +92,14 @@ function mod:MamaGurdyUpdate(entity)
 
 						-- Spike walls
 						local basePos = Vector(target.Position.X + i * 120, room:GetTopLeftPos().Y + 20)
+						local subtype = getGiantSpikeSubType()
+
 						for j = 0, room:GetGridHeight() - 3 do
 							local pos = basePos + Vector(0, j * 40)
 
 							-- Don't spawn them out of bounds
 							if room:IsPositionInRoom(pos, 10) then
-								local spike = Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, 0, pos, Vector.Zero, entity):ToNPC()
+								local spike = Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, subtype, pos, Vector.Zero, entity):ToNPC()
 								spike.State = NpcState.STATE_ATTACK
 								spike:GetSprite():Play("Extend", true)
 								spike:GetSprite().FlipX = i == 1
@@ -164,9 +176,11 @@ function mod:MamaGurdyUpdate(entity)
 
 					-- Spawn spikes in random places
 					if entity.ProjectileDelay <= 0 then
+						local subtype = getGiantSpikeSubType()
+
 						for i = 1, 3 do
 							local pos = room:FindFreePickupSpawnPosition(Isaac:GetRandomPosition(), 0, true, false)
-							Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, 0, pos, Vector.Zero, entity)
+							Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, subtype, pos, Vector.Zero, entity)
 						end
 						entity.ProjectileDelay = Settings.Cooldown
 
@@ -235,7 +249,8 @@ function mod:MamaGurdySpawns(effect)
 					pos = room:GetGridPosition(room:GetGridIndex(pos))
 				end
 
-				Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, 0, pos, Vector.Zero, spawner)
+				local subtype = getGiantSpikeSubType()
+				Isaac.Spawn(mod.Entities.Type, mod.Entities.GiantSpike, subtype, pos, Vector.Zero, spawner)
 			end
 
 

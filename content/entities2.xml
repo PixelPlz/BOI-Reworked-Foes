@@ -165,11 +165,17 @@
 
 
 	<!-- Giant spike -->
-	<entity name="Giant Spike"   id="200" variant="4437"   anm2path="giant spike.anm2" hasFloorAlts="true" portrait="9"
+	<entity name="Giant Spike"   id="200" variant="4437" subtype="0"   anm2path="giant spike.anm2" hasFloorAlts="true" portrait="9"
 	shutdoors="false" tags="noreroll"
 	friction="1" collisionRadius="18" gridCollision="none" collisionMass="100" collisionDamage="2" numGridCollisionPoints="12" >
 		<gibs amount="6"   dust="1" rock="1" />
 	</entity>
+		<!-- Giant spike stump -->
+		<entity name="Giant Spike Stump"   id="200" variant="4437" subtype="1"   anm2path="giant spike stump.anm2" hasFloorAlts="true" portrait="9"
+		shutdoors="false" tags="noreroll"
+		friction="1" collisionRadius="18" gridCollision="none" collisionMass="100" numGridCollisionPoints="12" >
+			<gibs amount="4"   dust="1" rock="1" />
+		</entity>
 
 
 	<!-- Mullicocoon -->

@@ -1,4 +1,14 @@
 ================================================
+    Version 3.2.3
+================================================
+
+- Flat File now has a unique interaction with Mama Gurdy's giant spikes
+- Fixed Lokii becoming unkillable if his other half is killed during the teleport attack
+
+
+
+
+================================================
     Version 3.2.2
 ================================================
 

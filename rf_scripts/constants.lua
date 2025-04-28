@@ -26,7 +26,6 @@ ReworkedFoes.Entities = {
 	FatAFly 	= Isaac.GetEntityVariantByName("Fat Attack Fly"),
 	AEternalFly = Isaac.GetEntityVariantByName("Attack Eternal Fly"),
 	Teratomar 	= Isaac.GetEntityVariantByName("Teratomar"),
-	GiantSpike 	= Isaac.GetEntityVariantByName("Giant Spike"),
 	Wallace 	= Isaac.GetEntityVariantByName("Wallace"),
 	Coffer 		= Isaac.GetEntityVariantByName("Coffer"),
 	BoneOrbital = Isaac.GetEntityVariantByName("Enemy Bone Orbital"),
@@ -45,6 +44,9 @@ ReworkedFoes.Entities = {
 		ForgottenBody  = 0,
 		ForgottenChain = 1,
 		LostHolyOrb	   = 2,
+
+	GiantSpike = Isaac.GetEntityVariantByName("Giant Spike"),
+		GiantSpikeStump = 1,
 
 
 	-- Effects
