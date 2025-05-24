@@ -176,25 +176,30 @@ function mod:LoadCompatibility()
 	if Retribution then
 		local GED = BaptismalPreloader.GenerateEntityDataset
 
+		-- Downgrades
 		local downgrades = {
-			{GED("Soft Host"),    GED("#HARD_HOST")},
-			{GED("Coffer"), 	  GED("#HOPPER")},
-			{GED("Mullicocoon"),  GED("#MULLIGAN")},
-			{GED("Flesh Floast"), GED("#FLOAST")},
+			{GED("Brazier"), 		GED("#GUSHER")},
+			{GED("Fat Attack Fly"), GED("#ATTACK_FLY")},
+			{GED("Soft Host"), 		GED("#HARD_HOST")},
+			{GED("Coffer"), 		GED("#HOPPER")},
+			{GED("Mullicocoon"), 	GED("#MULLIGAN")},
+			{GED("Flesh Floast"), 	GED("#FLOAST")},
 		}
 		for _, entry in pairs(downgrades) do
 			BaptismalPreloader.AddBaptismalData(entry[1], {BaptismalPreloader.GenerateTransformationDataset(entry[2])})
 		end
 
 
+		-- Upgrades
 		local upgrades = {
 			{GED("Clotty Sketch"), 	GED("#CLOTTY")},
 			{GED("Charger Sketch"), GED("#CHARGER")},
 			{GED("Globin Sketch"), 	GED("#GLOBIN")},
 			{GED("Maw Sketch"), 	GED("#MAW")},
 
-			{GED("Coffer"), 	 GED("#EGGY")},
-			{GED("Mullicocoon"), GED("#NEST")},
+			{GED("Fat Attack Fly"), GED("#LEVEL_2_FLY")},
+			{GED("Coffer"), 		GED("#KEEPER")},
+			{GED("Mullicocoon"), 	GED("#NEST")},
 		}
 		for _, entry in pairs(upgrades) do
 			BaptismalPreloader.AddAntibaptismalData(entry[1], {BaptismalPreloader.GenerateTransformationDataset(entry[2])})

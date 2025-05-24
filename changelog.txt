@@ -1,4 +1,15 @@
 ================================================
+    Version 3.2.4
+================================================
+
+- Rag Mega can only have up to 2 Raglings active instead of 3
+- Fixed Rag Mega's revive projectiles dealing full hearts of damage
+- Fixed an error with Rag Mega trying to revive Raglings that weren't spawned by him
+
+
+
+
+================================================
     Version 3.2.3
 ================================================
 

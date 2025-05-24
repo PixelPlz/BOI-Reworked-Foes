@@ -4,7 +4,9 @@ local Settings = {
 	NewHealth = 350,
 	Cooldown = 60,
 	MoveSpeed = 2.5,
-	MaxRaglings = 3,
+
+	-- Raglings
+	MaxRaglings = 2,
 	RaglingJumpDistance = 5 * 40,
 
 	-- Plasma balls
@@ -432,11 +434,11 @@ function mod:RagMegaUpdate(entity)
 				for i, ragling in pairs(Isaac.FindByType(EntityType.ENTITY_RAGLING, 1)) do
 					ragling = ragling:ToNPC()
 
-					-- Choose a valid Ragling
-					if ragling.Parent.Index == entity.Index and ragling.State == NpcState.STATE_SPECIAL then
+					if ragling.State == NpcState.STATE_SPECIAL and not ragling.Child then
 						local pillar = Isaac.Spawn(entity.Type, 2, 0, ragling.Position, Vector.Zero, entity)
 						pillar.Child = ragling
 						pillar.DepthOffset = ragling.V2.X - 10 -- I don't remember why I did it like this lol
+						ragling.Child = pillar
 						break
 					end
 				end
@@ -472,7 +474,12 @@ function mod:RagMegaUpdate(entity)
 			params.Variant = ProjectileVariant.PROJECTILE_HUSH
 			params.Scale = 1.5
 			params.BulletFlags = ProjectileFlags.SMART
-			mod:FireProjectiles(entity, entity.Position, Vector(10, 4), 6, params, mod.Colors.RagManPurple)
+			local projectiles = mod:FireProjectiles(entity, entity.Position, Vector(10, 4), 6, params, mod.Colors.RagManPurple)
+
+			-- Fix the projectiles dealing full hearts of damage
+			for i, projectile in pairs(projectiles) do
+				projectile.CollisionDamage = 1
+			end
 
 			-- Effects
 			mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP_STRONG, 1.5)
@@ -514,16 +521,17 @@ function mod:RagMegaDMG(entity, damageAmount, damageFlags, damageSource, damageC
 	if entity.Variant == 0
 	and entity.State == NpcState.STATE_ATTACK and entity.StateFrame == 1
 	and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
-		entity:TakeDamage(damageAmount * Settings.DamageReduction, damageFlags + DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
+		entity:TakeDamage(damageAmount * Settings.DamageReduction, damageFlags | DamageFlag.DAMAGE_CLONES, damageSource, damageCountdownFrames)
 		entity:SetColor(mod.Colors.ArmorFlash, 2, 0, false, false)
 		return false
 	end
 end
 mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.RagMegaDMG, EntityType.ENTITY_RAG_MEGA)
 
--- Kill any Raglings on death
+-- Kill Raglings on death
 function mod:RagMegaDeath(entity)
-	if entity.Variant == 0 then
+	if entity.Variant == 0
+	and Isaac.CountEntities(nil, entity.Type, entity.Variant, entity.SubType) <= 1 then
 		for i, ragling in pairs(Isaac.FindByType(EntityType.ENTITY_RAGLING, 1)) do
 			ragling:Kill()
 		end

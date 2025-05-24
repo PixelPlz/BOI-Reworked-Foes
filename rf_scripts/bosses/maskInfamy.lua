@@ -61,7 +61,7 @@ function mod:MaskInfamyUpdate(entity)
 	if entity.State == NpcState.STATE_MOVE then
 		-- Movement
 		-- Stay near the heart (for non-champion 2nd phase and black champion)
-		if entity.SubType ~= 2 and (entity.SubType == 1 or entity.I1 == 1) then
+		if entity.Parent and entity.SubType ~= 2 and (entity.SubType == 1 or entity.I1 == 1) then
 			if entity.Position:Distance(entity.TargetPosition) <= 40 or not entity.Pathfinder:HasPathToPos(entity.TargetPosition) -- At position or there is no path to it
 			or entity.TargetPosition:Distance(entity.Parent.Position) > 280 then -- Position is too far from parent
 				entity.TargetPosition = entity.Parent.Position + mod:RandomVector(mod:Random(60, 160))

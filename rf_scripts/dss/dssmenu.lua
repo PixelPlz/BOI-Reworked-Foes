@@ -256,10 +256,6 @@ local directory = {
 			{ str = 'animator', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
-			{ str = '- witchamy -', fsize = 3 },
-			{ str = 'designer', fsize = 2, nosel = true },
-			{ str = '', fsize = 3, nosel = true },
-
 			{ str = '- kittenchilly -', fsize = 3 },
 			{ str = 'beast tweaks', fsize = 2, nosel = true },
 			{ str = 'enemy champion changes', fsize = 2, nosel = true },
@@ -268,10 +264,6 @@ local directory = {
 
 			{ str = '- nevernamed -', fsize = 3 },
 			{ str = 'thumbnail artist', fsize = 2, nosel = true },
-			{ str = '', fsize = 3, nosel = true },
-
-			{ str = '- deadinfinity -', fsize = 3 },
-			{ str = 'beast tweaks', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- sinbiscuit -', fsize = 3 },
@@ -283,12 +275,16 @@ local directory = {
 			{ str = 'interaction', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
-			{ str = '- ratratrat -', fsize = 3 },
-			{ str = 'save system', fsize = 2, nosel = true },
+			{ str = '- deadinfinity -', fsize = 3 },
+			{ str = 'beast tweaks', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 
 			{ str = '- hgrfff -', fsize = 3 },
 			{ str = 'hush fixes', fsize = 2, nosel = true },
+			{ str = '', fsize = 3, nosel = true },
+
+			{ str = '- ratratrat -', fsize = 3 },
+			{ str = 'save system', fsize = 2, nosel = true },
 			{ str = '', fsize = 3, nosel = true },
 		},
 		tooltip = dssmod.menuOpenToolTip
