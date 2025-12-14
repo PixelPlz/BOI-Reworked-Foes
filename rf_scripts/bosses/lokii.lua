@@ -167,6 +167,14 @@ function mod:LokiiUpdate(entity)
 			--[[ Teleport Attack ]]--
 			-- Teleport up
 			elseif entity.State == NpcState.STATE_JUMP then
+				if sprite:IsEventTriggered("Giggle") and SoundEffect.SOUND_LOKI_GIGGLE then
+					mod:PlaySound(entity, SoundEffect.SOUND_LOKI_GIGGLE)
+				end
+
+				if sprite:IsEventTriggered("Jump") and SoundEffect.SOUND_LOKI_JUMP_OUT then
+					mod:PlaySound(entity, SoundEffect.SOUND_LOKI_JUMP_OUT)
+				end
+
 				if sprite:IsFinished() then
 					local room = Game():GetRoom()
 
@@ -187,6 +195,10 @@ function mod:LokiiUpdate(entity)
 
 			-- Teleport down
 			elseif entity.State == NpcState.STATE_STOMP then
+				if sprite:IsEventTriggered("JumpIn") and SoundEffect.SOUND_LOKI_JUMP_IN then
+					mod:PlaySound(entity, SoundEffect.SOUND_LOKI_JUMP_IN)
+				end
+
 				if sprite:IsEventTriggered("Shoot") then
 					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(11 - entity.I2), 3 + entity.I2, ProjectileParams())
 					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
@@ -212,11 +224,6 @@ function mod:LokiiUpdate(entity)
 					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
 
 				elseif sprite:IsEventTriggered("Shoot") then
-					if entity.I1 == 1 then
-						mod:PlaySound(nil, SoundEffect.SOUND_ANIMAL_SQUISH, 1.35)
-					end
-					mod:ShootEffect(entity, 3, Vector(0, -12), Color.Default, 1, true)
-
 					entity.Velocity = Vector.Zero
 					entity.StateFrame = 1
 
@@ -235,6 +242,11 @@ function mod:LokiiUpdate(entity)
 						entity:FireProjectiles(entity.Position, Vector(11, 6), 9, params)
 					end
 
+					-- Effects
+					local sfx = SoundEffect.SOUND_LOKI_SHOOT_8 or SoundEffect.SOUND_ANIMAL_SQUISH
+					mod:PlaySound(nil, sfx, 1.25)
+					mod:ShootEffect(entity, 3, Vector(0, -12), Color.Default, 1, true)
+
 					entity.I2 = entity.I2 + 1
 				end
 
@@ -247,7 +259,7 @@ function mod:LokiiUpdate(entity)
 			--[[ Laser Attack ]]--
 			elseif entity.State == NpcState.STATE_ATTACK2 then
 				if sprite:IsEventTriggered("Jump") then
-					mod:PlaySound(nil, SoundEffect.SOUND_ANIMAL_SQUISH, 1.25)
+					mod:PlaySound(nil, SoundEffect.SOUND_ANIMAL_SQUISH)
 					mod:ShootEffect(entity, 3, Vector(mod:GetSign(entity.I1 - 1) * -8, -16), Color.Default, 0.75, true)
 
 				-- Stop moving
@@ -368,7 +380,7 @@ function mod:LokiiUpdate(entity)
 			elseif entity.State == NpcState.STATE_SPECIAL then
 				entity.StateFrame = 1
 				if sprite:IsEventTriggered("Shoot") then
-					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0)
+					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_FEET_SLOW0, 0.75)
 				end
 
 				if sprite:IsFinished() then
@@ -406,9 +418,8 @@ function mod:LokiiUpdate(entity)
 				entity.Velocity = mod:StopLerp(entity.Velocity)
 
 				if sprite:IsEventTriggered("Shoot") then
-					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
-					mod:PlaySound(nil, SoundEffect.SOUND_ANIMAL_SQUISH, 1.1)
 					mod:ShootEffect(entity, 3, Vector(0, -12), Color.Default, 1, true)
+					mod:PlaySound(entity, SoundEffect.SOUND_CUTE_GRUNT)
 
 
 					--[[ Ground slam ]]--
@@ -424,6 +435,9 @@ function mod:LokiiUpdate(entity)
 							params.BulletFlags = ProjectileFlags.ORBIT_CCW
 						end
 						entity:FireProjectiles(entity.Position, Vector(11, 8), 8, params)
+
+						local sfx = SoundEffect.SOUND_LOKI_SHOOT_8 or SoundEffect.SOUND_ANIMAL_SQUISH
+						mod:PlaySound(nil, sfx)
 
 
 					--[[ Triple attack ]]--
@@ -445,6 +459,9 @@ function mod:LokiiUpdate(entity)
 							entity:FireProjectiles(entity.Position, Vector(12, 8), 8, ProjectileParams())
 							entity.I2 = 0
 						end
+
+						local sfx = SoundEffect.SOUND_LOKI_SHOOT or SoundEffect.SOUND_ANIMAL_SQUISH
+						mod:PlaySound(nil, sfx)
 					end
 				end
 

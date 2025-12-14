@@ -2,6 +2,39 @@ local mod = ReworkedFoes
 
 
 
+local replaceStageConfigs = { 1, 2, 3, 27, 28, }
+
+function mod:NestInit(entity)
+	if entity.Variant == 0 and entity.SubType == 0 then
+		local replaced = false
+
+		-- Replace Nests in chapter 1 with Mullicocoons
+		if mod.Config.NoChapter1Nests and not entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
+			local currentStageConfig = Game():GetRoom():GetRoomConfigStage()
+
+			for i, stageConfig in pairs(replaceStageConfigs) do
+				if currentStageConfig == stageConfig then
+					Isaac.Spawn(EntityType.ENTITY_MULLIGAN, mod.Entities.Mullicocoon, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
+
+					entity.Visible = false
+					entity:Remove()
+
+					replaced = true
+					break
+				end
+			end
+		end
+
+		-- Replace them with the reworked version in other chapters
+		if not replaced then
+			entity:Morph(EntityType.ENTITY_HIVE, mod.Entities.Nest, 0, entity:GetChampionColorIdx())
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.NestInit, EntityType.ENTITY_NEST)
+
+
+
 -- Replace Mulligan flies with spiders
 function mod:SpiderMulliganSpawns(entity)
 	mod:PlaySound(nil, SoundEffect.SOUND_BOIL_HATCH, 0.75)
@@ -77,25 +110,6 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.MullicocoonDeath, EntityType
 
 
 --[[ Nest ]]--
-function mod:NestInit(entity)
-	if mod.Config.NoChapter1Nests
-	and entity.Variant == 0 and entity.SubType == 0 and not entity:HasEntityFlags(EntityFlag.FLAG_FRIENDLY) then
-		local stage = Game():GetRoom():GetRoomConfigStage()
-
-		-- Replace Nests in chapter 1 with Mullicocoons
-		if (stage >= 1 and stage <= 3) -- Basement / Cellar / Burning Basement
-		or stage == 27 or stage == 28 then -- Downpour / Dross
-			entity:Remove()
-			Isaac.Spawn(EntityType.ENTITY_MULLIGAN, mod.Entities.Mullicocoon, 0, entity.Position, Vector.Zero, entity.SpawnerEntity)
-
-		-- Replace them with the reworked version in other chapters
-		else
-			entity:Morph(EntityType.ENTITY_HIVE, mod.Entities.Nest, 0, entity:GetChampionColorIdx())
-		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.NestInit, EntityType.ENTITY_NEST)
-
 function mod:NestUpdate(entity)
 	if entity.Variant == mod.Entities.Nest and entity.State == NpcState.STATE_ATTACK then
 		local sprite = entity:GetSprite()

@@ -81,7 +81,12 @@ function mod:ForsakenUpdate(entity)
 	-- Toggle collision
 	if sprite:IsEventTriggered("FadeOut") and entity.State ~= NpcState.STATE_SUMMON then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
-		mod:PlaySound(nil, SoundEffect.SOUND_BEAST_GHOST_DASH, 0.8)
+
+		if SoundEffect.SOUND_FORSAKEN_FADE then
+			mod:PlaySound(nil, SoundEffect.SOUND_FORSAKEN_FADE)
+		else
+			mod:PlaySound(nil, SoundEffect.SOUND_BEAST_GHOST_DASH, 0.75, math.random(97, 103) / 100)
+		end
 
 	elseif sprite:IsEventTriggered("FadeIn") then
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
@@ -421,7 +426,9 @@ function mod:ForsakenUpdate(entity)
 			end
 
 
-			if (entity.SubType == 0 and (not data.brim or not data.brim:Exists())) or (entity.SubType == 1 and entity.I1 >= 18) then
+			-- Stop
+			if (entity.SubType == 0 and (not data.brim or not data.brim:Exists()))
+			or (entity.SubType == 1 and entity.I1 >= 18) then
 				entity.StateFrame = 3
 				sprite:Play("BlastEnd", true)
 
@@ -469,12 +476,13 @@ function mod:ForsakenUpdate(entity)
 
 			if entity.I2 <= 0 then
 				entity.StateFrame = 2
+				mod:PlaySound(entity, SoundEffect.SOUND_MOUTH_FULL)
+
 				if entity.Variant == 10 or entity.SubType == 1 then
 					sprite:Play("ShootClone", true)
 				else
 					sprite:Play("Shoot", true)
 				end
-				mod:PlaySound(entity, SoundEffect.SOUND_MOUTH_FULL)
 
 			else
 				entity.I2 = entity.I2 - 1
@@ -594,8 +602,10 @@ function mod:ForsakenUpdate(entity)
 
 				if entity.SubType == 0 then
 					entity.Velocity = Vector.Zero
+
 					local angle = entity.I2 * 90
-					data.brim = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 50) + Vector.FromAngle(angle):Resized(10), angle, 20, Vector.Zero, entity)
+					local pos = entity.Position - Vector(0, 50) + Vector.FromAngle(angle):Resized(10)
+					data.brim = EntityLaser.ShootAngle(LaserVariant.THICK_RED, pos, angle, 30, Vector.Zero, entity)
 
 					if data.facing == "Down" then
 						data.brim.DepthOffset = entity.DepthOffset + 60
@@ -630,7 +640,9 @@ function mod:ForsakenUpdate(entity)
 				end
 			end
 
-			if (entity.SubType == 0 and (not data.brim or not data.brim:Exists())) or (entity.SubType == 1 and entity.I1 >= 12) then
+			-- Stop
+			if (entity.SubType == 0 and (not data.brim or not data.brim:Exists()))
+			or (entity.SubType == 1 and entity.I1 >= 12) then
 				entity.StateFrame = 3
 
 				if data.facing == "Left" or data.facing == "Right" then

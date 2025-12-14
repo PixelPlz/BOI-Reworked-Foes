@@ -29,7 +29,7 @@ function mod:BlisterUpdate(entity)
 					sprite:Play("Attack", true)
 				else
 					entity.State = NpcState.STATE_JUMP
-					sprite:Play("Hop")
+					sprite:Play("Hop", true)
 				end
 
 			else

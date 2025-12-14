@@ -13,7 +13,7 @@ local Settings = {
 	Gravity = 1,
 	JumpStrength = 10,
 	LandHeight = 8,
-	JumpSpeed = 15, -- For big jump
+	JumpSpeed = 18, -- For big jump
 
 	-- Sky laser
 	SkyLaserDuration = 140,
@@ -748,7 +748,7 @@ function mod:SisterVisUpdate(entity)
 					entity:FireProjectiles(entity.Position, Vector(7.5, 6), 9, params)
 
 					-- Shockwave
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SHOCKWAVE, 0, entity.Position, Vector.Zero, entity)
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SHOCKWAVE, 0, entity.Position, Vector.Zero, entity).Parent = entity
 
 					-- Effects
 					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 2, entity.Position, Vector.Zero, entity):GetSprite().Color = mod.Colors.DustPoof
@@ -1067,12 +1067,9 @@ function mod:SisterVisCollision(entity, target, bool)
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.SisterVisCollision, EntityType.ENTITY_SISTERS_VIS)
 
+-- Reduce damage taken if the sibling is dead and it didn't enrage yet
 function mod:SisterVisDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_CRUSH > 0) then
-		return false
-
-	-- Reduce damage taken if the sibling is dead and it didn't enrage yet
-	elseif entity.Child and entity.Child:GetData().corpse and not entity:GetData().enraged and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
+	if entity.Child and entity.Child:GetData().corpse and not entity:GetData().enraged and not (damageFlags & DamageFlag.DAMAGE_CLONES > 0) then
 		local onePercent = damageAmount / 100
 		local reduction = onePercent * Settings.DamageReduction
 

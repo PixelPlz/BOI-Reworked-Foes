@@ -105,6 +105,10 @@ function mod:DeathUpdate(entity)
 		elseif entity.State == NpcState.STATE_SUMMON then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
+			if sprite:IsEventTriggered("Sound") and SoundEffect.SOUND_DEATH_SPAWN_PREP then
+				mod:PlaySound(entity, SoundEffect.SOUND_DEATH_SPAWN_PREP)
+			end
+
 			if sprite:IsEventTriggered("Shoot") then
 				local spawnType = entity.Type
 				local spawnVariant = 10
@@ -136,6 +140,10 @@ function mod:DeathUpdate(entity)
 		--[[ Scythe attack ]]--
 		elseif entity.State == NpcState.STATE_SUMMON2 then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
+
+			if sprite:IsEventTriggered("Sound") and SoundEffect.SOUND_DEATH_SPAWN_PREP then
+				mod:PlaySound(entity, SoundEffect.SOUND_DEATH_SPAWN_PREP)
+			end
 
 			if sprite:IsEventTriggered("Shoot") then
 				local target = entity:GetPlayerTarget()
@@ -253,13 +261,21 @@ function mod:DeathUpdate(entity)
 		elseif entity.State == NpcState.STATE_ATTACK then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 
+			if sprite:IsEventTriggered("Sound") and SoundEffect.SOUND_DEATH_LEAN then
+				mod:PlaySound(entity, SoundEffect.SOUND_DEATH_LEAN)
+			end
+
 			if sprite:IsEventTriggered("Start") then
 				entity.StateFrame = 0
 				entity.ProjectileDelay = 0
 				entity.I2 = mod:RandomSign()
 
 				-- Effects
-				mod:PlaySound(nil, SoundEffect.SOUND_MENU_FLIP_DARK, 2)
+				if SoundEffect.SOUND_DEATH_HOURGLASS then
+					mod:PlaySound(nil, SoundEffect.SOUND_DEATH_HOURGLASS)
+				else
+					mod:PlaySound(nil, SoundEffect.SOUND_MENU_FLIP_DARK, 2)
+				end
 
 				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 0, entity.Position, Vector.Zero, entity):ToEffect()
 				effect:FollowParent(entity)
@@ -320,6 +336,10 @@ function mod:DeathUpdate(entity)
 				horse:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 				horse:GetSprite().FlipX = sprite.FlipX
 				horse:Update()
+
+				if SoundEffect.SOUND_DEATH_HORSE_ATTACK then
+					mod:PlaySound(horse, SoundEffect.SOUND_DEATH_HORSE_ATTACK)
+				end
 			end
 		end
 
@@ -381,6 +401,10 @@ function mod:DeathUpdate(entity)
 		--[[ Summon ]]--
 		elseif entity.State == NpcState.STATE_SUMMON then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
+
+			if sprite:IsEventTriggered("Sound") and SoundEffect.SOUND_DEATH_SPAWN_PREP then
+				mod:PlaySound(entity, SoundEffect.SOUND_DEATH_SPAWN_PREP)
+			end
 
 			if sprite:IsEventTriggered("Shoot") then
 				local spawnType = entity.SubType == 1 and EntityType.ENTITY_DEATHS_HEAD or EntityType.ENTITY_KNIGHT
@@ -451,7 +475,7 @@ function mod:DeathUpdate(entity)
 
 			-- Prepare
 			if sprite:IsEventTriggered("Sound") then
-				mod:PlaySound(nil, SoundEffect.SOUND_SIREN_SING_STAB, 0.8)
+				mod:PlaySound(nil, SoundEffect.SOUND_SIREN_SING_STAB, 0.4)
 
 				-- Get the victims
 				if entity.SubType == 1 then
@@ -557,6 +581,27 @@ function mod:DeathCollision(entity, target, bool)
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.DeathCollision, EntityType.ENTITY_DEATH)
 
+-- Also kill any Death Heads spawned by him when he dies
+function mod:DeathDeath(entity)
+	if entity.Variant == 30 and entity.SubType == 1 then
+		local deathHeads = Isaac.FindByType(EntityType.ENTITY_DEATHS_HEAD)
+		local playSound = false
+
+		for i, head in pairs(deathHeads) do
+			if head.SpawnerEntity and head.SpawnerEntity.Index == entity.Index then
+				head:ToNPC().State = NpcState.STATE_DEATH
+				head:GetSprite():Play("Death", true)
+				playSound = true
+			end
+		end
+
+		if playSound then
+			mod:PlaySound(nil, SoundEffect.SOUND_DEVILROOM_DEAL)
+		end
+	end
+end
+mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.DeathDeath, EntityType.ENTITY_DEATH)
+
 
 
 --[[ Scythes ]]--
@@ -609,7 +654,7 @@ function mod:ScytheDeath(entity)
 		-- Rock particles
 		for i = 1, 4 do
 			local velocity = mod:RandomVector(math.random(2, 4))
-			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 65537, entity.Position, velocity, entity):ToEffect()
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 65537, entity.Position, velocity, entity):Update()
 		end
 
 		-- Smoke

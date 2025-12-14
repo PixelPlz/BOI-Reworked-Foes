@@ -95,6 +95,12 @@ function mod:TeratomarUpdate(entity)
 		-- Move diagonally
 		mod:MoveDiagonally(entity, Settings.MoveSpeed)
 
+		if entity:CollidesWithGrid() and SoundEffect.SOUND_TERATOMA_BOUNCE_MEDIUM then
+			mod:PlaySound(nil, SoundEffect.SOUND_TERATOMA_BOUNCE_MEDIUM, 1, 1, 30)
+		end
+
+
+		-- Idle
 		if entity.State == NpcState.STATE_MOVE then
 			mod:LoopingAnim(sprite, "Idle")
 

@@ -161,6 +161,9 @@ ReworkedFoes.Sounds = {
 	ChadStunned    = Isaac.GetSoundIdByName("C.H.A.D. Stunned"),
 	ChadDeath 	   = Isaac.GetSoundIdByName("C.H.A.D. Death"),
 
+	-- Death
+	DeathSandPoof = Isaac.GetSoundIdByName("Death Sand Poof"),
+
 	-- Steven
 	StevenVoice  = Isaac.GetSoundIdByName("Steven Voice"),
 	StevenTP 	 = Isaac.GetSoundIdByName("Steven Teleport Loop"),

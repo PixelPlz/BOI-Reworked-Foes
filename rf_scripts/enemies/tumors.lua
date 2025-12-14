@@ -19,7 +19,7 @@ function mod:TumorUpdate(entity)
 		end
 
 	else
-		entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+		entity.ProjectileCooldown = math.max(0, entity.ProjectileCooldown - 1)
 		data.previousAnim = {sprite:GetAnimation(), sprite:GetFrame()}
 	end
 end
@@ -147,7 +147,7 @@ function mod:PsyTumorUpdate(entity)
 		end
 
 	else
-		entity.ProjectileCooldown = entity.ProjectileCooldown - 1
+		entity.ProjectileCooldown = math.max(0, entity.ProjectileCooldown - 1)
 		data.previousAnim = {sprite:GetAnimation(), sprite:GetFrame()}
 	end
 end

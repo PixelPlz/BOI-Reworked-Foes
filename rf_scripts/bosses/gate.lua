@@ -333,7 +333,10 @@ function mod:GateUpdate(entity)
 						subtype = 2
 					end
 
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACKWAVE, subtype, entity.Position + Vector.FromAngle(angle):Resized(20), Vector.Zero, entity):ToEffect().Rotation = angle
+					local pos = entity.Position + Vector.FromAngle(angle):Resized(20)
+					local crackwave = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACKWAVE, subtype, pos, Vector.Zero, entity)
+					crackwave.Parent = entity
+					crackwave:ToEffect().Rotation = angle
 				end
 			end
 

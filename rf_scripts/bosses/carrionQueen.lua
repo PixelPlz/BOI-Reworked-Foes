@@ -46,7 +46,9 @@ function mod:CarrionQueenUpdate(entity)
 						entity.State = NpcState.STATE_ATTACK
 						entity.V1 = Vector.FromAngle(chargeAngle)
 						entity.ProjectileCooldown = Settings.ChargeCooldown
-						mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_ROAR_0)
+
+						local sfx = SoundEffect.SOUND_CARRION_QUEEN_ROAR or SoundEffect.SOUND_MONSTER_ROAR_0
+						mod:PlaySound(entity, sfx)
 					end
 				end
 

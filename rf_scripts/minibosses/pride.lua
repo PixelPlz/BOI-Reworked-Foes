@@ -43,8 +43,10 @@ function mod:PrideUpdate(entity)
 
 				-- Sounds
 				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_HISS)
+
 				if not mod:IsRFChampion(entity, "Pride") then
-					mod:PlaySound(nil, SoundEffect.SOUND_BLOOD_LASER, 0.75, 1.05)
+					local sfx = SoundEffect.SOUND_PRIDE_ZAP or SoundEffect.SOUND_BLOOD_LASER
+					mod:PlaySound(nil, sfx, 0.9)
 				end
 
 			-- Super pride attacks twice

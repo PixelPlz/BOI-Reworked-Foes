@@ -179,23 +179,34 @@ function mod:ChadUpdate(entity)
 			end
 
 		else
+			local noParent = not entity.Parent or not entity.Parent:Exists() or entity.Parent:IsDead()
+			local noChild = not entity.Child or not entity.Child:Exists() or entity.Child:IsDead()
+
 			-- Head
 			if entity.I1 == 0 then
+				-- Die if one of the body segments die
+				if noChild or entity:IsDead() then
+					deathStuff()
+					entity:Die()
+					return true
+
 				-- Update scale and speed
-				local onePercent = entity.MaxHitPoints / 100
-				local healthPercent = entity.HitPoints / onePercent
+				else
+					local onePercent = entity.MaxHitPoints / 100
+					local healthPercent = entity.HitPoints / onePercent
 
-				entity.Scale = 0.75 + (healthPercent / 400)
-				data.speed = Settings.BaseMoveSpeed - (healthPercent / 50)
+					entity.Scale = 0.75 + (healthPercent / 400)
+					data.speed = Settings.BaseMoveSpeed - (healthPercent / 50)
 
-				-- Face movement direction
-				mod:FlipTowardsMovement(entity, sprite, true)
+					-- Face movement direction
+					mod:FlipTowardsMovement(entity, sprite, true)
+				end
 
 
 			-- Body segments
 			else
-				-- Kill body segments without a parent, make sure they don't die before it if they have one
-				if not entity.Parent or entity.Parent:IsDead() then
+				-- Kill body segments without a parent
+				if noParent or entity:IsDead() or (entity.I1 == 1 and noChild) then
 					deathStuff()
 					entity:Die()
 
@@ -768,10 +779,6 @@ function mod:ChadUpdate(entity)
 			end
 		end
 
-
-		if entity:HasMortalDamage() then
-			deathStuff()
-		end
 
 		if entity.FrameCount > 1 then
 			return true

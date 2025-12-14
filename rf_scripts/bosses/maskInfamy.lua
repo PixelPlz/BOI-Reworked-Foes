@@ -86,7 +86,9 @@ function mod:MaskInfamyUpdate(entity)
 				entity.State = NpcState.STATE_ATTACK
 				entity.V1 = Vector.FromAngle(chargeCheck)
 				entity.Velocity = entity.V1
-				mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8 + entity.I1 * 0.2, 1.02)
+
+				local sfx = SoundEffect.SOUND_MASKINFAMY_DASH or SoundEffect.SOUND_BOSS_LITE_ROAR
+				mod:PlaySound(entity, sfx, 0.8 + entity.I1 * 0.2)
 			end
 
 		else
@@ -182,7 +184,9 @@ function mod:MaskInfamyUpdate(entity)
 		if sprite:IsEventTriggered("Sound") then
 			entity.I1 = 1
 			mod:PlaySound(nil, SoundEffect.SOUND_ROCK_CRUMBLE, 0.9, 1.02)
-			mod:PlaySound(entity, SoundEffect.SOUND_MOUTH_FULL)
+
+			local sfx = SoundEffect.SOUND_MASKINFAMY_MAD or SoundEffect.SOUND_MOUTH_FULL
+			mod:PlaySound(entity, sfx)
 
 			-- Rock particles
 			for i = 1, 4 do

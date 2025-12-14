@@ -607,7 +607,7 @@ function mod:RedMegaFattyUpdate(entity)
 					params.Scale = 1.5
 					params.HeightModifier = -20
 					params.BulletFlags = ProjectileFlags.SINE_VELOCITY
-					params.CircleAngle = mod:DegreesToRadians(45) + entity.StateFrame * 0.4
+					params.CircleAngle = mod:DegreesToRadians(45) + entity.StateFrame * 0.35
 
 					entity:FireProjectiles(entity.Position, Vector(6, 4), 9, params)
 					entity.StateFrame = entity.StateFrame + 1
@@ -751,7 +751,8 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.RemoveDankSquirts, EntityType
 --[[ Little Horn ]]--
 -- Prevent unfair damage from hot troll bombs
 function mod:HotTrollBombHit(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if damageSource.Type == EntityType.ENTITY_BOMB and damageSource.Variant == BombVariant.BOMB_HOT and damageSource.Entity:GetSprite():IsPlaying("BombReturn") then
+	if damageSource.Type == EntityType.ENTITY_BOMB and damageSource.Variant == BombVariant.BOMB_HOT
+	and damageSource.Entity:GetSprite():IsPlaying("BombReturn") then
 		return false
 	end
 end
@@ -761,8 +762,9 @@ mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.HotTrollBombHit, EntityType
 -- Black champion
 function mod:LittleHornInit(entity)
 	if entity.Variant == 0 and entity.SubType == 2 then
-		entity:GetSprite():Load("gfx/404.000_littlehorn_black.anm2", true)
-		entity:GetSprite():Play("Appear", true)
+		local sprite = entity:GetSprite()
+		sprite:Load("gfx/404.000_littlehorn_black.anm2", true)
+		sprite:Play("Appear", true)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.LittleHornInit, EntityType.ENTITY_LITTLE_HORN)

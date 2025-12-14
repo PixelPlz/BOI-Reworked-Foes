@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2023. 04. 22. 19:08:17" Version="145" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2025. 12. 14. 1:16:06" Version="147" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="bosses\classic\boss_071_lokii.png" Id="0"/>
@@ -21,6 +21,8 @@
 			<Event Name="Shoot" Id="1"/>
 			<Event Name="Jump" Id="2"/>
 			<Event Name="Land" Id="3"/>
+			<Event Name="Giggle" Id="4"/>
+			<Event Name="JumpIn" Id="5"/>
 		</Events>
 	</Content>
 	<Animations DefaultAnimation="Walk">
@@ -142,6 +144,7 @@
 				</NullAnimation>
 			</NullAnimations>
 			<Triggers>
+				<Trigger EventId="4" AtFrame="1"/>
 				<Trigger EventId="2" AtFrame="22"/>
 			</Triggers>
 		</Animation>
@@ -180,6 +183,7 @@
 				</NullAnimation>
 			</NullAnimations>
 			<Triggers>
+				<Trigger EventId="5" AtFrame="1"/>
 				<Trigger EventId="3" AtFrame="5"/>
 			</Triggers>
 		</Animation>
@@ -817,6 +821,7 @@
 				</NullAnimation>
 			</NullAnimations>
 			<Triggers>
+				<Trigger EventId="5" AtFrame="1"/>
 				<Trigger EventId="3" AtFrame="5"/>
 				<Trigger EventId="1" AtFrame="19"/>
 			</Triggers>

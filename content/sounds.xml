@@ -30,6 +30,15 @@
     </sound>
 
 
+    <!-- Death -->
+    <sound name="Death Sand Poof">
+		<sample weight="1" path="death/poof1.wav" />
+		<sample weight="1" path="death/poof2.wav" />
+		<sample weight="1" path="death/poof3.wav" />
+		<sample weight="1" path="death/poof4.wav" />
+	</sound>
+
+
 	<!-- Steven -->
 	<sound name="Steven Voice">
         <sample weight="1" path="steven/voice.wav" />

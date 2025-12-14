@@ -66,7 +66,7 @@ function mod:RagMegaInit(entity)
 		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 
 		entity:GetSprite():Play("Rebirth Pillar", true)
-		mod:PlaySound(nil, SoundEffect.SOUND_LIGHTBOLT_CHARGE, 2)
+		mod:PlaySound(nil, SoundEffect.SOUND_LIGHTBOLT_CHARGE, 2, 0.95)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.RagMegaInit, EntityType.ENTITY_RAG_MEGA)
@@ -467,6 +467,7 @@ function mod:RagMegaUpdate(entity)
 			-- Revive the Ragling
 			if entity.Child then
 				entity.Child:ToNPC().State = NpcState.STATE_APPEAR_CUSTOM
+				mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
 			end
 
 			-- Projectiles
@@ -482,8 +483,11 @@ function mod:RagMegaUpdate(entity)
 			end
 
 			-- Effects
-			mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP_STRONG, 1.5)
-			mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
+			if SoundEffect.SOUND_RAG_MEGA_BEAM then
+				mod:PlaySound(nil, SoundEffect.SOUND_RAG_MEGA_BEAM, 1.1)
+			else
+				mod:PlaySound(nil, SoundEffect.SOUND_REDLIGHTNING_ZAP_STRONG, 1.5)
+			end
 
 		elseif sprite:IsFinished() then
 			entity:Remove()

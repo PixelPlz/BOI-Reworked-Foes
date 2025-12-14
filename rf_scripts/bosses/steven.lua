@@ -233,8 +233,11 @@ function mod:StevenUpdate(entity)
 
 						-- Change position
 						entity.Position = entity.TargetPosition
-						entity.Child.Position = entity.Position
-						entity.Child:ToNPC().ProjectileCooldown = entity.Child:ToNPC().ProjectileCooldown + 30
+
+						if entity.Child then
+							entity.Child.Position = entity.Position
+							entity.Child:ToNPC().ProjectileCooldown = entity.Child:ToNPC().ProjectileCooldown + 30
+						end
 
 						-- Trigger Future enemy swap
 						if TheFuture then
@@ -399,7 +402,8 @@ function mod:StevenUpdate(entity)
 			if entity.State == NpcState.STATE_MOVE then
 				-- Shoot
 				if entity.ProjectileCooldown <= 0 then
-					if entity.Position:Distance(target.Position) <= 240 and (entity.I1 == 1 or not (entity.Parent:ToNPC().State == NpcState.STATE_JUMP and entity.Parent:ToNPC().StateFrame > 0)) then
+					if entity.Position:Distance(target.Position) <= 240
+					and (entity.I1 == 1 or not (entity.Parent:ToNPC().State == NpcState.STATE_JUMP and entity.Parent:ToNPC().StateFrame > 0)) then
 						entity.State = NpcState.STATE_ATTACK
 						sprite:Play("Attack01", true)
 					end

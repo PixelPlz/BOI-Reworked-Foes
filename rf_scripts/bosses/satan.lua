@@ -93,7 +93,10 @@ function mod:SatanUpdate(entity)
 		-- Rock waves
 		elseif sprite:IsEventTriggered("Stomp") then
 			for i = 0, 3 do
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACKWAVE, 1, entity.Position + Vector.FromAngle(i * 90):Resized(20), Vector.Zero, entity):ToEffect().Rotation = i * 90
+				local pos = entity.Position + Vector.FromAngle(i * 90):Resized(20)
+				local crackwave = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.CRACKWAVE, 1, pos, Vector.Zero, entity)
+				crackwave.Parent = entity
+				crackwave:ToEffect().Rotation = i * 90
 			end
 		end
 

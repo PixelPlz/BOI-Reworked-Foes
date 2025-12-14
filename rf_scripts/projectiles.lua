@@ -600,7 +600,7 @@ function mod:SandProjectileUpdate(projectile)
 end
 
 function mod:SandProjectilePop(projectile)
-	mod:PlaySound(nil, SoundEffect.SOUND_SUMMON_POOF, 1.5, 0.95)
+	mod:PlaySound(nil, mod.Sounds.DeathSandPoof, 1.5, 0.95)
 
 	local poof = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF01, 0, projectile.Position, Vector.Zero, projectile):GetSprite()
 	poof:Load("gfx/sand projectile.anm2", true)

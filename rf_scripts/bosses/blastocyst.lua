@@ -22,11 +22,19 @@ function mod:BlastocystBigUpdate(entity)
 	enemyScore = enemyScore + Isaac.CountEntities(nil, EntityType.ENTITY_BLASTOCYST_MEDIUM, -1, -1) * 4
 
 
-	--[[ Spawn a small Blastocyst ]]--
-	if entity.State == NpcState.STATE_JUMP and sprite:GetFrame() == 0 and enemyScore <= Settings.MaxEnemyScore and entity.HitPoints > Settings.SpawnHP and mod:Random(1) == 1 then
+	-- Have a chance to use the summon attack instead of the leap
+	if entity.State == NpcState.STATE_JUMP and sprite:GetFrame() == 0
+	and enemyScore <= Settings.MaxEnemyScore and entity.HitPoints > Settings.SpawnHP and mod:Random(1) == 1 then
 		entity.State = NpcState.STATE_SUMMON
 		sprite:Play("Summon", true)
 
+		if SoundEffect.SOUND_BLASTOCYST_JUMP_BIG then
+			SFXManager():Stop(SoundEffect.SOUND_BLASTOCYST_JUMP_BIG)
+		end
+
+
+
+	--[[ Spawn a small Blastocyst ]]--
 	elseif entity.State == NpcState.STATE_SUMMON then
 		entity.Velocity = mod:StopLerp(entity.Velocity)
 
@@ -41,7 +49,6 @@ function mod:BlastocystBigUpdate(entity)
 			small.PositionOffset = Vector(0, Settings.LandHeight - 10)
 			small.V2 = Vector(0, Settings.JumpSpeed)
 			small:GetSprite():Play("Midair", true)
-
 
 			-- Lose health when spawning
 			entity:TakeDamage(Settings.SpawnHP / 2, DamageFlag.DAMAGE_NOKILL, EntityRef(entity), 0)
@@ -65,7 +72,7 @@ function mod:BlastocystBigUpdate(entity)
 	elseif entity.State == NpcState.STATE_STOMP and (sprite:IsEventTriggered("Land") or sprite:IsEventTriggered("Shoot")) then
 		-- Remove default projectiles
 		if sprite:IsEventTriggered("Land") then
-			for i, p in pairs(Isaac.FindByType(EntityType.ENTITY_PROJECTILE, -1, -1, false, true)) do
+			for i, p in pairs( Isaac.FindByType(EntityType.ENTITY_PROJECTILE) ) do
 				if p.FrameCount == 0 and p.SpawnerEntity.Index == entity.Index then
 					p:Remove()
 				end

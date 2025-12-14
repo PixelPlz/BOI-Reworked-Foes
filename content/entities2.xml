@@ -154,7 +154,6 @@
 	baseHP="10" stageHP="1" shutdoors="false" tags="noreroll"
 	friction="1" collisionRadius="10" gridCollision="none" collisionMass="1" collisionDamage="1" >
 		<gibs amount="1"   sound_bone="1"   bone="1" />
-		<bestiary anim="Idle0" transform="0,0,1" />
 	</entity>
 	<!-- Forgotten bone orbital -->
 	<entity name="Forgotten Bone Orbital"   id="200" variant="4436" subtype="1"   anm2path="bone orbital forgotten.anm2" shadowSize="12" portrait="8"

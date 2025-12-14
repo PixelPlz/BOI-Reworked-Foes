@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2025. 04. 01. 21:35:00" Version="113" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2025. 12. 14. 0:29:08" Version="114" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="Bosses/Classic/Boss_064_Death.png" Id="0"/>
@@ -168,6 +168,7 @@
 				</NullAnimation>
 			</NullAnimations>
 			<Triggers>
+				<Trigger EventId="4" AtFrame="4"/>
 				<Trigger EventId="1" AtFrame="15"/>
 			</Triggers>
 		</Animation>

@@ -1,4 +1,21 @@
 ================================================
+    Version 3.2.5
+================================================
+
+- Some reworked bosses now use their new Repentance+ sounds if they have any
+- Death's Heads spawned by black Death now die alongside him
+- C.H.A.D. now dies if any of his segments are missing to avoid errors and softlocks
+- Fixed Nest on-death spawn changes being tied to the "No Chapter 1 Nests" setting
+- Fixed Tumors and Psy Tumors not being able to shoot when playing on Repentance+
+- Fixed Death's sand projectiles being too loud in Repentance+
+- Fixed an error when Steven teleports without Little Steven (eg. after using Meat Cleaver on them)
+- Fixed Sisters Vis and Mom's Dead Hand not taking damage from Terra tears
+- Fixed a rare error when entering Triachnid's boss room
+
+
+
+
+================================================
     Version 3.2.4
 ================================================
 

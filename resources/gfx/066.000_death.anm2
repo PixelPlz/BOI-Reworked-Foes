@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="2025. 04. 06. 23:02:35" Version="121" Fps="30"/>
+	<Info CreatedBy="robot" CreatedOn="2025. 12. 14. 0:15:14" Version="122" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="Bosses/Classic/Boss_064_Death.png" Id="0"/>
@@ -18,6 +18,7 @@
 			<Event Name="Start" Id="1"/>
 			<Event Name="Stop" Id="2"/>
 			<Event Name="Shoot" Id="3"/>
+			<Event Name="Sound" Id="4"/>
 		</Events>
 	</Content>
 	<Animations DefaultAnimation="Walk">
@@ -179,6 +180,7 @@
 				</NullAnimation>
 			</NullAnimations>
 			<Triggers>
+				<Trigger EventId="4" AtFrame="4"/>
 				<Trigger EventId="3" AtFrame="19"/>
 			</Triggers>
 		</Animation>
@@ -235,6 +237,7 @@
 				</NullAnimation>
 			</NullAnimations>
 			<Triggers>
+				<Trigger EventId="4" AtFrame="4"/>
 				<Trigger EventId="1" AtFrame="21"/>
 				<Trigger EventId="2" AtFrame="43"/>
 			</Triggers>
@@ -302,6 +305,7 @@
 				</NullAnimation>
 			</NullAnimations>
 			<Triggers>
+				<Trigger EventId="4" AtFrame="4"/>
 				<Trigger EventId="3" AtFrame="19"/>
 			</Triggers>
 		</Animation>

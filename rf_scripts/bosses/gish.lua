@@ -308,12 +308,12 @@ function mod:GishUpdate(entity)
 					entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 					entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 
-					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS)
+					local sfx = SoundEffect.SOUND_GISH_JUMP_HIGH or SoundEffect.SOUND_MEAT_JUMPS
+					mod:PlaySound(nil, sfx)
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
 
 				-- Land effects
 				elseif sprite:IsEventTriggered("Land") then
-					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.8)
 					mod:PlaySound(nil, SoundEffect.SOUND_GOOATTACH0, 1.1)
 
 					-- Splat
@@ -412,8 +412,14 @@ function mod:GishUpdate(entity)
 					local speed = entity.Position:Distance(entity.TargetPosition) / 26 -- Cool magic number
 					mod:FireProjectiles(entity, entity.Position, (entity.TargetPosition - entity.Position):Resized(speed), 0, params, mod.Colors.TarTrail):GetData().fallingShot = true
 
+					-- Effects
 					mod:ShootEffect(entity, 5, Vector(0, 190 * entity.Scale * -0.65), data.effectColor, 1.5)
-					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.8)
+
+					if SoundEffect.SOUND_GISH_SPIT then
+						mod:PlaySound(entity, SoundEffect.SOUND_GISH_SPIT, 1.1)
+					else
+						mod:PlaySound(entity, SoundEffect.SOUND_BOSS_SPIT_BLOB_BARF, 0.75)
+					end
 				end
 
 				if sprite:IsFinished() then
@@ -628,7 +634,8 @@ function mod:GishUpdate(entity)
 					local bool = entity.TargetPosition.Y > room:GetCenterPos().Y
 					entity.TargetPosition = Vector(0, mod:GetSign(bool))
 
-					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS)
+					local sfx = SoundEffect.SOUND_GISH_JUMP or SoundEffect.SOUND_MEAT_JUMPS
+					mod:PlaySound(nil, sfx)
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
 				end
 
@@ -657,13 +664,10 @@ function mod:GishUpdate(entity)
 
 						entity:SetSize(25, Vector(entity.Scale * 1.8, entity.Scale), 12)
 						entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+						mod:PlaySound(nil, SoundEffect.SOUND_GOOATTACH0)
 
 						sprite.Offset = Vector(0, 16)
 						sprite.FlipY = entity.V1.Y < room:GetCenterPos().Y
-
-						-- Effects
-						mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.8)
-						mod:PlaySound(nil, SoundEffect.SOUND_GOOATTACH0, 1.1)
 					end
 
 				-- Move to position
@@ -721,7 +725,6 @@ function mod:GishUpdate(entity)
 				if entity.I1 >= 3 then
 					entity.State = NpcState.STATE_STOMP
 					sprite:Play("JumpFromWall", true)
-
 				else
 					entity.State = NpcState.STATE_ATTACK3
 					sprite:Play("JumpAcrossStart", true)
@@ -753,7 +756,8 @@ function mod:GishUpdate(entity)
 					entity.Velocity = entity.TargetPosition:Resized(Settings.JumpSpeed)
 
 					-- Effects
-					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS)
+					local sfx = SoundEffect.SOUND_GISH_JUMP_HIGH or SoundEffect.SOUND_MEAT_JUMPS
+					mod:PlaySound(nil, sfx)
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
 
 					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity):GetSprite()
@@ -858,7 +862,8 @@ function mod:GishUpdate(entity)
 					sprite.FlipY = false
 
 					-- Effects
-					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS)
+					local sfx = SoundEffect.SOUND_GISH_JUMP or SoundEffect.SOUND_MEAT_JUMPS
+					mod:PlaySound(nil, sfx)
 					mod:PlaySound(entity, SoundEffect.SOUND_BOSS_LITE_ROAR, 0.8)
 				end
 
@@ -897,10 +902,7 @@ function mod:GishUpdate(entity)
 				if sprite:IsEventTriggered("Land") then
 					entity.Velocity = Vector.Zero
 					entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
-
-					-- Effects
-					mod:PlaySound(nil, SoundEffect.SOUND_MEAT_JUMPS, 0.8)
-					mod:PlaySound(nil, SoundEffect.SOUND_GOOATTACH0, 1.1)
+					mod:PlaySound(nil, SoundEffect.SOUND_GOOATTACH0)
 				end
 
 				if sprite:IsFinished() then

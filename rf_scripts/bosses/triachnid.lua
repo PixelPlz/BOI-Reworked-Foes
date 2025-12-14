@@ -19,8 +19,8 @@ local Settings = {
 	Gravity = 1.2,
 	LandHeight = 0,
 
-	StompStartStrength = -20,
-	StompGravity = 2,
+	StompStartStrength = -15,
+	StompGravity = 2.5,
 	StompDamage = 40, -- Just enough to kill a half health Blister in the Void (why do they have so much stage HP...)
 }
 
@@ -931,7 +931,6 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, mod.TriachnidRender, EntityType
 function mod:TriachnidLegSegmentUpdate(entity)
 	if entity.SpawnerEntity then
 		local sprite = entity:GetSprite()
-		local data = entity:GetData()
 
 		-- Joint
 		if entity.SubType == mod.Entities.TriachnidJoint then
@@ -942,22 +941,19 @@ function mod:TriachnidLegSegmentUpdate(entity)
 		else
 			mod:LoopingAnim(sprite, "Leg")
 
-			local joint
-			if entity.SpawnerEntity and entity.SpawnerEntity:GetData().legs
-			and entity.SpawnerEntity:GetData().legs[data.index] then
-				joint = entity.SpawnerEntity:GetData().legs[data.index].joint.Position
-			end
+			-- Update the positioning
+			local data = entity:GetData()
+			local spawnerData = entity.SpawnerEntity:GetData()
+			local targetEntity = entity.SubType == mod.Entities.TriachnidLowerLeg and entity.Child or entity.Parent
 
-			if joint and ((entity.SubType == mod.Entities.TriachnidUpperLeg and entity.Parent) or (entity.SubType == mod.Entities.TriachnidLowerLeg and entity.Child)) then
-				-- Get direction
+			if targetEntity and targetEntity:Exists() and spawnerData.legs and spawnerData.legs[data.index] then
 				local flippedness = sprite.FlipX == true and -1 or 1
 
 				-- Get where to point towards
-				local endpos = entity.Parent.Position + entity.Parent.PositionOffset + Settings.HeadOffset
-				if entity.SubType == mod.Entities.TriachnidLowerLeg then
-					endpos = entity.Child.Position + entity.Child.PositionOffset + Settings.FootOffset
-				end
+				local offset = entity.SubType == mod.Entities.TriachnidLowerLeg and Settings.FootOffset or Settings.HeadOffset
+				local endpos = targetEntity.Position + targetEntity.PositionOffset + offset
 
+				local joint = spawnerData.legs[data.index].joint.Position -- Get the associated joint
 				entity.Position = (joint + endpos) / 2
 				sprite.Rotation = (endpos - joint):GetAngleDegrees() * flippedness
 				sprite.Scale = Vector(1, joint:Distance(endpos) / 200)

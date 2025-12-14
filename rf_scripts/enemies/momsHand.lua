@@ -66,7 +66,9 @@ function mod:MomsDeadHandUpdate(entity)
 		end
 
 		-- New rock waves
-		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SHOCKWAVE, 0, entity.Position, Vector.Zero, entity):ToEffect().Timeout = 10
+		local shockwave = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.SHOCKWAVE, 0, entity.Position, Vector.Zero, entity)
+		shockwave.Parent = entity
+		shockwave:ToEffect().Timeout = 10
 
 
 		-- Projectiles
@@ -96,13 +98,6 @@ function mod:MomsDeadHandUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MomsDeadHandUpdate, EntityType.ENTITY_MOMS_DEAD_HAND)
-
-function mod:MomsDeadHandDMG(entity, damageAmount, damageFlags, damageSource, damageCountdownFrames)
-	if damageSource.SpawnerType ~= EntityType.ENTITY_PLAYER and (damageFlags & DamageFlag.DAMAGE_CRUSH > 0) then
-		return false
-	end
-end
-mod:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, mod.MomsDeadHandDMG, EntityType.ENTITY_MOMS_DEAD_HAND)
 
 function mod:MomsDeadHandDeath(entity, target, bool)
 	-- Remove the spiders
