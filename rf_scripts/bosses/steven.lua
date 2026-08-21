@@ -180,7 +180,7 @@ function mod:StevenUpdate(entity)
 						entity.StateFrame = 1
 
 						-- Get teleport position
-						entity.TargetPosition = Vector(room:GetBottomRightPos().X + (room:GetTopLeftPos().X - entity.Position.X), room:GetBottomRightPos().Y + (room:GetTopLeftPos().Y - entity.Position.Y))
+						entity.TargetPosition = mod:GetMirroredPosition(entity.Position)
 						entity.TargetPosition = room:FindFreePickupSpawnPosition(entity.TargetPosition, 0, true, false)
 
 						-- Effect

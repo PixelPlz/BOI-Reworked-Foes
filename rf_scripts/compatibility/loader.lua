@@ -42,7 +42,7 @@ function mod:LoadCompatibility()
 
 		-- LGBTQIA
 		local based = {
-			{ID = {mod.Entities.Type, mod.Entities.Wallace}, Affliction = "Pan"}, -- Wallace
+			{ID = {mod.Entities.Type, mod.Entities.Wallace}, Affliction = "Pan"}, 	-- Wallace
 			{ID = {EntityType.ENTITY_HIVE, 40}, 			 Affliction = "Trans"}, -- Nest (new)
 		}
 		for i, entry in pairs(based) do
@@ -57,8 +57,8 @@ function mod:LoadCompatibility()
 			{ID = {EntityType.ENTITY_GLOBIN, mod.Entities.GlobinSketch},   Affliction = "Drawing"}, -- Globin Sketch
 			{ID = {EntityType.ENTITY_MAW, mod.Entities.MawSketch}, 		   Affliction = "Drawing"}, -- Maw Sketch
 
-			{ID = {EntityType.ENTITY_WAR, 20}, 					   Affliction = "Horse"}, -- Conquest Horse
-			{ID = {mod.Entities.Type, mod.Entities.Teratomar}, 	   Affliction = "War criminal"}, -- Teratomar
+			{ID = {EntityType.ENTITY_WAR, 20}, 					   Affliction = "Horse"}, 				-- Conquest Horse
+			{ID = {mod.Entities.Type, mod.Entities.Teratomar}, 	   Affliction = "War criminal"}, 		-- Teratomar
 			{ID = {EntityType.ENTITY_KEEPER, mod.Entities.Coffer}, Affliction = "Inflation fetishist"}, -- Coffer
 		}
 		for i, entry in pairs(outliers) do
@@ -94,7 +94,12 @@ function mod:LoadCompatibility()
 		HPBars.BossDefinitions[teratomarTypeVar] = {
 			sprite = path .. "chapter4/teratomar.png",
 			offset = Vector(-4, 0),
-			bossColors = {"_fuzzy"} -- For Fiend Folio
+			conditionalSprites = { -- Fiend Folio champions
+				{ function(entity) return mod:IsFFChampion(entity, "FuzzyTeratomaBig") end, path .. "chapter4/teratomar_fuzzy.png" },
+				{ function(entity) return mod:IsFFChampion(entity, "CornyTeratomaBig") and not (FiendFolio:CheckStage("Dross", {45}) or FiendFolio:CheckStage("Corpse", {34, 43, 44})) end, path .. "chapter4/teratomar_corny.png" },
+				{ function(entity) return mod:IsFFChampion(entity, "CornyTeratomaBig") and FiendFolio:CheckStage("Dross", {45}) end, path .. "chapter4/teratomar_corny_dross.png" },
+				{ function(entity) return mod:IsFFChampion(entity, "CornyTeratomaBig") and FiendFolio:CheckStage("Corpse", {34, 43, 44}) end, path .. "chapter4/teratomar_corny_corpse.png" },
+			},
 		}
 
 		-- It Lives
@@ -109,14 +114,15 @@ function mod:LoadCompatibility()
 
 		-- Blighted Ovum
 		HPBars.BossDefinitions["79.2"].conditionalSprites = {
-			{ "isI1Equal", path .. "chapter1/blighted_ovum_phase2.png", {1} }
+			{ function(entity) return entity:ToNPC().State == NpcState.STATE_SPECIAL or entity:ToNPC().State == NpcState.STATE_IDLE end, path .. "chapter1/blighted_ovum_half.png" },
+			{ function(entity) return entity:ToNPC().I1 == 1 end, path .. "chapter1/blighted_ovum_phase2.png" },
 		}
 
 		-- Forsaken clone (for Off-screen Indicators)
 		HPBars.BossDefinitions["403.10"] = {
 			sprite = path .. "chapter2/the_forsaken.png",
 			offset = Vector(-6, 0),
-			bossColors = {"_black"}
+			bossColors = { "_black", "_red", },
 		}
 
 		-- Sister Vis

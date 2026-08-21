@@ -250,6 +250,29 @@ end
 
 
 
+-- Get the real center of the room (for L shaped rooms)
+---@return Vector
+function ReworkedFoes:GetRoomCenter()
+	local room = Game():GetRoom()
+
+	if room:GetRoomShape() > RoomShape.ROOMSHAPE_2x2 then
+		return Vector(580, 420)
+	else
+		return room:GetCenterPos()
+	end
+end
+
+-- Get the mirrored version of the given position
+---@param position Vector The position to mirror.
+---@param center Vector? The point to mirror the position around. Defaults to the room's center.
+---@return Vector
+function ReworkedFoes:GetMirroredPosition(position, center)
+	center = center or mod:GetRoomCenter()
+	return (center - position) + center
+end
+
+
+
 
 
 --[[ RNG functions ]]--
@@ -1050,6 +1073,20 @@ function ReworkedFoes:CheckMinibossDropReplacement(pickup, entityType, miniboss)
 	if pickup.SpawnerType == entityType and pickup.SpawnerEntity
 	and mod:IsRFChampion(pickup.SpawnerEntity, miniboss) and mod:CheckValidMiniboss() then
 		return true
+	end
+	return false
+end
+
+
+
+-- Check if the given boss is a FF champion
+---@param entity Entity
+---@param variable string The name of the boss to check for.
+---@return boolean
+function ReworkedFoes:IsFFChampion(entity, variable)
+	if FiendFolio and FiendFolio.FF[variable] then
+		local subType = FiendFolio.FF[variable].Sub or FiendFolio.FF[variable].IDx + 1
+		return entity.SubType == subType
 	end
 	return false
 end

@@ -30,10 +30,7 @@ local Settings = {
 
 function mod:HuskInit(entity)
 	if entity.Variant == 1 then
-		local newHP = Settings.NewHealth
-		if entity.SubType == 1 then
-			newHP = Settings.BlackHealth
-		end
+		local newHP = entity.SubType == 1 and Settings.BlackHealth or Settings.NewHealth
 		mod:ChangeMaxHealth(entity, newHP)
 
 		entity.ProjectileCooldown = Settings.Cooldown / 3
@@ -86,7 +83,7 @@ function mod:HuskUpdate(entity)
 		elseif entity.SubType == 2 then
 			enemyScore = Isaac.CountEntities(entity, EntityType.ENTITY_SUCKER, -1, -1)
 		-- Wine champion
-		elseif entity.SubType == 3 and FiendFolio then
+		elseif mod:IsFFChampion(entity, "WineHusk") then
 			enemyScore = Isaac.CountEntities(entity, FiendFolio.FF.Grape.ID, FiendFolio.FF.Grape.Var, FiendFolio.FF.Grape.Sub)
 			+ Isaac.CountEntities(entity, FiendFolio.FF.Bunch.ID, FiendFolio.FF.Bunch.Var, 0) * 3
 		end
@@ -170,7 +167,7 @@ function mod:HuskUpdate(entity)
 
 
 				-- Wine champion
-				elseif entity.SubType == 3 and FiendFolio then
+				elseif mod:IsFFChampion(entity, "WineHusk") then
 					for i = 1, mod:Random(1, 2) do
 						local grape = Isaac.Spawn(FiendFolio.FF.Grape.ID, FiendFolio.FF.Grape.Var, FiendFolio.FF.Grape.Sub, entity.Position + Vector(0, 10), Vector.Zero, entity)
 						grape:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
@@ -232,7 +229,7 @@ function mod:HuskUpdate(entity)
 				mod:PlaySound(entity, SoundEffect.SOUND_MONSTER_GRUNT_1)
 
 				-- Wine champion (Copy / Pasted from Fiend Folio so I have no idea how it works)
-				if entity.SubType == 3 and FiendFolio then
+				if mod:IsFFChampion(entity, "WineHusk") then
 					for i = -1, 3 do
 						local vec = (target.Position - entity.Position):Resized(6)
 
@@ -315,7 +312,7 @@ function mod:HuskUpdate(entity)
 
 
 				-- Wine champion
-				elseif entity.SubType == 3 and FiendFolio then
+				elseif mod:IsFFChampion(entity, "WineHusk") then
 					entity.I1 = 1
 					entity.TargetPosition = mod:RandomVector()
 
@@ -371,7 +368,8 @@ function mod:HuskUpdate(entity)
 
 
 			-- Wine champion shots
-			if entity.SubType == 3 and FiendFolio and entity.I1 == 1 and entity:IsFrame(2, 0) then
+			if mod:IsFFChampion(entity, "WineHusk")
+			and entity.I1 == 1 and entity:IsFrame(2, 0) then
 				-- Stop shooting
 				if entity.I2 > 3 then
 					entity.I1 = 0
@@ -409,20 +407,23 @@ function mod:HuskUpdate(entity)
 		end
 
 
-		if entity.FrameCount > 1 and not entity:HasMortalDamage() then
+		if entity:IsDead() then
+			-- Black champion explodes on death
+			if entity.SubType == 1 then
+				Game():BombExplosionEffects(entity.Position, 80, TearFlags.TEAR_NORMAL, Color.Default, entity, 1.25, true, true, DamageFlag.DAMAGE_EXPLOSION)
+				mod:PlaySound(nil, SoundEffect.SOUND_BOSS1_EXPLOSIONS, 1, 0.9)
+
+			-- Wine champion shoots on death
+			elseif mod:IsFFChampion(entity, "WineHusk") then
+				local params = ProjectileParams()
+				params.Scale = 2
+				params.Color = FiendFolio.ColorKickDrumsAndRedWine
+				entity:FireProjectiles(entity.Position, Vector(8, 6), 9, params)
+			end
+		end
+
+		if not entity:HasMortalDamage() and entity.FrameCount > 1 then
 			return true
-
-		-- Black champion explodes on death
-		elseif entity:IsDead() and entity.SubType == 1 then
-			Game():BombExplosionEffects(entity.Position, 80, TearFlags.TEAR_NORMAL, Color.Default, entity, 1.25, true, true, DamageFlag.DAMAGE_EXPLOSION)
-			mod:PlaySound(nil, SoundEffect.SOUND_BOSS1_EXPLOSIONS, 1, 0.9)
-
-		-- Wine champion shoots on death
-		elseif entity.SubType == 3 and FiendFolio and entity:HasMortalDamage() then
-			local params = ProjectileParams()
-			params.Scale = 2
-			params.Color = FiendFolio.ColorKickDrumsAndRedWine
-			entity:FireProjectiles(entity.Position, Vector(8, 6), 9, params)
 		end
 	end
 end

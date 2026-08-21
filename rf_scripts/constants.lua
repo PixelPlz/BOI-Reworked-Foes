@@ -120,7 +120,7 @@ ReworkedFoes.Colors = {
 
 	ForgottenBone = Color(0.34,0.34,0.34, 1),
 	SoulShot 	  = Color(0.8,0.8,0.8, 0.7, 0.1,0.2,0.4),
-	LostShot 	  = Color(1,1,1, 0.75, 0.25,0.25,0.25),
+	LostShot 	  = Color(1,1,1, 0.7, 0.25,0.25,0.25),
 	HolyOrbShot   = Color(1,1,1, 0.7, 0.4,0.4,0),
 
 	HushGreen 	 = Color(1,1,1, 1, 0.2,0.2,0),

@@ -1,4 +1,18 @@
 ================================================
+    Version 3.2.6
+================================================
+
+- Added proper support for the new champions added in Fiend Folio: Reloaded!
+- Slightly adjusted Blighted Ovum's move speed
+- Black Forsaken now only spawns 2 Black Bonies
+- Death's Heads spawned by black Death should now properly get removed alongside him
+- Fixed a rare error when It Lives' guts aren't present
+- Fixed Fiend Folio Hostlets turning invisible when their skulls are broken
+
+
+
+
+================================================
     Version 3.2.5
 ================================================
 

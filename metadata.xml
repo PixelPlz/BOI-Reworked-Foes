@@ -3,8 +3,35 @@
     <name>!better vanilla monsters</name>
     <directory>!better vanilla monsters</directory>
     <id>2847697646</id>
-    <description></description>
-    <version>3.30</version>
+    <description>[b]Reworked Foes[/b] makes many of the game's enemies and bosses more interesting, balanced or harder by changing or even completely reworking them.
+
+[hr][/hr]
+[h1]Features:[/h1]
+[img]https://raw.githubusercontent.com/PixelPlz/BOI-Reworked-Foes/main/workshop/icon_bosses.png[/img] [b] Over 30 changed bosses, including complete reworks! [/b]
+[img]https://raw.githubusercontent.com/PixelPlz/BOI-Reworked-Foes/main/workshop/icon_enemies.png[/img] [b] Over 50 changed monsters, with many balance changes and unique reworks! [/b]
+[img]https://raw.githubusercontent.com/PixelPlz/BOI-Reworked-Foes/main/workshop/icon_qol.png[/img] [b] Toggleable quality of life features such as breakable Hosts and underground enemy indicators! [/b]
+
+[url=https://docs.google.com/document/d/1xANfKW-B6m-JqYmBS7I-Hv4Y-tBLD6_NHaOwY-LzgiI/edit?usp=sharing] [b]For a detailed list of changes visit our wiki[/b][/url]
+[b]The mod has a built-in settings, changelog and credits menu you can access by pressing C![/b]
+[img]https://raw.githubusercontent.com/PixelPlz/BOI-Reworked-Foes/main/workshop/icon_champions.png[/img] [b] Looking for the custom champions? They have been moved to a [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3183902510]separate add-on mod![/url] [/b]
+
+[hr][/hr]
+[h1]Compatibility:[/h1]
+The mod is fully compatible with [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2635267643]Enhanced Boss Bars![/url][/b]
+For compatibility with [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3343815332]Last Judgement[/url][/b], enable [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3416652487]this mod![/url][/b]
+For compatibility with [b][url=https://steamcommunity.com/workshop/filedetails/?id=2821140572]HoneyVee's Monster Resprites[/url][/b], enable [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3040393957]this mod![/url][/b]
+For compatibility with [b][url=https://steamcommunity.com/workshop/filedetails/?id=3535477968]Meeps' Monster Resprites[/url][/b], enable [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3590018167]this mod![/url][/b]
+For compatibility with [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3040666828]The Void Re-Remastered[/url][/b], enable [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3063905557]this mod![/url][/b]
+For compatibility with [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3734781489]Resprited Champions[/url][/b], enable [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3774046557]this mod![/url][/b]
+
+The following mods are [b]NOT COMPATIBLE[/b] and should not be used alongside this mod:
+[url=https://steamcommunity.com/sharedfiles/filedetails/?id=1232335391]Hardmode Major Boss Patterns[/url]
+[url=https://steamcommunity.com/sharedfiles/filedetails/?id=2500963144]Repentance Eternal Edition[/url]
+
+[hr][/hr]
+[img]https://i.imgur.com/OZNWMCq.png[/img] [b]Also available on [url=https://github.com/PixelPlz/BOI-Reworked-Foes]GitHub[/url][/b]
+[img]https://i.imgur.com/oi73PuP.png[/img] [b]Custom backgrounds used in the previews are from [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2751333905]Improved Backdrops and Visuals[/url][/b]</description>
+    <version>3.31</version>
     <visibility>Public</visibility>
     <tag id="Lua"/>
     <tag id="Rooms"/>

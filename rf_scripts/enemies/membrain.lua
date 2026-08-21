@@ -41,7 +41,6 @@ function mod:MembrainUpdate(entity)
 				for i, projectile in pairs(data.stoppedProjectiles) do
 					projectile:GetData().RFLingering = nil
 					projectile.ProjectileFlags = projectile.ChangeFlags
-					--projectile.FallingAccel = -0.05
 					projectile.Velocity = projectile.Velocity:Resized(10)
 
 					-- Effect

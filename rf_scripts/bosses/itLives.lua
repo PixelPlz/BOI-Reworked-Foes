@@ -102,7 +102,7 @@ function mod:ItLivesUpdate(entity)
 			-- Get the guts
 			local guts = nil
 
-			if entity.Child then
+			if entity.Child and entity.Child:Exists() then
 				guts = entity.Child:ToNPC()
 			end
 
@@ -318,8 +318,10 @@ function mod:ItLivesUpdate(entity)
 			if entity.State == NpcState.STATE_IDLE then
 				-- Spawn the Homunculi
 				if not data.homunculiSpawned then
-					guts.State = NpcState.STATE_SUMMON2
-					guts:GetSprite():Play("ShootBoth", true)
+					if guts then
+						guts.State = NpcState.STATE_SUMMON2
+						guts:GetSprite():Play("ShootBoth", true)
+					end
 
 					data.homunculiSpawned = true
 					entity.ProjectileCooldown = Settings.FetusCooldown[1]
@@ -367,7 +369,7 @@ function mod:ItLivesUpdate(entity)
 							chooseAttack("first")
 
 						-- Summon enemies
-						elseif data.attackCounter == 2 then
+						elseif data.attackCounter == 2 and guts then
 							guts.State = NpcState.STATE_SUMMON
 							guts:GetSprite():Play("ShootBoth", true)
 
@@ -874,12 +876,15 @@ function mod:ItLivesUpdate(entity)
 					entity.CollisionDamage = 2
 
 					-- Stop the guts from attacking
-					guts.ProjectileCooldown = Settings.GutsCooldown
-					if guts.State == NpcState.STATE_ATTACK and guts.StateFrame == 1 then
-						guts.StateFrame = 2
-						guts:GetSprite():Play("ShootBothEnd", true)
-					else
-						guts.State = NpcState.STATE_IDLE
+					if guts then
+						guts.ProjectileCooldown = Settings.GutsCooldown
+
+						if guts.State == NpcState.STATE_ATTACK and guts.StateFrame == 1 then
+							guts.StateFrame = 2
+							guts:GetSprite():Play("ShootBothEnd", true)
+						else
+							guts.State = NpcState.STATE_IDLE
+						end
 					end
 
 				elseif sprite:WasEventTriggered("ComeDown") then

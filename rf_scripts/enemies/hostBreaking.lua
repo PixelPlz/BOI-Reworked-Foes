@@ -67,9 +67,11 @@ function mod:BreakHost(entity, brokenData)
 
 
 	-- Fiend Folio grid Hosts
-	if FiendFolio and entity:GetData().ffGridHost then
+	local gridHost = entity:GetData().ffGridHost
+
+	if FiendFolio and gridHost and gridHost ~= "hostlet.png" then
 		sprite:Load("gfx/enemies/grid hosts/host.anm2", true)
-		sprite:ReplaceSpritesheet(1, "gfx/enemies/grid hosts/redhost_" .. entity:GetData().ffGridHost)
+		sprite:ReplaceSpritesheet(1, "gfx/enemies/grid hosts/redhost_" .. gridHost)
 		sprite:LoadGraphics()
 	end
 
@@ -97,7 +99,7 @@ function mod:BreakHost(entity, brokenData)
 	-- Rock particles
 	for i = 1, 4 do
 		local velocity = mod:RandomVector(math.random(2, 4))
-		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 65537, entity.Position, velocity, entity):ToEffect()
+		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 65537, entity.Position, velocity, entity):Update()
 	end
 
 	-- Smoke

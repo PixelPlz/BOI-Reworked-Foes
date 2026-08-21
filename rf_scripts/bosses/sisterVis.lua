@@ -22,6 +22,9 @@ local Settings = {
 	CreepTime = 90,
 	CorpseBounces = 2, -- Including the final one
 	CorpseJumpStrength = 15,
+
+	-- Black champion
+	MaxLilCages = 2,
 }
 
 
@@ -43,12 +46,15 @@ function mod:SisterVisUpdate(entity)
 	local data = entity:GetData()
 	local room = Game():GetRoom()
 
+	entity.SplatColor = Color.Default
+
 
 	-- Get the sibling
 	local sibling, siblingSprite
 	local isSiblingDead = false
 
-	if entity.Child and entity.Child:Exists() then
+	if entity.Child and entity.Child:Exists()
+	and entity.Child.Index ~= entity.Index then -- ???
 		sibling = entity.Child:ToNPC()
 		siblingSprite = sibling:GetSprite()
 
@@ -96,25 +102,55 @@ function mod:SisterVisUpdate(entity)
 			entity.Velocity = mod:StopLerp(entity.Velocity)
 			mod:LoopingAnim(sprite, prefix .. "Idle")
 
-			-- Get pissed if the sibling dies
-			if sibling and isSiblingDead and not data.enraged then
+
+			-- Get pissed if the sibling dies (or at half health if a black champion)
+			local enrageNormal = not mod:IsFFChampion(entity, "BlackSisterVis") and (not sibling or isSiblingDead)
+			local enrageBlack = 	 mod:IsFFChampion(entity, "BlackSisterVis") and entity.HitPoints <= entity.MaxHitPoints / 2
+
+			if not data.enraged and (enrageNormal or enrageBlack) then
 				entity.State = NpcState.STATE_SPECIAL
 				sprite:Play("AngryStart", true)
 				mod:PlaySound(entity, SoundEffect.SOUND_GHOST_ROAR, 1, 1.02)
 
-
 			-- Attack
 			else
 				if entity.ProjectileCooldown <= 0 and (not sibling or sibling.State == NpcState.STATE_IDLE) then
-					-- Reset variables
 					resetVariables(entity)
+					local attack
 
-					local attackCount = 3
-					-- Don't do the jump attack if the sibling doesn't exist
-					if not sibling or not sibling:Exists() then
-						attackCount = 2
+
+					-- Black champion
+					if mod:IsFFChampion(entity, "BlackSisterVis") then
+						local lilCageCount = Isaac.CountEntities(nil, FiendFolio.FF.LilCage.ID, FiendFolio.FF.LilCage.Var)
+
+						-- Always try to have at least one Lil' Cage
+						if lilCageCount <= 0 then
+							attack = 4
+
+						else
+							local attacks = { 1, }
+
+							-- Can summon more Lil' Cages if there are less than 2
+							if lilCageCount < Settings.MaxLilCages then
+								table.insert(attacks, 4)
+							end
+							-- Enraged sky laser
+							if data.enraged then
+								table.insert(attacks, 2)
+							end
+
+							attack = mod:RandomIndex(attacks)
+						end
+
+					else
+						local attackCount = 3
+
+						-- Don't do the jump attack if the sibling doesn't exist
+						if not sibling or not sibling:Exists() then
+							attackCount = 2
+						end
+						attack = mod:Random(1, attackCount)
 					end
-					local attack = mod:Random(1, attackCount)
 
 
 					-- Roll
@@ -140,6 +176,11 @@ function mod:SisterVisUpdate(entity)
 						entity.State = NpcState.STATE_JUMP
 						sprite:Play(prefix .. "Jump", true)
 						entity.I1 = mod:GetSign(isSiblingDead)
+
+					-- Summon (black champion)
+					elseif attack == 4 then
+						entity.State = NpcState.STATE_SUMMON
+						sprite:Play(prefix .. "Summon", true)
 					end
 
 
@@ -205,6 +246,11 @@ function mod:SisterVisUpdate(entity)
 				mod:LoopingAnim(sprite, prefix .. "RollLoop" .. suffix)
 				sprite.PlaybackSpeed = entity.Velocity:Length() * 0.11
 				mod:FlipTowardsMovement(entity, sprite)
+
+				-- Black champion creep
+				if mod:IsFFChampion(entity, "BlackSisterVis") and entity:IsFrame(3, 0) then
+					mod:QuickCreep(EffectVariant.CREEP_BLACK, entity, entity.Position, 2)
+				end
 
 				-- Bounce off of obstacles
 				if entity:CollidesWithGrid() then
@@ -791,6 +837,47 @@ function mod:SisterVisUpdate(entity)
 
 
 
+		--[[ Summoning ]]--
+		elseif entity.State == NpcState.STATE_SUMMON then
+			entity.Velocity = mod:StopLerp(entity.Velocity)
+
+			if sprite:IsEventTriggered("Jump") then
+				-- Spawn the Lil' Cages
+				for i = -1, 1, 2 do
+					local angle = 90 + (i * 45)
+					local velocity = Vector.FromAngle(angle)
+					local pos = entity.Position + Vector(0, entity.Size / 2)
+
+					local lilCage = Isaac.Spawn(FiendFolio.FF.LilCage.ID, FiendFolio.FF.LilCage.Var, 0, pos, velocity, entity):ToNPC()
+					lilCage:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
+					FiendFolio:GetEntityData(lilCage).EnrageOnSpawnersDeath = true
+					lilCage.State = NpcState.STATE_ATTACK
+					lilCage.I1 = 1
+					lilCage:Update()
+				end
+
+				-- Effects
+				entity:BloodExplode()
+				mod:PlaySound(nil, SoundEffect.SOUND_DEATH_BURST_LARGE, 1.25)
+
+				-- Yucky gut juices
+				local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 5, entity.Position, Vector.Zero, entity):ToEffect()
+				effect:FollowParent(entity)
+				effect.DepthOffset = entity.DepthOffset + 10
+
+				local effectSprite = effect:GetSprite()
+				effectSprite.Color = Color.Lerp(entity.SplatColor, Color.Default, 0) * Color(1,1,1, 0.75)
+				effectSprite.Offset = Vector(0, -30)
+				effectSprite.Scale = Vector.One * 0.75
+				effectSprite.PlaybackSpeed = 1.25
+			end
+
+			if sprite:IsFinished() then
+				entity.State = NpcState.STATE_IDLE
+			end
+
+
+
 		--[[ Transition ]]--
 		elseif entity.State == NpcState.STATE_SPECIAL then
 			entity.Velocity = mod:StopLerp(entity.Velocity)
@@ -871,7 +958,7 @@ function mod:SisterVisUpdate(entity)
 				-- Bounce off of obstacles
 				if entity:CollidesWithGrid() then
 					mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, entity.Scale * 0.5, 1, 6)
-					Game():ShakeScreen(math.floor(entity.Scale * 4))
+					Game():ShakeScreen( math.floor(entity.Scale * 3) )
 
 					-- Stop
 					if entity.I1 >= Settings.CorpseBounces - 1 then
@@ -1001,15 +1088,14 @@ function mod:SisterVisUpdate(entity)
 
 
 
-	-- Replace blood color with the default red
+	-- Reset the playback speed on death
 	if entity:HasMortalDamage() or entity:IsDead() then
-		entity.SplatColor = Color.Default
 		sprite.PlaybackSpeed = 1
 	end
 
 	-- Cancel death for the first sister and turn into a corpse
-	if entity:HasMortalDamage() and not data.corpse
-	and sibling and isSiblingDead == false then
+	if entity:HasMortalDamage()
+	and not data.corpse and sibling and isSiblingDead == false then
 		entity.State = NpcState.STATE_SPECIAL
 		sprite:Play("Death", true)
 
@@ -1040,28 +1126,32 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.SisterVisUpdate, EntityType.
 function mod:SisterVisCollision(entity, target, bool)
 	if target.Type == entity.Type or target.Type == EntityType.ENTITY_CAGE then
 		local data = entity:GetData()
-		local target = target:ToNPC()
+		target = target:ToNPC()
 
-		-- Alive
+
+		-- Rolling
 		if entity.State == NpcState.STATE_ATTACK and entity.StateFrame == 1 then
 			entity.Velocity = (entity.Position - target.Position):Normalized()
 			mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, entity.Scale * 0.5, 1, 6)
 
-			-- Reset bounce count
+			-- Reset bounce count for corpses
 			if data.corpse then
 				entity.I1 = 0
 			end
 
 
-		-- Dead
-		elseif entity.State == NpcState.STATE_IDLE and data.corpse -- Idle
-		and ((target.Type == entity.Type and target.State == NpcState.STATE_ATTACK and target.StateFrame == 1) -- Hit by a sister
-		or (target.Type == EntityType.ENTITY_CAGE and target.State == NpcState.STATE_ATTACK and target.I1 == 1)) then -- Hit by the Cage
-			entity.State = NpcState.STATE_ATTACK
-			entity.Velocity = (entity.Position - target.Position):Normalized():Rotated(mod:Random(-10, 10))
-			entity.I1 = 0
-			entity.StateFrame = 1
-			entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+		-- Idle corpse
+		elseif data.corpse and entity.State == NpcState.STATE_IDLE then
+			local hitBySister = target.Type == entity.Type and target.State == NpcState.STATE_ATTACK and target.StateFrame == 1
+			local hitByCage = target.Type == EntityType.ENTITY_CAGE and target.State == NpcState.STATE_ATTACK and target.I1 == 1
+
+			if hitBySister or hitByCage then
+				entity.State = NpcState.STATE_ATTACK
+				entity.Velocity = (entity.Position - target.Position):Normalized():Rotated(mod:Random(-10, 10))
+				entity.I1 = 0
+				entity.StateFrame = 1
+				entity:AddEntityFlags(EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+			end
 		end
 	end
 end
@@ -1105,9 +1195,10 @@ function mod:SisterVisSkyLaserUpdate(entity)
 	if entity.Variant == mod.Entities.SkyLaser then
 		local sprite = entity:GetSprite()
 
+
 		if entity.State == NpcState.STATE_MOVE then
 			-- Stop if the parent is dead
-			if not entity.Parent or not entity.Parent:Exists() or entity.Parent:HasMortalDamage() then
+			if not entity.Parent or not entity.Parent:Exists() or entity.Parent:HasMortalDamage() or not entity.Parent:ToNPC() then
 				entity.State = NpcState.STATE_SUICIDE
 				sprite:Play("EndDown", true)
 				entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
@@ -1125,7 +1216,8 @@ function mod:SisterVisSkyLaserUpdate(entity)
 
 			-- Move towards parent's target
 			else
-				local target = entity.Parent:ToNPC():GetPlayerTarget()
+				local parent = entity.Parent:ToNPC()
+				local target = parent:GetPlayerTarget()
 				entity.Velocity = mod:Lerp(entity.Velocity, (target.Position - entity.Position):Resized(12), 0.04)
 
 				if not sprite:IsPlaying("StartDown") then
@@ -1138,8 +1230,8 @@ function mod:SisterVisSkyLaserUpdate(entity)
 
 				if Game():GetRoom():IsPositionInRoom(entity.Position, 0) then
 					-- Creep
-					if entity:IsFrame(3, 0) then
-						mod:QuickCreep(EffectVariant.CREEP_RED, entity.Parent, entity.Position, 2, Settings.CreepTime)
+					if not mod:IsFFChampion(entity, "BlackSisterVis") and entity:IsFrame(3, 0) then
+						mod:QuickCreep(EffectVariant.CREEP_RED, parent, entity.Position, 2, Settings.CreepTime)
 					end
 
 					-- Droplets

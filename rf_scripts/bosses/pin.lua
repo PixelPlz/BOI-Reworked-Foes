@@ -6,7 +6,6 @@ local mod = ReworkedFoes
 function mod:PinAppearInit(entity)
 	if mod.Config.AppearPins and entity.Variant < 3 -- If it's not Wormwood
 	and not entity.Parent and not entity.SpawnerEntity -- Only the head
-	and (not FiendFolio or entity.SubType ~= 2) -- Not Fiend Folio Technopin
 	and (not GBMd or entity.Variant > 0) then -- Not the Greed Mode skin for Pin (it fucks with the animations for some reason)
 		local sprite = entity:GetSprite()
 
@@ -51,11 +50,7 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.PinAppearUpdate, EntityType.
 --[[ Increase Pin's HP ]]--
 function mod:PinInit(entity)
 	if entity.Variant == 0 then
-		local newHealth = 140
-		if entity.SubType == 1 then
-			newHealth = 175
-		end
-
+		local newHealth = entity.SubType == 1 and 175 or 140
 		mod:ChangeMaxHealth(entity, newHealth)
 	end
 end

@@ -54,7 +54,7 @@ function mod:AdultLeechUpdate(entity)
 
 		for i = 1, 4 do
 			local velocity = entity.TargetPosition:Rotated(math.random(-30, 30)):Resized(math.random(4, 6))
-			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, rockSubType, entity.Position, velocity, entity):ToEffect()
+			Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, rockSubType, entity.Position, velocity, entity):Update()
 		end
 	end
 end

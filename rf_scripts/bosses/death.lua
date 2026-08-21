@@ -414,6 +414,7 @@ function mod:DeathUpdate(entity)
 					pos = Game():GetRoom():FindFreeTilePosition(pos, 0)
 					local spawn = Isaac.Spawn(spawnType, 0, 0, pos, Vector.Zero, entity)
 					spawn.Parent = entity
+					spawn:GetData().RFDeathSpawn = true
 
 					-- Load the custom Death's Head sprites
 					if entity.SubType == 1 then
@@ -581,27 +582,6 @@ function mod:DeathCollision(entity, target, bool)
 end
 mod:AddCallback(ModCallbacks.MC_PRE_NPC_COLLISION, mod.DeathCollision, EntityType.ENTITY_DEATH)
 
--- Also kill any Death Heads spawned by him when he dies
-function mod:DeathDeath(entity)
-	if entity.Variant == 30 and entity.SubType == 1 then
-		local deathHeads = Isaac.FindByType(EntityType.ENTITY_DEATHS_HEAD)
-		local playSound = false
-
-		for i, head in pairs(deathHeads) do
-			if head.SpawnerEntity and head.SpawnerEntity.Index == entity.Index then
-				head:ToNPC().State = NpcState.STATE_DEATH
-				head:GetSprite():Play("Death", true)
-				playSound = true
-			end
-		end
-
-		if playSound then
-			mod:PlaySound(nil, SoundEffect.SOUND_DEVILROOM_DEAL)
-		end
-	end
-end
-mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.DeathDeath, EntityType.ENTITY_DEATH)
-
 
 
 --[[ Scythes ]]--
@@ -665,3 +645,16 @@ function mod:ScytheDeath(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_DEATH, mod.ScytheDeath, EntityType.ENTITY_DEATH)
+
+
+
+--[[ Black champion Death's Heads ]]--
+function mod:BlackDeathsHeadUpdate(entity)
+	if entity.Variant == 0 and entity:GetData().RFDeathSpawn
+	and (not entity.SpawnerEntity or not entity.SpawnerEntity:Exists()) then
+		entity:ToNPC().State = NpcState.STATE_DEATH
+		entity:GetSprite():Play("Death", true)
+		mod:PlaySound(nil, SoundEffect.SOUND_DEVILROOM_DEAL, 1, 1, 2)
+	end
+end
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BlackDeathsHeadUpdate, EntityType.ENTITY_DEATHS_HEAD)

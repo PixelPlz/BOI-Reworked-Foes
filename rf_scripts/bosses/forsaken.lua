@@ -2,6 +2,10 @@ local mod = ReworkedFoes
 
 local Settings = {
 	NewHealth = 400,
+
+	SummonCount = 3,
+	SummonCountChampion = 2,
+
 	Cooldown = 90,
 	TransparencyTimer = 10,
 	MinTPDistance = 50,
@@ -24,7 +28,7 @@ function mod:ForsakenInit(entity)
 
 	entity.ProjectileCooldown = Settings.Cooldown / 2
 
-	-- Champion
+	-- Black champion
 	if entity.SubType == 1 then
 		entity.V2 = Vector(2, 140)
 	end
@@ -126,13 +130,28 @@ function mod:ForsakenUpdate(entity)
 
 			if sprite:IsEventTriggered("Shoot") then
 				local summonType = EntityType.ENTITY_BONY
+				local summonVariant = 0
+				local summonCount = Settings.SummonCount
+
+				-- Black champion
 				if entity.SubType == 1 then
 					summonType = EntityType.ENTITY_BLACK_BONY
+					summonCount = Settings.SummonCountChampion
+
+				-- Red champion
+				elseif mod:IsFFChampion(entity, "RedForsaken") then
+					summonVariant = FiendFolio.FF.RedBony.Var
+					summonCount = Settings.SummonCountChampion
 				end
-				for i = 0, 2 do
-					local angle = (target.Position - entity.Position):GetAngleDegrees() + (i * 120) - 60
-					local position = entity.Position + Vector.FromAngle(angle):Resized(80)
-					Isaac.Spawn(summonType, 0, 0, room:FindFreePickupSpawnPosition(position, 0, true, true), Vector.Zero, entity)
+
+				-- Summon them in a circle
+				local angleStep = 360 / summonCount
+				local vector = (target.Position - entity.Position):Resized(80)
+
+				for i = 1, summonCount do
+					local offset = (angleStep / 2) + (i * angleStep)
+					local position = entity.Position + vector:Rotated(offset)
+					Isaac.Spawn(summonType, summonVariant, 0, room:FindFreePickupSpawnPosition(position, 0, true, true), Vector.Zero, entity)
 				end
 
 				mod:PlaySound(nil, SoundEffect.SOUND_SUMMONSOUND)
@@ -209,9 +228,11 @@ function mod:ForsakenUpdate(entity)
 			entity.I1 = 0
 			entity.I2 = 0
 			entity.StateFrame = 0
-
 			mod:PlaySound(entity, SoundEffect.SOUND_THE_FORSAKEN_LAUGH, 2)
-			local attack = mod:Random(1, 3)
+
+			local attackCount = mod:IsFFChampion(entity, "RedForsaken") and 2 or 3
+			local attack = mod:Random(1, attackCount)
+
 
 			-- Rotating brimstone attack
 			if attack == 1 then
@@ -224,18 +245,18 @@ function mod:ForsakenUpdate(entity)
 			elseif attack == 2 then
 				entity.State = NpcState.STATE_ATTACK2
 				sprite:Play("FadeIn", true)
+
 				local offset = mod:Random(359)
 
 				for i = 0, 2 do
 					local index = 2 - i
 					local position = entity.Position
 
-					-- Get positions
 					-- Black champions orbit the player
 					if entity.SubType == 1 then
 						position = target.Position + Vector.FromAngle((120 * index) + entity.V1.Y):Resized(entity.V2.Y)
 
-					-- In a circle around the player
+					-- Spawn in a circle around the player
 					else
 						position = target.Position + Vector.FromAngle(offset + (i * 120)):Resized(200)
 						position = room:FindFreePickupSpawnPosition(position, 0, true, true)
@@ -256,9 +277,10 @@ function mod:ForsakenUpdate(entity)
 					guy.I1 = index
 					guy.I2 = index * Settings.SpitBaseTime
 
+					-- Orbit stuff for black champion
 					if entity.SubType == 1 then
 						guy.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
-						guy.V1 = Vector((120 * entity.I1), entity.V1.Y + entity.V2.X)
+						guy.V1 = Vector(120 * entity.I1, entity.V1.Y + entity.V2.X)
 					end
 				end
 
@@ -271,7 +293,7 @@ function mod:ForsakenUpdate(entity)
 				-- Get direction and position
 				local function getBrimstoneDirection(isClone)
 					local directions = {
-						{"Up", "Down"},
+						{"Up", 	 "Down"},
 						{"Left", "Right"}
 					}
 
@@ -356,12 +378,17 @@ function mod:ForsakenUpdate(entity)
 
 			if sprite:IsFinished() then
 				entity.StateFrame = 2
-				entity.ProjectileDelay = Settings.BrimShotDelay - (entity.SubType * Settings.BrimShotDelay)
-
-				-- Rotation direction
+				entity.ProjectileDelay = 0
 				entity.I2 = mod:RandomSign()
 
-				if entity.SubType == 0 then
+				-- Red champion
+				if mod:IsFFChampion(entity, "RedForsaken") then
+					entity.TargetPosition = target.Position - entity.Position
+
+				-- Regular
+				elseif entity.SubType == 0 then
+					entity.ProjectileDelay = Settings.BrimShotDelay
+
 					for i = 0, 2 do
 						local angle = (target.Position - (entity.Position - Vector(0, 40))):GetAngleDegrees() + (i * 120) - 60
 						data.brim = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 40), angle, -1, Vector.Zero, entity)
@@ -376,7 +403,7 @@ function mod:ForsakenUpdate(entity)
 			mod:LoopingAnim(sprite, "BlastingDown")
 
 			-- Particles
-			if entity:IsFrame(2, 0) then
+			if not mod:IsFFChampion(entity, "RedForsaken") and entity:IsFrame(2, 0) then
 				local trail = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HAEMO_TRAIL, 0, entity.Position, mod:RandomVector(8), entity):ToEffect()
 				local scaler = math.random(70, 90) / 100
 				trail.SpriteScale = Vector(scaler, scaler)
@@ -388,7 +415,6 @@ function mod:ForsakenUpdate(entity)
 				else
 					trail:GetSprite().Color = Color(1,1,1, 0.5, 0.5,0,0)
 				end
-
 				trail:Update()
 			end
 
@@ -396,26 +422,58 @@ function mod:ForsakenUpdate(entity)
 			-- Shots
 			if entity.ProjectileDelay <= 0 then
 				local params = ProjectileParams()
-				params.FallingSpeedModifier = 1
-				params.FallingAccelModifier = -0.1
 
-				-- Champion fires
+
+				-- Black champion fires
 				if entity.SubType == 1 then
+					params.FallingSpeedModifier = 1
+					params.FallingAccelModifier = -0.1
+					params.CircleAngle = entity.I1 * (entity.I2 * 35)
+
+					params.BulletFlags = ProjectileFlags.FIRE
 					params.Variant = ProjectileVariant.PROJECTILE_FIRE
 					params.Color = mod.Colors.BlueFire
-					params.BulletFlags = ProjectileFlags.FIRE
-					params.CircleAngle = entity.I1 * (entity.I2 * 35)
+
 					entity:FireProjectiles(entity.Position, Vector(8, 4), 9, params)
 					entity.ProjectileDelay = 4
 
+
+				-- Red champion shots
+				elseif mod:IsFFChampion(entity, "RedForsaken") then
+					params.BulletFlags = params.BulletFlags | ProjectileFlags.HIT_ENEMIES
+					params.Scale = params.Scale * 1.4
+					params.Damage = 1
+					params.CurvingStrength = params.CurvingStrength + 0.002
+					params.FallingAccelModifier = params.FallingAccelModifier - 0.0625
+
+					if entity.I2 == 1 then
+						params.BulletFlags = params.BulletFlags | ProjectileFlags.CURVE_RIGHT
+					else
+						params.BulletFlags = params.BulletFlags | ProjectileFlags.CURVE_LEFT
+					end
+
+					local offset = entity.I1 * 19 * entity.I2
+
+					for i = -1, 1, 2 do
+						local velocity = entity.TargetPosition:Rotated(i * 90 + offset)
+						entity:FireProjectiles(entity.Position, velocity:Resized(10), 0, params)
+					end
+
+					mod:PlaySound(entity, SoundEffect.SOUND_BLOODSHOOT)
+					entity.ProjectileDelay = 8
+
+
 				-- Regular
 				else
+					params.FallingSpeedModifier = 1
+					params.FallingAccelModifier = -0.1
+					params.CircleAngle = entity.I1 * mod:DegreesToRadians(30)
+
 					params.Variant = ProjectileVariant.PROJECTILE_HUSH
 					params.Color = mod.Colors.BrimShot
 					params.Scale = 1.25
-					params.CircleAngle = entity.I1 * mod:DegreesToRadians(30)
-					mod:FireProjectiles(entity, entity.Position, Vector(8, 6), 9, params, Color.Default)
 
+					mod:FireProjectiles(entity, entity.Position, Vector(8, 6), 9, params, Color.Default)
 					mod:PlaySound(entity, SoundEffect.SOUND_FIRE_RUSH, 0.8)
 					entity.ProjectileDelay = Settings.BrimShotDelay
 				end
@@ -427,8 +485,9 @@ function mod:ForsakenUpdate(entity)
 
 
 			-- Stop
-			if (entity.SubType == 0 and (not data.brim or not data.brim:Exists()))
-			or (entity.SubType == 1 and entity.I1 >= 18) then
+			if (entity.SubType == 1 					and entity.I1 >= 18) -- Black
+			or (mod:IsFFChampion(entity, "RedForsaken") and entity.I1 >= 14) -- Red
+			or (entity.SubType == 0 					and (not data.brim or not data.brim:Exists())) then
 				entity.StateFrame = 3
 				sprite:Play("BlastEnd", true)
 
@@ -449,13 +508,11 @@ function mod:ForsakenUpdate(entity)
 
 	--[[ Clone spit attack ]]--
 	elseif entity.State == NpcState.STATE_ATTACK2 then
+		-- Orbit parent
 		if entity.SubType == 1 and entity.StateFrame < 3 then
-			-- Orbit parent
-			entity.V1 = Vector((120 * entity.I1), entity.V1.Y + entity.V2.X) -- Rotation offset / Current rotation
-			if entity.V1.Y >= 360 then
-				entity.V1 = Vector(entity.V1.X, entity.V1.Y - 360)
-			end
-			entity.Position = mod:Lerp(entity.Position, target.Position + Vector.FromAngle(entity.V1.X + entity.V1.Y):Resized(entity.V2.Y), 0.1)
+			entity.V1 = Vector(120 * entity.I1, (entity.V1.Y + entity.V2.X) % 360) -- Rotation offset / Current rotation
+			local offset = Vector.FromAngle(entity.V1.X + entity.V1.Y):Resized(entity.V2.Y)
+			entity.Position = mod:Lerp(entity.Position, target.Position + offset, 0.1)
 			entity.Velocity = target.Velocity
 
 		else
@@ -495,15 +552,36 @@ function mod:ForsakenUpdate(entity)
 				local params = ProjectileParams()
 				params.Variant = ProjectileVariant.PROJECTILE_BONE
 
-				if entity.SubType == 0 then
-					params.Spread = 1 + entity.I1 * 0.15
-					mod:FireProjectiles(entity, entity.Position, (target.Position - entity.Position):Resized(11 - entity.I1), 3 + entity.I1, params, mod.Colors.GhostTrail)
-
-				elseif entity.SubType == 1 then
+				-- Black champion
+				if entity.SubType == 1 then
 					params.BulletFlags = (ProjectileFlags.FIRE | ProjectileFlags.BLUE_FIRE_SPAWN)
 					params.Scale = 1.5
 					params.Color = mod.Colors.BlackBony
 					entity:FireProjectiles(entity.Position, (target.Position - entity.Position):Resized(11), 0, params)
+
+				-- Red champion
+				elseif mod:IsFFChampion(entity, "RedForsaken") then
+					params.Spread = 1.5
+					local velocity = (target.Position - entity.Position):Resized(8)
+					local projectiles = entity:FireProjectilesEx(entity.Position, velocity, 3, params)
+
+					for i, projectile in pairs(projectiles) do
+						local projectileData = FiendFolio:GetEntityData(projectile)
+						projectileData.projType = "RedBony"
+						projectileData.NumBounces = 4
+
+						projectile.Color = Color(173/255, 24/255, 24/255, 1)
+						projectile.FallingSpeed = -10
+						projectile.FallingAccel = 1.5
+					end
+
+				-- Regular
+				else
+					params.Spread = 1 + entity.I1 * 0.15
+
+					local projectileMode = 3 + entity.I1
+					local velocity = (target.Position - entity.Position):Resized(11 - entity.I1)
+					mod:FireProjectiles(entity, entity.Position, velocity, projectileMode, params, mod.Colors.GhostTrail)
 				end
 
 				mod:PlaySound(entity, SoundEffect.SOUND_GHOST_SHOOT, 1.25)

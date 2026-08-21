@@ -37,7 +37,7 @@ local Settings = {
 --[[ Rag Mega ]]--
 function mod:RagMegaInit(entity)
 	-- Rag Mega
-	if entity.Variant == 0 then
+	if entity.Variant == 0 and not mod:IsFFChampion(entity, "PinkRagMega") then
 		mod:ChangeMaxHealth(entity, Settings.NewHealth)
 		entity.ProjectileCooldown = Settings.Cooldown / 2
 
@@ -58,11 +58,11 @@ function mod:RagMegaInit(entity)
 
 
 	-- Rebirth pillar
-	elseif entity.Variant == 2 then
+	elseif entity.Variant == 2 and entity.SpawnerType == entity.Type and entity.SpawnerVariant == 0 then
 		mod:ChangeMaxHealth(entity, 0)
 		entity.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 		entity.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
-		entity:AddEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK)
+		entity:AddEntityFlags(EntityFlag.FLAG_NO_BLOOD_SPLASH | EntityFlag.FLAG_NO_FLASH_ON_DAMAGE | EntityFlag.FLAG_NO_STATUS_EFFECTS | EntityFlag.FLAG_NO_TARGET | EntityFlag.FLAG_NO_KNOCKBACK | EntityFlag.FLAG_NO_PHYSICS_KNOCKBACK | EntityFlag.FLAG_NO_REWARD)
 		entity:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 
 		entity:GetSprite():Play("Rebirth Pillar", true)
@@ -73,7 +73,7 @@ mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.RagMegaInit, EntityType.ENTIT
 
 function mod:RagMegaUpdate(entity)
 	--[[ Rag Mega ]]--
-	if entity.Variant == 0 then
+	if entity.Variant == 0 and not mod:IsFFChampion(entity, "PinkRagMega") then
 		local sprite = entity:GetSprite()
 		local target = entity:GetPlayerTarget()
 		local data = entity:GetData()
@@ -460,7 +460,7 @@ function mod:RagMegaUpdate(entity)
 
 
 	--[[ Rebirth pillar ]]--
-	elseif entity.Variant == 2 then
+	elseif entity.Variant == 2 and entity.SpawnerType == entity.Type and entity.SpawnerVariant == 0 then
 		local sprite = entity:GetSprite()
 
 		if sprite:IsEventTriggered("Shoot") then

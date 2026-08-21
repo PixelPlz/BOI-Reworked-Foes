@@ -196,12 +196,10 @@ mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.MegaFattyUpdate, EntityType.ENTI
 --[[ The Cage ]]--
 -- Reduce his ridiculous HP
 function mod:CageInit(entity)
-	local newHealth = 720
-	if entity.SubType == 2 then
-		newHealth = 360
+	if entity.Variant == 0 then
+		local newHealth = entity.SubType == 2 and 360 or 720
+		mod:ChangeMaxHealth(entity, newHealth)
 	end
-
-	mod:ChangeMaxHealth(entity, newHealth)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.CageInit, EntityType.ENTITY_CAGE)
 
@@ -216,7 +214,7 @@ function mod:CageUpdate(entity)
 
 	-- Extra effects when bouncing off of walls
 	elseif entity.State == NpcState.STATE_ATTACK and entity:CollidesWithGrid() then
-		Game():ShakeScreen(math.floor(entity.Scale * 4))
+		Game():ShakeScreen( math.floor(entity.Scale * 3) )
 
 		if not SoundEffect.SOUND_CAGE_ROLL_BOUNCE then
 			mod:PlaySound(nil, SoundEffect.SOUND_FORESTBOSS_STOMPS, entity.Scale * 0.5, 1, 6)

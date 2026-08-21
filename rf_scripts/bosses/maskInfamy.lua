@@ -35,13 +35,8 @@ function mod:MaskInfamyInit(entity)
 		entity.SplatColor = mod.Colors.RagManBlood
 
 	-- Yellow champion
-	elseif entity.SubType == 2 then
+	elseif mod:IsFFChampion(entity, "YellowMaskOfInfamy") then
 		entity.SplatColor = FiendFolio.ColorLemonYellow
-
-		local sprite = entity:GetSprite()
-		sprite:Load("gfx/097.000_mask of infamy.anm2", true)
-		sprite:Play("SadMaskAppear", true)
-		sprite:ReplaceSpritesheet(0, "gfx/bosses/classic/boss_057_maskofinfamy_yellow.png", true)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.MaskInfamyInit, EntityType.ENTITY_MASK_OF_INFAMY)
@@ -111,7 +106,7 @@ function mod:MaskInfamyUpdate(entity)
 		end
 
 		-- Yellow champion creep
-		if entity.SubType == 2 and entity:IsFrame(2, 0) then
+		if mod:IsFFChampion(entity, "YellowMaskOfInfamy") and entity:IsFrame(2, 0) then
 			mod:QuickCreep(EffectVariant.CREEP_YELLOW, entity, entity.Position, 1.25)
 		end
 
@@ -191,7 +186,7 @@ function mod:MaskInfamyUpdate(entity)
 			-- Rock particles
 			for i = 1, 4 do
 				local velocity = mod:RandomVector(math.random(2, 4))
-				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 65537, entity.Position, velocity, entity):ToEffect()
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 65537, entity.Position, velocity, entity):Update()
 			end
 		end
 
@@ -243,13 +238,8 @@ function mod:HeartInfamyInit(entity)
 		entity.SplatColor = mod.Colors.RagManBlood
 
 	-- Yellow champion
-	elseif entity.SubType == 2 then
+	elseif mod:IsFFChampion(entity, "YellowMaskOfInfamy") then
 		entity.SplatColor = FiendFolio.ColorLemonYellow
-
-		local sprite = entity:GetSprite()
-		sprite:Load("gfx/098.000_heart of infamy.anm2", true)
-		sprite:Play("HeartAppear", true)
-		sprite:ReplaceSpritesheet(0, "gfx/bosses/classic/boss_057_maskofinfamy_yellow.png", true)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.HeartInfamyInit, EntityType.ENTITY_HEART_OF_INFAMY)
@@ -336,7 +326,7 @@ function mod:HeartInfamyUpdate(entity)
 
 
 			-- Yellow champion
-			elseif entity.SubType == 2 then
+			elseif mod:IsFFChampion(entity, "YellowMaskOfInfamy") then
 				params.Color = FiendFolio.ColorLemonYellow
 
 				-- 1st
@@ -384,7 +374,8 @@ function mod:HeartInfamyUpdate(entity)
 
 			-- 2nd stomp effects
 			if entity.SubType ~= 1 and sprite:IsEventTriggered("Shoot2") then
-				mod:QuickCreep(entity.SubType == 2 and EffectVariant.CREEP_YELLOW or EffectVariant.CREEP_RED, entity, entity.Position, 2.5)
+				local creepVariant = mod:IsFFChampion(entity, "YellowMaskOfInfamy") and EffectVariant.CREEP_YELLOW or EffectVariant.CREEP_RED
+				mod:QuickCreep(creepVariant, entity, entity.Position, 2.5)
 
 				local extraEffect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF02, 4, entity.Position, Vector.Zero, entity):GetSprite()
 				extraEffect.Offset = Vector(6, entity.Scale * -18)
@@ -436,7 +427,9 @@ function mod:HeartInfamyUpdate(entity)
 			entity.Velocity = mod:StopLerp(entity.Velocity, 0.1)
 
 			-- Yellow champion piss stream
-			if entity.SubType == 2 and entity:IsFrame(entity.I2 % 2 + 1, 0) then
+			local intervals = entity.I2 % 2 + 1
+
+			if mod:IsFFChampion(entity, "YellowMaskOfInfamy") and entity:IsFrame(intervals, 0) then
 				local params = ProjectileParams()
 				params.Color = FiendFolio.ColorLemonYellow
 				params.Scale = 1 + (entity.I2 / 20) + (mod:Random(50) / 100)
@@ -514,7 +507,7 @@ function mod:HeartInfamyUpdate(entity)
 					local params = ProjectileParams()
 
 					-- Yellow champion
-					if entity.SubType == 2 then
+					if mod:IsFFChampion(entity, "YellowMaskOfInfamy") then
 						-- Projectiles
 						params.Scale = 1 + mod:Random(10, 80) / 100
 						params.Color = FiendFolio.ColorLemonYellow
@@ -613,8 +606,12 @@ mod:AddCallback(ModCallbacks.MC_PRE_NPC_UPDATE, mod.HeartInfamyUpdate, EntityTyp
 
 -- Fiend Folio kidney champion bullets
 function mod:FiendFolioKidneyBullets(projectile)
-	if projectile.SpawnerType == EntityType.ENTITY_HEART_OF_INFAMY and projectile.SpawnerEntity and projectile.SpawnerEntity.SubType == 2 then
-		projectile:GetData().customSpawn = true
+	if projectile.SpawnerType == EntityType.ENTITY_HEART_OF_INFAMY and projectile.SpawnerEntity then
+		local spawner = projectile.SpawnerEntity:ToNPC()
+
+		if spawner and mod:IsFFChampion(spawner, "YellowMaskOfInfamy") then
+			projectile:GetData().customSpawn = true
+		end
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_PROJECTILE_INIT, mod.FiendFolioKidneyBullets, ProjectileVariant.PROJECTILE_NORMAL)
