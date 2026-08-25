@@ -33,6 +33,15 @@ function mod:NestInit(entity)
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.NestInit, EntityType.ENTITY_NEST)
 
+if REPENTOGON then
+	function mod:NestMorph(entity, eType, eVariant, eSubType, championIdx)
+		if eType == EntityType.ENTITY_NEST and eVariant == 0 and eSubType == 0 then
+			return { EntityType.ENTITY_HIVE, mod.Entities.Nest, 0 }
+		end
+	end
+	mod:AddCallback(ModCallbacks.MC_PRE_NPC_MORPH, mod.NestMorph)
+end
+
 
 
 -- Replace Mulligan flies with spiders

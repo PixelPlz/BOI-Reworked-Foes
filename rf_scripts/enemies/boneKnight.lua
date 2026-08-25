@@ -10,12 +10,14 @@ local Settings = {
 
 
 function mod:BoneKnightInit(entity)
-	entity:Morph(EntityType.ENTITY_KNIGHT, mod.Entities.BoneKnight, 0, entity:GetChampionColorIdx())
+	if entity.Variant == 0 then
+		entity:Morph(EntityType.ENTITY_KNIGHT, mod.Entities.BoneKnight, 0, entity:GetChampionColorIdx())
 
-	-- Bestiary fix
-	local sprite = entity:GetSprite()
-	sprite:ReplaceSpritesheet(2, "")
-	sprite:LoadGraphics()
+		-- Bestiary fix
+		local sprite = entity:GetSprite()
+		sprite:ReplaceSpritesheet(2, "")
+		sprite:LoadGraphics()
+	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NPC_INIT, mod.BoneKnightInit, EntityType.ENTITY_BONE_KNIGHT)
 
@@ -79,3 +81,12 @@ function mod:BoneKnightUpdate(entity)
 	end
 end
 mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, mod.BoneKnightUpdate, EntityType.ENTITY_KNIGHT)
+
+if REPENTOGON then
+	function mod:BoneKnightMorph(entity, eType, eVariant, eSubType, championIdx)
+		if eType == EntityType.ENTITY_BONE_KNIGHT and eVariant == 0 then
+			return { EntityType.ENTITY_KNIGHT, mod.Entities.BoneKnight, eSubType }
+		end
+	end
+	mod:AddCallback(ModCallbacks.MC_PRE_NPC_MORPH, mod.BoneKnightMorph)
+end

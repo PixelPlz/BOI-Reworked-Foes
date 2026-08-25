@@ -379,7 +379,19 @@ function mod:ForsakenUpdate(entity)
 			if sprite:IsFinished() then
 				entity.StateFrame = 2
 				entity.ProjectileDelay = 0
+
+				-- Get the rotation direction
 				entity.I2 = mod:RandomSign()
+
+				for i, other in pairs( Isaac.FindByType(entity.Type, entity.Variant) ) do
+					other = other:ToNPC()
+
+					if other.Index ~= entity.Index
+					and other.State == entity.State and other.I2 ~= 0 then
+						entity.I2 = other.I2
+						break
+					end
+				end
 
 				-- Red champion
 				if mod:IsFFChampion(entity, "RedForsaken") then
@@ -389,9 +401,12 @@ function mod:ForsakenUpdate(entity)
 				elseif entity.SubType == 0 then
 					entity.ProjectileDelay = Settings.BrimShotDelay
 
+					local laserPos = entity.Position - Vector(0, 40)
+					local targetVector = target.Position - laserPos
+
 					for i = 0, 2 do
-						local angle = (target.Position - (entity.Position - Vector(0, 40))):GetAngleDegrees() + (i * 120) - 60
-						data.brim = EntityLaser.ShootAngle(LaserVariant.THICK_RED, entity.Position - Vector(0, 40), angle, -1, Vector.Zero, entity)
+						local angle = targetVector:GetAngleDegrees() + (i * 120) - 60
+						data.brim = EntityLaser.ShootAngle(LaserVariant.THICK_RED, laserPos, angle, -1, Vector.Zero, entity)
 						data.brim:SetActiveRotation(20, entity.I2 * 180, entity.I2 * Settings.BrimRotationSpeed, 10)
 					end
 				end

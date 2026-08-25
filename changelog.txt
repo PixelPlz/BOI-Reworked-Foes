@@ -1,4 +1,15 @@
 ================================================
+    Version 3.2.7
+================================================
+
+- The Ultra Greed coin changes no longer apply to custom variants
+- Fixed the Forsaken's rotating brimstone attack not accounting for other Forsakens doing the same attack in the room
+- Fixed Waiting Bone Knights from Fiend Folio spawning broken Bone Knights
+
+
+
+
+================================================
     Version 3.2.6
 ================================================
 

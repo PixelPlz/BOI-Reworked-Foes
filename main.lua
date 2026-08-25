@@ -1,6 +1,6 @@
 ReworkedFoes = RegisterMod("Improved & Reworked Foes", 1)
 local mod = ReworkedFoes
-mod.Version = "3.2.6"
+mod.Version = "3.2.7"
 
 
 
